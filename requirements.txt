@@ -1,0 +1,5 @@
+beautifulsoup4==4.11.1
+pyTelegramBotAPI==4.7.0
+python-dotenv==0.21.0
+requests==2.25.1
+requests_cache==0.9.6

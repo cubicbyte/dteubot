@@ -1,0 +1,6 @@
+/chat-configs
+/dev
+/logs
+**/__pycache__
+**/*.sqlite
+.env
