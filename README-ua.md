@@ -4,11 +4,11 @@
 # KNUTE Schedule Bot
 
 [![Python 3.6+](https://img.shields.io/badge/python-3.6+-blue.svg)](https://www.python.org/downloads)
-[![License][license-badge]](license)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 Бот для зручного перегляду розкладу пар в [КНТЕУ](https://mia1.knute.edu.ua).<br>
 *\*Ви також можете налаштувати цього бота для відображення розкладу інших університетів, що використовують систему АСУ МКР\**<br>
-Бот доступний для використання по [посиланню](https://t.me/Knute_ScheduleBot)
+Бот доступний для використання по [посиланню](https://t.me/Knute_ScheduleBot)<br>
 [English](README.md) • [Русский](README-ru.md)
 
 </div>

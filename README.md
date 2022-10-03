@@ -4,11 +4,11 @@
 # KNUTE Schedule Bot
 
 [![Python 3.6+](https://img.shields.io/badge/python-3.6+-blue.svg)](https://www.python.org/downloads)
-[![License][license-badge]](license)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 Bot for getting the schedule in [KNUTE](https://mia1.knute.edu.ua).<br>
 *\*You can also configure this bot to display schedule from other universities using the MKR ACS system\**<br>
-You can try the bot live ([link](https://t.me/Knute_ScheduleBot))
+You can try the bot live ([link](https://t.me/Knute_ScheduleBot))<br>
 [Українська](README-ua.md) • [Русский](README-ru.md)
 
 </div>
