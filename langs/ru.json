@@ -3,7 +3,7 @@
     "text": {
         "just_now": "только что",
         "no_info": "Информации нету",
-        "lesson": "\n`————————— {timeStart} —————————`\n`  `*{disciplineShortName}**[*`{typeStr}`*]*\n`{number} `{classroom}\n`  `{teachersNameFull}",
+        "lesson": "\n`————————— {timeStart} —————————`\n`  `*{disciplineShortName}*`[{typeStr}]`\n`{number} `{classroom}\n`  `{teachersNameFull}",
         "no_permissions": "\u2757\ufe0f У вас недостаточно прав для выполнения этой команды.",
         "done": "\u2705 Готово",
         "invalid_args": "\u2757\ufe0f Неверное использование команды.\nПример: {0}",

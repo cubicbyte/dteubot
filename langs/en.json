@@ -3,7 +3,7 @@
     "text": {
         "just_now": "just now",
         "no_info": "No info",
-        "lesson": "\n`————————— {timeStart} —————————`\n`  `*{disciplineShortName}**[*`{typeStr}`*]*\n`{number} `{classroom}\n`  `{teachersNameFull}",
+        "lesson": "\n`————————— {timeStart} —————————`\n`  `*{disciplineShortName}*`[{typeStr}]`\n`{number} `{classroom}\n`  `{teachersNameFull}",
         "no_permissions": "\u2757\ufe0f You do not have permission to run this command.",
         "done": "\u2705 Done",
         "invalid_args": "\u2757\ufe0f Incorrect command usage.\nExample: {0}",
