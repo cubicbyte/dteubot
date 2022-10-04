@@ -1,7 +1,7 @@
 import requests.exceptions
 
 from telebot import types
-from ..get_courses.src.get_courses import get_courses
+from ..list_courses import get_courses
 from .api_unavaliable import create_message as create_api_unavaliable_message
 
 def create_message(message: types.Message) -> dict:
@@ -9,14 +9,14 @@ def create_message(message: types.Message) -> dict:
     message_text = message.lang['command']['course']
 
     try:
-        courses = get_courses(message.config['schedule']['faculty_id'], message.config['schedule']['structure_id'])
+        courses = get_courses(message.config['schedule']['structure_id'], message.config['schedule']['faculty_id']).json()
 
     except requests.exceptions.ConnectionError:
         return create_api_unavaliable_message(message)
 
     for course in courses:
         markup.add(
-            types.InlineKeyboardButton(text=courses[course], callback_data=f'select.schedule.course={course}')
+            types.InlineKeyboardButton(text=str(course['course']), callback_data=f'select.schedule.course={course["course"]}')
         )
 
     msg = {
