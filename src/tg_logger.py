@@ -44,7 +44,7 @@ class TelegramLogger:
         chat_dir = Path(self.__dirpath, 'chats', str(message.chat.id))
 
         if message.text is not None:
-            msg_text = msg_text.replace('\n', '\\n')
+            msg_text = message.text.replace('\n', '\\n')
         else:
             msg_text = None
         
