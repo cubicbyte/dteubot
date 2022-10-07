@@ -140,7 +140,7 @@ def handle_select(call):
         lang = data[delimeter_index + 1:]
         
         chat_configs.set_chat_config_field(call.message.chat.id, 'lang', lang)
-        call.message.reload()
+        call.message.update_config()
 
         bot.edit_message_text(
             **create_message.create_menu_message(call.message),
@@ -188,6 +188,11 @@ def schedule_tomorrow_command(message):
     logger.info('Handling /tomorrow command from chat %s' % message.chat.id)
     date = datetime.today() + timedelta(days=1)
     bot.send_message(**create_message.create_schedule_message(message, date.strftime('%Y-%m-%d')))
+
+@bot.message_handler(content_types=['text'], func=lambda msg: msg.text.startswith('/empty_'))
+def empty_command(message):
+    logger.info('Handling /empty_* command from chat %s' % message.chat.id)
+    bot.send_message(**create_message.create_statistic_message(message))
 
 
 

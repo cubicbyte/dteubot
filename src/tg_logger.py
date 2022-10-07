@@ -14,9 +14,12 @@ class TelegramLogger:
         logger.debug('Creating TelegramLogger instance')
 
         self.__dirpath = dirpath
-        self.__init_dir()
+        self.__init_dirs()
 
-    def __init_dir(self) -> None:
+    def get_chat_config_dir(self, chat_id: int) -> Path:
+        return Path(self.__dirpath, 'chats', str(chat_id))
+
+    def __init_dirs(self) -> None:
         logging.debug('Initialising TelegramLogger dirs')
 
         if not os.path.exists(self.__dirpath):
@@ -26,8 +29,7 @@ class TelegramLogger:
             os.mkdir(Path(self.__dirpath, 'chats'))
 
     def __chat_log_initialized(self, chat_id: int) -> bool:
-        chat_dir = Path(self.__dirpath, 'chats', str(chat_id))
-        return os.path.exists(chat_dir)
+        return os.path.exists(self.get_chat_config_dir(chat_id))
 
     def __init_chat_log(self, chat_id: int) -> None:
         logger.debug('Initialising %s chat log' % chat_id)

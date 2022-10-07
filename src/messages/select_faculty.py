@@ -11,7 +11,7 @@ def create_message(message: types.Message) -> dict:
     try:
         faculties = get_faculties(message.config['schedule']['structure_id']).json()
 
-    except requests.exceptions.ConnectionError:
+    except (requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout):
         return create_api_unavaliable_message(message)
 
     for faculty in faculties:

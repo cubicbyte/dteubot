@@ -3,7 +3,8 @@
     "text": {
         "just_now": "just now",
         "no_info": "No info",
-        "lesson": "\n`————————— {timeStart} —————————`\n`  `*{disciplineShortName}*`[{typeStr}]`\n`{number} `{classroom}\n`  `{teachersNameFull}",
+        "lesson": "\n`————— ``{timeStart}`` > ``{timeEnd}`` —————`\n`  `*{disciplineShortName}*`[{typeStr}]`\n`{number} `{classroom}\n`  `{teachersNameFull}",
+        "lesson_empty": "\n`—————————————————————————`\n\n`          Empty`\n\n`—————————————————————————`",
         "no_permissions": "\u2757\ufe0f You do not have permission to run this command.",
         "done": "\u2705 Done",
         "invalid_args": "\u2757\ufe0f Incorrect command usage.\nExample: {0}",
@@ -38,7 +39,9 @@
         "button_schedule_next_week": "\ud83d\udcc6 Next week",
         "button_schedule_full": "\ud83d\udcd4 Full schedule",
         "button_day_previous": "\u23ea Back",
-        "button_day_next": "\u23e9 Next"
+        "button_day_next": "\u23e9 Next",
+        "button_week_previous": "\u25c0\ufe0f Week",
+        "button_week_next": "\u25b6\ufe0f Week"
     },
     "day": {
         "0": "Monday",
@@ -60,7 +63,7 @@
         "lang_select": "\ud83c\uddec\ud83c\udde7 *Change language*\n\n*Your current language*: {lang}",
         "more": "\ud83d\uddc2 *Additionally*",
         "info": "\u2139\ufe0f *Information*\n\n\ud83d\uddff *Creator* - @Bogdan4igg\n\ud83c\udf10 *Website* - [knute.angron42.pp.ua](https://knute.angron42.pp.ua)\n\nUse the @Knute\\_ScheduleBot as a tool to get the schedule for every day.",
-        "schedule": "\ud83d\udcc5   *{date}*   \ud83d\udcc5\n{schedule}\n\n*Updated*: {received}",
-        "api_unavaliable": "Seems like the API server is down at the moment, so it is not possible to get the schedule right now."
+        "schedule": "\ud83d\udcc5   *{date}*   \ud83d\udcc5\n{schedule}",
+        "api_unavaliable": "Seems like the timetable site is down/not responding right now.\n\nPlease, try later."
     }
 }

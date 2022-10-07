@@ -25,7 +25,8 @@ def get_structures() -> list[dict[str, any]]:
     }
 
     url = urljoin(os.getenv('API_URL'), '/list/structures')
-    res = session.get(url, headers=headers)
+    timeout = int(os.getenv('API_REQUEST_TIMEOUT'))
+    res = session.get(url, headers=headers, timeout=timeout)
 
     if not res.ok:
         raise requests.exceptions.HTTPError()

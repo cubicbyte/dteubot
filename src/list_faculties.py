@@ -29,7 +29,8 @@ def get_faculties(structureId: int) -> list[dict[str, any]]:
     }
 
     url = urljoin(os.getenv('API_URL'), '/list/faculties')
-    res = session.post(url, json=req_data, headers=headers)
+    timeout = int(os.getenv('API_REQUEST_TIMEOUT'))
+    res = session.post(url, json=req_data, headers=headers, timeout=timeout)
 
     if not res.ok:
         raise requests.exceptions.HTTPError()

@@ -14,7 +14,7 @@ def create_message(message: types.Message) -> dict:
     try:
         structures = get_structures().json()
 
-    except requests.exceptions.ConnectionError:
+    except (requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout):
         return create_api_unavaliable_message(message)
 
     if len(structures) == 1:

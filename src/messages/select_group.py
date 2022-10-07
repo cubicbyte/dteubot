@@ -11,7 +11,7 @@ def create_message(message: types.Message) -> dict:
     try:
         groups = get_groups(message.config['schedule']['structure_id'], message.config['schedule']['faculty_id'], message.config['schedule']['course']).json()
 
-    except requests.exceptions.ConnectionError:
+    except (requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout):
         return create_api_unavaliable_message(message)
 
     for group in groups:

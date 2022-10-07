@@ -1,5 +1,6 @@
 import requests.exceptions
 import logging
+from babel.dates import format_date
 
 logger = logging.getLogger()
 
@@ -22,21 +23,32 @@ def create_message(message: types.Message, date: datetime | str) -> dict:
 
     except requests.exceptions.HTTPError:
         return create_invalid_group_message(message)
-    except requests.exceptions.ConnectionError:
+    except (requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout):
         return create_api_unavaliable_message(message)
 
     schedule_text = ''
     markup = types.InlineKeyboardMarkup()
+    current_date = datetime.today()
+    buttons = []
 
-    markup.add(
+    buttons.append([
         types.InlineKeyboardButton(text=message.lang['text']['button_day_previous'], callback_data='open.schedule.day=' + (date - timedelta(days=1)).strftime('%Y-%m-%d')),
         types.InlineKeyboardButton(text=message.lang['text']['button_menu'], callback_data='open.menu'),
         types.InlineKeyboardButton(text=message.lang['text']['button_day_next'], callback_data='open.schedule.day=' + (date + timedelta(days=1)).strftime('%Y-%m-%d'))
-    )
+    ])
 
-    markup.add(
-        types.InlineKeyboardButton(text=message.lang['text']['button_schedule_today'], callback_data='open.schedule.today')
-    )
+    buttons.append([
+        types.InlineKeyboardButton(text=message.lang['text']['button_week_previous'], callback_data='open.schedule.day=' + (date - timedelta(days=7)).strftime('%Y-%m-%d')),
+        types.InlineKeyboardButton(text=message.lang['text']['button_week_next'], callback_data='open.schedule.day=' + (date + timedelta(days=7)).strftime('%Y-%m-%d'))
+    ])
+
+    if date.date() != current_date.date() or True:
+        buttons[1].insert(
+            1, types.InlineKeyboardButton(text=message.lang['text']['button_schedule_today'], callback_data='open.schedule.today')
+        )
+
+    for button in buttons:
+        markup.add(*button)
 
     day_i = None
     for i in range(len(schedule)):
@@ -45,25 +57,9 @@ def create_message(message: types.Message, date: datetime | str) -> dict:
             break
 
     if day_i is None:
-        received = message.lang['text']['just_now']
-        schedule_text = '\n' + message.lang['text']['no_info']
+        schedule_text = '\n' + message.lang['text']['lesson_empty']
 
     else:
-        received_date = schedule_res.created_at or datetime.utcnow()
-        current_date = datetime.utcnow()
-        diff = current_date - received_date
-        
-        received = '{0} {1} {2}'
-
-        if diff < timedelta(minutes=1):
-            received = received.format(int(diff.total_seconds()), message.lang['text']['seconds_short'], message.lang['text']['ago'])
-        elif diff < timedelta(hours=1):
-            received = received.format(str(diff.seconds // 60), message.lang['text']['minutes_short'], message.lang['text']['ago'])
-        elif diff < timedelta(days=1):
-            received = received.format(str(diff.seconds // 3600), message.lang['text']['hours_short'], message.lang['text']['ago'])
-        else:
-            received = received.format(str(diff.days), message.lang['text']['days_short'], message.lang['text']['ago'])
-
         for lesson in schedule[i]['lessons']:
             for period in lesson['periods']:
                 period['teachersName'] = period['teachersName'].replace('`', '\'')
@@ -78,10 +74,12 @@ def create_message(message: types.Message, date: datetime | str) -> dict:
 
         schedule_text += '\n`—――—―``―——``―—―``――``—``―``—``――――``――``―――`'
 
+    date_locale = format_date(date, locale=message.lang_code)
+    print(date_locale)
+
     msg_text = message.lang['command']['schedule'].format(
-        date=date_str + ' - ' + message.lang['day'][str(date.weekday())],
-        schedule=schedule_text,
-        received=received
+        date=date_locale,
+        schedule=schedule_text
     )
 
     msg = {
