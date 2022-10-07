@@ -42,6 +42,11 @@ class TelegramLogger:
 
     def __handle_message(self, message: types.Message) -> None:
         chat_dir = Path(self.__dirpath, 'chats', str(message.chat.id))
+
+        if message.text is not None:
+            msg_text = msg_text.replace('\n', '\\n')
+        else:
+            msg_text = None
         
         file = open(Path(chat_dir, 'messages.txt'), 'a')
         file.write('[{time}] {chat_id}/{user_id}/{message_id} ({content_type}): {text}\n'.format(
@@ -50,7 +55,7 @@ class TelegramLogger:
             user_id=message.from_user.id,
             message_id=message.id,
             content_type=message.content_type,
-            text=message.text.replace('\n', '\\n')
+            text=msg_text
         ))
         file.close()
 
