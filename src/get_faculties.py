@@ -16,12 +16,11 @@ session = CachedSession(
     stale_if_error=True
 )
 
-def get_courses(structureId: int, facultyId: int) -> list[dict[str, any]]:
-    logger.debug('Getting courses list')
+def get_faculties(structureId: int) -> list[dict[str, any]]:
+    logger.debug('Getting faculties list')
 
     req_data = {
-        'structureId': structureId,
-        'facultyId': facultyId
+        'structureId': structureId
     }
 
     headers = {
@@ -29,8 +28,9 @@ def get_courses(structureId: int, facultyId: int) -> list[dict[str, any]]:
         'Content-Type': 'application/json; charset=utf-8'
     }
 
-    url = urljoin(os.getenv('API_URL'), '/list/courses')
-    res = session.post(url, json=req_data, headers=headers)
+    url = urljoin(os.getenv('API_URL'), '/list/faculties')
+    timeout = int(os.getenv('API_REQUEST_TIMEOUT'))
+    res = session.post(url, json=req_data, headers=headers, timeout=timeout)
 
     if not res.ok:
         raise requests.exceptions.HTTPError()

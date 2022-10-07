@@ -3,7 +3,7 @@ import requests.exceptions
 from telebot import types
 from pathlib import Path
 from ..chat_configs import ChatConfigs
-from ..list_structures import get_structures
+from ..get_structures import get_structures
 from .select_faculty import create_message as create_select_faculty_message
 from .api_unavaliable import create_message as create_api_unavaliable_message
 
@@ -14,7 +14,7 @@ def create_message(message: types.Message) -> dict:
     try:
         structures = get_structures().json()
 
-    except requests.exceptions.ConnectionError:
+    except (requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout):
         return create_api_unavaliable_message(message)
 
     if len(structures) == 1:

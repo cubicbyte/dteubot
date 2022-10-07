@@ -6,7 +6,7 @@ def create_message(message: types.Message) -> dict:
 
     markup.add(
         types.InlineKeyboardButton(text=message.lang['text']['button_select_group'], callback_data='open.select_group'),
-        types.InlineKeyboardButton(text=message.lang['text']['button_more'], callback_data='open.more')
+        types.InlineKeyboardButton(text=message.lang['text']['button_menu'], callback_data='open.menu')
     )
 
     msg = {

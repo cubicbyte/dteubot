@@ -3,7 +3,8 @@
     "text": {
         "just_now": "тільки що",
         "no_info": "Інформації немає",
-        "lesson": "\n`————————— {timeStart} —————————`\n`  `*{disciplineShortName}*`[{typeStr}]`\n`{number} `{classroom}\n`  `{teachersNameFull}",
+        "lesson": "\n`————— ``{timeStart}`` > ``{timeEnd}`` —————`\n`  `*{disciplineShortName}*`[{typeStr}]`\n`{number} `{classroom}\n`  `{teachersNameFull}",
+        "lesson_empty": "\n`—————————————————————————`\n\n`          Пусто`\n\n`—————————————————————————`",
         "no_permissions": "\u2757\ufe0f У вас недостатньо прав для виконання цієї команди.",
         "done": "\u2705 Готово",
         "invalid_args": "\u2757\ufe0f Невірне використання команди.\nПриклад: {0}",
@@ -38,7 +39,9 @@
         "button_schedule_next_week": "\ud83d\udcc6 Наступний тиждень",
         "button_schedule_full": "\ud83d\udcd4 Повний розклад",
         "button_day_previous": "\u23ea Назад",
-        "button_day_next": "\u23e9 Вперед"
+        "button_day_next": "\u23e9 Вперед",
+        "button_week_previous": "\u25c0\ufe0f Тиждень",
+        "button_week_next": "\u25b6\ufe0f Тиждень"
     },
     "day": {
         "0": "Понеділок",
@@ -60,7 +63,7 @@
         "lang_select": "\ud83c\uddec\ud83c\udde7 *Зміна мови*\n\n*Ваша поточна мова*: {lang}",
         "more": "\ud83d\uddc2 *Додатково*",
         "info": "\u2139\ufe0f *Інформація*\n\n\ud83d\uddff *Створив бота* - @Bogdan4igg\n\ud83c\udf10 *Сайт* - [knute.angron42.pp.ua](https://knute.angron42.pp.ua)\n\nВикористовуйте бота @Knute\\_ScheduleBot я інструмент для отримання розкладу пар на кожен день.",
-        "schedule": "\ud83d\udcc5   *{date}*   \ud83d\udcc5\n{schedule}\n\n*Оновлено*: {received}",
-        "api_unavaliable": "Схоже, api-сервер на поточний момент не працює, відповідно отримати розклад наразі неможливо."
+        "schedule": "\ud83d\udcc5   *{date}*   \ud83d\udcc5\n{schedule}",
+        "api_unavaliable": "Схоже, сайт з розкладом зараз не працює/не відповідає.\n\nБудь ласка, спробуйте пізніше."
     }
 }

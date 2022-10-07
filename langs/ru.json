@@ -3,7 +3,8 @@
     "text": {
         "just_now": "только что",
         "no_info": "Информации нету",
-        "lesson": "\n`————————— {timeStart} —————————`\n`  `*{disciplineShortName}*`[{typeStr}]`\n`{number} `{classroom}\n`  `{teachersNameFull}",
+        "lesson": "\n`————— ``{timeStart}`` > ``{timeEnd}`` —————`\n`  `*{disciplineShortName}*`[{typeStr}]`\n`{number} `{classroom}\n`  `{teachersNameFull}",
+        "lesson_empty": "\n`—————————————————————————`\n\n`          Пусто`\n\n`—————————————————————————`",
         "no_permissions": "\u2757\ufe0f У вас недостаточно прав для выполнения этой команды.",
         "done": "\u2705 Готово",
         "invalid_args": "\u2757\ufe0f Неверное использование команды.\nПример: {0}",
@@ -38,7 +39,9 @@
         "button_schedule_next_week": "\ud83d\udcc6 Следующая неделя",
         "button_schedule_full": "\ud83d\udcd4 Полное расписание",
         "button_day_previous": "\u23ea Назад",
-        "button_day_next": "\u23e9 Вперёд"
+        "button_day_next": "\u23e9 Вперёд",
+        "button_week_previous": "\u25c0\ufe0f Неделя",
+        "button_week_next": "\u25b6\ufe0f Неделя"
     },
     "day": {
         "0": "Понедельник",
@@ -60,7 +63,7 @@
         "lang_select": "\ud83c\uddec\ud83c\udde7 *Смена языка*\n\n*Ваш текущий язык*: {lang}",
         "more": "\ud83d\uddc2 *Дополнительно*",
         "info": "\u2139\ufe0f *Информация*\n\n\ud83d\uddff *Создатель* - @Bogdan4igg\n\ud83c\udf10 *Сайт* - [knute.angron42.pp.ua](https://knute.angron42.pp.ua)\n\nИспользуйте бота @Knute\\_ScheduleBot как инструмент для получения расписания пар на каждый день.",
-        "schedule": "\ud83d\udcc5   *{date}*   \ud83d\udcc5\n{schedule}\n\n*Обновлено*: {received}",
-        "api_unavaliable": "Похоже, api-сервер на данный момент не работает, соотвественно получить расписание сейчас невозможно."
+        "schedule": "\ud83d\udcc5   *{date}*   \ud83d\udcc5\n{schedule}",
+        "api_unavaliable": "Похоже, сайт с расписанием сейчас не работает/не отвечает.\n\nПожалуйста, попробуйте позже."
     }
 }

@@ -1,7 +1,7 @@
 import requests.exceptions
 
 from telebot import types
-from ..list_groups import get_groups
+from ..get_groups import get_groups
 from .api_unavaliable import create_message as create_api_unavaliable_message
 
 def create_message(message: types.Message) -> dict:
@@ -11,7 +11,7 @@ def create_message(message: types.Message) -> dict:
     try:
         groups = get_groups(message.config['schedule']['structure_id'], message.config['schedule']['faculty_id'], message.config['schedule']['course']).json()
 
-    except requests.exceptions.ConnectionError:
+    except (requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout):
         return create_api_unavaliable_message(message)
 
     for group in groups:

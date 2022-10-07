@@ -31,7 +31,8 @@ def get_groups(structureId: int, facultyId: int, course: int) -> list[dict[str, 
     }
 
     url = urljoin(os.getenv('API_URL'), '/list/groups')
-    res = session.post(url, json=req_data, headers=headers)
+    timeout = int(os.getenv('API_REQUEST_TIMEOUT'))
+    res = session.post(url, json=req_data, headers=headers, timeout=timeout)
 
     if not res.ok:
         raise requests.exceptions.HTTPError()

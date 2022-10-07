@@ -1,7 +1,7 @@
 import requests.exceptions
 
 from telebot import types
-from ..list_courses import get_courses
+from ..get_courses import get_courses
 from .api_unavaliable import create_message as create_api_unavaliable_message
 
 def create_message(message: types.Message) -> dict:
@@ -11,7 +11,7 @@ def create_message(message: types.Message) -> dict:
     try:
         courses = get_courses(message.config['schedule']['structure_id'], message.config['schedule']['faculty_id']).json()
 
-    except requests.exceptions.ConnectionError:
+    except (requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout):
         return create_api_unavaliable_message(message)
 
     for course in courses:

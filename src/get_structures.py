@@ -16,20 +16,17 @@ session = CachedSession(
     stale_if_error=True
 )
 
-def get_faculties(structureId: int) -> list[dict[str, any]]:
-    logger.debug('Getting faculties list')
-
-    req_data = {
-        'structureId': structureId
-    }
+def get_structures() -> list[dict[str, any]]:
+    logger.debug('Getting structures list')
 
     headers = {
         'Accept-Language': 'uk',
         'Content-Type': 'application/json; charset=utf-8'
     }
 
-    url = urljoin(os.getenv('API_URL'), '/list/faculties')
-    res = session.post(url, json=req_data, headers=headers)
+    url = urljoin(os.getenv('API_URL'), '/list/structures')
+    timeout = int(os.getenv('API_REQUEST_TIMEOUT'))
+    res = session.get(url, headers=headers, timeout=timeout)
 
     if not res.ok:
         raise requests.exceptions.HTTPError()

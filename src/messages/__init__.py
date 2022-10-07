@@ -11,3 +11,4 @@ from .select_structure import create_message as create_select_structure_message
 from .select_faculty import create_message as create_select_faculty_message
 from .select_course import create_message as create_select_course_message
 from .select_group import create_message as create_select_group_message
+from .statistic import create_message as create_statistic_message

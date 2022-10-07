@@ -1,0 +1,65 @@
+name: Deploy
+
+env:
+  REPOSITORY_NAME: ${{ github.event.repository.name }}
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+
+    env:
+      HOST: angron42.pp.ua
+      USERNAME: root
+      KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      PORT: 22
+
+    steps:
+
+    - name: Stop server
+      uses: appleboy/ssh-action@master
+      with:
+        host: HOST
+        username: USERNAME
+        key: KEY
+        port: PORT
+        script: |
+          if screen -list | grep -q "${{ env.REPOSITORY_NAME }}"; then
+            screen -X -S ${{ env.REPOSITORY_NAME }} quit;
+          fi
+
+    - name: Pull changes
+      uses: appleboy/ssh-action@master
+      with:
+        host: HOST
+        username: USERNAME
+        key: KEY
+        port: PORT
+        script: |
+          cd ~/${{ env.REPOSITORY_NAME }}
+          git pull origin master
+
+    - name: Setup
+      uses: appleboy/ssh-action@master
+      with:
+        host: HOST
+        username: USERNAME
+        key: KEY
+        port: PORT
+        script: |
+          cd ~/${{ env.REPOSITORY_NAME }}
+          echo '${{ secrets.ENV }}' > ~/${{ env.REPOSITORY_NAME }}/.env
+          pip install -r requirements.txt
+
+    - name: Run
+      uses: appleboy/ssh-action@master
+      with:
+        host: HOST
+        username: USERNAME
+        key: KEY
+        port: PORT
+        script: screen -S ${{ env.REPOSITORY_NAME }} -d -m python ~/${{ env.REPOSITORY_NAME }}
