@@ -1,7 +1,7 @@
 import requests.exceptions
 
 from telebot import types
-from ..list_groups import get_groups
+from ..get_groups import get_groups
 from .api_unavaliable import create_message as create_api_unavaliable_message
 
 def create_message(message: types.Message) -> dict:
