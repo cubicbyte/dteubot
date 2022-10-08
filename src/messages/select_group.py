@@ -14,6 +14,10 @@ def create_message(message: types.Message) -> dict:
     except (requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout):
         return create_api_unavaliable_message(message)
 
+    markup.add(
+        types.InlineKeyboardButton(text=message.lang['text']['button_back'], callback_data=f'select.schedule.faculty_id={message.config["schedule"]["faculty_id"]}')
+    )
+
     for group in groups:
         markup.add(
             types.InlineKeyboardButton(text=group['name'], callback_data=f'select.schedule.group_id={group["id"]}')

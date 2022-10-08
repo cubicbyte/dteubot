@@ -38,10 +38,11 @@
         "button_schedule_week": "\ud83d\udcc5 Текущая неделя",
         "button_schedule_next_week": "\ud83d\udcc6 Следующая неделя",
         "button_schedule_full": "\ud83d\udcd4 Полное расписание",
-        "button_day_previous": "\u23ea Назад",
-        "button_day_next": "\u23e9 Вперёд",
-        "button_week_previous": "\u25c0\ufe0f Неделя",
-        "button_week_next": "\u25b6\ufe0f Неделя"
+        "button_navigation_today": "\ud83d\udccb Сегодня",
+        "button_navigation_day_previous": "\u25c0\ufe0f Назад",
+        "button_navigation_day_next": "\u25b6\ufe0f Вперёд",
+        "button_navigation_week_previous": "\u23ea Неделя",
+        "button_navigation_week_next": "\u23e9 Неделя"
     },
     "day": {
         "0": "Понедельник",

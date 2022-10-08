@@ -38,10 +38,11 @@
         "button_schedule_week": "\ud83d\udcc5 Current week",
         "button_schedule_next_week": "\ud83d\udcc6 Next week",
         "button_schedule_full": "\ud83d\udcd4 Full schedule",
-        "button_day_previous": "\u23ea Back",
-        "button_day_next": "\u23e9 Next",
-        "button_week_previous": "\u25c0\ufe0f Week",
-        "button_week_next": "\u25b6\ufe0f Week"
+        "button_navigation_today": "\ud83d\udccb Today",
+        "button_navigation_day_previous": "\u25c0\ufe0f Back",
+        "button_navigation_day_next": "\u25b6\ufe0f Next",
+        "button_navigation_week_previous": "\u23ea Week",
+        "button_navigation_week_next": "\u23e9 Week"
     },
     "day": {
         "0": "Monday",

@@ -38,10 +38,11 @@
         "button_schedule_week": "\ud83d\udcc5 Поточний тиждень",
         "button_schedule_next_week": "\ud83d\udcc6 Наступний тиждень",
         "button_schedule_full": "\ud83d\udcd4 Повний розклад",
-        "button_day_previous": "\u23ea Назад",
-        "button_day_next": "\u23e9 Вперед",
-        "button_week_previous": "\u25c0\ufe0f Тиждень",
-        "button_week_next": "\u25b6\ufe0f Тиждень"
+        "button_navigation_today": "\ud83d\udccb Сьогодні",
+        "button_navigation_day_previous": "\u25c0\ufe0f Назад",
+        "button_navigation_day_next": "\u25b6\ufe0f Вперед",
+        "button_navigation_week_previous": "\u23ea Тиждень",
+        "button_navigation_week_next": "\u23e9 Тиждень"
     },
     "day": {
         "0": "Понеділок",

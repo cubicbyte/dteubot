@@ -25,6 +25,10 @@ def create_message(message: types.Message) -> dict:
     markup = types.InlineKeyboardMarkup()
     message_text = message.lang['command']['structure']
 
+    markup.add(
+        types.InlineKeyboardButton(text=message.lang['text']['button_back'], callback_data='open.menu')
+    )
+
     for structure in structures:
         markup.add(
             types.InlineKeyboardButton(text=structure['fullName'], callback_data=f'select.schedule.structure_id={structure["id"]}')

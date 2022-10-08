@@ -27,9 +27,10 @@ if not os.path.exists('logs/debug'):
 
 logging.basicConfig(
     level=os.getenv('LOGGING_LEVEL'),
-    filename=os.path.join(os.getcwd(), 'logs/debug/%s.log' % datetime.now().strftime('%Y-%m-%d %H-%M-%S')),
+    filename=os.path.join(os.getcwd(), 'logs', 'debug', '%s.log' % datetime.now().strftime('%Y-%m-%d %H-%M-%S')),
     filemode='a',
-    format='%(asctime)s [%(levelname)s] - %(message)s'
+    format='%(asctime)s [%(levelname)s] - %(message)s',
+    force=True
 )
 
 logger = logging.getLogger()
