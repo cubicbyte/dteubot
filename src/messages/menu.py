@@ -20,7 +20,7 @@ def create_message(message: types.Message) -> dict:
         elif remaining_time['to'] == 1:
             left = message.lang['text']['ring_left_end'].format(left=remaining)
 
-    message_text = message.lang['command']['menu'].format(left=left)
+    message_text = message.lang['command']['menu'].format(left=message.lang['text']['ring_left_start'].format(left=message.lang['text']['in_developing']))
     markup = types.InlineKeyboardMarkup()
 
     markup.add(

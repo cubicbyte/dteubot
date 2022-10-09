@@ -100,7 +100,7 @@ class TelegramLogger:
         else:
             msg_text = None
         
-        file = open(Path(chat_dir, 'messages.txt'), 'a')
+        file = open(Path(chat_dir, 'messages.txt'), 'a', encoding='utf8')
         file.write('[{time}] {chat_id}/{user_id}/{message_id} ({content_type}): {text}\n'.format(
             time=datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
             chat_id=message.chat.id,

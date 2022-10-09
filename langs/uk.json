@@ -2,8 +2,9 @@
     "lang_name": "\ud83c\uddfa\ud83c\udde6 Українська",
     "text": {
         "just_now": "тільки що",
+        "in_developing": "В розробці",
         "no_info": "Інформації немає",
-        "lesson": "\n`————— ``{timeStart}`` > ``{timeEnd}`` —————`\n`  `*{disciplineShortName}*`[{typeStr}]`\n`{number} `{classroom}\n`  `{teachersNameFull}",
+        "lesson": "\n`———— ``{timeStart}`` ——— ``{timeEnd}`` ————`\n`  `*{disciplineShortName}*`[{typeStr}]`\n`{number} `{classroom}\n`  `{teachersNameFull}",
         "lesson_empty": "\n`—————————————————————————`\n\n`          Пусто`\n\n`—————————————————————————`",
         "no_permissions": "\u2757\ufe0f У вас недостатньо прав для виконання цієї команди.",
         "done": "\u2705 Готово",
@@ -44,7 +45,7 @@
         "button_navigation_week_previous": "\u23ea Тиждень",
         "button_navigation_week_next": "\u23e9 Тиждень"
     },
-    "day": {
+    "week_day": {
         "0": "Понеділок",
         "1": "Вівторок",
         "2": "Середа",
@@ -53,6 +54,16 @@
         "5": "Субота",
         "6": "Неділя",
         "unknown": "Невідомий день"
+    },
+    "week_day_short": {
+        "0": "Пн",
+        "1": "Вт",
+        "2": "Ср",
+        "3": "Чт",
+        "4": "Пт",
+        "5": "Сб",
+        "6": "Нд",
+        "unknown": "?"
     },
     "command": {
         "structure": "Виберіть структуру",
@@ -63,8 +74,8 @@
         "settings": "\u2699\ufe0f *Налаштування*\n\n*Вибрана група*: `{group}`",
         "lang_select": "\ud83c\uddec\ud83c\udde7 *Зміна мови*\n\n*Ваша поточна мова*: {lang}",
         "more": "\ud83d\uddc2 *Додатково*",
-        "info": "\u2139\ufe0f *Інформація*\n\n\ud83d\uddff *Створив бота* - @Bogdan4igg\n\ud83c\udf10 *Сайт* - [knute.angron42.pp.ua](https://knute.angron42.pp.ua)\n\nВикористовуйте бота @Knute\\_ScheduleBot я інструмент для отримання розкладу пар на кожен день.",
-        "schedule": "\ud83d\udcc5   *{date}*   \ud83d\udcc5\n{schedule}",
+        "info": "\u2139\ufe0f *Інформація*\n\n\ud83d\uddff *Створив бота* - @Bogdan4igg\n\nВикористовуйте бота @Knute\\_ScheduleBot я інструмент для отримання розкладу пар на кожен день.",
+        "schedule": "\ud83d\udcc5   *{date}* `[`*{day}*`]`   \ud83d\udcc5\n{schedule}",
         "api_unavaliable": "Схоже, сайт з розкладом зараз не працює/не відповідає.\n\nБудь ласка, спробуйте пізніше."
     }
 }

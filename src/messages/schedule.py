@@ -78,6 +78,7 @@ def create_message(message: types.Message, date: datetime | str) -> dict:
 
     msg_text = message.lang['command']['schedule'].format(
         date=date_locale,
+        day=message.lang['week_day_short'][str(date.weekday())],
         schedule=schedule_text
     )
 

@@ -2,8 +2,9 @@
     "lang_name": "\ud83c\uddec\ud83c\udde7 English",
     "text": {
         "just_now": "just now",
+        "in_developing": "In developing",
         "no_info": "No info",
-        "lesson": "\n`————— ``{timeStart}`` > ``{timeEnd}`` —————`\n`  `*{disciplineShortName}*`[{typeStr}]`\n`{number} `{classroom}\n`  `{teachersNameFull}",
+        "lesson": "\n`———— ``{timeStart}`` ——— ``{timeEnd}`` ————`\n`  `*{disciplineShortName}*`[{typeStr}]`\n`{number} `{classroom}\n`  `{teachersNameFull}",
         "lesson_empty": "\n`—————————————————————————`\n\n`          Empty`\n\n`—————————————————————————`",
         "no_permissions": "\u2757\ufe0f You do not have permission to run this command.",
         "done": "\u2705 Done",
@@ -44,7 +45,7 @@
         "button_navigation_week_previous": "\u23ea Week",
         "button_navigation_week_next": "\u23e9 Week"
     },
-    "day": {
+    "week_day": {
         "0": "Monday",
         "1": "Tuesday",
         "2": "Wednesday",
@@ -53,6 +54,16 @@
         "5": "Saturday",
         "6": "Sunday",
         "unknown": "Unknown day"
+    },
+    "week_day_short": {
+        "0": "Mon",
+        "1": "Tues",
+        "2": "Wed",
+        "3": "Thurs",
+        "4": "Fri",
+        "5": "Sat",
+        "6": "Sun",
+        "unknown": "?"
     },
     "command": {
         "structure": "Select structure",
@@ -63,8 +74,8 @@
         "settings": "\u2699\ufe0f *Settings*\n\n*Selected group*: {group}",
         "lang_select": "\ud83c\uddec\ud83c\udde7 *Change language*\n\n*Your current language*: {lang}",
         "more": "\ud83d\uddc2 *Additionally*",
-        "info": "\u2139\ufe0f *Information*\n\n\ud83d\uddff *Creator* - @Bogdan4igg\n\ud83c\udf10 *Website* - [knute.angron42.pp.ua](https://knute.angron42.pp.ua)\n\nUse the @Knute\\_ScheduleBot as a tool to get the schedule for every day.",
-        "schedule": "\ud83d\udcc5   *{date}*   \ud83d\udcc5\n{schedule}",
+        "info": "\u2139\ufe0f *Information*\n\n\ud83d\uddff *Creator* - @Bogdan4igg\n\nUse the @Knute\\_ScheduleBot as a tool to get the schedule for every day.",
+        "schedule": "\ud83d\udcc5   *{date}* `[`*{day}*`]`   \ud83d\udcc5\n{schedule}",
         "api_unavaliable": "Seems like the timetable site is down/not responding right now.\n\nPlease, try later."
     }
 }
