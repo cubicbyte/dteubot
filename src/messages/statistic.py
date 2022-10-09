@@ -5,7 +5,7 @@ tg_logger = TelegramLogger('logs/telegram')
 
 def create_message(message: types.Message) -> dict:
 
-    chat_dir = tg_logger.get_chat_config_dir(message.chat.id)
+    chat_dir = tg_logger.get_chat_log_dir(message.chat.id)
 
     file = open(str(chat_dir) + '/messages.txt', 'r')
     for messages, line in enumerate(file):
@@ -19,7 +19,7 @@ def create_message(message: types.Message) -> dict:
     file.close()
 
     markup = types.InlineKeyboardMarkup()
-    message_text = 'This chat ID: {chat_id}\nYour ID: {user_id}\nMessages: {messages}\nButtons clicks: {clicks}\nFirst message: {first}'.format(
+    message_text = '*Statistic*\n\nThis chat ID: {chat_id}\nYour ID: {user_id}\nMessages: {messages}\nButtons clicks: {clicks}\nFirst message: {first}'.format(
         chat_id=message.chat.id,
         user_id=message.from_user.id,
         messages=messages,

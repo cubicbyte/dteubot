@@ -27,9 +27,10 @@ if not os.path.exists('logs/debug'):
 
 logging.basicConfig(
     level=os.getenv('LOGGING_LEVEL'),
-    filename=os.path.join(os.getcwd(), 'logs/debug/%s.log' % datetime.now().strftime('%Y-%m-%d %H-%M-%S')),
+    filename=os.path.join(os.getcwd(), 'logs', 'debug', '%s.log' % datetime.now().strftime('%Y-%m-%d %H-%M-%S')),
     filemode='a',
-    format='%(asctime)s [%(levelname)s] - %(message)s'
+    format='%(asctime)s [%(levelname)s] - %(message)s',
+    force=True
 )
 
 logger = logging.getLogger()
@@ -116,7 +117,7 @@ def handle_select(call):
         action = data[:delimeter_index]
         action_value = data[delimeter_index + 1:]
 
-        call.message.config['schedule'][action] = action_value
+        call.message.config['schedule'][action] = int(action_value)
         chat_configs.set_chat_config_field(call.message.chat.id, 'schedule', call.message.config['schedule'])
 
         if action == 'structure_id':
@@ -157,25 +158,39 @@ def start_command(message):
 @bot.message_handler(commands=['select'])
 def select_command(message):
     logger.info('Handling /select command from chat %s' % message.chat.id)
-    bot.send_message(**create_message.create_select_structure_message(message))
+    
+    if len(message.args) == 0:
+        bot.send_message(**create_message.create_select_structure_message(message))
+    else:
+        group_id = message.args[0]
+
+        if group_id.isnumeric():
+            group_id = abs(int(group_id))
+            schedule = message.config['schedule']
+            schedule['group_id'] = group_id
+            chat_configs.set_chat_config_field(message.chat.id, 'schedule', schedule)
+
+        bot.send_message(**create_message.create_menu_message(message))
 
 @bot.message_handler(commands=['menu'])
 def menu_command(message):
     logger.info('Handling /menu command from chat %s' % message.chat.id)
-    msg = create_message.create_menu_message(message)
-    bot.send_message(**msg)
+    bot.send_message(**create_message.create_menu_message(message))
 
 @bot.message_handler(commands=['settings'])
 def settings_command(message):
     logger.info('Handling /settings command from chat %s' % message.chat.id)
-    msg = create_message.create_settings_message(message)
-    bot.send_message(**msg)
+    bot.send_message(**create_message.create_settings_message(message))
 
 @bot.message_handler(commands=['lang'])
 def lang_command(message):
     logger.info('Handling /lang command from chat %s' % message.chat.id)
-    msg = create_message.create_lang_select_message(message)
-    bot.send_message(**msg)
+
+    if len(message.args) == 0:
+        bot.send_message(**create_message.create_lang_select_message(message))
+    else:
+        message.lang_code = message.args[0]
+        bot.send_message(**create_message.create_menu_message(message))
 
 @bot.message_handler(commands=['today'])
 def schedule_today_command(message):
@@ -188,6 +203,11 @@ def schedule_tomorrow_command(message):
     logger.info('Handling /tomorrow command from chat %s' % message.chat.id)
     date = datetime.today() + timedelta(days=1)
     bot.send_message(**create_message.create_schedule_message(message, date.strftime('%Y-%m-%d')))
+
+@bot.message_handler(commands=['left'])
+def left_command(message):
+    logger.info('Handling /left command from chat %s' % message.chat.id)
+    bot.send_message(**create_message.create_left_message(message))
 
 @bot.message_handler(content_types=['text'], func=lambda msg: msg.text.startswith('/empty_'))
 def empty_command(message):

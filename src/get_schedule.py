@@ -22,7 +22,7 @@ session = CachedSession(
 
 
 
-def get_schedule(message: telebot.types.Message, date: datetime) -> Response:
+def get_schedule(message: telebot.types.Message, date = datetime.today()) -> Response:
     logger.debug('Getting schedule for chat {0}'.format(message.chat.id))
 
     week_start = date - timedelta(days=date.weekday())

@@ -2,8 +2,9 @@
     "lang_name": "\ud83c\uddec\ud83c\udde7 English",
     "text": {
         "just_now": "just now",
+        "in_developing": "In developing",
         "no_info": "No info",
-        "lesson": "\n`————— ``{timeStart}`` > ``{timeEnd}`` —————`\n`  `*{disciplineShortName}*`[{typeStr}]`\n`{number} `{classroom}\n`  `{teachersNameFull}",
+        "lesson": "\n`———— ``{timeStart}`` ——— ``{timeEnd}`` ————`\n`  `*{disciplineShortName}*`[{typeStr}]`\n`{number} `{classroom}\n`  `{teachersNameFull}",
         "lesson_empty": "\n`—————————————————————————`\n\n`          Empty`\n\n`—————————————————————————`",
         "no_permissions": "\u2757\ufe0f You do not have permission to run this command.",
         "done": "\u2705 Done",
@@ -23,7 +24,7 @@
         "subjects_today": "*Classes today*",
         "subjects_tomorrow": "*Classes tomorrow*",
         "subjects_missing": "No classes",
-        "subjects_missing_today": "\ud83d\udccb *No classes for today*",
+        "subjects_missing_today": "\ud83d\udccb *No classes for the next 24 hours*",
         "button_write_me": "\u2709\ufe0f Write me",
         "button_menu": "\ud83c\udfe0 Menu",
         "button_back": "\u2b05\ufe0f Back",
@@ -38,12 +39,13 @@
         "button_schedule_week": "\ud83d\udcc5 Current week",
         "button_schedule_next_week": "\ud83d\udcc6 Next week",
         "button_schedule_full": "\ud83d\udcd4 Full schedule",
-        "button_day_previous": "\u23ea Back",
-        "button_day_next": "\u23e9 Next",
-        "button_week_previous": "\u25c0\ufe0f Week",
-        "button_week_next": "\u25b6\ufe0f Week"
+        "button_navigation_today": "\ud83d\udccb Today",
+        "button_navigation_day_previous": "\u25c0\ufe0f Back",
+        "button_navigation_day_next": "\u25b6\ufe0f Next",
+        "button_navigation_week_previous": "\u23ea Week",
+        "button_navigation_week_next": "\u23e9 Week"
     },
-    "day": {
+    "week_day": {
         "0": "Monday",
         "1": "Tuesday",
         "2": "Wednesday",
@@ -53,17 +55,27 @@
         "6": "Sunday",
         "unknown": "Unknown day"
     },
+    "week_day_short": {
+        "0": "Mon",
+        "1": "Tues",
+        "2": "Wed",
+        "3": "Thurs",
+        "4": "Fri",
+        "5": "Sat",
+        "6": "Sun",
+        "unknown": "?"
+    },
     "command": {
         "structure": "Select structure",
         "faculty": "Select faculty",
         "course": "Select course",
         "group": "Select group",
         "menu": "\ud83c\udfe0 *Menu*\n\n{left}\n\nThis bot was created for convenient and quick schedule reviewing in KNUTE.",
-        "settings": "\u2699\ufe0f *Settings*\n\n*Selected group*: {group}",
+        "settings": "\u2699\ufe0f *Settings*\n\n*Your group:* `{group_id}`\n\nНаступного разу, щоб вибрати цю групу, можете ввести команду `/select {group_id}`",
         "lang_select": "\ud83c\uddec\ud83c\udde7 *Change language*\n\n*Your current language*: {lang}",
         "more": "\ud83d\uddc2 *Additionally*",
-        "info": "\u2139\ufe0f *Information*\n\n\ud83d\uddff *Creator* - @Bogdan4igg\n\ud83c\udf10 *Website* - [knute.angron42.pp.ua](https://knute.angron42.pp.ua)\n\nUse the @Knute\\_ScheduleBot as a tool to get the schedule for every day.",
-        "schedule": "\ud83d\udcc5   *{date}*   \ud83d\udcc5\n{schedule}",
+        "info": "\u2139\ufe0f *Information*\n\n\ud83d\uddff *Creator* - @Bogdan4igg\n\nUse the @Knute\\_ScheduleBot as a tool to get the schedule for every day.",
+        "schedule": "\ud83d\udcc5   *{date}* `[`*{day}*`]`   \ud83d\udcc5\n{schedule}",
         "api_unavaliable": "Seems like the timetable site is down/not responding right now.\n\nPlease, try later."
     }
 }

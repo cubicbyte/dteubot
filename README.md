@@ -16,7 +16,7 @@ You can try the bot live ([link](https://t.me/Knute_ScheduleBot))<br>
 # Screenshots
 ![Bot screenshot](https://user-images.githubusercontent.com/81159301/193561985-2414eafb-3423-4ef6-b149-24926831df7a.png)
 
-# Команды
+# Commands
 
 * **/today**<br>
     lessons today
