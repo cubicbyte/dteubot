@@ -18,7 +18,7 @@ def create_message(message: types.Message, date: datetime | str) -> dict:
 
     try:
         schedule_res = get_schedule(message, date)
-        logger.debug('Parsing schedule')
+        logger.debug('Getting schedule')
         schedule = schedule_res.json()
 
     except requests.exceptions.HTTPError:
@@ -33,17 +33,17 @@ def create_message(message: types.Message, date: datetime | str) -> dict:
 
     buttons.append([
         types.InlineKeyboardButton(text=message.lang['text']['button_navigation_day_previous'], callback_data='open.schedule.day=' + (date - timedelta(days=1)).strftime('%Y-%m-%d')),
-        types.InlineKeyboardButton(text=message.lang['text']['button_menu'], callback_data='open.menu'),
         types.InlineKeyboardButton(text=message.lang['text']['button_navigation_day_next'], callback_data='open.schedule.day=' + (date + timedelta(days=1)).strftime('%Y-%m-%d'))
     ])
 
     buttons.append([
         types.InlineKeyboardButton(text=message.lang['text']['button_navigation_week_previous'], callback_data='open.schedule.day=' + (date - timedelta(days=7)).strftime('%Y-%m-%d')),
+        types.InlineKeyboardButton(text=message.lang['text']['button_menu'], callback_data='open.menu'),
         types.InlineKeyboardButton(text=message.lang['text']['button_navigation_week_next'], callback_data='open.schedule.day=' + (date + timedelta(days=7)).strftime('%Y-%m-%d'))
     ])
 
     if date.date() != current_date.date() or True:
-        buttons[1].insert(
+        buttons[0].insert(
             1, types.InlineKeyboardButton(text=message.lang['text']['button_navigation_today'], callback_data='open.schedule.today')
         )
 

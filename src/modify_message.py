@@ -45,6 +45,14 @@ def lang_code(self):
 
     return lang_code
 
+@lang_code.setter
+def lang_code(self, lang_code: str):
+    if not lang_code in langs:
+        lang_code = os.getenv('DEFAULT_LANG')
+    
+    chat_configs.set_chat_config_field(self.chat.id, 'lang', lang_code)
+    self.update_config()
+
 @property
 def lang(self):
     return langs[self.lang_code]
