@@ -17,63 +17,51 @@ class ChatConfigs:
             os.mkdir(configs_dirpath)
         
     def is_chat_config_exists(self, chat_id: int) -> bool:
-        config_filepath = os.path.join(self.__dirpath, f'{chat_id}.json')
-        
-        return os.path.exists(config_filepath)
+        return os.path.join(self.__dirpath, f'{chat_id}.json')
 
     def create_chat_config(self, chat_id: int) -> dict[str, any]:
         logger.debug('Creating %s chat config' % chat_id)
         
-        config_filepath = os.path.join(self.__dirpath, f'{chat_id}.json')
         config = get_default_chat_config()
 
-        file = open(config_filepath, 'w', encoding='utf-8')
-        json.dump(config, file, ensure_ascii=False)
-        file.close()
+        path = os.path.join(self.__dirpath, f'{chat_id}.json')
+        fp = open(path, 'w', encoding='utf-8')
+        json.dump(config, fp, ensure_ascii=False, indent=4)
+        fp.close()
 
         return config
 
-    def get_chat_config(self, chat_id: int, create: bool = False) -> dict[str, any] | None:
+    def get_chat_config(self, chat_id: int, create = False) -> dict[str, any]:
         logger.debug('Getting %s chat config' % chat_id)
 
-        config_filepath = os.path.join(self.__dirpath, f'{chat_id}.json')
+        if create:
+            if not self.is_chat_config_exists(chat_id):
+                return self.create_chat_config(chat_id)
 
-        if not self.is_chat_config_exists(chat_id):
-            if not create:
-                return None
-            
-            return self.create_chat_config(chat_id)
-
-        file = open(config_filepath, 'r', encoding='utf-8')
-        config = json.load(file)
-        file.close()
+        path = os.path.join(self.__dirpath, f'{chat_id}.json')
+        fp = open(path, 'r', encoding='utf-8')
+        config = json.load(fp)
+        fp.close()
 
         return config
     
-    def set_chat_config(self, chat_id: int, config: dict) -> dict:
+    def set_chat_config(self, chat_id: int, config: dict[str, any]) -> dict[str, any]:
         logger.debug('Updating %s chat config' % chat_id)
 
-        config_filepath = os.path.join(self.__dirpath, f'{chat_id}.json')
-
-        file = open(config_filepath, 'w', encoding='utf-8')
-        json.dump(config, file, ensure_ascii=False)
-        file.close()
+        path = os.path.join(self.__dirpath, f'{chat_id}.json')
+        fp = open(path, 'w', encoding='utf-8')
+        json.dump(config, fp, ensure_ascii=False, indent=4)
+        fp.close()
 
         return config
 
-    def set_chat_config_field(self, chat_id: int, field, value) -> bool:
+    def set_chat_config_field(self, chat_id: int, field: str, value: any, create = False) -> dict[str, any]:
         logger.debug('Updating %s chat config field' % chat_id)
 
-        config = self.get_chat_config(chat_id, True)
-
-        if not field in config:
-            return False
-
+        config = self.get_chat_config(chat_id, create)
         config[field] = value
 
-        self.set_chat_config(chat_id, config)
-
-        return True
+        return self.set_chat_config(chat_id, config)
 
 chat_configs_path = Path('chat-configs').absolute()
 chat_configs = ChatConfigs(chat_configs_path)

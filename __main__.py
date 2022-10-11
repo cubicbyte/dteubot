@@ -12,18 +12,18 @@ load_dotenv()
 os.environ.setdefault('MODE', 'prod')
 os.chdir(sys.path[0])
 
+if not os.path.exists('logs'):
+    os.mkdir('logs')
+
+if not os.path.exists('logs/debug'):
+    os.mkdir('logs/debug')
+
 import src.messages as create_message
 from src.chat_configs import chat_configs
 from src.tg_logger import TelegramLogger
 from src.modify_message import modify_message
 
 
-
-if not os.path.exists('logs'):
-    os.mkdir('logs')
-
-if not os.path.exists('logs/debug'):
-    os.mkdir('logs/debug')
 
 logging.basicConfig(
     level=os.getenv('LOGGING_LEVEL'),
@@ -140,8 +140,8 @@ def handle_select(call):
         delimeter_index = data.index('=')
         lang = data[delimeter_index + 1:]
         
+        call.message.config['lang'] = lang
         chat_configs.set_chat_config_field(call.message.chat.id, 'lang', lang)
-        call.message.update_config()
 
         bot.edit_message_text(
             **create_message.create_menu_message(call.message),
@@ -153,6 +153,17 @@ def handle_select(call):
 @bot.message_handler(commands=['start'])
 def start_command(message):
     logger.info('Handling /start command from chat %s' % message.chat.id)
+
+    if message.config_created:
+        bot.send_message(**create_message.create_menu_message(message))
+        return
+
+    if len(message.args_case) == 0:
+        ref = None
+    else:
+        ref = message.args_case[0]
+
+    chat_configs.set_chat_config_field(message.chat.id, 'ref', ref, True)
     bot.send_message(**create_message.create_select_structure_message(message))
 
 @bot.message_handler(commands=['select'])
@@ -168,7 +179,7 @@ def select_command(message):
             group_id = abs(int(group_id))
             schedule = message.config['schedule']
             schedule['group_id'] = group_id
-            chat_configs.set_chat_config_field(message.chat.id, 'schedule', schedule)
+            message._config = chat_configs.set_chat_config_field(message.chat.id, 'schedule', schedule)
 
         bot.send_message(**create_message.create_menu_message(message))
 

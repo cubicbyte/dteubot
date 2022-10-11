@@ -1,14 +1,14 @@
 <div align="center">
 <img src="https://user-images.githubusercontent.com/81159301/193612153-e085ffb7-230b-413c-a7b2-c450536cd397.png" alt="Logo" width="200"><br><br>
 
-# KNUTE Schedule Bot
+# SUTE Schedule Bot
 
 [![Python 3.6+](https://img.shields.io/badge/python-3.6+-blue.svg)](https://www.python.org/downloads)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-Bot for getting the schedule in [KNUTE](https://mia1.knute.edu.ua).<br>
+Bot for getting the schedule in [SUTE](https://mia1.knute.edu.ua).<br>
 *\*You can also configure this bot to display schedule from other universities using the MKR ACS system\**<br>
-You can try the bot live ([link](https://t.me/Knute_ScheduleBot))<br>
+You can try the bot live ([link](https://t.me/dteubot))<br>
 [Українська](README-ua.md) • [Русский](README-ru.md)
 
 </div>

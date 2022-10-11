@@ -8,7 +8,7 @@ from requests_cache import CachedSession
 
 logger = logging.getLogger()
 session = CachedSession(
-    'groups_cache',
+    'cache/groups',
     cache_control=True,
     expire_after=timedelta(days=7),
     allowable_methods=['GET', 'POST'],
