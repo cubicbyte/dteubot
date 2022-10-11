@@ -9,7 +9,7 @@ def create_message(message: types.Message) -> dict:
     message_text = message.lang['command']['course']
 
     try:
-        courses = get_courses(message.config['schedule']['structure_id'], message.config['schedule']['faculty_id']).json()
+        courses = get_courses(message.config['schedule']['faculty_id']).json()
 
     except (requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout):
         return create_api_unavaliable_message(message)

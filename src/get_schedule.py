@@ -1,7 +1,6 @@
 import os
 import logging
 import requests.exceptions
-import telebot.types
 
 from requests import Response
 from urllib.parse import urljoin
@@ -12,7 +11,7 @@ from requests_cache import CachedSession
 
 logger = logging.getLogger()
 session = CachedSession(
-    'schedule_cache',
+    'cache/schedule',
     cache_control=True,
     expire_after=timedelta(days=1),
     allowable_methods=['POST'],
@@ -22,14 +21,14 @@ session = CachedSession(
 
 
 
-def get_schedule(message: telebot.types.Message, date = datetime.today()) -> Response:
-    logger.debug('Getting schedule for chat {0}'.format(message.chat.id))
+def get_schedule(group_id: int, date = datetime.today()) -> Response:
+    logger.debug('Getting schedule for group {0}'.format(group_id))
 
     week_start = date - timedelta(days=date.weekday())
     week_end = week_start + timedelta(days=6)
 
     req_data = {
-        'groupId': message.config['schedule']['group_id'],
+        'groupId': group_id,
         'dateStart': week_start.strftime('%Y-%m-%d'),
         'dateEnd': week_end.strftime('%Y-%m-%d')
     }

@@ -17,7 +17,7 @@ def create_message(message: types.Message, date: datetime | str) -> dict:
         date = datetime.strptime(date, '%Y-%m-%d')
 
     try:
-        schedule_res = get_schedule(message, date)
+        schedule_res = get_schedule(message.config['schedule']['group_id'], date)
         logger.debug('Getting schedule')
         schedule = schedule_res.json()
 

@@ -19,7 +19,7 @@ def create_message(message: types.Message) -> dict:
 
     if len(structures) == 1:
         message.config['schedule']['structure_id'] = structures[0]['id']
-        chat_configs.set_chat_config_field(message.chat.id, 'schedule', message.config['schedule'])
+        message._config = chat_configs.set_chat_config_field(message.chat.id, 'schedule', message.config['schedule'])
         return create_select_faculty_message(message)
 
     markup = types.InlineKeyboardMarkup()

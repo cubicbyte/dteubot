@@ -9,7 +9,7 @@ def create_message(message: types.Message) -> dict:
     message_text = message.lang['command']['group']
 
     try:
-        groups = get_groups(message.config['schedule']['structure_id'], message.config['schedule']['faculty_id'], message.config['schedule']['course']).json()
+        groups = get_groups(message.config['schedule']['faculty_id'], message.config['schedule']['course']).json()
 
     except (requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout):
         return create_api_unavaliable_message(message)

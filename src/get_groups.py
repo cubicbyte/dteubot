@@ -8,7 +8,7 @@ from requests_cache import CachedSession
 
 logger = logging.getLogger()
 session = CachedSession(
-    'groups_cache',
+    'cache/groups',
     cache_control=True,
     expire_after=timedelta(days=7),
     allowable_methods=['GET', 'POST'],
@@ -16,11 +16,10 @@ session = CachedSession(
     stale_if_error=True
 )
 
-def get_groups(structureId: int, facultyId: int, course: int) -> list[dict[str, any]]:
+def get_groups(facultyId: int, course: int) -> list[dict[str, any]]:
     logger.debug('Getting groups list')
 
     req_data = {
-        'structureId': structureId,
         'facultyId': facultyId,
         'course': course
     }
