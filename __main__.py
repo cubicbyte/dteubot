@@ -25,6 +25,10 @@ from src.modify_message import modify_message
 
 
 
+
+from src.get_calls_schedule import get_calls_schedule
+print(get_calls_schedule().json())
+
 logging.basicConfig(
     level=os.getenv('LOGGING_LEVEL'),
     filename=os.path.join(os.getcwd(), 'logs', 'debug', '%s.log' % datetime.now().strftime('%Y-%m-%d %H-%M-%S')),
@@ -243,6 +247,6 @@ if os.getenv('MODE') == 'prod':
 elif os.getenv('MODE') == 'dev':
     logger.info('Running in dev mode')
 
-    while True:
-        logger.debug('Start polling')
-        bot.polling(none_stop=True)
+#    while True:
+#        logger.debug('Start polling')
+#        bot.polling(none_stop=True)
