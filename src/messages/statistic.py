@@ -1,7 +1,5 @@
 from telebot import types
-from ..tg_logger import TelegramLogger
-
-tg_logger = TelegramLogger('logs/telegram')
+from ..settings import tg_logger
 
 def create_message(message: types.Message) -> dict:
 

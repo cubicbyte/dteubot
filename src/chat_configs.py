@@ -2,10 +2,9 @@ import os
 import json
 import logging
 
-from pathlib import Path
-from .get_default_chat_config import get_default_chat_config
+from . import get_default_chat_config
 
-logger = logging.getLogger()
+logger = logging.getLogger(__name__)
 
 class ChatConfigs:
     def __init__(self, configs_dirpath: str):
@@ -62,6 +61,3 @@ class ChatConfigs:
         config[field] = value
 
         return self.set_chat_config(chat_id, config)
-
-chat_configs_path = Path('chat-configs').absolute()
-chat_configs = ChatConfigs(chat_configs_path)

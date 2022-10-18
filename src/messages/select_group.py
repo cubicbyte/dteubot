@@ -1,7 +1,7 @@
 import requests.exceptions
 
 from telebot import types
-from ..get_groups import get_groups
+from ..settings import api
 from .api_unavaliable import create_message as create_api_unavaliable_message
 
 def create_message(message: types.Message) -> dict:
@@ -9,7 +9,7 @@ def create_message(message: types.Message) -> dict:
     message_text = message.lang['command']['group']
 
     try:
-        groups = get_groups(message.config['schedule']['faculty_id'], message.config['schedule']['course']).json()
+        groups = api.get_groups(message.config['schedule']['faculty_id'], message.config['schedule']['course']).json()
 
     except (requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout):
         return create_api_unavaliable_message(message)

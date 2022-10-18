@@ -1,10 +1,7 @@
 import os
 import telebot.types
 
-from .load_langs import langs
-from .chat_configs import chat_configs
-
-
+from .settings import chat_configs, langs
 
 def modify_message(message: telebot.types.Message = None, call: telebot.types.CallbackQuery = None):
     if message is None:

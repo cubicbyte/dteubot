@@ -1,18 +1,13 @@
 import requests.exceptions
 
 from telebot import types
-from pathlib import Path
-from ..chat_configs import ChatConfigs
-from ..get_structures import get_structures
+from ..settings import chat_configs, api
 from .select_faculty import create_message as create_select_faculty_message
 from .api_unavaliable import create_message as create_api_unavaliable_message
 
-chat_configs_path = Path('chat-configs').absolute()
-chat_configs = ChatConfigs(chat_configs_path)
-
 def create_message(message: types.Message) -> dict:
     try:
-        structures = get_structures().json()
+        structures = api.get_structures().json()
 
     except (requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout):
         return create_api_unavaliable_message(message)

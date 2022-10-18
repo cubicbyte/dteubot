@@ -1,13 +1,14 @@
 import requests.exceptions
 import logging
-from babel.dates import format_date
-
-logger = logging.getLogger()
 
 from telebot import types
 from datetime import datetime, timedelta
-from ..get_schedule import get_schedule
-from . import create_invalid_group_message, create_api_unavaliable_message
+from babel.dates import format_date
+from ..settings import api
+from .invalid_group import create_message as create_invalid_group_message
+from .api_unavaliable import create_message as create_api_unavaliable_message
+
+logger = logging.getLogger()
 
 def create_message(message: types.Message, date: datetime | str) -> dict:
     if isinstance(date, datetime):
@@ -17,7 +18,7 @@ def create_message(message: types.Message, date: datetime | str) -> dict:
         date = datetime.strptime(date, '%Y-%m-%d')
 
     try:
-        schedule_res = get_schedule(message.config['schedule']['group_id'], date)
+        schedule_res = api.get_schedule(message.config['schedule']['group_id'], date)
         logger.debug('Getting schedule')
         schedule = schedule_res.json()
 

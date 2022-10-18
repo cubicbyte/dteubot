@@ -1,9 +1,9 @@
 from telebot import types
 from datetime import timedelta
-from ..get_remaining_time_formatted import get_time
+from .. import get_remaining_time_formatted
 
 def create_message(message: types.Message) -> dict:
-    remaining_time = get_time(message)
+    remaining_time = get_remaining_time_formatted(message)
 
     if remaining_time['time'] is None:
         left = message.lang['text']['subjects_missing_today']

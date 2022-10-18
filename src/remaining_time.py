@@ -1,8 +1,7 @@
 import telebot.types
 
 from datetime import datetime, timedelta
-from .get_schedule import get_schedule
-from .get_calls_schedule import get_calls_schedule
+from .settings import api
 
 def get_remaining_time(message: telebot.types.Message, timestamp = datetime.now()) -> timedelta | None:
     '''
@@ -18,7 +17,7 @@ def get_remaining_time(message: telebot.types.Message, timestamp = datetime.now(
     found = False
 
     for i in range(7):
-        res = get_schedule(message.config['schedule']['group_id'], date)
+        res = api.get_schedule(message.config['schedule']['group_id'], date)
         schedule = res.json()
 
         for day in schedule:
@@ -32,5 +31,3 @@ def get_remaining_time(message: telebot.types.Message, timestamp = datetime.now(
         return None
 
     lesson = schedule['lessons'][0]
-
-

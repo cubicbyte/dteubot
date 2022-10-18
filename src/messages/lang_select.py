@@ -1,5 +1,5 @@
 from telebot import types
-from ..load_langs import langs
+from ..settings import langs
 
 def create_message(message: types.Message) -> dict:
     markup = types.InlineKeyboardMarkup()

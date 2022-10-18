@@ -1,49 +1,14 @@
-import telebot
 import os
-import sys
 import time
 import logging
+import telebot.types
 
 from datetime import datetime, timedelta
-from pathlib import Path
-from dotenv import load_dotenv
-
-load_dotenv()
-os.environ.setdefault('MODE', 'prod')
-os.chdir(sys.path[0])
-
-if not os.path.exists('logs'):
-    os.mkdir('logs')
-
-if not os.path.exists('logs/debug'):
-    os.mkdir('logs/debug')
-
-import src.messages as create_message
-from src.chat_configs import chat_configs
-from src.tg_logger import TelegramLogger
-from src.modify_message import modify_message
-
-
-
-
-from src.get_calls_schedule import get_calls_schedule
-print(get_calls_schedule().json())
-
-logging.basicConfig(
-    level=os.getenv('LOGGING_LEVEL'),
-    filename=os.path.join(os.getcwd(), 'logs', 'debug', '%s.log' % datetime.now().strftime('%Y-%m-%d %H-%M-%S')),
-    filemode='a',
-    format='%(asctime)s [%(levelname)s] - %(message)s',
-    force=True
-)
+from src import modify_message, messages as create_message
+from src.settings import bot, chat_configs, tg_logger
 
 logger = logging.getLogger()
 logger.info('Starting application')
-
-tg_logger = TelegramLogger(Path('logs/telegram').absolute())
-bot_token = os.getenv('BOT_TOKEN')
-telebot.apihelper.ENABLE_MIDDLEWARE = True
-bot = telebot.TeleBot(bot_token)
 
 
 
@@ -247,6 +212,6 @@ if os.getenv('MODE') == 'prod':
 elif os.getenv('MODE') == 'dev':
     logger.info('Running in dev mode')
 
-#    while True:
-#        logger.debug('Start polling')
-#        bot.polling(none_stop=True)
+    while True:
+        logger.debug('Start polling')
+        bot.polling(none_stop=True)

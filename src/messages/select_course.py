@@ -1,7 +1,7 @@
 import requests.exceptions
 
 from telebot import types
-from ..get_courses import get_courses
+from ..settings import api
 from .api_unavaliable import create_message as create_api_unavaliable_message
 
 def create_message(message: types.Message) -> dict:
@@ -9,7 +9,7 @@ def create_message(message: types.Message) -> dict:
     message_text = message.lang['command']['course']
 
     try:
-        courses = get_courses(message.config['schedule']['faculty_id']).json()
+        courses = api.get_courses(message.config['schedule']['faculty_id']).json()
 
     except (requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout):
         return create_api_unavaliable_message(message)

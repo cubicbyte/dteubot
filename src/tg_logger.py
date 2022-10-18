@@ -7,7 +7,7 @@ from pathlib import Path
 from telebot import types, TeleBot
 
 
-logger = logging.getLogger()
+logger = logging.getLogger(__name__)
 
 
 class TelegramLogger:

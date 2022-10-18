@@ -4,7 +4,7 @@ import logging
 
 from pathlib import Path
 
-logger = logging.getLogger()
+logger = logging.getLogger(__name__)
 
 def load_langs(dirpath):
     logger.debug('Loading langs from dir %s' % dirpath)
@@ -25,5 +25,3 @@ def load_langs(dirpath):
         langs[lang_name] = lang
     
     return langs
-
-langs = load_langs('langs')
