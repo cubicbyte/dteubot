@@ -13,7 +13,7 @@ def get_time(message: telebot.types.Message, timestamp = datetime.now()) -> dict
 
     result = {
         'time': remaining_time,
-        'formatted': formatted
+        'formatted': message.lang['text.in_developing'] #formatted
     }
 
     return result

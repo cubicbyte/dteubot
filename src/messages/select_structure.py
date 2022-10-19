@@ -13,7 +13,7 @@ def create_message(message: types.Message) -> dict:
         
     structures = res.json()
     markup = types.InlineKeyboardMarkup()
-    message_text = message.lang['command']['structure']
+    message_text = message.lang['command.structure']
 
     if len(structures) == 1:
         # If there is only one structure, then skip this menu, because what is this choice for? :)
@@ -22,7 +22,7 @@ def create_message(message: types.Message) -> dict:
         return create_select_faculty_message(message)
 
     markup.add(
-        types.InlineKeyboardButton(text=message.lang['text']['button_back'], callback_data='open.menu')
+        types.InlineKeyboardButton(text=message.lang['button.back'], callback_data='open.menu')
     )
 
     for structure in structures:

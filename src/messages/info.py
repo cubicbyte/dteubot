@@ -1,12 +1,12 @@
 from telebot import types
 
 def create_message(message: types.Message) -> dict:
-    message_text = message.lang['command']['info']
+    message_text = message.lang['command.info']
     markup = types.InlineKeyboardMarkup()
 
     markup.add(
-        types.InlineKeyboardButton(text=message.lang['text']['button_back'], callback_data='open.more'),
-        types.InlineKeyboardButton(text=message.lang['text']['button_menu'], callback_data='open.menu')
+        types.InlineKeyboardButton(text=message.lang['button.back'], callback_data='open.more'),
+        types.InlineKeyboardButton(text=message.lang['button.menu'], callback_data='open.menu')
     )
 
     msg = {

@@ -5,7 +5,7 @@ from .api_unavaliable import create_message as create_api_unavaliable_message
 
 def create_message(message: types.Message) -> dict:
     markup = types.InlineKeyboardMarkup()
-    message_text = message.lang['command']['faculty']
+    message_text = message.lang['command.faculty']
 
     try:
         res = api.list_faculties(message.config['schedule']['structure_id'])
@@ -14,7 +14,7 @@ def create_message(message: types.Message) -> dict:
         return create_api_unavaliable_message(message)
 
     markup.add(
-        types.InlineKeyboardButton(text=message.lang['text']['button_back'], callback_data='open.menu')
+        types.InlineKeyboardButton(text=message.lang['button.back'], callback_data='open.menu')
     )
 
     for faculty in res.json():

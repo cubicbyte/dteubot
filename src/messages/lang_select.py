@@ -2,14 +2,8 @@ from telebot import types
 from ..settings import langs
 
 def create_message(message: types.Message) -> dict:
+    message_text = message.lang['command.lang_select'].format(lang=message.lang['lang_name'])
     markup = types.InlineKeyboardMarkup()
-
-    if message.config['lang'] == None:
-        chat_lang = message.lang['text']['not_selected']
-    else:
-        chat_lang = langs[message.config['lang']]['lang_name']
-
-    message_text = message.lang['command']['lang_select'].format(lang=chat_lang)
 
     for lang in langs:
         markup.add(
@@ -17,8 +11,8 @@ def create_message(message: types.Message) -> dict:
         )
 
     markup.add(
-        types.InlineKeyboardButton(text=message.lang['text']['button_back'], callback_data='open.settings'),
-        types.InlineKeyboardButton(text=message.lang['text']['button_menu'], callback_data='open.menu')
+        types.InlineKeyboardButton(text=message.lang['button.back'], callback_data='open.settings'),
+        types.InlineKeyboardButton(text=message.lang['button.menu'], callback_data='open.menu')
     )
 
     msg = {
