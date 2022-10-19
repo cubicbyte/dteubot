@@ -1,5 +1,4 @@
 import requests.exceptions
-
 from telebot import types
 from ..settings import api
 from .api_unavaliable import create_message as create_api_unavaliable_message
@@ -9,7 +8,7 @@ def create_message(message: types.Message) -> dict:
     message_text = message.lang['command']['group']
 
     try:
-        groups = api.get_groups(message.config['schedule']['faculty_id'], message.config['schedule']['course']).json()
+        res = api.list_groups(message.config['schedule']['faculty_id'], message.config['schedule']['course'])
 
     except (requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout):
         return create_api_unavaliable_message(message)
@@ -18,7 +17,7 @@ def create_message(message: types.Message) -> dict:
         types.InlineKeyboardButton(text=message.lang['text']['button_back'], callback_data=f'select.schedule.faculty_id={message.config["schedule"]["faculty_id"]}')
     )
 
-    for group in groups:
+    for group in res.json():
         markup.add(
             types.InlineKeyboardButton(text=group['name'], callback_data=f'select.schedule.group_id={group["id"]}')
         )

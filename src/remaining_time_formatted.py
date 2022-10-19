@@ -1,5 +1,4 @@
 import telebot.types
-
 from datetime import datetime
 from .remaining_time import get_remaining_time
 from .format_time import format_time

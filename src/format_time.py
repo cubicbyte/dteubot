@@ -1,5 +1,4 @@
 import telebot.types
-
 from datetime import timedelta
 
 def format_time(message: telebot.types.Message, time: timedelta, depth = 1) -> str:

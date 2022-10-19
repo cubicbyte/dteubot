@@ -1,6 +1,5 @@
 import os
 import telebot.types
-
 from .settings import chat_configs, langs
 
 def modify_message(message: telebot.types.Message = None, call: telebot.types.CallbackQuery = None):

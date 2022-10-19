@@ -1,7 +1,6 @@
 import os
 import logging
 import json
-
 from datetime import datetime
 from pathlib import Path
 from telebot import types, TeleBot
@@ -10,7 +9,9 @@ from telebot import types, TeleBot
 logger = logging.getLogger(__name__)
 
 
+
 class TelegramLogger:
+    """Logger to log messages/button clicks"""
     def __init__(self, dirpath):
         logger.debug('Creating TelegramLogger instance')
 
@@ -18,9 +19,11 @@ class TelegramLogger:
         self.__init_dirs()
 
     def get_chat_log_dir(self, chat_id: int) -> Path:
+        """Returns chat log dirpath"""
         return Path(self.__dirpath, 'chats', str(chat_id))
 
     def get_user_log_dir(self, user_id: int) -> Path:
+        """Returns user log dirpath"""
         return Path(self.__dirpath, 'users', str(user_id))
 
     def __init_dirs(self):
@@ -127,6 +130,7 @@ class TelegramLogger:
 
 
     def message_middleware(self, bot: TeleBot, message: types.Message):
+        """Message middleware handler"""
         logger.debug('Handling message from chat %s' % message.chat.id)
 
         if not self.__chat_log_initialized(message.chat.id):
@@ -139,6 +143,7 @@ class TelegramLogger:
         self.__handle_user_update(message.from_user)
 
     def callback_query_middleware(self, bot: TeleBot, call: types.CallbackQuery):
+        """Callback query middleware handler"""
         logger.debug('Handling callback query from chat %s' % call.message.chat.id)
 
         if not self.__chat_log_initialized(call.message.chat.id):

@@ -2,6 +2,7 @@ import os
 import json
 
 def main(path: str):
+    """Update chat configs to the latest version"""
     files = os.listdir(path)
     count = len(files)
 
@@ -13,6 +14,7 @@ def main(path: str):
         fp.seek(0)
 
         if 'schedule' in conf:
+            # Convert string fields to integers
             if conf['schedule']['structure_id'] is not None:
                 conf['schedule']['structure_id'] = int(conf['schedule']['structure_id'])
 
@@ -26,6 +28,7 @@ def main(path: str):
                 conf['schedule']['group_id'] = int(conf['schedule']['group_id'])
 
         if not 'ref' in conf:
+            # Insert "ref" field after "lang" field
             n_conf = {}
             keys = list(conf.keys())
             values = list(conf.values())

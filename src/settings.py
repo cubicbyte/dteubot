@@ -1,4 +1,3 @@
-from asyncio.log import logger
 import os
 import sys
 import telebot
@@ -7,21 +6,21 @@ from datetime import datetime
 from dotenv import load_dotenv
 from pathlib import Path
 
-sys.path.append('../lib')
-load_dotenv()
+sys.path.append('../lib')                   # Required to load external api library
+load_dotenv()                               # Load .env file
 os.environ.setdefault('MODE', 'prod')
-os.chdir(sys.path[0])
-telebot.apihelper.ENABLE_MIDDLEWARE = True
+os.chdir(sys.path[0])                       # Run python in current directory
+telebot.apihelper.ENABLE_MIDDLEWARE = True  # Enable telegram bot middleware
 
-if not os.path.exists('logs'):
+if not os.path.exists('./logs/'):
     os.mkdir('logs')
 
-if not os.path.exists('logs/debug'):
+if not os.path.exists('./logs/debug/'):
     os.mkdir('logs/debug')
 
 logging.basicConfig(
     level=os.getenv('LOGGING_LEVEL'),
-    filename=os.path.join(os.getcwd(), 'logs', 'debug', '%s.log' % datetime.now().strftime('%Y-%m-%d %H-%M-%S')),
+    filename='logs/debug/%s.log' % datetime.now().strftime('%Y-%m-%d %H-%M-%S'),
     filemode='a',
     format='%(asctime)s [%(levelname)s] %(name)s: %(message)s',
     force=True
@@ -37,12 +36,10 @@ from .load_langs import load_langs
 
 
 
-bot_token = os.getenv('BOT_TOKEN')
-chat_configs_path = Path('chat-configs').absolute()
-tg_logs_path = Path('logs/telegram').absolute()
+BOT_TOKEN = os.getenv('BOT_TOKEN')
 
-bot = telebot.TeleBot(bot_token)
+bot = telebot.TeleBot(BOT_TOKEN)
 api = Api(url=os.getenv('API_URL'), timeout=int(os.getenv('API_REQUEST_TIMEOUT')))
-tg_logger = TelegramLogger(tg_logs_path)
-chat_configs = ChatConfigs(chat_configs_path)
+tg_logger = TelegramLogger('logs/telegram')
+chat_configs = ChatConfigs('chat-configs')
 langs = load_langs('langs')

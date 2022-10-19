@@ -1,12 +1,14 @@
 import os
 import json
 import logging
-
-from . import get_default_chat_config
+from . import DEFAULT_CHAT_CONFIG
 
 logger = logging.getLogger(__name__)
 
+
+
 class ChatConfigs:
+    """Chat config database that stores data in files"""
     def __init__(self, configs_dirpath: str):
         logger.debug('Creating ChatConfig instance')
 
@@ -16,13 +18,14 @@ class ChatConfigs:
             os.mkdir(configs_dirpath)
         
     def is_chat_config_exists(self, chat_id: int) -> bool:
+        """Checks if chat config exists"""
         return os.path.join(self.__dirpath, f'{chat_id}.json')
 
     def create_chat_config(self, chat_id: int) -> dict[str, any]:
+        """Creates new chat config"""
         logger.debug('Creating %s chat config' % chat_id)
-        
-        config = get_default_chat_config()
 
+        config = DEFAULT_CHAT_CONFIG.copy()
         path = os.path.join(self.__dirpath, f'{chat_id}.json')
         fp = open(path, 'w', encoding='utf-8')
         json.dump(config, fp, ensure_ascii=False, indent=4)
@@ -31,6 +34,7 @@ class ChatConfigs:
         return config
 
     def get_chat_config(self, chat_id: int, create = False) -> dict[str, any]:
+        """Returns chat config"""
         logger.debug('Getting %s chat config' % chat_id)
 
         if create:
@@ -45,6 +49,7 @@ class ChatConfigs:
         return config
     
     def set_chat_config(self, chat_id: int, config: dict[str, any]) -> dict[str, any]:
+        """Updates chat config"""
         logger.debug('Updating %s chat config' % chat_id)
 
         path = os.path.join(self.__dirpath, f'{chat_id}.json')
@@ -55,6 +60,7 @@ class ChatConfigs:
         return config
 
     def set_chat_config_field(self, chat_id: int, field: str, value: any, create = False) -> dict[str, any]:
+        """Updates given chat config field"""
         logger.debug('Updating %s chat config field' % chat_id)
 
         config = self.get_chat_config(chat_id, create)

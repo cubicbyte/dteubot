@@ -28,9 +28,9 @@ You can try the bot live ([link](https://t.me/dteubot))<br>
     open menu
 * **/settings**<br>
     open settings
-* **/select \<groupId?\>**<br>
+* **/select \<groupId?: `number`\>**<br>
     select group
-* **/lang**<br>
+* **/lang \<lang?: `[en/uk/ru]`\>**<br>
     select language
 
 ? - optional parameter
@@ -38,7 +38,7 @@ You can try the bot live ([link](https://t.me/dteubot))<br>
 
 # Setup
 
-1. `pip install -r requirements.txt`
+1. Run `pip install -r requirements.txt`
 2. Setup file `.env` using `.env.example` as an example
 3. Launch. `python ./knute-schedule-bot`
 

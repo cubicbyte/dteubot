@@ -28,9 +28,9 @@
     відкрити меню
 * **/settings**<br>
     відкрити налаштування
-* **/select \<groupId?\>**<br>
+* **/select \<groupId?: `number`\>**<br>
     вибрати групу
-* **/lang**<br>
+* **/lang \<lang?: `[en/uk/ru]`\>**<br>
     вибрати мову
 
 ? - необов'язковий параметр
@@ -38,7 +38,7 @@
 
 # Налаштування
 
-1. `pip install -r requirements.txt`
+1. Виконайте `pip install -r requirements.txt`
 2. Налаштуйте файл `.env` по прикладу `.env.example`
 3. Запустіть. `python ./knute-schedule-bot`
 
