@@ -1,7 +1,7 @@
 import os
 import json
 import logging
-from . import DEFAULT_CHAT_CONFIG
+from .default_chat_config import DEFAULT_CHAT_CONFIG
 
 logger = logging.getLogger(__name__)
 
