@@ -1,0 +1,14 @@
+from . import open_info as open_info_handler
+from . import open_menu as open_menu_handler
+from . import open_more as open_more_handler
+from . import open_schedule_day as open_schedule_day_handler
+from . import open_schedule_today as open_schedule_today_handler
+from . import open_schedule_tomorrow as open_schedule_tomorrow_handler
+from . import open_select_group as open_select_group_handler
+from . import open_select_lang as open_select_lang_handler
+from . import open_settings as open_settings_handler
+from . import select_lang as select_lang_handler
+from . import select_schedule_course as select_schedule_course_handler
+from . import select_schedule_faculty as select_schedule_faculty_handler
+from . import select_schedule_group as select_schedule_group_handler
+from . import select_schedule_structure as select_schedule_structure_handler

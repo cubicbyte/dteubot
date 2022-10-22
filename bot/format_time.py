@@ -2,6 +2,14 @@ import telebot.types
 from datetime import timedelta
 
 def format_time(message: telebot.types.Message, time: timedelta, depth = 1) -> str:
+    """Formats timedelta into a readable format
+    
+    Example
+    ----------
+    >>> format_time(message, timedelta(days=2, hours=9, minutes=40, seconds=33), depth=2)
+    '1d. 2h.'
+    """
+
     result = ''
     cur_depth = 0
 

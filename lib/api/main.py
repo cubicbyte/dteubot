@@ -93,7 +93,7 @@ class Api:
 
     def timetable_call(self) -> Response:
         """Returns the call schedule"""
-        return self._make_request('/time-table/call-schedule')
+        return self._make_request('/time-table/call-schedule', 'POST')
 
     def timetable_ad(self, classCode: int, date: str) -> Response:
         """Returns an announcement for the current lesson\n
@@ -166,3 +166,77 @@ class Api:
         return self._make_request('/other/search-teachers', 'POST', json={
             'name': name
         })
+
+
+
+    def get_lesson(self, timestamp = datetime.now()) -> dict:
+        """Returns the current time relative to today's lessons
+        
+        Example result
+        --------------
+        {
+            "lesson": <Lesson>,
+            "status": 0,
+            "time": <datetime.timedelta>,
+            "timetable": [<Lesson>],
+            "timetable_formatted": [<FormattedLesson>]
+        }
+
+        Fields
+        --------------
+        - lesson: lesson time
+        - status:\n
+            0 - before 1st lesson\n
+            1 - during lesson\n
+            2 - during the break\n
+            3 - after last lesson
+        - time: time to lesson
+        - timetable: list of lesson time
+        - timetable_formatted: list of formatted lesson time
+        """
+
+        time = timestamp.time()
+        date = timestamp.date()
+        calls = self.timetable_call().json()
+        calls_formatted = {}
+        for call in calls:
+            print(calls)
+            timeStart = datetime.strptime(call['timeStart'], '%H:%M')
+            timeEnd = datetime.strptime(call['timeEnd'], '%H:%M')
+            calls_formatted[str(call['number'])] = {
+                'timeStart': timeStart,
+                'timeEnd': timeEnd
+            }
+
+        result = {
+            'lesson': None,
+            'status': None,
+            'time': None,
+            'timetable': calls,
+            'timetable_formatted': calls_formatted
+        }
+
+        if time < calls[0]['timeStart']:
+            result['lesson'] = calls[0]
+            result['status'] = 0
+            result['time'] = calls[0]['timeStart'] - time
+        elif time > calls[-1]['timeEnd']:
+            result['lesson'] = calls[-1]
+            result['status'] = 3
+            result['time'] = time - calls[-1]['timeEnd']
+        else:
+            for lesson in calls:
+                if time <= lesson['timeEnd']:
+                    cur_lesson = lesson
+                    break
+
+            if time < cur_lesson['timeStart']:
+                result['lesson'] = cur_lesson
+                result['status'] = 2
+                result['time'] = cur_lesson['timeStart'] - time
+            else:
+                result['lesson'] = cur_lesson
+                result['status'] = 1
+                result['time'] = cur_lesson['timeEnd'] - time
+
+        return result

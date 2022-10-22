@@ -81,7 +81,7 @@
     "command.settings": "\u2699\ufe0f *Налаштування*\n\n*Ваша група:* `{group_id}`\n\nНаступного разу, щоб вибрати цю групу, можете ввести команду `/select {group_id}`",
     "command.lang_select": "\ud83c\uddec\ud83c\udde7 *Зміна мови*\n\n*Ваша поточна мова*: {lang}",
     "command.more": "\ud83d\uddc2 *Додатково*",
-    "command.info": "\u2139\ufe0f *Інформація*\n\n\ud83d\uddff *Створив бота* - @Bogdan4igg\n\nВикористовуйте бота @Knute\\_ScheduleBot я інструмент для отримання розкладу пар на кожен день.",
+    "command.info": "\u2139\ufe0f *Інформація*\n\n\ud83d\uddff *Створив бота* - @Bogdan4igg\n\nВикористовуйте бота @dteubot я інструмент для отримання розкладу пар на кожен день.",
     "command.schedule": "\ud83d\udcc5   *{date}* `[`*{day}*`]`   \ud83d\udcc5\n{schedule}",
     "command.api_unavaliable": "Схоже, сайт з розкладом зараз не працює/не відповідає.\n\nБудь ласка, спробуйте пізніше."
 }
