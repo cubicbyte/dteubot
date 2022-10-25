@@ -20,7 +20,7 @@
     "text.subjects.today": "*Classes today*",
     "text.subjects.tomorrow": "*Classes tomorrow*",
     "text.subjects.missing": "No classes",
-    "text.subjects.missing_today": "\ud83d\udccb *No classes for the next 24 hours*",
+    "text.subjects.missing_today": "\ud83d\udccb *No classes for today*",
 
     "text.time.week_day.0": "Monday",
     "text.time.week_day.1": "Tuesday",
@@ -81,7 +81,7 @@
     "command.settings": "\u2699\ufe0f *Settings*\n\n*Your group:* `{group_id}`\n\nНаступного разу, щоб вибрати цю групу, можете ввести команду `/select {group_id}`",
     "command.lang_select": "\ud83c\uddec\ud83c\udde7 *Change language*\n\n*Your current language*: {lang}",
     "command.more": "\ud83d\uddc2 *Additionally*",
-    "command.info": "\u2139\ufe0f *Information*\n\n\ud83d\uddff *Creator* - @Bogdan4igg\n\nUse the @Knute\\_ScheduleBot as a tool to get the schedule for every day.",
+    "command.info": "\u2139\ufe0f *Information*\n\n\ud83d\uddff *Creator* - @Bogdan4igg\n\nUse the @dteubot as a tool to get the schedule for every day.",
     "command.schedule": "\ud83d\udcc5   *{date}* `[`*{day}*`]`   \ud83d\udcc5\n{schedule}",
     "command.api_unavaliable": "Seems like the timetable site is down/not responding right now.\n\nPlease, try later."
 }

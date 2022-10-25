@@ -9,11 +9,11 @@ def get_time(message: telebot.types.Message, timestamp = datetime.now()) -> dict
     if remaining_time is None:
         formatted = None
     else:
-        formatted = format_time(message, remaining_time, depth=4)
+        formatted = format_time(message, remaining_time['time'], depth=4)
 
     result = {
         'time': remaining_time,
-        'formatted': message.lang['text.in_developing'] #formatted
+        'formatted': formatted
     }
 
     return result

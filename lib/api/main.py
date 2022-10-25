@@ -93,7 +93,7 @@ class Api:
 
     def timetable_call(self) -> Response:
         """Returns the call schedule"""
-        return self._make_request('/time-table/call-schedule')
+        return self._make_request('/time-table/call-schedule', 'POST')
 
     def timetable_ad(self, classCode: int, date: str) -> Response:
         """Returns an announcement for the current lesson\n
@@ -166,3 +166,82 @@ class Api:
         return self._make_request('/other/search-teachers', 'POST', json={
             'name': name
         })
+
+
+
+    def get_lesson(self, lessons: list[int] = None, timestamp = datetime.now()) -> dict:
+        """Returns the current time relative to today's lessons
+        
+        Example
+        --------------
+        >>> api.get_lesson([1, 2, 3, 4])
+        {
+            "lesson": {
+                "number: 0,
+                "timeStart": <datetime.datetime>,
+                "timeEnd": <datetime.datetime>
+            },
+            "status": 0,
+            "time": <datetime.timedelta>
+        }
+
+        Fields
+        --------------
+        - lesson: lesson
+        - status:\n
+            0 - before 1st lesson\n
+            1 - during lesson\n
+            2 - during the break\n
+            3 - after last lesson
+        - time: time to lesson
+        """
+
+        lessons.sort()
+
+        cur_time = datetime.now()
+        cur_date = cur_time.date()
+        time = datetime.combine(cur_date, timestamp.time())
+        calls = self.timetable_call().json()
+        calls_formatted = {}
+        for call in calls:
+            timeStart = datetime.combine(cur_date, datetime.strptime(call['timeStart'], '%H:%M').time())
+            timeEnd = datetime.combine(cur_date, datetime.strptime(call['timeEnd'], '%H:%M').time())
+            calls_formatted[str(call['number'])] = {
+                'number': call['number'],
+                'timeStart': timeStart,
+                'timeEnd': timeEnd
+            }
+
+        result = {
+            'lesson': None,
+            'status': None,
+            'time': None
+        }
+
+        # if the first lesson has not started
+        if cur_time < calls_formatted[str(lessons[0])]['timeStart']:
+            result['lesson'] = calls[0]
+            result['status'] = 0
+            result['time'] = calls_formatted[str(lessons[0])]['timeStart'] - cur_time
+        # If the last lesson is over
+        elif cur_time > calls_formatted[str(lessons[-1])]['timeEnd']:
+            result['lesson'] = calls[-1]
+            result['status'] = 3
+            result['time'] = cur_time - calls_formatted[str(lessons[-1])]['timeEnd']
+        else:
+            for i in lessons:
+                lesson = calls_formatted[str(i)]
+                if cur_time <= lesson['timeEnd']:
+                    cur_lesson = lesson
+                    break
+
+            if cur_time < cur_lesson['timeStart']:
+                result['lesson'] = cur_lesson
+                result['status'] = 2
+                result['time'] = cur_lesson['timeStart'] - cur_time
+            else:
+                result['lesson'] = cur_lesson
+                result['status'] = 1
+                result['time'] = cur_lesson['timeEnd'] - cur_time
+
+        return result
