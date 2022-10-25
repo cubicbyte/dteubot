@@ -169,41 +169,45 @@ class Api:
 
 
 
-    def get_lesson(self, timestamp = datetime.now()) -> dict:
+    def get_lesson(self, lessons: list[int] = None, timestamp = datetime.now()) -> dict:
         """Returns the current time relative to today's lessons
         
-        Example result
+        Example
         --------------
+        >>> api.get_lesson([1, 2, 3, 4])
         {
-            "lesson": <Lesson>,
+            "lesson": {
+                "number: 0,
+                "timeStart": <datetime.datetime>,
+                "timeEnd": <datetime.datetime>
+            },
             "status": 0,
-            "time": <datetime.timedelta>,
-            "timetable": [<Lesson>],
-            "timetable_formatted": [<FormattedLesson>]
+            "time": <datetime.timedelta>
         }
 
         Fields
         --------------
-        - lesson: lesson time
+        - lesson: lesson
         - status:\n
             0 - before 1st lesson\n
             1 - during lesson\n
             2 - during the break\n
             3 - after last lesson
         - time: time to lesson
-        - timetable: list of lesson time
-        - timetable_formatted: list of formatted lesson time
         """
 
-        time = timestamp.time()
-        date = timestamp.date()
+        lessons.sort()
+
+        cur_time = datetime.now()
+        cur_date = cur_time.date()
+        time = datetime.combine(cur_date, timestamp.time())
         calls = self.timetable_call().json()
         calls_formatted = {}
         for call in calls:
-            print(calls)
-            timeStart = datetime.strptime(call['timeStart'], '%H:%M')
-            timeEnd = datetime.strptime(call['timeEnd'], '%H:%M')
+            timeStart = datetime.combine(cur_date, datetime.strptime(call['timeStart'], '%H:%M').time())
+            timeEnd = datetime.combine(cur_date, datetime.strptime(call['timeEnd'], '%H:%M').time())
             calls_formatted[str(call['number'])] = {
+                'number': call['number'],
                 'timeStart': timeStart,
                 'timeEnd': timeEnd
             }
@@ -211,32 +215,33 @@ class Api:
         result = {
             'lesson': None,
             'status': None,
-            'time': None,
-            'timetable': calls,
-            'timetable_formatted': calls_formatted
+            'time': None
         }
 
-        if time < calls[0]['timeStart']:
+        # if the first lesson has not started
+        if cur_time < calls_formatted[str(lessons[0])]['timeStart']:
             result['lesson'] = calls[0]
             result['status'] = 0
-            result['time'] = calls[0]['timeStart'] - time
-        elif time > calls[-1]['timeEnd']:
+            result['time'] = calls_formatted[str(lessons[0])]['timeStart'] - cur_time
+        # If the last lesson is over
+        elif cur_time > calls_formatted[str(lessons[-1])]['timeEnd']:
             result['lesson'] = calls[-1]
             result['status'] = 3
-            result['time'] = time - calls[-1]['timeEnd']
+            result['time'] = cur_time - calls_formatted[str(lessons[-1])]['timeEnd']
         else:
-            for lesson in calls:
-                if time <= lesson['timeEnd']:
+            for i in lessons:
+                lesson = calls_formatted[str(i)]
+                if cur_time <= lesson['timeEnd']:
                     cur_lesson = lesson
                     break
 
-            if time < cur_lesson['timeStart']:
+            if cur_time < cur_lesson['timeStart']:
                 result['lesson'] = cur_lesson
                 result['status'] = 2
-                result['time'] = cur_lesson['timeStart'] - time
+                result['time'] = cur_lesson['timeStart'] - cur_time
             else:
                 result['lesson'] = cur_lesson
                 result['status'] = 1
-                result['time'] = cur_lesson['timeEnd'] - time
+                result['time'] = cur_lesson['timeEnd'] - cur_time
 
         return result

@@ -3,38 +3,22 @@ from datetime import datetime, timedelta
 from .settings import api
 
 def get_remaining_time(message: telebot.types.Message, timestamp = datetime.now()) -> timedelta | None:
-    '''
-        Returns the time before the start/end of the lesson
-        
-        Positive value: time before the start
-        Negative value: time until the end
-    '''
+    """Returns the time before the start/end of the lesson"""
 
-    #return timedelta(days=1, hours=2, minutes=16, seconds=45)
-    
-    lesson_time = api.get_lesson()
-    found = False
-    start = 1 if lesson_time['status'] == 3 else 0
+    schedule = api.timetable_group(message.config['schedule']['group_id'], timestamp).json()
+    date = timestamp.strftime('%Y-%m-%d')
 
-    for i in range(start, 7):
-        schedule = api.timetable_group(message.config['schedule']['group_id'], timestamp + timedelta(days=i)).json()
-
-        for day in schedule:
-            if len(day['lessons']) != 0:
-                found = True
-                lessons = day
-                break
-
-        if found:
+    # if there are no lessons, return None
+    day = None
+    for i in schedule:
+        if i['date'] == date:
+            day = i
             break
-
-    if not found:
+    if day is None:
         return None
 
-    first_lesson_time = lesson_time['timetable_formatted'][lessons[0]['number']]['timeStart']
-    cur_lesson_time = lesson_time['timetable_formatted'][lessons[lesson_time['lesson']]]['left']
+    lessons = []
+    for lesson in day['lessons']:
+        lessons.append(lesson['number'])
 
-    if timestamp < first_lesson_time:
-        return lesson_time['time']
-
-    return cur_lesson_time
+    return api.get_lesson(lessons)

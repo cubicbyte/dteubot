@@ -20,7 +20,7 @@
     "text.subjects.today": "*Classes today*",
     "text.subjects.tomorrow": "*Classes tomorrow*",
     "text.subjects.missing": "No classes",
-    "text.subjects.missing_today": "\ud83d\udccb *No classes for the next 24 hours*",
+    "text.subjects.missing_today": "\ud83d\udccb *No classes for today*",
 
     "text.time.week_day.0": "Monday",
     "text.time.week_day.1": "Tuesday",

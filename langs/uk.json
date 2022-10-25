@@ -20,7 +20,7 @@
     "text.subjects.today": "*Пари сьогодні*",
     "text.subjects.tomorrow": "*Пари завтра*",
     "text.subjects.missing": "Пари відсутні",
-    "text.subjects.missing_today": "\ud83d\udccb *Пари в найближчі 24 години відсутні*",
+    "text.subjects.missing_today": "\ud83d\udccb *Пари на сьогодні відсутні*",
 
     "text.time.week_day.0": "Понеділок",
     "text.time.week_day.1": "Вівторок",

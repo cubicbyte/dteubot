@@ -1,4 +1,5 @@
 from . import open_info as open_info_handler
+from . import open_left as open_left_handler
 from . import open_menu as open_menu_handler
 from . import open_more as open_more_handler
 from . import open_schedule_day as open_schedule_day_handler
