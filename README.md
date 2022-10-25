@@ -6,39 +6,39 @@
 [![Python 3.6+](https://img.shields.io/badge/python-3.6+-blue.svg)](https://www.python.org/downloads)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-Bot for getting the schedule in [SUTE](https://mia1.knute.edu.ua).<br>
-*\*You can also configure this bot to display schedule from other universities using the MKR ACS system\**<br>
-You can try the bot live ([link](https://t.me/dteubot))<br>
-[Українська](README-ua.md) • [Русский](README-ru.md)
+## [English version](README.md)
+Бот для зручного перегляду розкладу пар в [ДТЕУ](https://mia1.knute.edu.ua).<br>
+*\*Ви також можете налаштувати цього бота для відображення розкладу інших університетів, що використовують систему АСУ МКР\**<br>
+Бот доступний для використання по [посиланню](https://t.me/dteubot)<br>
 
 </div>
 
-# Screenshots
-![Bot screenshot](https://user-images.githubusercontent.com/81159301/193561985-2414eafb-3423-4ef6-b149-24926831df7a.png)
+# Скріншоти
+![Скріншот бота](https://user-images.githubusercontent.com/81159301/193561985-2414eafb-3423-4ef6-b149-24926831df7a.png)
 
-# Commands
+# Команди
 
 * **/today**<br>
-    lessons today
+    пари сегодні
 * **/tomorrow**<br>
-    lessons tomorrow
+    пари завтра
 * **/left**<br>
-    time until the end/start of the lesson
+    час до кінця/початку пари
 * **/menu**<br>
-    open menu
+    відкрити меню
 * **/settings**<br>
-    open settings
+    відкрити налаштування
 * **/select \<groupId?: `number`\>**<br>
-    select group
+    вибрати групу
 * **/lang \<lang?: `[en/uk/ru]`\>**<br>
-    select language
+    вибрати мову
 
-? - optional parameter
+? - необов'язковий параметр
 <br><br>
 
-# Setup
+# Налаштування
 
-1. Run `pip install -r requirements.txt`
-2. Setup file `.env` using `.env.example` as an example
-3. Launch. `python ./knute-schedule-bot`
+1. Виконайте `pip install -r requirements.txt`
+2. Налаштуйте файл `.env` по прикладу `.env.example`
+3. Запустіть. `python ./sute-schedule-bot`
 
