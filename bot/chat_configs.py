@@ -19,7 +19,7 @@ class ChatConfigs:
         
     def is_chat_config_exists(self, chat_id: int) -> bool:
         """Checks if chat config exists"""
-        return os.path.join(self.__dirpath, f'{chat_id}.json')
+        return os.path.exists(os.path.join(self.__dirpath, f'{chat_id}.json'))
 
     def create_chat_config(self, chat_id: int) -> dict[str, any]:
         """Creates new chat config"""
