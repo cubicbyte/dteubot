@@ -41,3 +41,6 @@ You can try the bot live ([link](https://t.me/dteubot))<br>
 2. Setup file `.env` using `.env.example` as an example
 3. Launch. `python ./sute-schedule-bot`
 
+This bot also supports running in another directory, you just need to create an .env file in it.<br>
+If not created, the bot will use the .env file from its root directory
+

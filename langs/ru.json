@@ -41,6 +41,7 @@
     "text.time.week_day.short.unknown": "?",
 
     "text.time.ago": "назад",
+    "text.time.left_unknown": "\u274c *Пары на сегодня неизвестны*",
     "text.time.left_start": "\ud83d\udccb *До пары осталось*: {left}",
     "text.time.left_end": "\ud83d\udccb *До конца пары осталось*: {left}",
     "text.time.short.seconds": "с.",
@@ -78,7 +79,7 @@
     "command.group": "Выберите группу",
     "command.group_incorrect": "\u274c *Не удалось получить расписание для вашей группы*\n\nПопробуйте выбрать другую.",
     "command.menu": "\ud83c\udfe0 *Меню*\n\n{left}\n\nЭтот бот создан для удобного и быстрого просмотра расписания пар в КНТЕУ.",
-    "command.settings": "\u2699\ufe0f *Настройки*\n\n*Ваша группа:* `{group_id}`\n\n\nThe next time you want to select this group, you can type `/select {group_id}`",
+    "command.settings": "\u2699\ufe0f *Настройки*\n\n*Ваша группа:* `{group_id}`\n\nВ следующий раз, чтобы выбрать эту группу, вы можете ввести команду `/select {group_id}`",
     "command.lang_select": "\ud83c\uddec\ud83c\udde7 *Смена языка*\n\n*Ваш текущий язык*: {lang}",
     "command.more": "\ud83d\uddc2 *Дополнительно*",
     "command.info": "\u2139\ufe0f *Информация*\n\n\ud83d\uddff *Создатель* - @Bogdan4igg\n\nИспользуйте бота @dteubot как инструмент для получения расписания пар на каждый день.",

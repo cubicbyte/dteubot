@@ -41,6 +41,7 @@
     "text.time.week_day.short.unknown": "?",
 
     "text.time.ago": "ago",
+    "text.time.left_unknown": "\u274c Classes are unknown for today",
     "text.time.left_start": "\ud83d\udccb *Time remaining*: {left}",
     "text.time.left_end": "\ud83d\udccb *Time until the end of classes*: {left}",
     "text.time.short.seconds": "s.",
@@ -78,7 +79,7 @@
     "command.group": "Select group",
     "command.group_incorrect": "\u274c *Failed to get schedule for your group*\n\nPlease try to select another one.",
     "command.menu": "\ud83c\udfe0 *Menu*\n\n{left}\n\nThis bot was created for convenient and quick schedule reviewing in KNUTE.",
-    "command.settings": "\u2699\ufe0f *Settings*\n\n*Your group:* `{group_id}`\n\nНаступного разу, щоб вибрати цю групу, можете ввести команду `/select {group_id}`",
+    "command.settings": "\u2699\ufe0f *Settings*\n\n*Your group:* `{group_id}`\n\nThe next time you want to select this group, you can type `/select {group_id}`",
     "command.lang_select": "\ud83c\uddec\ud83c\udde7 *Change language*\n\n*Your current language*: {lang}",
     "command.more": "\ud83d\uddc2 *Additionally*",
     "command.info": "\u2139\ufe0f *Information*\n\n\ud83d\uddff *Creator* - @Bogdan4igg\n\nUse the @dteubot as a tool to get the schedule for every day.",
