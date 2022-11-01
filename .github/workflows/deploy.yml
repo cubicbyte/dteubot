@@ -28,8 +28,9 @@ jobs:
         key: KEY
         port: PORT
         script: |
-          if screen -list | grep -q "${{ env.REPOSITORY_NAME }}"; then
-            screen -X -S ${{ env.REPOSITORY_NAME }} quit;
+          screen -wipe
+          if screen -list | grep -q "sute-schedule-bot"; then
+            screen -X -S sute-schedule-bot quit;
           fi
 
     - name: Pull changes
@@ -40,8 +41,8 @@ jobs:
         key: KEY
         port: PORT
         script: |
-          cd ~/${{ env.REPOSITORY_NAME }}
-          git pull origin master
+          cd ~/sute-schedule-bot
+          git pull -f origin master
 
     - name: Setup
       uses: appleboy/ssh-action@master
@@ -51,9 +52,10 @@ jobs:
         key: KEY
         port: PORT
         script: |
-          cd ~/${{ env.REPOSITORY_NAME }}
-          echo '${{ secrets.ENV }}' > ~/${{ env.REPOSITORY_NAME }}/.env
+          cd ~/sute-schedule-bot
           pip install -r requirements.txt
+          cd ~/bot-data
+          echo '${{ secrets.ENV }}' > .env
 
     - name: Run
       uses: appleboy/ssh-action@master
@@ -62,4 +64,4 @@ jobs:
         username: USERNAME
         key: KEY
         port: PORT
-        script: screen -S ${{ env.REPOSITORY_NAME }} -d -m python ~/${{ env.REPOSITORY_NAME }}
+        script: bash ~/bot-data/run.sh
