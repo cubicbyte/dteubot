@@ -1,3 +1,4 @@
+from . import open_calls as open_calls_handler
 from . import open_info as open_info_handler
 from . import open_left as open_left_handler
 from . import open_menu as open_menu_handler

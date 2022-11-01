@@ -16,6 +16,7 @@
     "text.group_incorrect": "\u274c Failed to get schedule for your group\n\nPlease try to select another one.",
     "text.lesson": "\n`———— ``{timeStart}`` ——— ``{timeEnd}`` ————`\n`  `*{disciplineShortName}*`[{typeStr}]`\n`{number} `{classroom}\n`  `{teachersNameFull}",
     "text.lesson_empty": "\n`—————————————————————————`\n\n`          Empty`\n\n`—————————————————————————`",
+    "text.call_time": "`{number})` *{timeStart}* `-` *{timeEnd}*\n",
     
     "text.subjects.today": "*Classes today*",
     "text.subjects.tomorrow": "*Classes tomorrow*",
@@ -51,6 +52,7 @@
 
 
 
+    "button.calls": "\ud83d\udd53 Calls schedule",
     "button.write_me": "\u2709\ufe0f Write me",
     "button.menu": "\ud83c\udfe0 Menu",
     "button.back": "\u2b05\ufe0f Back",
@@ -84,5 +86,6 @@
     "command.more": "\ud83d\uddc2 *Additionally*",
     "command.info": "\u2139\ufe0f *Information*\n\n\ud83d\uddff *Creator* - @Bogdan4igg\n\nUse the @dteubot as a tool to get the schedule for every day.",
     "command.schedule": "\ud83d\udcc5   *{date}* `[`*{day}*`]`   \ud83d\udcc5\n{schedule}",
-    "command.api_unavaliable": "Seems like the timetable site is down/not responding right now.\n\nPlease, try later."
+    "command.api_unavaliable": "Seems like the timetable site is down/not responding right now.\n\nPlease, try later.",
+    "command.calls": "\ud83d\udd53 Calls schedule\n\n{schedule}"
 }

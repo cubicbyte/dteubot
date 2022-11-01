@@ -13,3 +13,4 @@ from .select_course import create_message as create_select_course_message
 from .select_group import create_message as create_select_group_message
 from .statistic import create_message as create_statistic_message
 from .left import create_message as create_left_message
+from .calls import create_message as create_calls_message
