@@ -16,10 +16,15 @@ class ChatConfigs:
 
         if not os.path.exists(configs_dirpath):
             os.mkdir(configs_dirpath)
+
+    def _get_chat_config_path(self, chat_id: int) -> str:
+        """Returns chat config file path"""
+        return os.path.join(self.__dirpath, f'{chat_id}.json')
         
     def is_chat_config_exists(self, chat_id: int) -> bool:
         """Checks if chat config exists"""
-        return os.path.exists(os.path.join(self.__dirpath, f'{chat_id}.json'))
+        return os.path.exists(self._get_chat_config_path(chat_id))
+        
 
     def create_chat_config(self, chat_id: int) -> dict[str, any]:
         """Creates new chat config"""

@@ -1,16 +1,8 @@
 from telebot import types
-from .. import get_remaining_time_formatted
+from .left import get_text as get_remaining_time_text
 
 def create_message(message: types.Message) -> dict:
-    remaining_time = get_remaining_time_formatted(message)
-
-    if remaining_time['time'] is None or remaining_time['time']['status'] == 3:
-        left = message.lang['text.subjects.missing_today']
-    elif remaining_time['time']['status'] == 1:
-        left = message.lang['text.time.left_end'].format(left=remaining_time['formatted'])
-    else:
-        left = message.lang['text.time.left_start'].format(left=remaining_time['formatted'])
-
+    left = get_remaining_time_text(message)
     message_text = message.lang['command.menu'].format(left=left)
     markup = types.InlineKeyboardMarkup()
 

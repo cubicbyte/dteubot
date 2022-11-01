@@ -6,29 +6,27 @@ import pytz
 
 from requests import Response
 from urllib.parse import urljoin
-from datetime import date, datetime, timedelta
+from datetime import date, datetime
 from requests_cache import CachedSession
 from .src.utils.date_range import get_date_range
 
 logger = logging.getLogger(__name__)
 logger.info('Initializing api module')
 
-session = CachedSession(
-    'cache/api',
-    cache_control=True,
-    expire_after=timedelta(days=1),
-    allowable_methods=['GET', 'POST'],
-    match_headers=True,
-    stale_if_error=True
-)
-
 
 
 class Api:
-    def __init__(self, url: str, expires_after: timedelta = None, timeout: int = None) -> None:
+    def __init__(self, url: str, **kwargs) -> None:
         logger.info('Creating Api instance with url %s' % url)
         self.url = url
-        self.timeout = timeout
+        self._session = CachedSession(
+            cache_name='cache/api',
+            cache_control=True,
+            allowable_methods=['GET', 'POST'],
+            match_headers=True,
+            stale_if_error=True,
+            **kwargs
+        )
 
     def _make_request(self, path: str, method: str = 'GET', json: dict = None, *args, **kwargs) -> Response:
         logger.debug(f'Making {method} request to {path} with JSON data {json}')
@@ -38,7 +36,7 @@ class Api:
         }
 
         url = urljoin(self.url, path)
-        res = session.request(method, url, headers=headers, json=json, timeout=self.timeout, *args, **kwargs)
+        res = self._session.request(method, url, headers=headers, json=json, *args, **kwargs)
 
         return res
 

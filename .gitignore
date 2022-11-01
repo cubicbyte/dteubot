@@ -1,7 +1,7 @@
-dev/*
-chat-configs/*
-logs/*
-cache/*
+dev/
+chat-configs/
+logs/
+cache/
 
 **/__pycache__
 

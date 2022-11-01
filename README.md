@@ -42,3 +42,6 @@
 2. Налаштуйте файл `.env` по прикладу `.env.example`
 3. Запустіть. `python ./sute-schedule-bot`
 
+This bot also supports running in another directory, you just need to create an .env file in it.<br>
+If not created, the bot will use the .env file from its root directory
+
