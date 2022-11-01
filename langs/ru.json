@@ -16,6 +16,7 @@
     "text.group_incorrect": "\u274c Не удалось получить расписание для вашей группы\n\nПопробуйте выбрать другую.",
     "text.lesson": "\n`———— ``{timeStart}`` ——— ``{timeEnd}`` ————`\n`  `*{disciplineShortName}*`[{typeStr}]`\n`{number} `{classroom}\n`  `{teachersNameFull}",
     "text.lesson_empty": "\n`—————————————————————————`\n\n`          Пусто`\n\n`—————————————————————————`",
+    "text.call_time": "`{number})` *{timeStart}* `-` *{timeEnd}*\n",
     
     "text.subjects.today": "*Пары сегодня*",
     "text.subjects.tomorrow": "*Пары завтра*",
@@ -51,6 +52,7 @@
 
 
 
+    "button.calls": "\ud83d\udd53 Расписание звонков",
     "button.write_me": "\u2709\ufe0f Написать мне",
     "button.menu": "\ud83c\udfe0 Меню",
     "button.back": "\u2b05\ufe0f Назад",
@@ -84,5 +86,6 @@
     "command.more": "\ud83d\uddc2 *Дополнительно*",
     "command.info": "\u2139\ufe0f *Информация*\n\n\ud83d\uddff *Создатель* - @Bogdan4igg\n\nИспользуйте бота @dteubot как инструмент для получения расписания пар на каждый день.",
     "command.schedule": "\ud83d\udcc5   *{date}* `[`*{day}*`]`   \ud83d\udcc5\n{schedule}",
-    "command.api_unavaliable": "Похоже, сайт с расписанием сейчас не работает/не отвечает.\n\nПожалуйста, попробуйте позже."
+    "command.api_unavaliable": "Похоже, сайт с расписанием сейчас не работает/не отвечает.\n\nПожалуйста, попробуйте позже.",
+    "command.calls": "\ud83d\udd53 Расписание звонков\n\n{schedule}"
 }

@@ -16,6 +16,7 @@
     "text.group_incorrect": "\u274c Не вдалося отримати розклад для вашої групи\n\nСпробуйте вибрати іншу.",
     "text.lesson": "\n`———— ``{timeStart}`` ——— ``{timeEnd}`` ————`\n`  `*{disciplineShortName}*`[{typeStr}]`\n`{number} `{classroom}\n`  `{teachersNameFull}",
     "text.lesson_empty": "\n`—————————————————————————`\n\n`          Пусто`\n\n`—————————————————————————`",
+    "text.call_time": "`{number})` *{timeStart}* `-` *{timeEnd}*\n",
     
     "text.subjects.today": "*Пари сьогодні*",
     "text.subjects.tomorrow": "*Пари завтра*",
@@ -51,6 +52,7 @@
 
 
 
+    "button.calls": "\ud83d\udd53 Розклад дзвінків",
     "button.write_me": "\u2709\ufe0f Написати мені",
     "button.menu": "\ud83c\udfe0 Меню",
     "button.back": "\u2b05\ufe0f Назад",
@@ -84,5 +86,6 @@
     "command.more": "\ud83d\uddc2 *Додатково*",
     "command.info": "\u2139\ufe0f *Інформація*\n\n\ud83d\uddff *Створив бота* - @Bogdan4igg\n\nВикористовуйте бота @dteubot я інструмент для отримання розкладу пар на кожен день.",
     "command.schedule": "\ud83d\udcc5   *{date}* `[`*{day}*`]`   \ud83d\udcc5\n{schedule}",
-    "command.api_unavaliable": "Схоже, сайт з розкладом зараз не працює/не відповідає.\n\nБудь ласка, спробуйте пізніше."
+    "command.api_unavaliable": "Схоже, сайт з розкладом зараз не працює/не відповідає.\n\nБудь ласка, спробуйте пізніше.",
+    "command.calls": "\ud83d\udd53 Розклад дзвінків\n\n{schedule}"
 }
