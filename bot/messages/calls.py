@@ -12,7 +12,7 @@ def get_text(message: types.Message) -> str:
         return create_api_unavaliable_message(message)
 
     for call in calls:
-        msg += message.lang['text.call_time'].format(**call)
+        msg += '`{number})` *{timeStart}* `-` *{timeEnd}*\n'.format(**call)
 
     return msg
 

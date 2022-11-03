@@ -2,7 +2,7 @@ import os
 import sys
 import telebot
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 from dotenv import load_dotenv
 
 sys.path.append('../lib')                   # Required to load external libraries
@@ -54,7 +54,7 @@ from .load_langs import load_langs
 BOT_TOKEN = os.getenv('BOT_TOKEN')
 api_url = os.getenv('API_URL')
 api_timeout = int(os.getenv('API_REQUEST_TIMEOUT'))
-api_expires = int(os.getenv('API_CACHE_EXPIRES'))
+api_expires = timedelta(seconds=int(os.getenv('API_CACHE_EXPIRES')))
 
 if api_timeout <= 0:
     api_timeout = None

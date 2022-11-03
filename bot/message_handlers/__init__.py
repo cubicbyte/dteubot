@@ -8,3 +8,4 @@ from .start import handle_command as start_command
 from .today import handle_command as today_command
 from .tomorrow import handle_command as tomorrow_command
 from .calls import handle_command as calls_command
+from .admin import handle_command as admin_command
