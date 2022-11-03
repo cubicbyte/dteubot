@@ -14,3 +14,7 @@ from . import select_schedule_course as select_schedule_course_handler
 from . import select_schedule_faculty as select_schedule_faculty_handler
 from . import select_schedule_group as select_schedule_group_handler
 from . import select_schedule_structure as select_schedule_structure_handler
+from . import admin as admin_handler
+from . import admin_open_panel as admin_open_panel_handler
+from . import admin_clear_expired_cache as admin_clear_expired_cache_handler
+from . import admin_clear_all_cache as admin_clear_all_cache_handler

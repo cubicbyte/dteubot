@@ -17,6 +17,12 @@ def create_message(message: types.Message) -> dict:
         types.InlineKeyboardButton(text=message.lang['button.more'], callback_data='open.more')
     )
 
+    # If user is admin, then add control panel button
+    if message.config['admin'] is True:
+        markup.add(
+            types.InlineKeyboardButton(text=message.lang['button.admin_panel'], callback_data='admin.open_panel')
+        )
+
     msg = {
         'chat_id': message.chat.id,
         'text': message_text,

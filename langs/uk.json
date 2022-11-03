@@ -14,9 +14,6 @@
     "text.incorrect": "\u2753 Невірні дані",
     "text.not_selected": "\u274c Не вибрано",
     "text.group_incorrect": "\u274c Не вдалося отримати розклад для вашої групи\n\nСпробуйте вибрати іншу.",
-    "text.lesson": "\n`———— ``{timeStart}`` ——— ``{timeEnd}`` ————`\n`  `*{disciplineShortName}*`[{typeStr}]`\n`{number} `{classroom}\n`  `{teachersNameFull}",
-    "text.lesson_empty": "\n`—————————————————————————`\n\n`          Пусто`\n\n`—————————————————————————`",
-    "text.call_time": "`{number})` *{timeStart}* `-` *{timeEnd}*\n",
     
     "text.subjects.today": "*Пари сьогодні*",
     "text.subjects.tomorrow": "*Пари завтра*",
@@ -52,6 +49,9 @@
 
 
 
+    "button.clear_all_cache": "Очистити весь кеш",
+    "button.clear_expired_cache": "Очистити прострочений кеш",
+    "button.admin_panel": "\ud83d\udd12 Панель управління",
     "button.calls": "\ud83d\udd53 Розклад дзвінків",
     "button.write_me": "\u2709\ufe0f Написати мені",
     "button.menu": "\ud83c\udfe0 Меню",
@@ -85,7 +85,8 @@
     "command.lang_select": "\ud83c\uddec\ud83c\udde7 *Зміна мови*\n\n*Ваша поточна мова*: {lang}",
     "command.more": "\ud83d\uddc2 *Додатково*",
     "command.info": "\u2139\ufe0f *Інформація*\n\n\ud83d\uddff *Створив бота* - @Bogdan4igg\n\nВикористовуйте бота @dteubot я інструмент для отримання розкладу пар на кожен день.",
-    "command.schedule": "\ud83d\udcc5   *{date}* `[`*{day}*`]`   \ud83d\udcc5\n{schedule}",
+    "command.schedule": "\ud83d\udcc5   {date}   \ud83d\udcc5\n\n{schedule}",
     "command.api_unavaliable": "Схоже, сайт з розкладом зараз не працює/не відповідає.\n\nБудь ласка, спробуйте пізніше.",
-    "command.calls": "\ud83d\udd53 Розклад дзвінків\n\n{schedule}"
+    "command.calls": "\ud83d\udd53 *Розклад дзвінків*\n\n{schedule}",
+    "command.admin_panel": "\ud83d\udee0 *Панель управління*"
 }

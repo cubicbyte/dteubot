@@ -4,10 +4,9 @@
 import logging
 import pytz
 
-from requests import Response
 from urllib.parse import urljoin
 from datetime import date, datetime
-from requests_cache import CachedSession
+from requests_cache import CachedSession, Response
 from .src.utils.date_range import get_date_range
 
 logger = logging.getLogger(__name__)
@@ -16,9 +15,11 @@ logger.info('Initializing api module')
 
 
 class Api:
-    def __init__(self, url: str, **kwargs) -> None:
+    def __init__(self, url: str, timeout: int = None, **kwargs) -> None:
         logger.info('Creating Api instance with url %s' % url)
+        
         self.url = url
+        self._timeout = timeout
         self._session = CachedSession(
             cache_name='cache/api',
             cache_control=True,
@@ -36,7 +37,7 @@ class Api:
         }
 
         url = urljoin(self.url, path)
-        res = self._session.request(method, url, headers=headers, json=json, *args, **kwargs)
+        res = self._session.request(method, url, headers=headers, json=json, timeout=self._timeout, *args, **kwargs)
 
         return res
 

@@ -14,3 +14,5 @@ from .select_group import create_message as create_select_group_message
 from .statistic import create_message as create_statistic_message
 from .left import create_message as create_left_message
 from .calls import create_message as create_calls_message
+from .admin_panel import create_message as create_admin_panel_message
+from .access_denied import create_message as create_access_denied_message

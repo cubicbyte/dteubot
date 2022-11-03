@@ -14,13 +14,10 @@
     "text.incorrect": "\u2753 Incorrect data",
     "text.not_selected": "\u274c Not selected",
     "text.group_incorrect": "\u274c Failed to get schedule for your group\n\nPlease try to select another one.",
-    "text.lesson": "\n`———— ``{timeStart}`` ——— ``{timeEnd}`` ————`\n`  `*{disciplineShortName}*`[{typeStr}]`\n`{number} `{classroom}\n`  `{teachersNameFull}",
-    "text.lesson_empty": "\n`—————————————————————————`\n\n`          Empty`\n\n`—————————————————————————`",
-    "text.call_time": "`{number})` *{timeStart}* `-` *{timeEnd}*\n",
     
     "text.subjects.today": "*Classes today*",
     "text.subjects.tomorrow": "*Classes tomorrow*",
-    "text.subjects.missing": "No classes",
+    "text.subjects.missing": "No lessons",
     "text.subjects.missing_today": "\ud83d\udccb *No classes for today*",
 
     "text.time.week_day.0": "Monday",
@@ -52,6 +49,9 @@
 
 
 
+    "button.clear_all_cache": "Clear all cache",
+    "button.clear_expired_cache": "Clear expired cache",
+    "button.admin_panel": "\ud83d\udd12 Control panel",
     "button.calls": "\ud83d\udd53 Calls schedule",
     "button.write_me": "\u2709\ufe0f Write me",
     "button.menu": "\ud83c\udfe0 Menu",
@@ -85,7 +85,8 @@
     "command.lang_select": "\ud83c\uddec\ud83c\udde7 *Change language*\n\n*Your current language*: {lang}",
     "command.more": "\ud83d\uddc2 *Additionally*",
     "command.info": "\u2139\ufe0f *Information*\n\n\ud83d\uddff *Creator* - @Bogdan4igg\n\nUse the @dteubot as a tool to get the schedule for every day.",
-    "command.schedule": "\ud83d\udcc5   *{date}* `[`*{day}*`]`   \ud83d\udcc5\n{schedule}",
+    "command.schedule": "\ud83d\udcc5   {date}   \ud83d\udcc5\n\n{schedule}",
     "command.api_unavaliable": "Seems like the timetable site is down/not responding right now.\n\nPlease, try later.",
-    "command.calls": "\ud83d\udd53 Calls schedule\n\n{schedule}"
+    "command.calls": "\ud83d\udd53 *Calls schedule*\n\n{schedule}",
+    "command.admin_panel": "\ud83d\udee0 *Control panel*"
 }

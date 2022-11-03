@@ -3,7 +3,7 @@
 
 # SUTE Schedule Bot
 
-[![Python 3.6+](https://img.shields.io/badge/python-3.6+-blue.svg)](https://www.python.org/downloads)
+[![Python 3.6+](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 Bot for getting the schedule in [SUTE](https://mia1.knute.edu.ua).<br>
@@ -23,6 +23,8 @@ You can try the bot live ([link](https://t.me/dteubot))<br>
     lessons tomorrow
 * **/left**<br>
     time until the end/start of the lesson
+* **/calls**<br>
+    calls schedule
 * **/menu**<br>
     open menu
 * **/settings**<br>

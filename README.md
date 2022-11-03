@@ -3,7 +3,7 @@
 
 # SUTE Schedule Bot
 
-[![Python 3.6+](https://img.shields.io/badge/python-3.6+-blue.svg)](https://www.python.org/downloads)
+[![Python 3.6+](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ## [English version](README.md)
@@ -24,6 +24,8 @@
     пари завтра
 * **/left**<br>
     час до кінця/початку пари
+* **/calls**<br>
+    розклад дзвінків
 * **/menu**<br>
     відкрити меню
 * **/settings**<br>

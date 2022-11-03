@@ -56,6 +56,7 @@ jobs:
           pip install -r requirements.txt
           cd ~/bot-data
           echo '${{ secrets.ENV }}' > .env
+          python ~/sute-schedule-bot/scripts/update_chat_configs.py chat-configs
 
     - name: Run
       uses: appleboy/ssh-action@master
