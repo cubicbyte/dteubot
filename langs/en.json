@@ -87,5 +87,5 @@
     "command.info": "\u2139\ufe0f *Information*\n\n\ud83d\uddff *Creator* - @Bogdan4igg\n\nUse the @dteubot as a tool to get the schedule for every day.",
     "command.schedule": "\ud83d\udcc5   *{date}* `[`*{day}*`]`   \ud83d\udcc5\n{schedule}",
     "command.api_unavaliable": "Seems like the timetable site is down/not responding right now.\n\nPlease, try later.",
-    "command.calls": "\ud83d\udd53 Calls schedule\n\n{schedule}"
+    "command.calls": "\ud83d\udd53 *Calls schedule*\n\n{schedule}"
 }

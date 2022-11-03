@@ -87,5 +87,5 @@
     "command.info": "\u2139\ufe0f *Інформація*\n\n\ud83d\uddff *Створив бота* - @Bogdan4igg\n\nВикористовуйте бота @dteubot я інструмент для отримання розкладу пар на кожен день.",
     "command.schedule": "\ud83d\udcc5   *{date}* `[`*{day}*`]`   \ud83d\udcc5\n{schedule}",
     "command.api_unavaliable": "Схоже, сайт з розкладом зараз не працює/не відповідає.\n\nБудь ласка, спробуйте пізніше.",
-    "command.calls": "\ud83d\udd53 Розклад дзвінків\n\n{schedule}"
+    "command.calls": "\ud83d\udd53 *Розклад дзвінків*\n\n{schedule}"
 }

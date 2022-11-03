@@ -23,6 +23,8 @@ You can try the bot live ([link](https://t.me/dteubot))<br>
     lessons tomorrow
 * **/left**<br>
     time until the end/start of the lesson
+* **/calls**<br>
+    calls schedule
 * **/menu**<br>
     open menu
 * **/settings**<br>
