@@ -102,6 +102,9 @@ def create_message(message: types.Message, date: datetime | str) -> dict:
         schedule=schedule_text
     )
 
+    if res.from_cache:
+        msg_text += '\n\n' + message.lang['text.from_cache']
+
     msg = {
         'chat_id': message.chat.id,
         'text': msg_text,

@@ -14,6 +14,7 @@
     "text.incorrect": "\u2753 Неверные данные",
     "text.not_selected": "\u274c Не выбрано",
     "text.group_incorrect": "\u274c Не удалось получить расписание для вашей группы\n\nПопробуйте выбрать другую.",
+    "text.from_cache": "Получено с кеша",
     
     "text.subjects.today": "*Пары сегодня*",
     "text.subjects.tomorrow": "*Пары завтра*",
