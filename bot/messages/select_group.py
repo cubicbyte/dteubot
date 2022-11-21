@@ -17,10 +17,13 @@ def create_message(message: types.Message) -> dict:
         types.InlineKeyboardButton(text=message.lang['button.back'], callback_data=f'select.schedule.faculty_id={message.config["schedule"]["faculty_id"]}')
     )
 
+    buttons = []
     for group in res.json():
-        markup.add(
+        buttons.append(
             types.InlineKeyboardButton(text=group['name'], callback_data=f'select.schedule.group_id={group["id"]}')
         )
+
+    markup.add(*buttons)
 
     msg = {
         'chat_id': message.chat.id,
