@@ -3,7 +3,7 @@ from telebot import types
 from .. import get_remaining_time_formatted
 
 def get_text(message: types.Message) -> str:
-    if message.config['schedule']['group_id'] is None:
+    if message.config['groupId'] is None:
         return message.lang['text.time.left_unknown']
 
     try:

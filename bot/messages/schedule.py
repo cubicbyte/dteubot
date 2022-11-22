@@ -34,7 +34,7 @@ def create_message(message: types.Message, date: datetime | str) -> dict:
         date = datetime.strptime(date, '%Y-%m-%d')
 
     try:
-        res = api.timetable_group(message.config['schedule']['group_id'], date)
+        res = api.timetable_group(message.config['groupId'], date)
         if res.status_code == 422:
             return create_invalid_group_message(message)
 
@@ -47,12 +47,12 @@ def create_message(message: types.Message, date: datetime | str) -> dict:
     current_date = datetime.today()
 
     buttons = [[
-        types.InlineKeyboardButton(text=message.lang['button.navigation.day_previous'], callback_data='open.schedule.day=' + (date - timedelta(days=1)).strftime('%Y-%m-%d')),
-        types.InlineKeyboardButton(text=message.lang['button.navigation.day_next'], callback_data='open.schedule.day=' + (date + timedelta(days=1)).strftime('%Y-%m-%d'))
+        types.InlineKeyboardButton(text=message.lang['button.navigation.day_previous'], callback_data='open.schedule.day#date=' + (date - timedelta(days=1)).strftime('%Y-%m-%d')),
+        types.InlineKeyboardButton(text=message.lang['button.navigation.day_next'], callback_data='open.schedule.day#date=' + (date + timedelta(days=1)).strftime('%Y-%m-%d'))
     ], [
-        types.InlineKeyboardButton(text=message.lang['button.navigation.week_previous'], callback_data='open.schedule.day=' + (date - timedelta(days=7)).strftime('%Y-%m-%d')),
+        types.InlineKeyboardButton(text=message.lang['button.navigation.week_previous'], callback_data='open.schedule.day#date=' + (date - timedelta(days=7)).strftime('%Y-%m-%d')),
         types.InlineKeyboardButton(text=message.lang['button.menu'], callback_data='open.menu'),
-        types.InlineKeyboardButton(text=message.lang['button.navigation.week_next'], callback_data='open.schedule.day=' + (date + timedelta(days=7)).strftime('%Y-%m-%d'))
+        types.InlineKeyboardButton(text=message.lang['button.navigation.week_next'], callback_data='open.schedule.day#date=' + (date + timedelta(days=7)).strftime('%Y-%m-%d'))
     ]]
 
     if date.date() != current_date.date():
@@ -102,7 +102,7 @@ def create_message(message: types.Message, date: datetime | str) -> dict:
         schedule=schedule_text
     )
 
-    if res.from_cache:
+    if res.is_expired:
         msg_text += '\n\n' + message.lang['text.from_cache']
 
     msg = {

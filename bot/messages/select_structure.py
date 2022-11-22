@@ -16,10 +16,8 @@ def create_message(message: types.Message) -> dict:
     message_text = message.lang['command.structure']
 
     if len(structures) == 1:
-        # If there is only one structure, then skip this menu, because what is this choice for? :)
-        message.config['schedule']['structure_id'] = structures[0]['id']
-        message._config = chat_configs.set_chat_config_field(message.chat.id, 'schedule', message.config['schedule'])
-        return create_select_faculty_message(message)
+        # If there is only one structure, then skip this menu
+        return create_select_faculty_message(message, structures[0]['id'])
 
     markup.add(
         types.InlineKeyboardButton(text=message.lang['button.back'], callback_data='open.menu')
@@ -27,7 +25,7 @@ def create_message(message: types.Message) -> dict:
 
     for structure in structures:
         markup.add(
-            types.InlineKeyboardButton(text=structure['fullName'], callback_data=f'select.schedule.structure_id={structure["id"]}')
+            types.InlineKeyboardButton(text=structure['fullName'], callback_data=f'select.schedule.structure#structureId={structure["id"]}')
         )
 
     msg = {

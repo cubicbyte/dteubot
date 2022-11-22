@@ -7,7 +7,7 @@ def create_message(message: types.Message) -> dict:
 
     for lang in langs:
         markup.add(
-            types.InlineKeyboardButton(text=langs[lang]['lang_name'], callback_data=f'select.lang={lang}')
+            types.InlineKeyboardButton(text=langs[lang]['lang_name'], callback_data=f'select.lang#lang={lang}')
         )
 
     markup.add(

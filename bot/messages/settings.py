@@ -1,7 +1,7 @@
 from telebot import types
 
 def create_message(message: types.Message) -> dict:
-    group = message.config['schedule']['group_id'] or message.lang['text.not_selected']
+    group = message.config['groupId'] or message.lang['text.not_selected']
     markup = types.InlineKeyboardMarkup()
     message_text = message.lang['command.settings'].format(group_id=group)
 

@@ -42,7 +42,8 @@ def main(path: str):
         # Read config
         fp = open(os.path.join(path, file), 'r+', encoding='utf-8')
         conf = json.load(fp)
-        fp.seek(0) # Needed to be able to overwrite the file
+        fp.seek(0) # Move cursor to start of the file
+        fp.truncate(0) # Clear file
 
         # Create "ref" field
         if not 'ref' in conf:
@@ -66,6 +67,12 @@ def main(path: str):
             if conf['schedule']['group_id'] is not None:
                 conf['schedule']['group_id'] = int(conf['schedule']['group_id'])
 
+        # 1.5.0+
+        # Remove structure, faculty and course from config
+        if 'schedule' in conf:
+            group_id = conf['schedule']['group_id']
+            del conf['schedule']
+            conf = insert_after('groupId', group_id, conf, 'admin')
 
         json.dump(conf, fp, ensure_ascii=False, indent=4)
 
