@@ -6,10 +6,10 @@ from ..messages import create_menu_message
 
 logger = logging.getLogger(__name__)
 
-@bot.callback_query_handler(func=lambda call: call.data.startswith('select.lang'))
+@bot.callback_query_handler(func=lambda call: call.query == 'select.lang')
 def handler(call: telebot.types.CallbackQuery):
     logger.debug('Handling callback query')
-    lang = call.data.split('=')[1]
+    lang = call.args['lang']
 
     if not lang in langs:
         lang = os.getenv('DEFAULT_LANG')

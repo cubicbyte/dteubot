@@ -4,7 +4,7 @@ from ..settings import bot, api
 
 logger = logging.getLogger(__name__)
 
-@bot.callback_query_handler(func=lambda call: call.data.startswith('admin.clear_expired_cache'))
+@bot.callback_query_handler(func=lambda call: call.query == 'admin.clear_expired_cache')
 def handler(call: telebot.types.CallbackQuery):
     logger.debug('Handling admin callback query')
 

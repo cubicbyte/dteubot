@@ -5,7 +5,12 @@ import logging
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
 
+CHAT_CONFIGS_PATH = 'chat-configs'
+LANGS_PATH = 'langs'
+LOGS_PATH = 'logs'
+
 sys.path.append('../lib')                   # Required to load external libraries
+sys.path.append('../scripts')               # Required to load external scripts
 load_dotenv('.env')                         # Load .env file in current dir
 load_dotenv()                               # Load .env file in bot dir
 telebot.apihelper.ENABLE_MIDDLEWARE = True  # Enable telegram bot middleware
@@ -25,16 +30,16 @@ assert os.getenv('API_CACHE_EXPIRES').isdigit(), 'The API_CACHE_EXPIRES environm
 assert os.getenv('LOGGING_LEVEL') in ('NOTSET', 'DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'), 'The LOGGING_LEVEL environment variable has an invalid value. Received: %s' % os.getenv('LOGGING_LEVEL')
 
 
-if not os.path.exists('./logs/'):
-    os.mkdir('logs')
+if not os.path.exists(LOGS_PATH):
+    os.mkdir(LOGS_PATH)
 
-if not os.path.exists('./logs/debug/'):
-    os.mkdir('logs/debug')
+if not os.path.exists(os.path.join(LOGS_PATH, 'debug')):
+    os.mkdir(os.path.join(LOGS_PATH, 'debug'))
 
 
 logging.basicConfig(
     level=os.getenv('LOGGING_LEVEL'),
-    filename='logs/debug/%s.log' % datetime.now().strftime('%Y-%m-%d %H-%M-%S'),
+    filename=os.path.join(LOGS_PATH, 'debug', '%s.log' % datetime.now().strftime('%Y-%m-%d %H-%M-%S')),
     filemode='a',
     format='%(asctime)s [%(levelname)s] %(name)s: %(message)s',
     force=True
@@ -45,6 +50,7 @@ logger.info('Running setup')
 
 
 from lib.api import Api
+from scripts.update_chat_configs import main as update_chat_configs
 from .tg_logger import TelegramLogger
 from .chat_configs import ChatConfigs
 from .load_langs import load_langs
@@ -59,8 +65,9 @@ api_expires = timedelta(seconds=int(os.getenv('API_CACHE_EXPIRES')))
 if api_timeout <= 0:
     api_timeout = None
 
+update_chat_configs(CHAT_CONFIGS_PATH)
 bot = telebot.TeleBot(BOT_TOKEN)
 api = Api(url=api_url, timeout=api_timeout, expires_after=api_expires)
-tg_logger = TelegramLogger('logs/telegram')
-chat_configs = ChatConfigs('chat-configs')
-langs = load_langs('langs')
+tg_logger = TelegramLogger(os.path.join(LOGS_PATH, 'telegram'))
+chat_configs = ChatConfigs(CHAT_CONFIGS_PATH)
+langs = load_langs(LANGS_PATH)

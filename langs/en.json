@@ -14,6 +14,7 @@
     "text.incorrect": "\u2753 Incorrect data",
     "text.not_selected": "\u274c Not selected",
     "text.group_incorrect": "\u274c Failed to get schedule for your group\n\nPlease try to select another one.",
+    "text.from_cache": "Received from cache",
     
     "text.subjects.today": "*Classes today*",
     "text.subjects.tomorrow": "*Classes tomorrow*",
@@ -80,7 +81,7 @@
     "command.course": "Select course",
     "command.group": "Select group",
     "command.group_incorrect": "\u274c *Failed to get schedule for your group*\n\nPlease try to select another one.",
-    "command.menu": "\ud83c\udfe0 *Menu*\n\n{left}\n\nThis bot was created for convenient and quick schedule reviewing in KNUTE.",
+    "command.menu": "\ud83c\udfe0 *Menu*\n\n{left}\n\nThis bot was created for convenient and quick schedule reviewing in SUTE.",
     "command.settings": "\u2699\ufe0f *Settings*\n\n*Your group:* `{group_id}`\n\nThe next time you want to select this group, you can type `/select {group_id}`",
     "command.lang_select": "\ud83c\uddec\ud83c\udde7 *Change language*\n\n*Your current language*: {lang}",
     "command.more": "\ud83d\uddc2 *Additionally*",

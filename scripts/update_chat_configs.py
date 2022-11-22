@@ -1,6 +1,14 @@
 import os
 import json
+import logging
 import argparse
+
+logging.basicConfig(
+    level='INFO',
+    format='%(asctime)s [%(levelname)s] %(name)s: %(message)s'
+)
+
+logger = logging.getLogger(__name__)
 
 # Setting cli arguments
 parser = argparse.ArgumentParser(description='Update bot chat configs')
@@ -33,16 +41,24 @@ def insert_after(key: str, value: any, obj: dict, after_key: str):
 
 def main(path: str):
     """Update chat configs to the latest version"""
-    files = os.listdir(path)
+    logger.info('Starting chat configs parsing')
+
+    try:
+        files = os.listdir(path)
+    except FileNotFoundError:
+        logger.info('The directory does not exist. Skip update')
+        return
+
     count = len(files)
 
     for i, file in enumerate(files):
-        print(f'Converting #{i + 1}/{count}')
+        logger.info(f'Converting #{i + 1}/{count}')
         
         # Read config
         fp = open(os.path.join(path, file), 'r+', encoding='utf-8')
         conf = json.load(fp)
-        fp.seek(0) # Needed to be able to overwrite the file
+        fp.seek(0) # Move cursor to start of the file
+        fp.truncate(0) # Clear file
 
         # Create "ref" field
         if not 'ref' in conf:
@@ -66,10 +82,16 @@ def main(path: str):
             if conf['schedule']['group_id'] is not None:
                 conf['schedule']['group_id'] = int(conf['schedule']['group_id'])
 
+        # 1.5.0+
+        # Remove structure, faculty and course from config
+        if 'schedule' in conf:
+            group_id = conf['schedule']['group_id']
+            del conf['schedule']
+            conf = insert_after('groupId', group_id, conf, 'admin')
 
         json.dump(conf, fp, ensure_ascii=False, indent=4)
 
-    print('Done')
+    logger.info('Converting done')
 
 
 if __name__ == '__main__':

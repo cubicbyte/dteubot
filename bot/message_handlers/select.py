@@ -16,8 +16,6 @@ def handle_command(message: telebot.types.Message):
 
         if group_id.isnumeric():
             group_id = abs(int(group_id))
-            schedule = message.config['schedule']
-            schedule['group_id'] = group_id
-            message._config = chat_configs.set_chat_config_field(message.chat.id, 'schedule', schedule)
+            message._config = chat_configs.set_chat_config_field(message.chat.id, 'groupId', group_id)
 
         bot.send_message(**create_menu_message(message))

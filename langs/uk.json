@@ -14,6 +14,7 @@
     "text.incorrect": "\u2753 Невірні дані",
     "text.not_selected": "\u274c Не вибрано",
     "text.group_incorrect": "\u274c Не вдалося отримати розклад для вашої групи\n\nСпробуйте вибрати іншу.",
+    "text.from_cache": "Отримано з кешу",
     
     "text.subjects.today": "*Пари сьогодні*",
     "text.subjects.tomorrow": "*Пари завтра*",
@@ -80,7 +81,7 @@
     "command.course": "Виберіть курс",
     "command.group": "Виберіть групу",
     "command.group_incorrect": "\u274c *Не вдалося отримати розклад для вашої групи*\n\nСпробуйте вибрати іншу.",
-    "command.menu": "\ud83c\udfe0 *Меню*\n\n{left}\n\nЦей бот був створений для швидкого та зручного перегляду розкладу пар в КНТЕУ.",
+    "command.menu": "\ud83c\udfe0 *Меню*\n\n{left}\n\nЦей бот був створений для швидкого та зручного перегляду розкладу пар в ДТЕУ.",
     "command.settings": "\u2699\ufe0f *Налаштування*\n\n*Ваша група:* `{group_id}`\n\nНаступного разу, щоб вибрати цю групу, ви можете ввести команду `/select {group_id}`",
     "command.lang_select": "\ud83c\uddec\ud83c\udde7 *Зміна мови*\n\n*Ваша поточна мова*: {lang}",
     "command.more": "\ud83d\uddc2 *Додатково*",
