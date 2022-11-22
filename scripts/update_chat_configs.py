@@ -1,6 +1,14 @@
 import os
 import json
+import logging
 import argparse
+
+logging.basicConfig(
+    level='INFO',
+    format='%(asctime)s [%(levelname)s] %(name)s: %(message)s'
+)
+
+logger = logging.getLogger(__name__)
 
 # Setting cli arguments
 parser = argparse.ArgumentParser(description='Update bot chat configs')
@@ -33,11 +41,18 @@ def insert_after(key: str, value: any, obj: dict, after_key: str):
 
 def main(path: str):
     """Update chat configs to the latest version"""
-    files = os.listdir(path)
+    logger.info('Starting chat configs parsing')
+
+    try:
+        files = os.listdir(path)
+    except FileNotFoundError:
+        logger.info('The directory does not exist. Skip update')
+        return
+
     count = len(files)
 
     for i, file in enumerate(files):
-        print(f'Converting #{i + 1}/{count}')
+        logger.info(f'Converting #{i + 1}/{count}')
         
         # Read config
         fp = open(os.path.join(path, file), 'r+', encoding='utf-8')
@@ -76,7 +91,7 @@ def main(path: str):
 
         json.dump(conf, fp, ensure_ascii=False, indent=4)
 
-    print('Done')
+    logger.info('Converting done')
 
 
 if __name__ == '__main__':
