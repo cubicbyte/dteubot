@@ -1,0 +1,12 @@
+version: '4.12'
+
+volumes:
+  data:
+
+services:
+  bot:
+    build: .
+    image: angron42/sute-schedule-bot:latest
+    restart: always
+    volumes:
+      - data:/data
