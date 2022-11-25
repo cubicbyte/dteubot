@@ -1,7 +1,7 @@
 import os
 import telebot.types
 from .settings import chat_configs, langs
-from .parse_callback_query import parse_callback_query
+from .utils.parse_callback_query import parse_callback_query
 
 
 
