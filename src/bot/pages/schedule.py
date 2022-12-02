@@ -72,7 +72,7 @@ def create_message(message: types.Message, date: datetime | str) -> dict:
 
     if date.date() != current_date.date():
         # If the selected day is not today, then add "today" button
-        buttons[:-1].append(
+        buttons[-1].append(
             types.InlineKeyboardButton(text=message.lang['button.navigation.today'], callback_data='open.schedule.today')
         )
 
