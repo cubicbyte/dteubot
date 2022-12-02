@@ -38,27 +38,42 @@ def create_message(message: types.Message, date: datetime | str) -> dict:
         if res.status_code == 422:
             return create_invalid_group_message(message)
 
-    except (requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout):
+    except (
+        requests.exceptions.ConnectionError,
+        requests.exceptions.ReadTimeout,
+        requests.exceptions.HTTPError
+    ):
         return create_api_unavaliable_message(message)
 
     schedule = res.json()
     schedule_text = ''
-    markup = types.InlineKeyboardMarkup()
+    markup = types.InlineKeyboardMarkup(row_width=5)
     current_date = datetime.today()
 
+#    # Short buttons
+#    buttons = [[
+#        types.InlineKeyboardButton(text=message.lang['button.navigation.short.week_previous'], callback_data='open.schedule.day#date=' + (date - timedelta(days=7)).strftime('%Y-%m-%d')),
+#        types.InlineKeyboardButton(text=message.lang['button.navigation.short.day_previous'], callback_data='open.schedule.day#date=' + (date - timedelta(days=1)).strftime('%Y-%m-%d')),
+#        types.InlineKeyboardButton(text=message.lang['button.navigation.short.day_next'], callback_data='open.schedule.day#date=' + (date + timedelta(days=1)).strftime('%Y-%m-%d')),
+#        types.InlineKeyboardButton(text=message.lang['button.navigation.short.week_next'], callback_data='open.schedule.day#date=' + (date + timedelta(days=7)).strftime('%Y-%m-%d'))
+#    ], [
+#        types.InlineKeyboardButton(text=message.lang['button.menu'], callback_data='open.menu')
+#    ]]
+    
     buttons = [[
         types.InlineKeyboardButton(text=message.lang['button.navigation.day_previous'], callback_data='open.schedule.day#date=' + (date - timedelta(days=1)).strftime('%Y-%m-%d')),
         types.InlineKeyboardButton(text=message.lang['button.navigation.day_next'], callback_data='open.schedule.day#date=' + (date + timedelta(days=1)).strftime('%Y-%m-%d'))
     ], [
         types.InlineKeyboardButton(text=message.lang['button.navigation.week_previous'], callback_data='open.schedule.day#date=' + (date - timedelta(days=7)).strftime('%Y-%m-%d')),
-        types.InlineKeyboardButton(text=message.lang['button.menu'], callback_data='open.menu'),
         types.InlineKeyboardButton(text=message.lang['button.navigation.week_next'], callback_data='open.schedule.day#date=' + (date + timedelta(days=7)).strftime('%Y-%m-%d'))
+    ], [
+        types.InlineKeyboardButton(text=message.lang['button.menu'], callback_data='open.menu')
     ]]
 
     if date.date() != current_date.date():
         # If the selected day is not today, then add "today" button
-        buttons[0].insert(
-            1, types.InlineKeyboardButton(text=message.lang['button.navigation.today'], callback_data='open.schedule.today')
+        buttons[:-1].append(
+            types.InlineKeyboardButton(text=message.lang['button.navigation.today'], callback_data='open.schedule.today')
         )
 
     for button in buttons:

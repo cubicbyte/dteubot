@@ -47,10 +47,19 @@ The bot can be started in two ways: Docker and directly
 
 1. Download this repository and open a command line in it.<br>
    To download, click the green button **<span style="color: lightgreen;"><> Code</span> > Download ZIP**<br>
-   or execute the command `git clone https://github.com/angron42/sute-schedule-bot`
-2. Install the libraries: `pip install -r requirements.txt`
+   or execute the command
+   ```shell
+   git clone https://github.com/angron42/sute-schedule-bot
+   ```
+2. Install the libraries:
+    ```shell
+    pip install -r requirements.txt
+    ```
 3. Configure the file `.env` by example `.env.example`
-4. Start the bot. `python .`
+4. Start the bot with the following comand
+    ```shell
+    python .
+    ```
 
 This bot also supports running in another directory: you need to create an .env file in it and execute the command `python "/path/to/bot/folder"`<br>
 If the file is not created, the program will search for it in its root directory.
@@ -61,8 +70,17 @@ If the file is not created, the program will search for it in its root directory
 2. Create a directory in which the bot data will be stored
 3. In this directory, create an `.env` file by example [.env.example](.env.example)
 4. Run the following command:
-    - For Windows: `docker run -d -v ${PWD}:/data --name schedule-bot angron42/sute-schedule-bot`
-    - For Linux: `docker run -d -v $(pwd):/data --name schedule-bot angron42/sute-schedule-bot`
+    - For Windows:
+        ```shell
+        docker run -d -v ${PWD}:/data --name schedule-bot angron42/sute-schedule-bot
+        ```
+    - For Linux:
+        ```shell
+        docker run -d -v $(pwd):/data --name schedule-bot angron42/sute-schedule-bot
+        ```
 
-To stop, execute the command `docker stop schedule-bot`
+To stop, execute the command
+```shell
+docker stop schedule-bot
+```
 

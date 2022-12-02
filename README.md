@@ -48,10 +48,19 @@
 
 1. Завантажте цей репозиторій та відкрийте в ньому командний рядок.<br>
    Для завантаження, нажміть зелену кнопку **<span style="color: lightgreen;"><> Code</span> > Download ZIP**<br>
-   або виконайте команду `git clone https://github.com/angron42/sute-schedule-bot`
-2. Установіть бібліотеки: `pip install -r requirements.txt`
+   або виконайте команду
+   ```shell
+   git clone https://github.com/angron42/sute-schedule-bot
+   ```
+2. Установіть бібліотеки:
+   ```shell
+   pip install -r requirements.txt
+   ```
 3. Налаштуйте файл `.env` по прикладу `.env.example`
-4. Запустіть бота. `python .`
+4. Запустіть бота наступною командою
+   ```shell
+   python .
+   ```
 
 Цей бот також підтримує роботу в іншій директорії: потрібно створити в ній файл .env та виконати команду `python "/шлях/до/папки/з/ботом"`<br>
 Якщо ж файл не створити, програма буде шукати його в своїй кореневій директорії.
@@ -62,8 +71,17 @@
 2. Створіть директорію, в якій будуть зберігатися дані бота
 3. В цій директорії створіть файл `.env` та заповніть його за прикладом файла [.env.example](.env.example)
 4. Виконайте наступну команду:
-    - Для Windows: `docker run -d -v ${PWD}:/data --name schedule-bot angron42/sute-schedule-bot`
-    - Для Linux: `docker run -d -v $(pwd):/data --name schedule-bot angron42/sute-schedule-bot`
+    - Для Windows:
+        ```shell
+        docker run -d -v ${PWD}:/data --name schedule-bot angron42/sute-schedule-bot
+        ```
+    - Для Linux:
+        ```shell
+        docker run -d -v $(pwd):/data --name schedule-bot angron42/sute-schedule-bot
+        ```
 
-Щоб зупинити, виконайте команду `docker stop schedule-bot`
+Щоб зупинити, виконайте команду
+```shell
+docker stop schedule-bot
+```
 

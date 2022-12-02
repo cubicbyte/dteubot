@@ -1,7 +1,7 @@
 import telebot.types
 import logging
 from ..settings import bot
-from ..messages import create_left_message
+from ..pages import create_left_message
 
 logger = logging.getLogger(__name__)
 

@@ -8,7 +8,11 @@ def get_text(message: types.Message) -> str:
 
     try:
         remaining_time = get_remaining_time_formatted(message)
-    except (requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout):
+    except (
+        requests.exceptions.ConnectionError,
+        requests.exceptions.ReadTimeout,
+        requests.exceptions.HTTPError
+    ):
         return message.lang['text.time.left_unknown']
 
     if remaining_time['time'] is None or remaining_time['time']['status'] == 3:

@@ -68,12 +68,15 @@
     "button.schedule.week": "\ud83d\udcc5 Current week",
     "button.schedule.next_week": "\ud83d\udcc6 Next week",
     "button.schedule.full": "\ud83d\udcd4 Full schedule",
+    "button.navigation.week_next": "\u23e9 Week",
+    "button.navigation.day_next": "\u25b6\ufe0f Next",
     "button.navigation.today": "\ud83d\udccb Today",
     "button.navigation.day_previous": "\u25c0\ufe0f Back",
-    "button.navigation.day_next": "\u25b6\ufe0f Next",
     "button.navigation.week_previous": "\u23ea Week",
-    "button.navigation.week_next": "\u23e9 Week",
-
+    "button.navigation.short.week_next": "\u23e9",
+    "button.navigation.short.day_next": "\u25b6\ufe0f",
+    "button.navigation.short.day_previous": "\u25c0\ufe0f",
+    "button.navigation.short.week_previous": "\u23ea",
 
     
     "command.structure": "Select structure",

@@ -38,6 +38,7 @@ class Api:
 
         url = urljoin(self.url, path)
         res = self._session.request(method, url, headers=headers, json=json, timeout=self._timeout, *args, **kwargs)
+        res.raise_for_status()
 
         return res
 
