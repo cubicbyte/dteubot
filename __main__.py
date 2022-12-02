@@ -1,11 +1,10 @@
 import os
-import time
 import logging
 import telebot.types
-import bot.message_handlers
-import bot.callback_query_handlers
-from bot.modify_message import modify_message, modify_callback_query
-from bot.settings import bot, tg_logger
+import src.bot.message_handlers
+import src.bot.callback_query_handlers
+from src.bot.modify_message import modify_message, modify_callback_query
+from src.bot.settings import bot, tg_logger
 
 logger = logging.getLogger()
 logger.info('Starting application')
@@ -36,17 +35,7 @@ bot.middleware_handler(update_types=['callback_query'])(tg_logger.callback_query
 # Run bot
 if os.getenv('MODE') == 'prod':
     logger.info('Running in production mode')
-
-    while True:
-        logger.debug('Start polling')
-
-        try:
-            bot.polling(none_stop=True)
-
-        except Exception as e:
-            # Called when an internet connection or another error occurs.
-            logger.error('Bot polling error: %s' % e)
-            time.sleep(2)
+    bot.infinity_polling(allowed_updates=['message', 'callback_query'])
 
 elif os.getenv('MODE') == 'dev':
     logger.info('Running in dev mode')

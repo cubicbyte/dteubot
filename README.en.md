@@ -37,12 +37,32 @@ You can try the bot live ([link](https://t.me/dteubot))<br>
 ? - optional parameter
 <br><br>
 
-# Setup
+# Startup
 
-1. Run `pip install -r requirements.txt`
-2. Setup file `.env` using `.env.example` as an example
-3. Launch. `python ./sute-schedule-bot`
+The bot can be started in two ways: Docker and directly
 
-This bot also supports running in another directory, you just need to create an .env file in it.<br>
-If not created, the bot will use the .env file from its root directory
+## 1. The usual way
+
+> :warning: For this method you need **Python** version **3.7+**
+
+1. Download this repository and open a command line in it.<br>
+   To download, click the green button **<span style="color: lightgreen;"><> Code</span> > Download ZIP**<br>
+   or execute the command `git clone https://github.com/angron42/sute-schedule-bot`
+2. Install the libraries: `pip install -r requirements.txt`
+3. Configure the file `.env` by example `.env.example`
+4. Start the bot. `python .`
+
+This bot also supports running in another directory: you need to create an .env file in it and execute the command `python "/path/to/bot/folder"`<br>
+If the file is not created, the program will search for it in its root directory.
+
+## 2. Docker
+
+1. Install Docker
+2. Create a directory in which the bot data will be stored
+3. In this directory, create an `.env` file by example [.env.example](.env.example)
+4. Run the following command:
+    - For Windows: `docker run -d -v ${PWD}:/data --name schedule-bot angron42/sute-schedule-bot`
+    - For Linux: `docker run -d -v $(pwd):/data --name schedule-bot angron42/sute-schedule-bot`
+
+To stop, execute the command `docker stop schedule-bot`
 

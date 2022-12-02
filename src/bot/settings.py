@@ -9,8 +9,8 @@ CHAT_CONFIGS_PATH = 'chat-configs'
 LANGS_PATH = 'langs'
 LOGS_PATH = 'logs'
 
-sys.path.append('../lib')                   # Required to load external libraries
-sys.path.append('../scripts')               # Required to load external scripts
+sys.path.append('../../lib')                # Required to load external libraries
+sys.path.append('../../scripts')            # Required to load external scripts
 load_dotenv('.env')                         # Load .env file in current dir
 load_dotenv()                               # Load .env file in bot dir
 telebot.apihelper.ENABLE_MIDDLEWARE = True  # Enable telegram bot middleware
