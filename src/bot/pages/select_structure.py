@@ -8,7 +8,11 @@ def create_message(message: types.Message) -> dict:
     try:
         res = api.list_structures()
 
-    except (requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout):
+    except (
+        requests.exceptions.ConnectionError,
+        requests.exceptions.ReadTimeout,
+        requests.exceptions.HTTPError
+    ):
         return create_api_unavaliable_message(message)
         
     structures = res.json()

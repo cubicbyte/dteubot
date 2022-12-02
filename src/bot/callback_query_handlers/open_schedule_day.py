@@ -1,7 +1,7 @@
 import telebot.types
 import logging
 from ..settings import bot
-from ..messages import create_schedule_message
+from ..pages import create_schedule_message
 
 logger = logging.getLogger(__name__)
 

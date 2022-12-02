@@ -2,7 +2,7 @@ import telebot.types
 import logging
 import os
 from ..settings import bot, chat_configs, langs
-from ..messages import create_menu_message
+from ..pages import create_menu_message
 
 logger = logging.getLogger(__name__)
 

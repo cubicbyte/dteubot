@@ -8,7 +8,11 @@ def get_text(message: types.Message) -> str:
     
     try:
         calls = api.timetable_call().json()
-    except (requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout):
+    except (
+        requests.exceptions.ConnectionError,
+        requests.exceptions.ReadTimeout,
+        requests.exceptions.HTTPError
+    ):
         return create_api_unavaliable_message(message)
 
     for call in calls:
