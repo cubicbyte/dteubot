@@ -88,7 +88,7 @@
     "command.settings": "\u2699\ufe0f *Settings*\n\n*Your group:* `{group_id}`\n\nThe next time you want to select this group, you can type `/select {group_id}`",
     "command.lang_select": "\ud83c\uddec\ud83c\udde7 *Change language*\n\n*Your current language*: {lang}",
     "command.more": "\ud83d\uddc2 *Additionally*",
-    "command.info": "\u2139\ufe0f *Information*\n\n\ud83d\uddff *Creator* - @Bogdan4igg\n\nUse the @dteubot as a tool to get the schedule for every day.",
+    "command.info": "\u2139\ufe0f *Information*\n\n\ud83d\uddff *Creator* - @cubicbyte\n\nUse the @dteubot as a tool to get the schedule for every day.",
     "command.schedule": "\ud83d\udcc5   {date}   \ud83d\udcc5\n\n{schedule}",
     "command.api_unavaliable": "Seems like the timetable site is down/not responding right now.\n\nPlease, try later.",
     "command.calls": "\ud83d\udd53 *Calls schedule*\n\n{schedule}",
