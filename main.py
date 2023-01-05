@@ -1,10 +1,10 @@
 import os
 import logging
 import telebot.types
-import src.bot.message_handlers
-import src.bot.callback_query_handlers
-from src.bot.modify_message import modify_message, modify_callback_query
-from src.bot.settings import bot, tg_logger
+import bot.message_handlers
+import bot.callback_query_handlers
+from bot.modify_message import modify_message, modify_callback_query
+from bot.settings import bot, tg_logger
 
 logger = logging.getLogger()
 logger.info('Starting application')

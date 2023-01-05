@@ -7,7 +7,7 @@ import pytz
 from urllib.parse import urljoin
 from datetime import date, datetime
 from requests_cache import CachedSession, Response
-from .src.utils.date_range import get_date_range
+from .utils.date_range import get_date_range
 
 logger = logging.getLogger(__name__)
 logger.info('Initializing api module')
