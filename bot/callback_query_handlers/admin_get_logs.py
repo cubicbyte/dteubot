@@ -1,6 +1,8 @@
 import telebot.types
 import logging
-from ..settings import bot
+import os.path
+from ..settings import bot, LOGS_PATH
+from ..utils.fs import open_file
 
 logger = logging.getLogger(__name__)
 
@@ -8,6 +10,7 @@ logger = logging.getLogger(__name__)
 def handler(call: telebot.types.CallbackQuery):
     logger.debug('Handling admin callback query')
     bot.send_chat_action(call.message.chat.id, 'upload_document', timeout=10)
-    f = open('logs/debug.log', 'rb')
+    path = os.path.join(LOGS_PATH, 'debug.log')
+    f = open_file(path, 'rb')
     bot.send_document(call.message.chat.id, f)
     f.close()

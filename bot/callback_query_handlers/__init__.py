@@ -1,23 +1,4 @@
-from .open_calls import handler as open_calls_handler
-from .open_info import handler as open_info_handler
-from .open_left import handler as open_left_handler
-from .open_menu import handler as open_menu_handler
-from .open_more import handler as open_more_handler
-from .open_schedule_day import handler as open_schedule_day_handler
-from .open_schedule_today import handler as open_schedule_today_handler
-from .open_schedule_tomorrow import handler as open_schedule_tomorrow_handler
-from .open_select_group import handler as open_select_group_handler
-from .open_select_lang import handler as open_select_lang_handler
-from .open_settings import handler as open_settings_handler
-from .select_lang import handler as select_lang_handler
-from .select_schedule_course import handler as select_schedule_course_handler
-from .select_schedule_faculty import handler as select_schedule_faculty_handler
-from .select_schedule_group import handler as select_schedule_group_handler
-from .select_schedule_structure import handler as select_schedule_structure_handler
-from .admin import handler as admin_handler
-from .admin_open_panel import handler as admin_open_panel_handler
-from .admin_clear_expired_cache import handler as admin_clear_expired_cache_handler
-from .admin_clear_all_cache import handler as admin_clear_all_cache_handler
-from .admin_get_logs import handler as admin_get_logs_handler
-
-from .unsupported import handler as unsupported_handler
+from os.path import dirname, basename, isfile, join
+import glob
+modules = glob.glob(join(dirname(__file__), "*.py"))
+__all__ = [ basename(f)[:-3] for f in modules if isfile(f) and not f.endswith('__init__.py')]

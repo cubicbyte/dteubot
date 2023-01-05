@@ -8,6 +8,7 @@ def create_message(message: types.Message) -> dict:
         types.InlineKeyboardButton(text=message.lang['button.admin.clear_expired_cache'], callback_data='admin.clear_expired_cache'),
         types.InlineKeyboardButton(text=message.lang['button.admin.clear_all_cache'], callback_data='admin.clear_all_cache'),
         types.InlineKeyboardButton(text=message.lang['button.admin.get_logs'], callback_data='admin.get_logs'),
+        types.InlineKeyboardButton(text=message.lang['button.admin.clear_logs'], callback_data='admin.clear_logs'),
         types.InlineKeyboardButton(text=message.lang['button.back'], callback_data='open.menu')
     )
 

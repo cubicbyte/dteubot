@@ -3,29 +3,33 @@ import sys
 import json
 import logging
 from pathlib import Path
+from .utils.fs import open_file
 
 logger = logging.getLogger(__name__)
 
 
+
 def load_langs(dirpath: str) -> list[dict]:
-    """Load .json language files from directory"""
+    "Load .json language files from directory"
 
     dirpath = os.path.join(sys.path[0], dirpath)
-    logger.debug('Loading langs from dir %s' % dirpath)
+    logger.info('Loading langs from dir %s' % dirpath)
 
     files = os.listdir(dirpath)
-    langs = {}
+    logger.info('Found %s files' % len(files))
 
+    langs = {}
     for filename in files:
         filepath = os.path.join(dirpath, filename)
+        lang_name = Path(filename).stem # File name without .json
+        logger.info('Loading %s lang' % lang_name)
 
-        logger.debug('Loading lang %s' % filepath)
-        
-        file = open(filepath, 'r', encoding='utf-8')
-        lang = json.load(file)
-        file.close()
+        # Load lang
+        fp = open_file(filepath, 'r', encoding='utf-8')
+        logger.debug('Reading json content of a file')
+        lang = json.load(fp)
+        fp.close()
 
-        lang_name = Path(filepath).stem # Filename without .json
         langs[lang_name] = lang
-    
+
     return langs

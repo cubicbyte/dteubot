@@ -1,11 +1,4 @@
-from .empty import handle_command as empty_command
-from .lang import handle_command as lang_command
-from .left import handle_command as left_command
-from .menu import handle_command as menu_command
-from .select import handle_command as select_command
-from .settings import handle_command as setting_command
-from .start import handle_command as start_command
-from .today import handle_command as today_command
-from .tomorrow import handle_command as tomorrow_command
-from .calls import handle_command as calls_command
-from .admin import handle_command as admin_command
+from os.path import dirname, basename, isfile, join
+import glob
+modules = glob.glob(join(dirname(__file__), "*.py"))
+__all__ = [ basename(f)[:-3] for f in modules if isfile(f) and not f.endswith('__init__.py')]

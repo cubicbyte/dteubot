@@ -2,7 +2,7 @@ import telebot.types
 import logging
 from datetime import datetime
 from ..settings import bot
-from ..pages import create_schedule_message
+from ..pages import schedule
 
 logger = logging.getLogger(__name__)
 
@@ -10,4 +10,4 @@ logger = logging.getLogger(__name__)
 def handler(call: telebot.types.CallbackQuery):
     logger.debug('Handling callback query')
     date = datetime.today().strftime('%Y-%m-%d')
-    bot.edit_message_text(**create_schedule_message(call.message, date), message_id=call.message.message_id)
+    bot.edit_message_text(**schedule.create_message(call.message, date), message_id=call.message.message_id)

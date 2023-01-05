@@ -2,7 +2,7 @@ import telebot.types
 import logging
 import os
 from ..settings import bot, chat_configs, langs
-from ..pages import create_menu_message
+from ..pages import lang_select
 
 logger = logging.getLogger(__name__)
 
@@ -15,4 +15,4 @@ def handler(call: telebot.types.CallbackQuery):
         lang = os.getenv('DEFAULT_LANG')
 
     call.message._config = chat_configs.set_chat_config_field(call.message.chat.id, 'lang', lang)
-    bot.edit_message_text(**create_menu_message(call.message), message_id=call.message.id)
+    bot.edit_message_text(**lang_select.create_message(call.message), message_id=call.message.id)

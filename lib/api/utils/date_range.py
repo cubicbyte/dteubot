@@ -1,9 +1,14 @@
-from datetime import datetime, timedelta
+import logging
+from datetime import date, timedelta
 
-def get_date_range(date: datetime) -> list[datetime]:
+logger = logging.getLogger(__name__)
+
+def get_date_range(d: date) -> list[date]:
     """Returns the first and last day of the week of the given date"""
 
-    week_start = date - timedelta(days=date.weekday())
-    week_end = week_start + timedelta(days=6)
+    if logger.level > 10:
+        logger.debug('Getting date range for %s' % d.isoformat())
+    start = d - timedelta(days=d.weekday())
+    end = start + timedelta(days=6)
 
-    return week_start, week_end
+    return start, end

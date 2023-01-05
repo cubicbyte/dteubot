@@ -2,7 +2,7 @@ import os
 import sys
 import telebot
 import logging
-from datetime import datetime, timedelta
+from datetime import timedelta
 from dotenv import load_dotenv
 
 CHAT_CONFIGS_PATH = 'chat-configs'
@@ -33,9 +33,6 @@ assert os.getenv('LOGGING_LEVEL') in ('NOTSET', 'DEBUG', 'INFO', 'WARNING', 'ERR
 if not os.path.exists(LOGS_PATH):
     os.mkdir(LOGS_PATH)
 
-if not os.path.exists(os.path.join(LOGS_PATH, 'debug')):
-    os.mkdir(os.path.join(LOGS_PATH, 'debug'))
-
 
 logging.basicConfig(
     level=os.getenv('LOGGING_LEVEL'),
@@ -65,7 +62,9 @@ api_expires = timedelta(seconds=int(os.getenv('API_CACHE_EXPIRES')))
 if api_timeout <= 0:
     api_timeout = None
 
+
 update_chat_configs(CHAT_CONFIGS_PATH)
+logger.info('Creating a bot instance')
 bot = telebot.TeleBot(BOT_TOKEN)
 api = Api(url=api_url, timeout=api_timeout, expires_after=api_expires)
 tg_logger = TelegramLogger(os.path.join(LOGS_PATH, 'telegram'))

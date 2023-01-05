@@ -1,7 +1,7 @@
 import telebot.types
 from datetime import datetime
 from .remaining_time import get_remaining_time
-from .format_time import format_time
+from .utils.format_time import format_time
 
 def get_time(message: telebot.types.Message, timestamp = datetime.now()) -> dict:
     remaining_time = get_remaining_time(message, timestamp)

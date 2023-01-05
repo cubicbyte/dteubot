@@ -7,7 +7,7 @@ def format_time(message: telebot.types.Message, time: timedelta, depth = 1) -> s
     Example
     ----------
     >>> format_time(message, timedelta(days=2, hours=9, minutes=40, seconds=33), depth=2)
-    '1d. 2h.'
+    '2d. 9h.'
     """
 
     result = ''

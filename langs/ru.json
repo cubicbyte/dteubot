@@ -53,6 +53,7 @@
     "button.admin.clear_all_cache": "Очистить весь кеш",
     "button.admin.clear_expired_cache": "Очистить истекший кеш",
     "button.admin.get_logs": "Получить файл логов",
+    "button.admin.clear_logs": "Очистить файл логов",
     "button.admin.panel": "\ud83d\udd12 Панель управления",
     "button.calls": "\ud83d\udd53 Расписание звонков",
     "button.write_me": "\u2709\ufe0f Написать мне",

@@ -50,15 +50,15 @@ def create_message(message: types.Message, date: datetime | str) -> dict:
     markup = types.InlineKeyboardMarkup(row_width=5)
     current_date = datetime.today()
 
-#    # Short buttons
-#    buttons = [[
-#        types.InlineKeyboardButton(text=message.lang['button.navigation.short.week_previous'], callback_data='open.schedule.day#date=' + (date - timedelta(days=7)).strftime('%Y-%m-%d')),
-#        types.InlineKeyboardButton(text=message.lang['button.navigation.short.day_previous'], callback_data='open.schedule.day#date=' + (date - timedelta(days=1)).strftime('%Y-%m-%d')),
-#        types.InlineKeyboardButton(text=message.lang['button.navigation.short.day_next'], callback_data='open.schedule.day#date=' + (date + timedelta(days=1)).strftime('%Y-%m-%d')),
-#        types.InlineKeyboardButton(text=message.lang['button.navigation.short.week_next'], callback_data='open.schedule.day#date=' + (date + timedelta(days=7)).strftime('%Y-%m-%d'))
-#    ], [
-#        types.InlineKeyboardButton(text=message.lang['button.menu'], callback_data='open.menu')
-#    ]]
+    # # Short buttons
+    # buttons = [[
+    #     types.InlineKeyboardButton(text=message.lang['button.navigation.short.week_previous'], callback_data='open.schedule.day#date=' + (date - timedelta(days=7)).strftime('%Y-%m-%d')),
+    #     types.InlineKeyboardButton(text=message.lang['button.navigation.short.day_previous'], callback_data='open.schedule.day#date=' + (date - timedelta(days=1)).strftime('%Y-%m-%d')),
+    #     types.InlineKeyboardButton(text=message.lang['button.navigation.short.day_next'], callback_data='open.schedule.day#date=' + (date + timedelta(days=1)).strftime('%Y-%m-%d')),
+    #     types.InlineKeyboardButton(text=message.lang['button.navigation.short.week_next'], callback_data='open.schedule.day#date=' + (date + timedelta(days=7)).strftime('%Y-%m-%d'))
+    # ], [
+    #     types.InlineKeyboardButton(text=message.lang['button.menu'], callback_data='open.menu')
+    # ]]
     
     buttons = [[
         types.InlineKeyboardButton(text=message.lang['button.navigation.day_previous'], callback_data='open.schedule.day#date=' + (date - timedelta(days=1)).strftime('%Y-%m-%d')),

@@ -2,7 +2,7 @@ import logging
 import telebot.types
 from datetime import date
 from ..settings import bot
-from ..pages import create_schedule_message
+from ..pages import schedule
 
 logger = logging.getLogger(__name__)
 
@@ -10,4 +10,4 @@ logger = logging.getLogger(__name__)
 def handle_command(message: telebot.types.Message):
     logger.info('Handling /today command from chat %s' % message.chat.id)
     cur_date = date.today()
-    bot.send_message(**create_schedule_message(message, cur_date.strftime('%Y-%m-%d')))
+    bot.send_message(**schedule.create_message(message, cur_date.strftime('%Y-%m-%d')))

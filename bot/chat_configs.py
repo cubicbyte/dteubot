@@ -2,6 +2,7 @@ import os
 import json
 import logging
 from .default_chat_config import DEFAULT_CHAT_CONFIG
+from .utils.fs import open_file, exists
 
 logger = logging.getLogger(__name__)
 
@@ -10,7 +11,7 @@ logger = logging.getLogger(__name__)
 class ChatConfigs:
     """Chat config database that stores data in files"""
     def __init__(self, configs_dirpath: str):
-        logger.debug('Creating ChatConfig instance')
+        logger.info('Creating ChatConfig instance')
 
         self.__dirpath = configs_dirpath
 
@@ -23,16 +24,17 @@ class ChatConfigs:
         
     def is_chat_config_exists(self, chat_id: int) -> bool:
         """Checks if chat config exists"""
-        return os.path.exists(self._get_chat_config_path(chat_id))
+        return exists(self._get_chat_config_path(chat_id))
         
 
     def create_chat_config(self, chat_id: int) -> dict[str, any]:
         """Creates new chat config"""
-        logger.debug('Creating %s chat config' % chat_id)
+        logger.info('Creating %s chat config' % chat_id)
 
         config = DEFAULT_CHAT_CONFIG.copy()
         path = os.path.join(self.__dirpath, f'{chat_id}.json')
-        fp = open(path, 'w', encoding='utf-8')
+        fp = open_file(path, 'w', encoding='utf-8')
+        logger.debug('Writing a newly created config to a file')
         json.dump(config, fp, ensure_ascii=False, indent=4)
         fp.close()
 
@@ -47,7 +49,8 @@ class ChatConfigs:
                 return self.create_chat_config(chat_id)
 
         path = os.path.join(self.__dirpath, f'{chat_id}.json')
-        fp = open(path, 'r', encoding='utf-8')
+        fp = open_file(path, 'r', encoding='utf-8')
+        logger.debug('Reading config from a file')
         config = json.load(fp)
         fp.close()
 
@@ -58,7 +61,8 @@ class ChatConfigs:
         logger.debug('Updating %s chat config' % chat_id)
 
         path = os.path.join(self.__dirpath, f'{chat_id}.json')
-        fp = open(path, 'w', encoding='utf-8')
+        fp = open_file(path, 'w', encoding='utf-8')
+        logger.debug('Writing config to file')
         json.dump(config, fp, ensure_ascii=False, indent=4)
         fp.close()
 
