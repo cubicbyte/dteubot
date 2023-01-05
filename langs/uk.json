@@ -50,9 +50,10 @@
 
 
 
-    "button.clear_all_cache": "Очистити весь кеш",
-    "button.clear_expired_cache": "Очистити прострочений кеш",
-    "button.admin_panel": "\ud83d\udd12 Панель управління",
+    "button.admin.clear_all_cache": "Очистити весь кеш",
+    "button.admin.clear_expired_cache": "Очистити прострочений кеш",
+    "button.admin.get_logs": "Отримати файл логів",
+    "button.admin.panel": "\ud83d\udd12 Панель управління",
     "button.calls": "\ud83d\udd53 Розклад дзвінків",
     "button.write_me": "\u2709\ufe0f Написати мені",
     "button.menu": "\ud83c\udfe0 Меню",

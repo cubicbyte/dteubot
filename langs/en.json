@@ -50,9 +50,10 @@
 
 
 
-    "button.clear_all_cache": "Clear all cache",
-    "button.clear_expired_cache": "Clear expired cache",
-    "button.admin_panel": "\ud83d\udd12 Control panel",
+    "button.admin.clear_all_cache": "Clear all cache",
+    "button.admin.clear_expired_cache": "Clear expired cache",
+    "button.admin.get_logs": "Get logs file",
+    "button.admin.panel": "\ud83d\udd12 Control panel",
     "button.calls": "\ud83d\udd53 Calls schedule",
     "button.write_me": "\u2709\ufe0f Write me",
     "button.menu": "\ud83c\udfe0 Menu",

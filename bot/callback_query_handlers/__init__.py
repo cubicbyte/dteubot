@@ -18,5 +18,6 @@ from .admin import handler as admin_handler
 from .admin_open_panel import handler as admin_open_panel_handler
 from .admin_clear_expired_cache import handler as admin_clear_expired_cache_handler
 from .admin_clear_all_cache import handler as admin_clear_all_cache_handler
+from .admin_get_logs import handler as admin_get_logs_handler
 
 from .unsupported import handler as unsupported_handler

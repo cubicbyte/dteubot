@@ -20,7 +20,7 @@ def create_message(message: types.Message) -> dict:
     # If user is admin, then add control panel button
     if message.config['admin'] is True:
         markup.add(
-            types.InlineKeyboardButton(text=message.lang['button.admin_panel'], callback_data='admin.open_panel')
+            types.InlineKeyboardButton(text=message.lang['button.admin.panel'], callback_data='admin.open_panel')
         )
 
     msg = {
