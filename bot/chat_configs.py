@@ -70,7 +70,7 @@ class ChatConfigs:
 
     def set_chat_config_field(self, chat_id: int, field: str, value: any, create = False) -> dict[str, any]:
         """Updates given chat config field"""
-        logger.debug('Updating %s chat config field' % chat_id)
+        logger.debug('Updating %s chat config field "%s" with value "%s"' % (chat_id, field, value))
 
         config = self.get_chat_config(chat_id, create)
         config[field] = value

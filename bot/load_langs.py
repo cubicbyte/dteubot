@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 
 
-def load_langs(dirpath: str) -> list[dict]:
+def load_langs(dirpath: str) -> dict[str, dict[str, str]]:
     "Load .json language files from directory"
 
     dirpath = os.path.join(sys.path[0], dirpath)

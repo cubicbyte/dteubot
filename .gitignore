@@ -1,9 +1,9 @@
-dev/
-chat-configs/
-logs/
-cache/
+/dev/
+/chat-configs/
+/logs/
+/cache/
 
-**/__pycache__
+__pycache__/
 
 .env
 *.code-workspace

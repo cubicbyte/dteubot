@@ -33,7 +33,7 @@ def lang_code(self):
         if not lang_code in langs:
             lang_code = os.getenv('DEFAULT_LANG')
 
-        self._config['lang'] = chat_configs.set_chat_config_field(self._config_id, 'lang', lang_code)
+        self._config = chat_configs.set_chat_config_field(self._config_id, 'lang', lang_code)
 
     return lang_code
 
