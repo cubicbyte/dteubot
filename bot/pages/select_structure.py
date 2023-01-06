@@ -1,6 +1,6 @@
 import requests.exceptions
 from telebot import types
-from ..settings import chat_configs, api
+from ..settings import api
 from .select_faculty import create_message as create_select_faculty_message
 from .api_unavaliable import create_message as create_api_unavaliable_message
 

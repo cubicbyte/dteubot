@@ -1,6 +1,6 @@
 import requests.exceptions
 from telebot import types
-from .. import get_remaining_time_formatted
+from ..remaining_time_formatted import get_time as get_remaining_time_formatted
 
 def get_text(message: types.Message) -> str:
     if message.config['groupId'] is None:
