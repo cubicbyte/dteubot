@@ -146,13 +146,13 @@ class Api:
     
     def list_teachers_by_chair(self, chairId: int) -> Response:
         """Returns a list of teachers from the given chair"""
-        return self._make_request('/list/chairs', 'POST', json={
+        return self._make_request('/list/teachers-by-chair', 'POST', json={
             'chairId': chairId
         })
 
     def list_students_by_group(self, groupId: int) -> Response:
         """Returns a list of students from the given group"""
-        return self._make_request('/list/chairs', 'POST', json={
+        return self._make_request('/list/students-by-group', 'POST', json={
             'groupId': groupId
         })
 
