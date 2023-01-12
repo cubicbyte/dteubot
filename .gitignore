@@ -3,6 +3,7 @@
 /logs/
 /cache/
 
+/bin/
 __pycache__/
 
 .env
