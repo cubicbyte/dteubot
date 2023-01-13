@@ -1,9 +1,25 @@
 BIN_FILE=cacher
-TEMP_DIR="mkr-cacher"
-ROOT_DIR=$(realpath --relative-to=$TMPDIR/$TEMP_DIR ..)
-mkdir -p bin/
+TEMP_DIR=$TMPDIR/mkr-cacher
 
-if [ -f bin/$BIN_FILE ]; then
+# Read root dir path
+skip_input="false"
+while getopts "y:" flag; do
+    case "${flag}" in
+        y) skip_input="true" ;;
+    esac
+done
+
+DEF_ROOT_DIR=$(dirname $(dirname $(realpath $0)))
+if [ $skip_input != "true" ]; then
+    printf "Enter the path to the bot's root directory [default $DEF_ROOT_DIR]\n>>> "
+    read root_dir
+fi
+
+if [ -z $root_dir ]; then
+    root_dir=$DEF_ROOT_DIR
+fi
+
+if [ -f $root_dir/bin/$BIN_FILE ]; then
     echo Module already installed. Exiting
     exit
 fi
@@ -12,14 +28,15 @@ fi
 echo Installing module
 
 echo Clonning source code
-git clone https://github.com/cubicbyte/mkr-cacher $TMPDIR/$TEMP_DIR
+git clone https://github.com/cubicbyte/mkr-cacher $TEMP_DIR
 
 echo Building module
-cd $TMPDIR/$TEMP_DIR
-go build -o $BIN_FILE
+cd $TEMP_DIR
+go build -o $BIN_FILE main.go
 
+mkdir -p $root_dir/bin
 mv $BIN_FILE $ROOT_DIR/bin/
 cd $ROOT_DIR
-rm -rf $TMPDIR/$TEMP_DIR
+rm -rf $TEMP_DIR
 
 echo Done

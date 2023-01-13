@@ -2,10 +2,10 @@
 
 FROM python:3.11
 
-WORKDIR /data
+WORKDIR /app
 
-COPY . /app
+COPY . .
 
-RUN pip install -r /app/requirements.txt
+RUN pip install -r requirements.txt
 
-CMD ["python", "/app/main.py"]
+CMD ["python", "main.py"]

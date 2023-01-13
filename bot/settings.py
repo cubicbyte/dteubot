@@ -25,8 +25,8 @@ os.environ.setdefault('LOGGING_LEVEL', 'INFO')
 
 # Validate environment variables
 assert os.getenv('MODE') in ('prod', 'dev'), 'The MODE environment variable must be only prod or dev. Received: %s' % os.getenv('MODE')
-assert os.getenv('API_REQUEST_TIMEOUT').isdigit(), 'The API_REQUEST_TIMEOUT environment variable must be an integer. Received: %s' % os.getenv('API_REQUEST_TIMEOUT')
-assert os.getenv('API_CACHE_EXPIRES').isdigit(), 'The API_CACHE_EXPIRES environment variable must be an integer. Received: %s' % os.getenv('API_CACHE_EXPIRES')
+assert os.getenv('API_REQUEST_TIMEOUT').isnumeric(), 'The API_REQUEST_TIMEOUT environment variable must be an integer. Received: %s' % os.getenv('API_REQUEST_TIMEOUT')
+assert os.getenv('API_CACHE_EXPIRES').isnumeric(), 'The API_CACHE_EXPIRES environment variable must be an integer. Received: %s' % os.getenv('API_CACHE_EXPIRES')
 assert os.getenv('LOGGING_LEVEL') in ('NOTSET', 'DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'), 'The LOGGING_LEVEL environment variable has an invalid value. Received: %s' % os.getenv('LOGGING_LEVEL')
 
 
