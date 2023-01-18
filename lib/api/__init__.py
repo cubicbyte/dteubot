@@ -39,7 +39,7 @@ class Api:
         res = self._session.request(method, url, headers=headers, json=json, timeout=self._timeout, *args, **kwargs)
         res.raise_for_status()
 
-        return res
+        return res.json()
 
 
 

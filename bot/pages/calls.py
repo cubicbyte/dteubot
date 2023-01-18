@@ -7,7 +7,7 @@ def get_text(message: types.Message) -> str:
     msg = ''
 
     try:
-        calls = api.timetable_call().json()
+        calls = api.timetable_call()
     except (
         requests.exceptions.ConnectionError,
         requests.exceptions.ReadTimeout,

@@ -22,7 +22,7 @@ def create_message(message: types.Message, structureId: int, facultyId: int, cou
     )
 
     buttons = []
-    for group in res.json():
+    for group in res:
         buttons.append(
             types.InlineKeyboardButton(text=group['name'], callback_data=f'select.schedule.group#groupId={group["id"]}')
         )

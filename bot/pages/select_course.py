@@ -21,7 +21,7 @@ def create_message(message: types.Message, structureId: int, facultyId: int) -> 
         types.InlineKeyboardButton(text=message.lang['button.back'], callback_data=f'select.schedule.structure#structureId={structureId}')
     )
 
-    for course in res.json():
+    for course in res:
         markup.add(
             types.InlineKeyboardButton(text=str(course['course']), callback_data=f'select.schedule.course#structureId={structureId}&facultyId={facultyId}&course={course["course"]}')
         )

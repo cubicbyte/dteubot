@@ -6,7 +6,7 @@ from .api_unavaliable import create_message as create_api_unavaliable_message
 
 def create_message(message: types.Message) -> dict:
     try:
-        res = api.list_structures()
+        structures = api.list_structures()
 
     except (
         requests.exceptions.ConnectionError,
@@ -14,8 +14,7 @@ def create_message(message: types.Message) -> dict:
         requests.exceptions.HTTPError
     ):
         return create_api_unavaliable_message(message)
-        
-    structures = res.json()
+
     markup = types.InlineKeyboardMarkup()
     message_text = message.lang['command.structure']
 

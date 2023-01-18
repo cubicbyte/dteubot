@@ -34,49 +34,37 @@ def create_message(message: types.Message, date: datetime | str) -> dict:
         date = datetime.strptime(date, '%Y-%m-%d')
 
     try:
+        schedule = api.timetable_group(message.config['groupId'], date)
 
+    except requests.exceptions.HTTPError as err:
+        if err.response.status_code == 422:
             return create_invalid_group_message(message)
-
+        return create_api_unavaliable_message(message)
     except (
         requests.exceptions.ConnectionError,
-        requests.exceptions.ReadTimeout,
-        requests.exceptions.HTTPError
+        requests.exceptions.ReadTimeout
     ):
         return create_api_unavaliable_message(message)
 
-    schedule = res.json()
-    schedule_text = ''
-    markup = types.InlineKeyboardMarkup(row_width=5)
+    page_content = ''
+    markup = types.InlineKeyboardMarkup(row_width=2)
     current_date = datetime.today()
 
-    # # Short buttons
-    # buttons = [[
-    #     types.InlineKeyboardButton(text=message.lang['button.navigation.short.week_previous'], callback_data='open.schedule.day#date=' + (date - timedelta(days=7)).strftime('%Y-%m-%d')),
-    #     types.InlineKeyboardButton(text=message.lang['button.navigation.short.day_previous'], callback_data='open.schedule.day#date=' + (date - timedelta(days=1)).strftime('%Y-%m-%d')),
-    #     types.InlineKeyboardButton(text=message.lang['button.navigation.short.day_next'], callback_data='open.schedule.day#date=' + (date + timedelta(days=1)).strftime('%Y-%m-%d')),
-    #     types.InlineKeyboardButton(text=message.lang['button.navigation.short.week_next'], callback_data='open.schedule.day#date=' + (date + timedelta(days=7)).strftime('%Y-%m-%d'))
-    # ], [
-    #     types.InlineKeyboardButton(text=message.lang['button.menu'], callback_data='open.menu')
-    # ]]
-    
-    buttons = [[
+    buttons = [
         types.InlineKeyboardButton(text=message.lang['button.navigation.day_previous'], callback_data='open.schedule.day#date=' + (date - timedelta(days=1)).strftime('%Y-%m-%d')),
-        types.InlineKeyboardButton(text=message.lang['button.navigation.day_next'], callback_data='open.schedule.day#date=' + (date + timedelta(days=1)).strftime('%Y-%m-%d'))
-    ], [
+        types.InlineKeyboardButton(text=message.lang['button.navigation.day_next'], callback_data='open.schedule.day#date=' + (date + timedelta(days=1)).strftime('%Y-%m-%d')),
         types.InlineKeyboardButton(text=message.lang['button.navigation.week_previous'], callback_data='open.schedule.day#date=' + (date - timedelta(days=7)).strftime('%Y-%m-%d')),
-        types.InlineKeyboardButton(text=message.lang['button.navigation.week_next'], callback_data='open.schedule.day#date=' + (date + timedelta(days=7)).strftime('%Y-%m-%d'))
-    ], [
+        types.InlineKeyboardButton(text=message.lang['button.navigation.week_next'], callback_data='open.schedule.day#date=' + (date + timedelta(days=7)).strftime('%Y-%m-%d')),
         types.InlineKeyboardButton(text=message.lang['button.menu'], callback_data='open.menu')
-    ]]
+    ]
 
     if date.date() != current_date.date():
         # If the selected day is not today, then add "today" button
-        buttons[-1].append(
-            types.InlineKeyboardButton(text=message.lang['button.navigation.today'], callback_data='open.schedule.today')
+        buttons.insert(
+            -1, types.InlineKeyboardButton(text=message.lang['button.navigation.today'], callback_data='open.schedule.today')
         )
 
-    for button in buttons:
-        markup.add(*button)
+    markup.add(*buttons)
 
     # Find day in schedule
     day_i = None
@@ -85,10 +73,10 @@ def create_message(message: types.Message, date: datetime | str) -> dict:
             day_i = i
             break
     if day_i is None:
-        schedule_text = create_lessons_empty_text(message)
+        page_content = create_lessons_empty_text(message)
 
     else:
-        # Make schedule page content
+        # Create page content
         for lesson in schedule[i]['lessons']:
             for period in lesson['periods']:
                 period['teachersName'] = period['teachersName'].replace('`', '\'')
@@ -100,24 +88,21 @@ def create_message(message: types.Message, date: datetime | str) -> dict:
                     period['teachersName'] = period['teachersName'][:period['teachersName'].index(',')] + ' +' + count
                     period['teachersNameFull'] = period['teachersNameFull'][:period['teachersNameFull'].index(',')] + ' +' + count
 
-                schedule_text += f"`———— ``{period['timeStart']}`` ——— ``{period['timeEnd']}`` ————`\n"
-                schedule_text += f"`  `*{period['disciplineShortName']}*`[{period['typeStr']}]`\n"
-                schedule_text += f"`{lesson['number']} `{period['classroom']}\n`  `{period['teachersNameFull']}\n"
+                page_content += f"`———— ``{period['timeStart']}`` ——— ``{period['timeEnd']}`` ————`\n"
+                page_content += f"`  `*{period['disciplineShortName']}*`[{period['typeStr']}]`\n"
+                page_content += f"`{lesson['number']} `{period['classroom']}\n`  `{period['teachersNameFull']}\n"
 
-        schedule_text += '`—――—―``―——``―—―``――``—``―``—``――――``――``―――`'
+        page_content += '`—――—―``―——``―—―``――``—``―``—``――――``――``―――`'
 
 
     date_locale = format_date(date, locale=message.lang_code)
     week_day_locale = message.lang['text.time.week_day.' + str(date.weekday())]
-    full_date_locale = f"*{date_locale}* `[`*{week_day_locale}*`]`"
+    date_locale_text = f"*{date_locale}* `[`*{week_day_locale}*`]`"
 
     msg_text = message.lang['command.schedule'].format(
-        date=full_date_locale,
-        schedule=schedule_text
+        date=date_locale_text,
+        schedule=page_content
     )
-
-    if res.is_expired:
-        msg_text += '\n\n' + message.lang['text.from_cache']
 
     msg = {
         'chat_id': message.chat.id,
