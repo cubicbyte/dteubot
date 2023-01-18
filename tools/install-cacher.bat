@@ -28,7 +28,7 @@ if EXIST "%root_dir%\bin\%BIN_FILE%" (
 
 echo Installing module
 
-echo Clonning source code
+echo Cloning source code
 git clone https://github.com/cubicbyte/mkr-cacher "%TEMP_DIR%"
 
 echo Building module
