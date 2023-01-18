@@ -5,7 +5,7 @@ from .api_unavaliable import create_message as create_api_unavaliable_message
 
 def get_text(message: types.Message) -> str:
     msg = ''
-    
+
     try:
         calls = api.timetable_call().json()
     except (

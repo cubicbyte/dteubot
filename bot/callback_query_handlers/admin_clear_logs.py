@@ -9,9 +9,9 @@ logger = logging.getLogger(__name__)
 @bot.callback_query_handler(func=lambda call: call.query == 'admin.clear_logs')
 def handler(call: telebot.types.CallbackQuery):
     logger.debug('Handling admin callback query')
-    
+
     create_file(os.path.join(LOGS_PATH, 'debug.log'))
-    
+
     bot.answer_callback_query(
         text=call.message.lang['text.done'],
         callback_query_id=call.id,

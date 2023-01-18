@@ -15,7 +15,7 @@
     "text.not_selected": "\u274c Not selected",
     "text.group_incorrect": "\u274c Failed to get schedule for your group\n\nPlease try to select another one.",
     "text.from_cache": "Received from cache",
-    
+
     "text.subjects.today": "*Classes today*",
     "text.subjects.tomorrow": "*Classes tomorrow*",
     "text.subjects.missing": "No lessons",
@@ -81,7 +81,7 @@
     "button.navigation.short.day_previous": "\u25c0\ufe0f",
     "button.navigation.short.week_previous": "\u23ea",
 
-    
+
     "command.structure": "Select structure",
     "command.faculty": "Select faculty",
     "command.course": "Select course",

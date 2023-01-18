@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 @bot.message_handler(commands=['select'])
 def handle_command(message: telebot.types.Message):
     logger.info('Handling /select command from chat %s' % message.chat.id)
-    
+
     if len(message.args) == 0:
         bot.send_message(**select_structure.create_message(message))
     else:

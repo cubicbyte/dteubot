@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 @bot.message_handler(commands=['admin'])
 def handle_command(message: telebot.types.Message):
     logger.info('Handling /admin command from chat %s' % message.chat.id)
-    
+
     if message.config['admin'] is not True:
         return bot.send_message(**access_denied.create_message(message))
 

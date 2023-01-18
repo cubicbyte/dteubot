@@ -111,7 +111,7 @@ class Api:
             'lessonNumberEnd': lessonNumberEnd,
             'date': datetime.astimezone(pytz.UTC).isoformat(sep='T', timespec='milliseconds') + 'Z'
         })
-    
+
 
     # /list
     def list_structures(self) -> Response:
@@ -143,7 +143,7 @@ class Api:
             'structureId': structureId,
             'facultyId': facultyId
         })
-    
+
     def list_teachers_by_chair(self, chairId: int) -> Response:
         """Returns a list of teachers from the given chair"""
         return self._make_request('/list/teachers-by-chair', 'POST', json={

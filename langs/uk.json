@@ -15,7 +15,7 @@
     "text.not_selected": "\u274c Не вибрано",
     "text.group_incorrect": "\u274c Не вдалося отримати розклад для вашої групи\n\nСпробуйте вибрати іншу.",
     "text.from_cache": "Отримано з кешу",
-    
+
     "text.subjects.today": "*Пари сьогодні*",
     "text.subjects.tomorrow": "*Пари завтра*",
     "text.subjects.missing": "Пари відсутні",

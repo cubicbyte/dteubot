@@ -2,7 +2,7 @@ from urllib.parse import parse_qsl
 
 def parse_callback_query(query: str) -> dict:
     """Parses a callback query string
-    
+
     Example:
     >>> parse_callback_query('open.schedule.day#date=2004-06-12&somefield=somevalue')
     {
@@ -20,7 +20,7 @@ def parse_callback_query(query: str) -> dict:
         args = dict(parse_qsl(split[1]))
     else:
         args = {}
-        
+
         # TODO: remove code below after some time
         if '=' in query:
             split = query.split('=')

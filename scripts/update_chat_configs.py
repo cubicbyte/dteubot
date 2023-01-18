@@ -30,7 +30,7 @@ def insert_after(key: str, value: any, obj: dict, after_key: str):
 
     # Find the index of the key to be inserted
     i = keys.index(after_key) + 1
-    
+
     # Insert value
     keys.insert(i, key)
     values.insert(i, value)
@@ -60,7 +60,7 @@ def main(path: str):
 
     for i, file in enumerate(files):
         logger.info(f'Converting #{i + 1}/{count}')
-        
+
         # Read config
         file_path = os.path.join(path, file)
         logger.debug('Opening file %s' % file_path)

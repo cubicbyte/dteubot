@@ -14,7 +14,7 @@ def create_lessons_empty_text(message: types.Message) -> str:
     line = '—————————————————————————'
     lessons_missing_text = message.lang['text.subjects.missing']
     spaces_count = int(len(line) / 2) - int(len(lessons_missing_text) / 2)
-    
+
     # All this code is needed to center the text
     if spaces_count < 0:
         spaces_count = 0
@@ -34,8 +34,7 @@ def create_message(message: types.Message, date: datetime | str) -> dict:
         date = datetime.strptime(date, '%Y-%m-%d')
 
     try:
-        res = api.timetable_group(message.config['groupId'], date)
-        if res.status_code == 422:
+
             return create_invalid_group_message(message)
 
     except (
@@ -94,7 +93,7 @@ def create_message(message: types.Message, date: datetime | str) -> dict:
             for period in lesson['periods']:
                 period['teachersName'] = period['teachersName'].replace('`', '\'')
                 period['teachersNameFull'] = period['teachersNameFull'].replace('`', '\'')
-                
+
                 # If there are multiple teachers, display the first one and add +1 to the end
                 if ',' in period['teachersName']:
                     count = str(period['teachersNameFull'].count(','))

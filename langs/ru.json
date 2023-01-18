@@ -15,7 +15,7 @@
     "text.not_selected": "\u274c Не выбрано",
     "text.group_incorrect": "\u274c Не удалось получить расписание для вашей группы\n\nПопробуйте выбрать другую.",
     "text.from_cache": "Получено с кеша",
-    
+
     "text.subjects.today": "*Пары сегодня*",
     "text.subjects.tomorrow": "*Пары завтра*",
     "text.subjects.missing": "Пары отсутствуют",
@@ -82,7 +82,7 @@
     "button.navigation.short.week_previous": "\u23ea",
 
 
-    
+
     "command.structure": "Выберите структуру",
     "command.faculty": "Выберите факультет",
     "command.course": "Выберите курс",

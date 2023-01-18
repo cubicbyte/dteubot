@@ -57,7 +57,7 @@ class TelegramLogger:
 
     def __handle_user_update(self, user: types.User):
         "Logs user profile updates"
-        
+
         logger.info('Handling %s user update' % user.id)
         user_dir = self.get_user_log_dir(user.id)
         user_dict = user.__dict__
@@ -84,7 +84,7 @@ class TelegramLogger:
             logger.debug('Recording the full user profile')
             json.dump(user_dict, fp, ensure_ascii=False, indent=4)
             fp.close()
-            
+
             # Record only updated fields
             fp = open_file(updates_path, 'a', encoding='utf8')
             logger.debug('Recording only updated fields...')
@@ -107,7 +107,7 @@ class TelegramLogger:
             msg_text = message.text.replace('\n', '\\n')
         else:
             msg_text = None
-        
+
         # Saving a message to the logs
         fp = open_file(Path(chat_dir, 'messages.txt'), 'a', encoding='utf8')
         fp.write('[{time}] {chat_id}/{user_id}/{message_id} ({content_type}): {text}\n'.format(
@@ -122,10 +122,10 @@ class TelegramLogger:
 
     def __handle_callback_query(self, call: types.CallbackQuery):
         "Logs callback queries"
-        
+
         logger.info('Handling callback query %s' % call.data)
         chat_dir = Path(self.__dirpath, 'chats', str(call.message.chat.id))
-        
+
         # Saving a callback query to the logs
         fp = open_file(Path(chat_dir, 'cb_queries.txt'), 'a')
         fp.write('[{time}] {chat_id}/{user_id}/{message_id}: {data}\n'.format(
