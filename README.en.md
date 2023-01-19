@@ -2,21 +2,24 @@
 <img src="https://user-images.githubusercontent.com/81159301/193612153-e085ffb7-230b-413c-a7b2-c450536cd397.png" alt="Logo" width="200"><br><br>
 
 # SUTE Schedule Bot
-
 [![Python 3.6+](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-Bot for getting the schedule in [SUTE](https://mia1.knute.edu.ua).<br>
-*\*You can also configure this bot to display schedule from other universities using the MKR ACS system\**<br>
-You can try the bot live ([link](https://t.me/dteubot))<br>
-
+Telegram bot for getting the schedule in Ukrainian State University of Trade and Economics ([SUTE](https://knute.edu.ua)).<br>
+You can try the bot live: ([@dteubot](https://t.me/dteubot))
 </div>
+
+> **Note** You can also configure this bot to display schedule from other universities using the MKR ACS system
+
+
 
 # Screenshots
 ![Bot screenshot](https://user-images.githubusercontent.com/81159301/193561985-2414eafb-3423-4ef6-b149-24926831df7a.png)
 
-# Commands
 
+
+# Commands
+Basically, the main way to control the bot - with the buttons. But the bot also supports the following commands:
 * **/today**<br>
     lessons today
 * **/tomorrow**<br>
@@ -37,8 +40,9 @@ You can try the bot live ([link](https://t.me/dteubot))<br>
 ? - optional parameter
 <br><br>
 
-# Startup
 
+
+# Startup
 The bot can be started in two ways: Docker and directly
 
 ## 1. The usual way
@@ -49,26 +53,25 @@ The bot can be started in two ways: Docker and directly
    To download, click the green button **<span style="color: lightgreen;"><> Code</span> > Download ZIP**<br>
    or execute the command
    ```shell
-   git clone https://github.com/angron42/sute-schedule-bot
+   git clone https://github.com/cubicbyte/sute-schedule-bot
    ```
 2. Install the libraries:
     ```shell
     pip install -r requirements.txt
     ```
-3. Configure the file `.env` by example `.env.example`
+3. Configure the file `.env` by example `env.example`
 4. Start the bot with the following comand
     ```shell
-    python .
+    python main.py
     ```
 
-This bot also supports running in another directory: you need to create an .env file in it and execute the command `python "/path/to/bot/folder"`<br>
+This bot also supports running in another directory: you need to create an .env file in it and execute the command `python "</path/to/bot/folder>/main.py"`<br>
 If the file is not created, the program will search for it in its root directory.
 
 ## 2. Docker
-
 1. Install Docker
 2. Create a directory in which the bot data will be stored
-3. In this directory, create an `.env` file by example [.env.example](.env.example)
+3. In this directory, create an `.env` file by example [env.example](env.example)
 4. Run the following command:
     - For Windows:
         ```shell
