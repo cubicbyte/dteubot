@@ -46,7 +46,7 @@ logger = logging.getLogger(__name__)
 logger.info('Running setup')
 
 
-from lib.api import Api
+from lib.api import CachedApi
 from scripts.update_chat_configs import main as update_chat_configs
 from .tg_logger import TelegramLogger
 from .chat_configs import ChatConfigs
@@ -66,7 +66,7 @@ if api_timeout <= 0:
 update_chat_configs(CHAT_CONFIGS_PATH)
 logger.info('Creating a bot instance')
 bot = telebot.TeleBot(BOT_TOKEN)
-api = Api(url=api_url, timeout=api_timeout, expires_after=api_expires)
+api = CachedApi(url=api_url, timeout=api_timeout, expires_after=api_expires)
 tg_logger = TelegramLogger(os.path.join(LOGS_PATH, 'telegram'))
 chat_configs = ChatConfigs(CHAT_CONFIGS_PATH)
 langs = load_langs(LANGS_PATH)

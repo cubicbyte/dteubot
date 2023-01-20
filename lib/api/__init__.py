@@ -165,3 +165,67 @@ class Api:
         return self._make_request('/other/search-teachers', 'POST', json={
             'name': name
         })
+
+
+import sys
+import os.path
+import json
+from ..cache_reader import CacheReader
+class CachedApi(Api):
+    def __init__(self, url: str, timeout: int = None, **kwargs):
+        super().__init__(url, timeout, **kwargs)
+        self.__cache = CacheReader(os.path.join(sys.path[0], 'cache', 'mkr-cache.sqlite'))
+
+    def timetable_group(self, groupId: int, date: date) -> list[dict]:
+        data = self.__cache.get_schedule(groupId, date)
+        print(self.__cache.get_group(1138))
+        if data is None:
+            return super().timetable_group(groupId, date)
+        return list({
+            'date': date.strftime('%Y-%m-%d'),
+            'lessons': json.loads(i[1])
+        } for i in data)
+
+    def list_structures(self) -> list[dict]:
+        data = self.__cache.get_structures()
+        res = list({
+            'id': i[0],
+            'shortName': i[1],
+            'fullName': i[2]
+        } for i in data)
+        if len(res) == 0:
+            return super().list_structures()
+        return res
+
+    def list_faculties(self, structureId: int) -> list[dict]:
+        data = self.__cache.get_faculties(structureId)
+        res = list({
+            'id': i[1],
+            'shortName': i[2],
+            'fullName': i[3]
+        } for i in data)
+        if len(res) == 0:
+            return super().list_faculties(structureId)
+        return res
+
+    def list_courses(self, facultyId: int) -> list[dict]:
+        data = self.__cache.get_courses(facultyId)
+        res = list({
+            'course': i[1]
+        } for i in data)
+        if len(res) == 0:
+            return super().list_courses(facultyId)
+        return res
+
+    def list_groups(self, facultyId: int, course: int) -> list[dict]:
+        data = self.__cache.get_groups(facultyId, course)
+        res = list({
+            'id': i[1],
+            'name': i[2],
+            'course': i[3],
+            'priority': i[4],
+            'educationForm': i[5]
+        } for i in data)
+        if len(res) == 0:
+            return super().list_groups(facultyId, course)
+        return res
