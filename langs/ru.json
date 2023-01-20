@@ -83,18 +83,18 @@
 
 
 
-    "command.structure": "Выберите структуру",
-    "command.faculty": "Выберите факультет",
-    "command.course": "Выберите курс",
-    "command.group": "Выберите группу",
-    "command.group_incorrect": "\u274c *Не удалось получить расписание для вашей группы*\n\nПопробуйте выбрать другую.",
-    "command.menu": "\ud83c\udfe0 *Меню*\n\nЭтот бот создан для удобного и быстрого просмотра расписания пар в ДТЕУ.",
-    "command.settings": "\u2699\ufe0f *Настройки*\n\n*Ваша группа:* `{group_id}`\n\nВ следующий раз, чтобы выбрать эту группу, вы можете ввести команду `/select {group_id}`",
-    "command.lang_select": "\ud83c\uddec\ud83c\udde7 *Смена языка*\n\n*Ваш текущий язык*: {lang}",
-    "command.more": "\ud83d\uddc2 *Дополнительно*",
-    "command.info": "\u2139\ufe0f *Информация*\n\n\ud83d\uddff *Создатель* - @cubicbyte\n\nИспользуйте бота @dteubot как инструмент для получения расписания пар на каждый день.",
-    "command.schedule": "\ud83d\udcc5   {date}   \ud83d\udcc5\n\n{schedule}",
-    "command.api_unavaliable": "Похоже, сайт с расписанием сейчас не работает/не отвечает.\n\nПожалуйста, попробуйте позже.",
-    "command.calls": "\ud83d\udd53 *Расписание звонков*\n\n{schedule}",
-    "command.admin_panel": "\ud83d\udee0 *Панель управления*"
+    "page.structure": "Выберите структуру",
+    "page.faculty": "Выберите факультет",
+    "page.course": "Выберите курс",
+    "page.group": "Выберите группу",
+    "page.group_incorrect": "\u274c *Не удалось получить расписание для вашей группы*\n\nПопробуйте выбрать другую.",
+    "page.menu": "\ud83c\udfe0 *Меню*\n\nЭтот бот создан для удобного и быстрого просмотра расписания пар в ДТЕУ.",
+    "page.settings": "\u2699\ufe0f *Настройки*\n\n*Ваша группа:* `{group_id}`\n\nВ следующий раз, чтобы выбрать эту группу, вы можете ввести команду `/select {group_id}`",
+    "page.lang_select": "\ud83c\uddec\ud83c\udde7 *Смена языка*\n\n*Ваш текущий язык*: {lang}",
+    "page.more": "\ud83d\uddc2 *Дополнительно*",
+    "page.info": "\u2139\ufe0f *Информация*\n\n\ud83d\uddff *Создатель* - @cubicbyte\n\nИспользуйте бота @dteubot как инструмент для получения расписания пар на каждый день.",
+    "page.schedule": "\ud83d\udcc5   {date}   \ud83d\udcc5\n\n{schedule}",
+    "page.api_unavaliable": "Похоже, сайт с расписанием сейчас не работает/не отвечает.\n\nПожалуйста, попробуйте позже.",
+    "page.calls": "\ud83d\udd53 *Расписание звонков*\n\n{schedule}",
+    "page.admin_panel": "\ud83d\udee0 *Панель управления*"
 }

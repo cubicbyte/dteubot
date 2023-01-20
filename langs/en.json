@@ -82,18 +82,19 @@
     "button.navigation.short.week_previous": "\u23ea",
 
 
-    "command.structure": "Select structure",
-    "command.faculty": "Select faculty",
-    "command.course": "Select course",
-    "command.group": "Select group",
-    "command.group_incorrect": "\u274c *Failed to get schedule for your group*\n\nPlease try to select another one.",
-    "command.menu": "\ud83c\udfe0 *Menu*\n\nThis bot was created for convenient and quick schedule reviewing in SUTE.",
-    "command.settings": "\u2699\ufe0f *Settings*\n\n*Your group:* `{group_id}`\n\nThe next time you want to select this group, you can type `/select {group_id}`",
-    "command.lang_select": "\ud83c\uddec\ud83c\udde7 *Change language*\n\n*Your current language*: {lang}",
-    "command.more": "\ud83d\uddc2 *Additionally*",
-    "command.info": "\u2139\ufe0f *Information*\n\n\ud83d\uddff *Creator* - @cubicbyte\n\nUse the @dteubot as a tool to get the schedule for every day.",
-    "command.schedule": "\ud83d\udcc5   {date}   \ud83d\udcc5\n\n{schedule}",
-    "command.api_unavaliable": "Seems like the timetable site is down/not responding right now.\n\nPlease, try later.",
-    "command.calls": "\ud83d\udd53 *Calls schedule*\n\n{schedule}",
-    "command.admin_panel": "\ud83d\udee0 *Control panel*"
+    
+    "page.structure": "Select structure",
+    "page.faculty": "Select faculty",
+    "page.course": "Select course",
+    "page.group": "Select group",
+    "page.group_incorrect": "\u274c *Failed to get schedule for your group*\n\nPlease try to select another one.",
+    "page.menu": "\ud83c\udfe0 *Menu*\n\nThis bot was created for convenient and quick schedule reviewing in SUTE.",
+    "page.settings": "\u2699\ufe0f *Settings*\n\n*Your group:* `{group_id}`\n\nThe next time you want to select this group, you can type `/select {group_id}`",
+    "page.lang_select": "\ud83c\uddec\ud83c\udde7 *Change language*\n\n*Your current language*: {lang}",
+    "page.more": "\ud83d\uddc2 *Additionally*",
+    "page.info": "\u2139\ufe0f *Information*\n\n\ud83d\uddff *Creator* - @cubicbyte\n\nUse the @dteubot as a tool to get the schedule for every day.",
+    "page.schedule": "\ud83d\udcc5   {date}   \ud83d\udcc5\n\n{schedule}",
+    "page.api_unavaliable": "Seems like the timetable site is down/not responding right now.\n\nPlease, try later.",
+    "page.calls": "\ud83d\udd53 *Calls schedule*\n\n{schedule}",
+    "page.admin_panel": "\ud83d\udee0 *Control panel*"
 }

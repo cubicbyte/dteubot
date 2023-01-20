@@ -2,7 +2,7 @@ from telebot import types
 from ..settings import langs
 
 def create_message(message: types.Message) -> dict:
-    message_text = message.lang['command.lang_select'].format(lang=message.lang['lang_name'])
+    message_text = message.lang['page.lang_select'].format(lang=message.lang['lang_name'])
     markup = types.InlineKeyboardMarkup()
 
     for lang in langs:

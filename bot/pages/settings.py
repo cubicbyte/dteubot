@@ -3,7 +3,7 @@ from telebot import types
 def create_message(message: types.Message) -> dict:
     group = message.config['groupId'] or message.lang['text.not_selected']
     markup = types.InlineKeyboardMarkup()
-    message_text = message.lang['command.settings'].format(group_id=group)
+    message_text = message.lang['page.settings'].format(group_id=group)
 
     markup.add(
         types.InlineKeyboardButton(text=message.lang['button.select_group'], callback_data='open.select_group'),

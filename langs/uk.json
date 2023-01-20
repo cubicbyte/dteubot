@@ -83,18 +83,18 @@
 
 
 
-    "command.structure": "Виберіть структуру",
-    "command.faculty": "Виберіть факультет",
-    "command.course": "Виберіть курс",
-    "command.group": "Виберіть групу",
-    "command.group_incorrect": "\u274c *Не вдалося отримати розклад для вашої групи*\n\nСпробуйте вибрати іншу.",
-    "command.menu": "\ud83c\udfe0 *Меню*\n\nЦей бот був створений для швидкого та зручного перегляду розкладу пар в ДТЕУ.",
-    "command.settings": "\u2699\ufe0f *Налаштування*\n\n*Ваша група:* `{group_id}`\n\nНаступного разу, щоб вибрати цю групу, ви можете ввести команду `/select {group_id}`",
-    "command.lang_select": "\ud83c\uddec\ud83c\udde7 *Зміна мови*\n\n*Ваша поточна мова*: {lang}",
-    "command.more": "\ud83d\uddc2 *Додатково*",
-    "command.info": "\u2139\ufe0f *Інформація*\n\n\ud83d\uddff *Створив бота* - @cubicbyte\n\nВикористовуйте бота @dteubot як інструмент для отримання розкладу пар на кожен день.",
-    "command.schedule": "\ud83d\udcc5   {date}   \ud83d\udcc5\n\n{schedule}",
-    "command.api_unavaliable": "Схоже, сайт з розкладом зараз не працює/не відповідає.\n\nБудь ласка, спробуйте пізніше.",
-    "command.calls": "\ud83d\udd53 *Розклад дзвінків*\n\n{schedule}",
-    "command.admin_panel": "\ud83d\udee0 *Панель управління*"
+    "page.structure": "Виберіть структуру",
+    "page.faculty": "Виберіть факультет",
+    "page.course": "Виберіть курс",
+    "page.group": "Виберіть групу",
+    "page.group_incorrect": "\u274c *Не вдалося отримати розклад для вашої групи*\n\nСпробуйте вибрати іншу.",
+    "page.menu": "\ud83c\udfe0 *Меню*\n\nЦей бот був створений для швидкого та зручного перегляду розкладу пар в ДТЕУ.",
+    "page.settings": "\u2699\ufe0f *Налаштування*\n\n*Ваша група:* `{group_id}`\n\nНаступного разу, щоб вибрати цю групу, ви можете ввести команду `/select {group_id}`",
+    "page.lang_select": "\ud83c\uddec\ud83c\udde7 *Зміна мови*\n\n*Ваша поточна мова*: {lang}",
+    "page.more": "\ud83d\uddc2 *Додатково*",
+    "page.info": "\u2139\ufe0f *Інформація*\n\n\ud83d\uddff *Створив бота* - @cubicbyte\n\nВикористовуйте бота @dteubot як інструмент для отримання розкладу пар на кожен день.",
+    "page.schedule": "\ud83d\udcc5   {date}   \ud83d\udcc5\n\n{schedule}",
+    "page.api_unavaliable": "Схоже, сайт з розкладом зараз не працює/не відповідає.\n\nБудь ласка, спробуйте пізніше.",
+    "page.calls": "\ud83d\udd53 *Розклад дзвінків*\n\n{schedule}",
+    "page.admin_panel": "\ud83d\udee0 *Панель управління*"
 }

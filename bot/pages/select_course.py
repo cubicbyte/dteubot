@@ -5,7 +5,7 @@ from .api_unavaliable import create_message as create_api_unavaliable_message
 
 def create_message(message: types.Message, structureId: int, facultyId: int) -> dict:
     markup = types.InlineKeyboardMarkup()
-    message_text = message.lang['command.course']
+    message_text = message.lang['page.course']
 
     try:
         res = api.list_courses(facultyId)

@@ -1,7 +1,7 @@
 from telebot import types
 
 def create_message(message: types.Message) -> dict:
-    message_text = message.lang['command.api_unavaliable']
+    message_text = message.lang['page.api_unavaliable']
     markup = types.InlineKeyboardMarkup()
 
     markup.add(

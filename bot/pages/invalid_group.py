@@ -1,7 +1,7 @@
 from telebot import types
 
 def create_message(message: types.Message) -> dict:
-    message_text = message.lang['command.group_incorrect']
+    message_text = message.lang['page.group_incorrect']
     markup = types.InlineKeyboardMarkup()
 
     markup.add(

@@ -16,7 +16,7 @@ def create_message(message: types.Message) -> dict:
         return create_api_unavaliable_message(message)
 
     markup = types.InlineKeyboardMarkup()
-    message_text = message.lang['command.structure']
+    message_text = message.lang['page.structure']
 
     if len(structures) == 1:
         # If there is only one structure, then skip this menu

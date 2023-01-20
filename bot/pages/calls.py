@@ -22,7 +22,7 @@ def get_text(message: types.Message) -> str:
 
 def create_message(message: types.Message) -> dict:
     schedule = get_text(message)
-    message_text = message.lang['command.calls'].format(schedule=schedule)
+    message_text = message.lang['page.calls'].format(schedule=schedule)
     markup = types.InlineKeyboardMarkup()
 
     markup.add(

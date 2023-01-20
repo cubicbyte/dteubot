@@ -99,7 +99,7 @@ def create_message(message: types.Message, date: datetime | str) -> dict:
     week_day_locale = message.lang['text.time.week_day.' + str(date.weekday())]
     date_locale_text = f"*{date_locale}* `[`*{week_day_locale}*`]`"
 
-    msg_text = message.lang['command.schedule'].format(
+    msg_text = message.lang['page.schedule'].format(
         date=date_locale_text,
         schedule=page_content
     )
