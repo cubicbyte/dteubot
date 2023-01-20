@@ -20,7 +20,7 @@ class Api:
         self.url = url
         self._timeout = timeout
         self._session = CachedSession(
-            cache_name='cache/api',
+            cache_name='cache/http-cache',
             cache_control=True,
             allowable_methods=['GET', 'POST'],
             match_headers=True,
@@ -28,7 +28,7 @@ class Api:
             **kwargs
         )
 
-    def _make_request(self, path: str, method: str = 'GET', json: dict = None, *args, **kwargs) -> Response:
+    def _make_request(self, path: str, method: str = 'GET', json: dict = None, *args, **kwargs) -> any:
         logger.debug(f'Making {method} request to {path} with JSON data {json}')
         headers = {
             'Accept-Language': 'uk',
@@ -44,7 +44,7 @@ class Api:
 
 
     # /time-table
-    def timetable_group(self, groupId: int, date: date) -> Response:
+    def timetable_group(self, groupId: int, date: date) -> list[dict]:
         """Returns the schedule for the group"""
         date_range = get_date_range(date)
 
@@ -54,7 +54,7 @@ class Api:
             'dateEnd': date_range[1].strftime('%Y-%m-%d')
         })
 
-    def timetable_student(self, studentId: int, date: date) -> Response:
+    def timetable_student(self, studentId: int, date: date) -> list[dict]:
         """Returns the schedule for the student"""
         date_range = get_date_range(date)
 
@@ -64,7 +64,7 @@ class Api:
             'dateEnd': date_range[1].strftime('%Y-%m-%d')
         })
 
-    def timetable_teacher(self, teacherId: int, date: date) -> Response:
+    def timetable_teacher(self, teacherId: int, date: date) -> list[dict]:
         """Returns the schedule for the teacher"""
         date_range = get_date_range(date)
 
@@ -74,7 +74,7 @@ class Api:
             'dateEnd': date_range[1].strftime('%Y-%m-%d')
         })
 
-    def timetable_classroom(self, classroomId: int, date: date) -> Response:
+    def timetable_classroom(self, classroomId: int, date: date) -> list[dict]:
         """Returns audience schedule (when and what groups are in it)"""
         date_range = get_date_range(date)
 
@@ -84,17 +84,17 @@ class Api:
             'dateEnd': date_range[1].strftime('%Y-%m-%d')
         })
 
-    def timetable_universal(self, date: date):
+    def timetable_universal(self, date: date) -> list[dict]:
         """Returns whole university schedule"""
         return self._make_request('/time-table/universal', 'POST', json={
             'date': date.strftime('%Y-%m-%d')
         })
 
-    def timetable_call(self) -> Response:
+    def timetable_call(self) -> list[dict]:
         """Returns the call schedule"""
         return self._make_request('/time-table/call-schedule', 'POST')
 
-    def timetable_ad(self, classCode: int, date: str) -> Response:
+    def timetable_ad(self, classCode: int, date: str) -> list[dict]:
         """Returns an announcement for the current lesson\n
         Usually contains a lesson link in Teams/Zoom"""
         return self._make_request('/time-table/schedule-ad', 'POST', json={
@@ -102,7 +102,7 @@ class Api:
             'r2': date
         })
 
-    def timetable_free_classrooms(self, structureId: int, corpusId: int, lessonNumberStart: int, lessonNumberEnd: int, datetime: datetime):
+    def timetable_free_classrooms(self, structureId: int, corpusId: int, lessonNumberStart: int, lessonNumberEnd: int, datetime: datetime) -> list[dict]:
         """Returns list of free classrooms"""
         return self._make_request('/time-table/free-classroom', 'POST', json={
             'structureId': structureId,
@@ -114,43 +114,43 @@ class Api:
 
 
     # /list
-    def list_structures(self) -> Response:
+    def list_structures(self) -> list[dict]:
         """Returns list of structures"""
         return self._make_request('/list/structures')
 
-    def list_faculties(self, structureId: int) -> Response:
+    def list_faculties(self, structureId: int) -> list[dict]:
         """Returns list of faculties"""
         return self._make_request('/list/faculties', 'POST', json={
             'structureId': structureId
         })
 
-    def list_courses(self, facultyId: int) -> Response:
+    def list_courses(self, facultyId: int) -> list[dict]:
         """Returns list of courses"""
         return self._make_request('/list/courses', 'POST', json={
             'facultyId': facultyId
         })
 
-    def list_groups(self, facultyId: int, course: int) -> Response:
+    def list_groups(self, facultyId: int, course: int) -> list[dict]:
         """Return list of groups"""
         return self._make_request('/list/groups', 'POST', json={
             'facultyId': facultyId,
             'course': course
         })
 
-    def list_chairs(self, structureId: int, facultyId: int) -> Response:
+    def list_chairs(self, structureId: int, facultyId: int) -> list[dict]:
         """Returns list of chairs"""
         return self._make_request('/list/chairs', 'POST', json={
             'structureId': structureId,
             'facultyId': facultyId
         })
 
-    def list_teachers_by_chair(self, chairId: int) -> Response:
+    def list_teachers_by_chair(self, chairId: int) -> list[dict]:
         """Returns a list of teachers from the given chair"""
         return self._make_request('/list/teachers-by-chair', 'POST', json={
             'chairId': chairId
         })
 
-    def list_students_by_group(self, groupId: int) -> Response:
+    def list_students_by_group(self, groupId: int) -> list[dict]:
         """Returns a list of students from the given group"""
         return self._make_request('/list/students-by-group', 'POST', json={
             'groupId': groupId
@@ -159,7 +159,7 @@ class Api:
 
 
     # /other
-    def search_teacher(self, name: str) -> Response:
+    def search_teacher(self, name: str) -> list[dict]:
         """Looking for a teacher by a fragment of his last name only\n
         Not case sensitive, returns an array of the first 50 teachers found"""
         return self._make_request('/other/search-teachers', 'POST', json={
