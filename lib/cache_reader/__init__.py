@@ -3,7 +3,7 @@ from datetime import date as _date
 
 class CacheReader:
     def __init__(self, file: str) -> None:
-        self.__connection = sqlite3.connect(file)
+        self.__connection = sqlite3.connect(file, check_same_thread=False)
 
     def get_schedule(self, groupId: int, date: str | _date) -> list | None:
         if type(date) == _date:
