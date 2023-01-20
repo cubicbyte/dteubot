@@ -82,11 +82,12 @@
     "button.navigation.short.week_previous": "\u23ea",
 
 
-    
-    "page.structure": "Select structure",
-    "page.faculty": "Select faculty",
-    "page.course": "Select course",
-    "page.group": "Select group",
+
+    "page.greeting": "\ud83e\udd17 *Greetings!*\n\nThis is a bot for getting the schedule of classes at the Ukrainian State University of Trade and Economics (SUTE).\n\nThis bot works always - even during power outages when the website is unavailable!",
+    "page.structure": "*Select structure*",
+    "page.faculty": "*Select faculty*",
+    "page.course": "*Select course*",
+    "page.group": "*Select group*",
     "page.group_incorrect": "\u274c *Failed to get schedule for your group*\n\nPlease try to select another one.",
     "page.menu": "\ud83c\udfe0 *Menu*\n\nThis bot was created for convenient and quick schedule reviewing in SUTE.",
     "page.settings": "\u2699\ufe0f *Settings*\n\n*Your group:* `{group_id}`\n\nThe next time you want to select this group, you can type `/select {group_id}`",
