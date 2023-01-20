@@ -6,7 +6,7 @@ from datetime import timedelta
 from dotenv import load_dotenv
 
 CHAT_CONFIGS_PATH = 'chat-configs'
-LANGS_PATH = 'langs'
+LANGS_PATH = os.path.join(sys.path[0], 'langs')
 LOGS_PATH = 'logs'
 
 sys.path.append('../../lib')                # Required to load external libraries

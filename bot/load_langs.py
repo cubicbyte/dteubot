@@ -12,9 +12,7 @@ logger = logging.getLogger(__name__)
 def load_langs(dirpath: str) -> dict[str, dict[str, str]]:
     "Load .json language files from directory"
 
-    dirpath = os.path.join(sys.path[0], dirpath)
     logger.info('Loading langs from dir %s' % dirpath)
-
     files = os.listdir(dirpath)
     logger.info('Found %s files' % len(files))
 
