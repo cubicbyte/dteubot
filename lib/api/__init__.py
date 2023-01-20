@@ -167,8 +167,6 @@ class Api:
         })
 
 
-import sys
-import os.path
 import json
 from ..cache_reader import CacheReader
 class CachedApi(Api):
@@ -178,7 +176,6 @@ class CachedApi(Api):
 
     def timetable_group(self, groupId: int, date: date) -> list[dict]:
         data = self.__cache.get_schedule(groupId, date)
-        print(self.__cache.get_group(1138))
         if data is None:
             return super().timetable_group(groupId, date)
         return list({
