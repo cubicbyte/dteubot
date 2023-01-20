@@ -174,7 +174,7 @@ from ..cache_reader import CacheReader
 class CachedApi(Api):
     def __init__(self, url: str, timeout: int = None, **kwargs):
         super().__init__(url, timeout, **kwargs)
-        self.__cache = CacheReader(os.path.join(sys.path[0], 'cache', 'mkr-cache.sqlite'))
+        self.__cache = CacheReader('cache/mkr-cache.sqlite')
 
     def timetable_group(self, groupId: int, date: date) -> list[dict]:
         data = self.__cache.get_schedule(groupId, date)
