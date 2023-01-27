@@ -8,8 +8,8 @@ logger = logging.getLogger(__name__)
 logger.info('Initializing api module')
 
 from urllib.parse import urljoin
-from datetime import date, datetime
-from requests_cache import CachedSession, Response
+from datetime import datetime, date as _date
+from requests_cache import CachedSession
 from .utils.date_range import get_date_range
 
 
@@ -44,7 +44,7 @@ class Api:
 
 
     # /time-table
-    def timetable_group(self, groupId: int, date: date) -> list[dict]:
+    def timetable_group(self, groupId: int, date: _date) -> list[dict]:
         """Returns the schedule for the group"""
         date_range = get_date_range(date)
 
@@ -54,7 +54,7 @@ class Api:
             'dateEnd': date_range[1].strftime('%Y-%m-%d')
         })
 
-    def timetable_student(self, studentId: int, date: date) -> list[dict]:
+    def timetable_student(self, studentId: int, date: _date) -> list[dict]:
         """Returns the schedule for the student"""
         date_range = get_date_range(date)
 
@@ -64,7 +64,7 @@ class Api:
             'dateEnd': date_range[1].strftime('%Y-%m-%d')
         })
 
-    def timetable_teacher(self, teacherId: int, date: date) -> list[dict]:
+    def timetable_teacher(self, teacherId: int, date: _date) -> list[dict]:
         """Returns the schedule for the teacher"""
         date_range = get_date_range(date)
 
@@ -74,7 +74,7 @@ class Api:
             'dateEnd': date_range[1].strftime('%Y-%m-%d')
         })
 
-    def timetable_classroom(self, classroomId: int, date: date) -> list[dict]:
+    def timetable_classroom(self, classroomId: int, date: _date) -> list[dict]:
         """Returns audience schedule (when and what groups are in it)"""
         date_range = get_date_range(date)
 
@@ -84,7 +84,7 @@ class Api:
             'dateEnd': date_range[1].strftime('%Y-%m-%d')
         })
 
-    def timetable_universal(self, date: date) -> list[dict]:
+    def timetable_universal(self, date: _date) -> list[dict]:
         """Returns whole university schedule"""
         return self._make_request('/time-table/universal', 'POST', json={
             'date': date.strftime('%Y-%m-%d')
@@ -102,14 +102,14 @@ class Api:
             'r2': date
         })
 
-    def timetable_free_classrooms(self, structureId: int, corpusId: int, lessonNumberStart: int, lessonNumberEnd: int, datetime: datetime) -> list[dict]:
+    def timetable_free_classrooms(self, structureId: int, corpusId: int, lessonNumberStart: int, lessonNumberEnd: int, date: datetime) -> list[dict]:
         """Returns list of free classrooms"""
         return self._make_request('/time-table/free-classroom', 'POST', json={
             'structureId': structureId,
             'corpusId': corpusId,
             'lessonNumberStart': lessonNumberStart,
             'lessonNumberEnd': lessonNumberEnd,
-            'date': datetime.astimezone(pytz.UTC).isoformat(sep='T', timespec='milliseconds') + 'Z'
+            'date': date.astimezone(pytz.UTC).isoformat(sep='T', timespec='milliseconds') + 'Z'
         })
 
 
@@ -174,14 +174,14 @@ class CachedApi(Api):
         super().__init__(url, timeout, **kwargs)
         self.__cache = CacheReader('cache/mkr-cache.sqlite')
 
-    def timetable_group(self, groupId: int, date: date) -> list[dict]:
+    def timetable_group(self, groupId: int, date: _date) -> list[dict]:
         data = self.__cache.get_schedule(groupId, date)
         if data is None:
             return super().timetable_group(groupId, date)
-        return list({
+        return [{
             'date': date.strftime('%Y-%m-%d'),
-            'lessons': json.loads(i[1])
-        } for i in data)
+            'lessons': json.loads(data[2])
+        }]
 
     def list_structures(self) -> list[dict]:
         data = self.__cache.get_structures()

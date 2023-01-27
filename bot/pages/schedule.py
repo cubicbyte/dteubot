@@ -2,7 +2,7 @@ import requests.exceptions
 import logging
 
 from telebot import types
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date as _date
 from babel.dates import format_date
 from ..settings import api
 from .invalid_group import create_message as create_invalid_group_message
@@ -26,12 +26,12 @@ def create_lessons_empty_text(message: types.Message) -> str:
 
     return text
 
-def create_message(message: types.Message, date: datetime | str) -> dict:
-    if isinstance(date, datetime):
+def create_message(message: types.Message, date: _date | str) -> dict:
+    if isinstance(date, _date):
         date_str = date.strftime('%Y-%m-%d')
     else:
         date_str = date
-        date = datetime.strptime(date, '%Y-%m-%d')
+        date = datetime.strptime(date, '%Y-%m-%d').date()
 
     try:
         schedule = api.timetable_group(message.config['groupId'], date)
@@ -48,7 +48,7 @@ def create_message(message: types.Message, date: datetime | str) -> dict:
 
     page_content = ''
     markup = types.InlineKeyboardMarkup(row_width=2)
-    current_date = datetime.today()
+    current_date = _date.today()
 
     buttons = [
         types.InlineKeyboardButton(text=message.lang['button.navigation.day_previous'], callback_data='open.schedule.day#date=' + (date - timedelta(days=1)).strftime('%Y-%m-%d')),
@@ -58,7 +58,7 @@ def create_message(message: types.Message, date: datetime | str) -> dict:
         types.InlineKeyboardButton(text=message.lang['button.menu'], callback_data='open.menu')
     ]
 
-    if date.date() != current_date.date():
+    if date != current_date:
         # If the selected day is not today, then add "today" button
         buttons.insert(
             -1, types.InlineKeyboardButton(text=message.lang['button.navigation.today'], callback_data='open.schedule.today')
@@ -89,7 +89,7 @@ def create_message(message: types.Message, date: datetime | str) -> dict:
                     period['teachersNameFull'] = period['teachersNameFull'][:period['teachersNameFull'].index(',')] + ' +' + count
 
                 page_content += f"`———— ``{period['timeStart']}`` ——— ``{period['timeEnd']}`` ————`\n"
-                page_content += f"`  `*{period['disciplineShortName']}*`[{period['typeStr']}]`\n"
+                page_content += f"`  `*{period['disciplineShortName']}*`[{period['type']}]`\n"
                 page_content += f"`{lesson['number']} `{period['classroom']}\n`  `{period['teachersNameFull']}\n"
 
         page_content += '`—――—―``―——``―—―``――``—``―``—``――――``――``―――`'
