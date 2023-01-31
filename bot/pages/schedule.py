@@ -89,7 +89,7 @@ def create_message(message: types.Message, date: _date | str) -> dict:
                     period['teachersNameFull'] = period['teachersNameFull'][:period['teachersNameFull'].index(',')] + ' +' + count
 
                 page_content += f"`———— ``{period['timeStart']}`` ——— ``{period['timeEnd']}`` ————`\n"
-                page_content += f"`  `*{period['disciplineShortName']}*`[{period['type']}]`\n"
+                page_content += f"`  `*{period['disciplineShortName']}*`[{period['typeStr']}]`\n"
                 page_content += f"`{lesson['number']} `{period['classroom']}\n`  `{period['teachersNameFull']}\n"
 
         page_content += '`—――—―``―——``―—―``――``—``―``—``――――``――``―――`'
