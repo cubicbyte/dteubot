@@ -16,7 +16,7 @@ if %skip_input% NEQ "true" (
     SET /p root_dir=">>> "
 )
 
-if [%root_dir%] == [] (
+if ["%root_dir%"] == [] (
     SET root_dir=%DEF_ROOT_DIR%
 )
 
