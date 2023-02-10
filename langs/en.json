@@ -83,7 +83,7 @@
 
 
 
-    "page.greeting": "\ud83e\udd17 *Greetings!*\n\nThis is a bot for getting the schedule of classes at the Ukrainian State University of Trade and Economics (SUTE).\n\nThis bot works always - even during power outages when the website is unavailable!",
+    "page.greeting": "\ud83d\udc4b *Greetings!*\n\nThis is a bot for getting the schedule of classes at the Ukrainian State University of Trade and Economics (SUTE).\n\nThis bot works always - even during power outages when the website is unavailable!",
     "page.structure": "*Select structure*",
     "page.faculty": "*Select faculty*",
     "page.course": "*Select course*",
@@ -93,7 +93,7 @@
     "page.settings": "\u2699\ufe0f *Settings*\n\n*Your group:* `{group_id}`\n\nThe next time you want to select this group, you can type `/select {group_id}`",
     "page.lang_select": "\ud83c\uddec\ud83c\udde7 *Change language*\n\n*Your current language*: {lang}",
     "page.more": "\ud83d\uddc2 *Additionally*",
-    "page.info": "\u2139\ufe0f *Information*\n\n\ud83d\uddff *Creator* - @cubicbyte\n\nUse the @dteubot as a tool to get the schedule for every day.",
+    "page.info": "\u2139\ufe0f *Information*\n\n\ud83d\uddff *Creator* - @cubicbyte\n\ud83c\udf10 *Source code* - [github.com/cubicbyte/dteubot](https://github.com/cubicbyte/dteubot)\n\nUse the @dteubot as a tool to get the schedule for every day.",
     "page.schedule": "\ud83d\udcc5   {date}   \ud83d\udcc5\n\n{schedule}",
     "page.api_unavaliable": "Seems like the timetable site is down/not responding right now.\n\nPlease, try later.",
     "page.calls": "\ud83d\udd53 *Calls schedule*\n\n{schedule}",
