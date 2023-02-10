@@ -1,8 +1,5 @@
 name: Deploy
 
-env:
-  REPOSITORY_NAME: ${{ github.event.repository.name }}
-
 on:
   push:
     branches: [ master ]
@@ -29,8 +26,8 @@ jobs:
         port: PORT
         script: |
           screen -wipe
-          if screen -list | grep -q "sute-schedule-bot"; then
-            screen -X -S sute-schedule-bot quit;
+          if screen -list | grep -q "dteubot"; then
+            screen -X -S dteubot quit;
           fi
 
     - name: Pull changes
@@ -41,7 +38,7 @@ jobs:
         key: KEY
         port: PORT
         script: |
-          cd ~/sute-schedule-bot
+          cd ~/dteubot
           git pull -f origin master
 
     - name: Setup
@@ -52,11 +49,11 @@ jobs:
         key: KEY
         port: PORT
         script: |
-          cd ~/sute-schedule-bot
+          cd ~/dteubot
           pip install -r requirements.txt
           cd ~/bot-data
           echo '${{ secrets.ENV }}' > .env
-          python ~/sute-schedule-bot/scripts/update_chat_configs.py chat-configs
+          python ~/dteubot/scripts/update_chat_configs.py chat-configs
 
     - name: Run
       uses: appleboy/ssh-action@master

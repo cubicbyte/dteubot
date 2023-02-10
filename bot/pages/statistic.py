@@ -28,7 +28,7 @@ def create_message(message: types.Message) -> dict:
     markup = types.InlineKeyboardMarkup()
     markup.add(
         types.InlineKeyboardButton(text=message.lang['button.menu'], callback_data='open.menu'),
-        types.InlineKeyboardButton(text='How Did We Get Here?', url='https://github.com/cubicbyte/sute-schedule-bot')
+        types.InlineKeyboardButton(text='How Did We Get Here?', url='https://github.com/cubicbyte/dteubot')
     )
 
     msg = {

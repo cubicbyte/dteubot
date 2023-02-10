@@ -1,7 +1,7 @@
 <div align="center">
 <img src="https://user-images.githubusercontent.com/81159301/193612153-e085ffb7-230b-413c-a7b2-c450536cd397.png" alt="Logo" width="200"><br><br>
 
-# SUTE Schedule Bot
+# Розклад ДТЕУ/КНТЕУ
 [![Python 3.6+](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
@@ -54,7 +54,7 @@
    Для завантаження, нажміть зелену кнопку **<span style="color: lightgreen;"><> Code</span> > Download ZIP**<br>
    або виконайте команду
    ```shell
-   git clone https://github.com/cubicbyte/sute-schedule-bot
+   git clone https://github.com/cubicbyte/dteubot
    ```
 2. Установіть бібліотеки:
    ```shell

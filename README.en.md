@@ -53,7 +53,7 @@ The bot can be started in two ways: Docker and directly
    To download, click the green button **<span style="color: lightgreen;"><> Code</span> > Download ZIP**<br>
    or execute the command
    ```shell
-   git clone https://github.com/cubicbyte/sute-schedule-bot
+   git clone https://github.com/cubicbyte/dteubot
    ```
 2. Install the libraries:
     ```shell
