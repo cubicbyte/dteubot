@@ -168,20 +168,31 @@ class Api:
 
 
 import json
+import requests.exceptions
 from ..cache_reader import CacheReader
 class CachedApi(Api):
-    def __init__(self, url: str, timeout: int = None, **kwargs):
+    def __init__(self, url: str, timeout: int = None, enable_http = False, **kwargs):
         super().__init__(url, timeout, **kwargs)
+        self.__http_enabled = enable_http
         self.__cache = CacheReader('cache/mkr-cache.sqlite')
 
     def timetable_group(self, groupId: int, date: _date) -> list[dict]:
-        data = self.__cache.get_schedule(groupId, date)
-        if data is None:
-            return super().timetable_group(groupId, date)
-        return [{
-            'date': date.strftime('%Y-%m-%d'),
-            'lessons': json.loads(data[2])
-        }]
+        res = self.__cache.get_schedule(groupId, date)
+        if res is None:
+            if self.__http_enabled:
+                try:
+                    res = super().timetable_group(groupId, date)
+                except (
+                    requests.exceptions.ConnectionError,
+                    requests.exceptions.ReadTimeout
+                ): res = []
+            else: res = []
+        else:
+            res = [{
+                'date': date.strftime('%Y-%m-%d'),
+                'lessons': json.loads(res[2])
+            }]
+        return res
 
     def list_structures(self) -> list[dict]:
         data = self.__cache.get_structures()
@@ -191,7 +202,14 @@ class CachedApi(Api):
             'fullName': i[2]
         } for i in data)
         if len(res) == 0:
-            return super().list_structures()
+            if self.__http_enabled:
+                try:
+                    res = super().list_structures()
+                except (
+                    requests.exceptions.ConnectionError,
+                    requests.exceptions.ReadTimeout
+                ): res = []
+            else: res = []
         return res
 
     def list_faculties(self, structureId: int) -> list[dict]:
@@ -202,7 +220,14 @@ class CachedApi(Api):
             'fullName': i[3]
         } for i in data)
         if len(res) == 0:
-            return super().list_faculties(structureId)
+            if self.__http_enabled:
+                try:
+                    res = super().list_faculties(structureId)
+                except (
+                    requests.exceptions.ConnectionError,
+                    requests.exceptions.ReadTimeout
+                ): res = []
+            else: res = []
         return res
 
     def list_courses(self, facultyId: int) -> list[dict]:
@@ -211,7 +236,14 @@ class CachedApi(Api):
             'course': i[1]
         } for i in data)
         if len(res) == 0:
-            return super().list_courses(facultyId)
+            if self.__http_enabled:
+                try:
+                    res = super().list_courses(facultyId)
+                except (
+                    requests.exceptions.ConnectionError,
+                    requests.exceptions.ReadTimeout
+                ): res = []
+            else: res = []
         return res
 
     def list_groups(self, facultyId: int, course: int) -> list[dict]:
@@ -224,5 +256,12 @@ class CachedApi(Api):
             'educationForm': i[5]
         } for i in data)
         if len(res) == 0:
-            return super().list_groups(facultyId, course)
+            if self.__http_enabled:
+                try:
+                    res = super().list_groups(facultyId, course)
+                except (
+                    requests.exceptions.ConnectionError,
+                    requests.exceptions.ReadTimeout
+                ): res = []
+            else: res = []
         return res
