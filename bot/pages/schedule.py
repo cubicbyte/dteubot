@@ -50,9 +50,16 @@ def create_message(message: types.Message, date: _date | str) -> dict:
     markup = types.InlineKeyboardMarkup(row_width=2)
     current_date = _date.today()
 
+    for day in schedule:
+        if day['date'] != date_str:
+            day_next = day['date']
+            break
+    if day_next is None:
+        day_next = (date + timedelta(days=1)).strftime('%Y-%m-%d')
+
     buttons = [
         types.InlineKeyboardButton(text=message.lang['button.navigation.day_previous'], callback_data='open.schedule.day#date=' + (date - timedelta(days=1)).strftime('%Y-%m-%d')),
-        types.InlineKeyboardButton(text=message.lang['button.navigation.day_next'], callback_data='open.schedule.day#date=' + (date + timedelta(days=1)).strftime('%Y-%m-%d')),
+        types.InlineKeyboardButton(text=message.lang['button.navigation.day_next'], callback_data='open.schedule.day#date=' + day_next),
         types.InlineKeyboardButton(text=message.lang['button.navigation.week_previous'], callback_data='open.schedule.day#date=' + (date - timedelta(days=7)).strftime('%Y-%m-%d')),
         types.InlineKeyboardButton(text=message.lang['button.navigation.week_next'], callback_data='open.schedule.day#date=' + (date + timedelta(days=7)).strftime('%Y-%m-%d')),
         types.InlineKeyboardButton(text=message.lang['button.menu'], callback_data='open.menu')

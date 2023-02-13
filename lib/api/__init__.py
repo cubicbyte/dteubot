@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 logger.info('Initializing api module')
 
 from urllib.parse import urljoin
-from datetime import datetime, date as _date
+from datetime import timedelta, datetime, date as _date
 from requests_cache import CachedSession
 from .utils.date_range import get_date_range
 
@@ -44,44 +44,44 @@ class Api:
 
 
     # /time-table
-    def timetable_group(self, groupId: int, date: _date) -> list[dict]:
+    def timetable_group(self, groupId: int, dateStart: _date, dateEnd: _date = None) -> list[dict]:
         """Returns the schedule for the group"""
-        date_range = get_date_range(date)
-
+        if dateEnd is None:
+            dateEnd = dateStart + timedelta(days=6)
         return self._make_request('/time-table/group', 'POST', json={
             'groupId': groupId,
-            'dateStart': date_range[0].strftime('%Y-%m-%d'),
-            'dateEnd': date_range[1].strftime('%Y-%m-%d')
+            'dateStart': dateStart.strftime('%Y-%m-%d'),
+            'dateEnd': dateEnd.strftime('%Y-%m-%d')
         })
 
-    def timetable_student(self, studentId: int, date: _date) -> list[dict]:
+    def timetable_student(self, studentId: int, dateStart: _date, dateEnd: _date = None) -> list[dict]:
         """Returns the schedule for the student"""
-        date_range = get_date_range(date)
-
+        if dateEnd is None:
+            dateEnd = dateStart + timedelta(days=6)
         return self._make_request('/time-table/student', 'POST', json={
             'studentId': studentId,
-            'dateStart': date_range[0].strftime('%Y-%m-%d'),
-            'dateEnd': date_range[1].strftime('%Y-%m-%d')
+            'dateStart': dateStart.strftime('%Y-%m-%d'),
+            'dateEnd': dateEnd.strftime('%Y-%m-%d')
         })
 
-    def timetable_teacher(self, teacherId: int, date: _date) -> list[dict]:
+    def timetable_teacher(self, teacherId: int, dateStart: _date, dateEnd: _date = None) -> list[dict]:
         """Returns the schedule for the teacher"""
-        date_range = get_date_range(date)
-
+        if dateEnd is None:
+            dateEnd = dateStart + timedelta(days=6)
         return self._make_request('/time-table/teacher', 'POST', json={
             'teacherId': teacherId,
-            'dateStart': date_range[0].strftime('%Y-%m-%d'),
-            'dateEnd': date_range[1].strftime('%Y-%m-%d')
+            'dateStart': dateStart.strftime('%Y-%m-%d'),
+            'dateEnd': dateEnd.strftime('%Y-%m-%d')
         })
 
-    def timetable_classroom(self, classroomId: int, date: _date) -> list[dict]:
+    def timetable_classroom(self, classroomId: int, dateStart: _date, dateEnd: _date = None) -> list[dict]:
         """Returns audience schedule (when and what groups are in it)"""
-        date_range = get_date_range(date)
-
+        if dateEnd is None:
+            dateEnd = dateStart + timedelta(days=6)
         return self._make_request('/time-table/classroom', 'POST', json={
             'classroomId': classroomId,
-            'dateStart': date_range[0].strftime('%Y-%m-%d'),
-            'dateEnd': date_range[1].strftime('%Y-%m-%d')
+            'dateStart': dateStart.strftime('%Y-%m-%d'),
+            'dateEnd': dateEnd.strftime('%Y-%m-%d')
         })
 
     def timetable_universal(self, date: _date) -> list[dict]:
@@ -176,22 +176,22 @@ class CachedApi(Api):
         self.__http_enabled = enable_http
         self.__cache = CacheReader('cache/mkr-cache.sqlite')
 
-    def timetable_group(self, groupId: int, date: _date) -> list[dict]:
-        res = self.__cache.get_schedule(groupId, date)
+    def timetable_group(self, groupId: int, dateStart: _date, dateEnd: _date = None) -> list[dict]:
+        if dateEnd is None:
+            dateEnd = dateStart + timedelta(days=6)
+        res = self.__cache.get_schedule(groupId, dateStart, dateEnd)
         if res is None:
             if self.__http_enabled:
-                try:
-                    res = super().timetable_group(groupId, date)
-                except (
-                    requests.exceptions.ConnectionError,
-                    requests.exceptions.ReadTimeout
-                ): res = []
+                res = super().timetable_group(groupId, dateStart, dateEnd)
             else: res = []
         else:
-            res = [{
-                'date': date.strftime('%Y-%m-%d'),
-                'lessons': json.loads(res[2])
-            }]
+            _res = res
+            res = []
+            for day in _res:
+                res.append({
+                    'date': day[1],
+                    'lessons': json.loads(day[2])
+                })
         return res
 
     def list_structures(self) -> list[dict]:
@@ -203,12 +203,7 @@ class CachedApi(Api):
         } for i in data)
         if len(res) == 0:
             if self.__http_enabled:
-                try:
-                    res = super().list_structures()
-                except (
-                    requests.exceptions.ConnectionError,
-                    requests.exceptions.ReadTimeout
-                ): res = []
+                res = super().list_structures()
             else: res = []
         return res
 
@@ -221,12 +216,7 @@ class CachedApi(Api):
         } for i in data)
         if len(res) == 0:
             if self.__http_enabled:
-                try:
-                    res = super().list_faculties(structureId)
-                except (
-                    requests.exceptions.ConnectionError,
-                    requests.exceptions.ReadTimeout
-                ): res = []
+                res = super().list_faculties(structureId)
             else: res = []
         return res
 
@@ -237,12 +227,7 @@ class CachedApi(Api):
         } for i in data)
         if len(res) == 0:
             if self.__http_enabled:
-                try:
-                    res = super().list_courses(facultyId)
-                except (
-                    requests.exceptions.ConnectionError,
-                    requests.exceptions.ReadTimeout
-                ): res = []
+                res = super().list_courses(facultyId)
             else: res = []
         return res
 
@@ -257,11 +242,6 @@ class CachedApi(Api):
         } for i in data)
         if len(res) == 0:
             if self.__http_enabled:
-                try:
-                    res = super().list_groups(facultyId, course)
-                except (
-                    requests.exceptions.ConnectionError,
-                    requests.exceptions.ReadTimeout
-                ): res = []
+                res = super().list_groups(facultyId, course)
             else: res = []
         return res

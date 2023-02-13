@@ -5,12 +5,14 @@ class CacheReader:
     def __init__(self, file: str) -> None:
         self.__connection = sqlite3.connect(file, check_same_thread=False)
 
-    def get_schedule(self, groupId: int, date: str | _date) -> list | None:
-        if type(date) == _date:
-            date = date.strftime('%Y-%m-%d')
+    def get_schedule(self, groupId: int, dateStart: str | _date, dateEnd: _date = None) -> list[list] | None:
+        if type(dateStart) == _date:
+            dateStart = dateStart.strftime('%Y-%m-%d')
+        if type(dateEnd) == _date:
+            dateEnd = dateEnd.strftime('%Y-%m-%d')
         cur = self.__connection.cursor()
-        cur.execute('SELECT * FROM Schedule WHERE groupId = ? AND date = ?;', (groupId, date))
-        res = cur.fetchone()
+        cur.execute('SELECT * FROM Schedule WHERE groupId = ? AND date BETWEEN ? AND ?;', (groupId, dateStart, dateEnd))
+        res = cur.fetchall()
         cur.close()
         return res
 
