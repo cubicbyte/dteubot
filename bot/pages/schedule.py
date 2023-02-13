@@ -50,6 +50,7 @@ def create_message(message: types.Message, date: _date | str) -> dict:
     markup = types.InlineKeyboardMarkup(row_width=2)
     current_date = _date.today()
 
+    day_next = None
     for day in schedule:
         if day['date'] != date_str:
             day_next = day['date']
