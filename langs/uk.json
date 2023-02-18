@@ -15,6 +15,7 @@
     "text.not_selected": "\u274c Не вибрано",
     "text.group_incorrect": "\u274c Не вдалося отримати розклад для вашої групи\n\nСпробуйте вибрати іншу.",
     "text.from_cache": "Отримано з кешу",
+    "text.schedule.period": "`———— ``{timeStart}`` ——— ``{timeEnd}`` ————`\n`  `*{disciplineShortName}*`[{typeStr}]`\n`{lessonNumber} `{classroom}\n`  `{teachersNameFull}\n",
 
     "text.subjects.today": "*Пари сьогодні*",
     "text.subjects.tomorrow": "*Пари завтра*",
@@ -95,6 +96,8 @@
     "page.more": "\ud83d\uddc2 *Додатково*",
     "page.info": "\u2139\ufe0f *Інформація*\n\n\ud83d\uddff *Створив бота* - @cubicbyte\n\ud83c\udf10 *Початковий код* - [github.com/cubicbyte/dteubot](https://github.com/cubicbyte/dteubot)\n\nВикористовуйте бота @dteubot як інструмент для отримання розкладу пар на кожен день.",
     "page.schedule": "\ud83d\udcc5   {date}   \ud83d\udcc5\n\n{schedule}",
+    "page.schedule.empty": "\ud83d\udcc5   {date}   \ud83d\udcc5\n\n`—————————————————————————`\n\n`      Пари відсутні`\n\n`—————————————————————————`",
+    "page.schedule.empty.multiple_days": "`Від`  \ud83d\udcc5 {dateStart}\n`До `  \ud83d\udcc5 {dateEnd}\n\n`—————————————————————————`\n\n`      Пари відсутні`\n\n`—————————————————————————`",
     "page.api_unavaliable": "Схоже, сайт з розкладом зараз не працює/не відповідає.\n\nБудь ласка, спробуйте пізніше.",
     "page.calls": "\ud83d\udd53 *Розклад дзвінків*\n\n{schedule}",
     "page.admin_panel": "\ud83d\udee0 *Панель управління*"

@@ -15,6 +15,7 @@
     "text.not_selected": "\u274c Not selected",
     "text.group_incorrect": "\u274c Failed to get schedule for your group\n\nPlease try to select another one.",
     "text.from_cache": "Received from cache",
+    "text.schedule.period": "`———— ``{timeStart}`` ——— ``{timeEnd}`` ————`\n`  `*{disciplineShortName}*`[{typeStr}]`\n`{lessonNumber} `{classroom}\n`  `{teachersNameFull}\n",
 
     "text.subjects.today": "*Classes today*",
     "text.subjects.tomorrow": "*Classes tomorrow*",
@@ -95,6 +96,8 @@
     "page.more": "\ud83d\uddc2 *Additionally*",
     "page.info": "\u2139\ufe0f *Information*\n\n\ud83d\uddff *Creator* - @cubicbyte\n\ud83c\udf10 *Source code* - [github.com/cubicbyte/dteubot](https://github.com/cubicbyte/dteubot)\n\nUse the @dteubot as a tool to get the schedule for every day.",
     "page.schedule": "\ud83d\udcc5   {date}   \ud83d\udcc5\n\n{schedule}",
+    "page.schedule.empty": "\ud83d\udcc5   {date}   \ud83d\udcc5\n\n`—————————————————————————`\n\n`       No lessons`\n\n`—————————————————————————`",
+    "page.schedule.empty.multiple_days": "`From`  \ud83d\udcc5 {dateStart}\n`To  `  \ud83d\udcc5 {dateEnd}\n\n`—————————————————————————`\n\n`       No lessons`\n\n`—————————————————————————`",
     "page.api_unavaliable": "Seems like the timetable site is down/not responding right now.\n\nPlease, try later.",
     "page.calls": "\ud83d\udd53 *Calls schedule*\n\n{schedule}",
     "page.admin_panel": "\ud83d\udee0 *Control panel*"
