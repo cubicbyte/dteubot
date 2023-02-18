@@ -19,6 +19,7 @@ if [ -z $root_dir ]; then
     root_dir=$DEF_ROOT_DIR
 fi
 
+echo $root_dir
 if [ -f $root_dir/bin/$BIN_FILE ]; then
     echo Module already installed. Exiting
     exit
@@ -35,8 +36,8 @@ cd $TEMP_DIR
 go build -o $BIN_FILE main.go
 
 mkdir -p $root_dir/bin
-mv $BIN_FILE $ROOT_DIR/bin/
-cd $ROOT_DIR
+mv $BIN_FILE $root_dir/bin/
+cd $root_dir
 rm -rf $TEMP_DIR
 
 echo Done
