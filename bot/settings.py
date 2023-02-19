@@ -4,6 +4,7 @@ import telebot
 import logging
 from datetime import timedelta
 from dotenv import load_dotenv
+from .utils.check_int import check_int
 
 CHAT_CONFIGS_PATH = 'chat-configs'
 LANGS_PATH = os.path.join(sys.path[0], 'langs')
@@ -25,9 +26,9 @@ os.environ.setdefault('LOGGING_LEVEL', 'INFO')
 
 # Validate environment variables
 assert os.getenv('MODE') in ('prod', 'dev'), 'The MODE environment variable must be only prod or dev. Received: %s' % os.getenv('MODE')
-assert os.getenv('API_REQUEST_TIMEOUT').isnumeric(), 'The API_REQUEST_TIMEOUT environment variable must be an integer. Received: %s' % os.getenv('API_REQUEST_TIMEOUT')
-assert os.getenv('API_CACHE_EXPIRES').isnumeric(), 'The API_CACHE_EXPIRES environment variable must be an integer. Received: %s' % os.getenv('API_CACHE_EXPIRES')
 assert os.getenv('LOGGING_LEVEL') in ('NOTSET', 'DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'), 'The LOGGING_LEVEL environment variable has an invalid value. Received: %s' % os.getenv('LOGGING_LEVEL')
+assert check_int(os.getenv('API_REQUEST_TIMEOUT')), 'The API_REQUEST_TIMEOUT environment variable must be an integer. Received: %s' % os.getenv('API_REQUEST_TIMEOUT')
+assert check_int(os.getenv('API_CACHE_EXPIRES')), 'The API_CACHE_EXPIRES environment variable must be an integer. Received: %s' % os.getenv('API_CACHE_EXPIRES')
 
 
 if not os.path.exists(LOGS_PATH):
@@ -46,7 +47,7 @@ logger = logging.getLogger(__name__)
 logger.info('Running setup')
 
 
-from lib.api import CachedApi
+from lib.api import Api, CachedApi
 from scripts.update_chat_configs import main as update_chat_configs
 from .tg_logger import TelegramLogger
 from .chat_configs import ChatConfigs
@@ -62,11 +63,15 @@ api_expires = timedelta(seconds=int(os.getenv('API_CACHE_EXPIRES')))
 if api_timeout <= 0:
     api_timeout = None
 
+if os.path.isfile('cache/mkr-cache.sqlite'):
+    _Api = CachedApi
+else:
+    _Api = Api
 
 update_chat_configs(CHAT_CONFIGS_PATH)
 logger.info('Creating a bot instance')
 bot = telebot.TeleBot(BOT_TOKEN)
-api = CachedApi(url=api_url, timeout=api_timeout, expires_after=api_expires)
+api = _Api(url=api_url, timeout=api_timeout, expires_after=api_expires)
 tg_logger = TelegramLogger(os.path.join(LOGS_PATH, 'telegram'))
 chat_configs = ChatConfigs(CHAT_CONFIGS_PATH)
 langs = load_langs(LANGS_PATH)
