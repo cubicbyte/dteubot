@@ -94,7 +94,7 @@
     "page.settings": "\u2699\ufe0f *Налаштування*\n\n*Ваша група:* `{group_id}`\n\nНаступного разу, щоб вибрати цю групу, ви можете ввести команду `/select {group_id}`",
     "page.lang_select": "\ud83c\uddec\ud83c\udde7 *Зміна мови*\n\n*Ваша поточна мова*: {lang}",
     "page.more": "\ud83d\uddc2 *Додатково*",
-    "page.info": "\u2139\ufe0f *Інформація*\n\n\ud83d\uddff *Створив бота* - @cubicbyte\n\ud83c\udf10 *Початковий код* - [github.com/cubicbyte/dteubot](https://github.com/cubicbyte/dteubot)\n\nВикористовуйте бота @dteubot як інструмент для отримання розкладу пар на кожен день.",
+    "page.info": "\u2139\ufe0f *Інформація*\n\n*Створив бота*\nСтудент ФІТ 2-8\n[Марухненко Богдан](tg://user?id=1807718374)\n\n\ud83c\udf10 *Початковий код* - [github.com/cubicbyte/dteubot](https://github.com/cubicbyte/dteubot)\n\nВикористовуйте бота @dteubot як інструмент для отримання розкладу пар на кожен день.",
     "page.schedule": "\ud83d\udcc5   {date}   \ud83d\udcc5\n\n{schedule}",
     "page.schedule.empty": "\ud83d\udcc5   {date}   \ud83d\udcc5\n\n`—————————————————————————`\n\n`      Пари відсутні`\n\n`—————————————————————————`",
     "page.schedule.empty.multiple_days": "`Від`  \ud83d\udcc5 {dateStart}\n`До `  \ud83d\udcc5 {dateEnd}\n\n`—————————————————————————`\n\n`      Пари відсутні`\n\n`—————————————————————————`",

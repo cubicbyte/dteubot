@@ -94,7 +94,7 @@
     "page.settings": "\u2699\ufe0f *Settings*\n\n*Your group:* `{group_id}`\n\nThe next time you want to select this group, you can type `/select {group_id}`",
     "page.lang_select": "\ud83c\uddec\ud83c\udde7 *Change language*\n\n*Your current language*: {lang}",
     "page.more": "\ud83d\uddc2 *Additionally*",
-    "page.info": "\u2139\ufe0f *Information*\n\n\ud83d\uddff *Creator* - @cubicbyte\n\ud83c\udf10 *Source code* - [github.com/cubicbyte/dteubot](https://github.com/cubicbyte/dteubot)\n\nUse the @dteubot as a tool to get the schedule for every day.",
+    "page.info": "\u2139\ufe0f *Information*\n\n\ud83d\uddff *Bot creator*\nStudent of FIT 2-8\n[Marukhnenko Bohdan](tg://user?id=1807718374)\n\n\ud83c\udf10 *Source code* - [github.com/cubicbyte/dteubot](https://github.com/cubicbyte/dteubot)\n\nUse the @dteubot as a tool to get the schedule for every day.",
     "page.schedule": "\ud83d\udcc5   {date}   \ud83d\udcc5\n\n{schedule}",
     "page.schedule.empty": "\ud83d\udcc5   {date}   \ud83d\udcc5\n\n`—————————————————————————`\n\n`       No lessons`\n\n`—————————————————————————`",
     "page.schedule.empty.multiple_days": "`From`  \ud83d\udcc5 {dateStart}\n`To  `  \ud83d\udcc5 {dateEnd}\n\n`—————————————————————————`\n\n`       No lessons`\n\n`—————————————————————————`",
