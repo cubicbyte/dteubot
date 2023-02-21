@@ -178,7 +178,7 @@ class CachedApi(Api):
     def timetable_group(self, groupId: int, dateStart: _date, dateEnd: _date = None) -> list[dict]:
         if dateEnd is None:
             dateEnd = dateStart + timedelta(days=6)
-        res = self.__cache.get_schedule(groupId, dateStart, dateEnd)
+        res = self._cache.get_schedule(groupId, dateStart, dateEnd)
         if res is None:
             if self.__http_enabled:
                 res = super().timetable_group(groupId, dateStart, dateEnd)
@@ -194,7 +194,7 @@ class CachedApi(Api):
         return res
 
     def list_structures(self) -> list[dict]:
-        data = self.__cache.get_structures()
+        data = self._cache.get_structures()
         res = list({
             'id': i[0],
             'shortName': i[1],
@@ -207,7 +207,7 @@ class CachedApi(Api):
         return res
 
     def list_faculties(self, structureId: int) -> list[dict]:
-        data = self.__cache.get_faculties(structureId)
+        data = self._cache.get_faculties(structureId)
         res = list({
             'id': i[1],
             'shortName': i[2],
@@ -220,7 +220,7 @@ class CachedApi(Api):
         return res
 
     def list_courses(self, facultyId: int) -> list[dict]:
-        data = self.__cache.get_courses(facultyId)
+        data = self._cache.get_courses(facultyId)
         res = list({
             'course': i[1]
         } for i in data)
@@ -231,7 +231,7 @@ class CachedApi(Api):
         return res
 
     def list_groups(self, facultyId: int, course: int) -> list[dict]:
-        data = self.__cache.get_groups(facultyId, course)
+        data = self._cache.get_groups(facultyId, course)
         res = list({
             'id': i[1],
             'name': i[2],
