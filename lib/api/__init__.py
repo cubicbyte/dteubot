@@ -168,13 +168,12 @@ class Api:
 
 
 import json
-import requests.exceptions
 from ..cache_reader import CacheReader
 class CachedApi(Api):
     def __init__(self, url: str, timeout: int = None, enable_http = False, **kwargs):
         super().__init__(url, timeout, **kwargs)
-        self.__http_enabled = enable_http
-        self.__cache = CacheReader('cache/mkr-cache.sqlite')
+        self._http_enabled = enable_http
+        self._cache = CacheReader('cache/mkr-cache.sqlite')
 
     def timetable_group(self, groupId: int, dateStart: _date, dateEnd: _date = None) -> list[dict]:
         if dateEnd is None:

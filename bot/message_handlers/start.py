@@ -19,6 +19,6 @@ def handle_command(message: telebot.types.Message):
     else:
         ref = message.args_case[0]
     chat_configs.set_chat_config_field(message.chat.id, 'ref', ref, True)
-    
+
     bot.send_message(**greeting.create_message(message))
     bot.send_message(**select_structure.create_message(message))
