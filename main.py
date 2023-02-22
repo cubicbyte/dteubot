@@ -1,7 +1,7 @@
 import os
 import logging
 import telebot.types
-from bot.message_handlers import *
+from bot.command_handlers import *
 from bot.callback_query_handlers import *
 from bot.modify_message import modify_message, modify_callback_query
 from bot.settings import bot, tg_logger
