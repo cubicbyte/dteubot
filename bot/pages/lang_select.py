@@ -1,8 +1,8 @@
-from functools import lru_cache
+from functools import cache
 from telebot import types
 from ..settings import langs
 
-@lru_cache
+@cache
 def create_message(lang_code: str) -> dict:
     message_text = langs[lang_code]['page.lang_select'].format(lang=langs[lang_code]['lang_name'])
     markup = types.InlineKeyboardMarkup()
