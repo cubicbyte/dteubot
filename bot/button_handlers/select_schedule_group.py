@@ -10,4 +10,4 @@ def handler(call: telebot.types.CallbackQuery):
     logger.debug('Handling callback query')
     group_id = int(call.args['groupId'])
     call.chat.config['groupId'] = chat_configs.set_chat_config_field(call.message.chat.id, 'groupId', group_id)
-    bot.edit_message_text(**menu.create_message(call.message), message_id=call.message.id)
+    bot.edit_message_text(**menu.create_message(call.message), chat_id=call.message.chat.id, message_id=call.message.id)

@@ -10,8 +10,8 @@ def handle_command(message: telebot.types.Message):
     logger.info('Handling /start command from chat %s' % message.chat.id)
 
     if message.config_created:
-        bot.send_message(**greeting.create_message(message))
-        bot.send_message(**menu.create_message(message))
+        bot.send_message(**greeting.create_message(message.lang_code), chat_id=message.chat.id)
+        bot.send_message(**menu.create_message(message), chat_id=message.chat.id)
         return
 
     if len(message.args_case) == 0:
@@ -20,5 +20,5 @@ def handle_command(message: telebot.types.Message):
         ref = message.args_case[0]
     chat_configs.set_chat_config_field(message.chat.id, 'ref', ref, True)
 
-    bot.send_message(**greeting.create_message(message))
-    bot.send_message(**select_structure.create_message(message))
+    bot.send_message(**greeting.create_message(message.lang_code), chat_id=message.chat.id)
+    bot.send_message(**select_structure.create_message(message.lang_code), chat_id=message.chat.id)

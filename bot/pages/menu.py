@@ -20,7 +20,6 @@ def create_message(message: types.Message) -> dict:
         )
 
     msg = {
-        'chat_id': message.chat.id,
         'text': message_text,
         'reply_markup': markup,
         'parse_mode': 'MarkdownV2'

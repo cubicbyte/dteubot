@@ -1,10 +1,11 @@
-from telebot import types
+from functools import lru_cache
+from ..settings import langs
 
-def create_message(message: types.Message) -> dict:
-    message_text = message.lang['page.greeting']
+@lru_cache
+def create_message(lang_code: str) -> dict:
+    message_text = langs[lang_code]['page.greeting']
 
     msg = {
-        'chat_id': message.chat.id,
         'text': message_text,
         'parse_mode': 'MarkdownV2'
     }

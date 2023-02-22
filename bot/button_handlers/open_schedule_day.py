@@ -9,4 +9,4 @@ logger = logging.getLogger(__name__)
 def handler(call: telebot.types.CallbackQuery):
     logger.debug('Handling callback query')
     date = call.args['date']
-    bot.edit_message_text(**schedule.create_message(call.message, date), message_id=call.message.message_id)
+    bot.edit_message_text(**schedule.create_message(call.message.lang_code, call.message.config['groupId'], date), chat_id=call.message.chat.id, message_id=call.message.message_id)

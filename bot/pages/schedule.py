@@ -4,9 +4,9 @@ import logging
 from telebot import types
 from datetime import datetime, timedelta, date as _date
 from babel.dates import format_date
-from ..settings import api
 from .invalid_group import create_message as create_invalid_group_message
 from .api_unavaliable import create_message as create_api_unavaliable_message
+from ..settings import api, langs
 from ..utils.escape_markdown import escape_markdownv2
 
 logger = logging.getLogger()
@@ -32,13 +32,13 @@ def count_no_lesson_days(schedule: list[dict[str, any]], date: _date, direction_
 
     return res
 
-def get_localized_date(date: _date, message: types.Message) -> str:
-    date_localized = escape_markdownv2(format_date(date, locale=message.lang_code))
-    week_day_localized = message.lang['text.time.week_day.' + str(date.weekday())]
+def get_localized_date(date: _date, lang_code: str) -> str:
+    date_localized = escape_markdownv2(format_date(date, locale=lang_code))
+    week_day_localized = langs[lang_code]['text.time.week_day.' + str(date.weekday())]
     full_date_localized = f"*{date_localized}* `[`*{week_day_localized}*`]`"
     return full_date_localized
 
-def create_schedule_section(schedule_day: dict[str, any], message: types.Message) -> str:
+def create_schedule_section(lang_code: str, schedule_day: dict[str, any]) -> str:
     schedule_section = ''
     for lesson in schedule_day['lessons']:
         for period in lesson['periods']:
@@ -63,7 +63,7 @@ def create_schedule_section(schedule_day: dict[str, any], message: types.Message
                 period['teachersName'] = period['teachersName'][:period['teachersName'].index(',')] + ' +' + count
                 period['teachersNameFull'] = period['teachersNameFull'][:period['teachersNameFull'].index(',')] + ' +' + count
 
-            schedule_section += message.lang['text.schedule.period'].format(
+            schedule_section += langs[lang_code]['text.schedule.period'].format(
                 **period,
                 lessonNumber=lesson['number']
             )
@@ -73,7 +73,7 @@ def create_schedule_section(schedule_day: dict[str, any], message: types.Message
 
 
 
-def create_message(message: types.Message, date: _date | str) -> dict:
+def create_message(lang_code: str, groupId: int, date: _date | str) -> dict:
     # Create "date_str" and "date" variables
     if isinstance(date, _date):
         date_str = date.strftime('%Y-%m-%d')
@@ -86,16 +86,16 @@ def create_message(message: types.Message, date: _date | str) -> dict:
     dateStart = date - timedelta(days=date.weekday() + 7)
     dateEnd = dateStart + timedelta(days=20)
     try:
-        schedule = api.timetable_group(message.config['groupId'], dateStart, dateEnd)
+        schedule = api.timetable_group(groupId, dateStart, dateEnd)
     except requests.exceptions.HTTPError as err:
         if err.response.status_code == 422:
-            return create_invalid_group_message(message)
-        return create_api_unavaliable_message(message)
+            return create_invalid_group_message(lang_code)
+        return create_api_unavaliable_message(lang_code)
     except (
         requests.exceptions.ConnectionError,
         requests.exceptions.ReadTimeout
     ):
-        return create_api_unavaliable_message(message)
+        return create_api_unavaliable_message(lang_code)
 
 
     # Find schedule of current day
@@ -108,9 +108,9 @@ def create_message(message: types.Message, date: _date | str) -> dict:
 
     # Create the schedule page content
     if cur_day_schedule is not None:
-        msg_text = message.lang['page.schedule'].format(
-            date=get_localized_date(date, message),
-            schedule=create_schedule_section(cur_day_schedule, message)
+        msg_text = langs[lang_code]['page.schedule'].format(
+            date=get_localized_date(date, lang_code),
+            schedule=create_schedule_section(lang_code, cur_day_schedule)
         )
     # If there is no lesson for the current day
     else:
@@ -124,15 +124,15 @@ def create_message(message: types.Message, date: _date | str) -> dict:
         # If there are no lessons for multiple days
         # Then combine all the days without lessons into one page
         if skip_left.days > 1 or skip_right.days > 1:
-            dateStart_localized = get_localized_date(date - skip_left + timedelta(days=1), message)
-            dateEnd_localized = get_localized_date(date + skip_right - timedelta(days=1), message)
-            msg_text = message.lang['page.schedule.empty.multiple_days'].format(
+            dateStart_localized = get_localized_date(date - skip_left + timedelta(days=1), lang_code)
+            dateEnd_localized = get_localized_date(date + skip_right - timedelta(days=1), lang_code)
+            msg_text = langs[lang_code]['page.schedule.empty.multiple_days'].format(
                 dateStart=dateStart_localized,
                 dateEnd=dateEnd_localized
             )
         # If no lessons for only one day
         else:
-            msg_text = message.lang['page.schedule.empty'].format(date=get_localized_date(date, message))
+            msg_text = langs[lang_code]['page.schedule.empty'].format(date=get_localized_date(date, lang_code))
 
 
 
@@ -145,20 +145,19 @@ def create_message(message: types.Message, date: _date | str) -> dict:
         day_prev = date - skip_left
     markup = types.InlineKeyboardMarkup(row_width=2)
     buttons = [
-        types.InlineKeyboardButton(text=message.lang['button.navigation.day_previous'], callback_data='open.schedule.day#date=' + day_prev.strftime('%Y-%m-%d')),
-        types.InlineKeyboardButton(text=message.lang['button.navigation.day_next'], callback_data='open.schedule.day#date=' + day_next.strftime('%Y-%m-%d')),
-        types.InlineKeyboardButton(text=message.lang['button.navigation.week_previous'], callback_data='open.schedule.day#date=' + (date - timedelta(days=7)).strftime('%Y-%m-%d')),
-        types.InlineKeyboardButton(text=message.lang['button.navigation.week_next'], callback_data='open.schedule.day#date=' + (date + timedelta(days=7)).strftime('%Y-%m-%d')),
-        types.InlineKeyboardButton(text=message.lang['button.menu'], callback_data='open.menu')
+        types.InlineKeyboardButton(text=langs[lang_code]['button.navigation.day_previous'], callback_data='open.schedule.day#date=' + day_prev.strftime('%Y-%m-%d')),
+        types.InlineKeyboardButton(text=langs[lang_code]['button.navigation.day_next'], callback_data='open.schedule.day#date=' + day_next.strftime('%Y-%m-%d')),
+        types.InlineKeyboardButton(text=langs[lang_code]['button.navigation.week_previous'], callback_data='open.schedule.day#date=' + (date - timedelta(days=7)).strftime('%Y-%m-%d')),
+        types.InlineKeyboardButton(text=langs[lang_code]['button.navigation.week_next'], callback_data='open.schedule.day#date=' + (date + timedelta(days=7)).strftime('%Y-%m-%d')),
+        types.InlineKeyboardButton(text=langs[lang_code]['button.menu'], callback_data='open.menu')
     ]
     # If the selected day is not today, then add "today" button
     if date != _date.today():
-        buttons.append(types.InlineKeyboardButton(text=message.lang['button.navigation.today'], callback_data='open.schedule.today'))
+        buttons.append(types.InlineKeyboardButton(text=langs[lang_code]['button.navigation.today'], callback_data='open.schedule.today'))
     markup.add(*buttons)
 
 
     msg = {
-        'chat_id': message.chat.id,
         'text': msg_text,
         'reply_markup': markup,
         'parse_mode': 'MarkdownV2'

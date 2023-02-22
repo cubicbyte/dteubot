@@ -1,20 +1,22 @@
+from functools import lru_cache
 from telebot import types
+from ..settings import langs
 
-def create_message(message: types.Message) -> dict:
-    message_text = message.lang['page.more']
+@lru_cache
+def create_message(lang_code: str) -> dict:
+    message_text = langs[lang_code]['page.more']
     markup = types.InlineKeyboardMarkup()
 
     markup.add(
-        types.InlineKeyboardButton(text=message.lang['button.calls'], callback_data='open.calls'),
-        types.InlineKeyboardButton(text=message.lang['button.info'], callback_data='open.info')
+        types.InlineKeyboardButton(text=langs[lang_code]['button.calls'], callback_data='open.calls'),
+        types.InlineKeyboardButton(text=langs[lang_code]['button.info'], callback_data='open.info')
     )
 
     markup.add(
-        types.InlineKeyboardButton(text=message.lang['button.back'], callback_data='open.menu')
+        types.InlineKeyboardButton(text=langs[lang_code]['button.back'], callback_data='open.menu')
     )
 
     msg = {
-        'chat_id': message.chat.id,
         'text': message_text,
         'reply_markup': markup,
         'parse_mode': 'MarkdownV2'

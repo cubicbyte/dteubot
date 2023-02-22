@@ -1,21 +1,22 @@
+from functools import lru_cache
 from telebot import types
+from ..settings import langs
 
-def create_message(message: types.Message) -> dict:
-    group = message.config['groupId'] or message.lang['text.not_selected']
+@lru_cache
+def create_message(lang_code: str, groupId: int) -> dict:
     markup = types.InlineKeyboardMarkup()
-    message_text = message.lang['page.settings'].format(group_id=group)
+    message_text = langs[lang_code]['page.settings'].format(group_id=groupId or langs[lang_code]['text.not_selected'])
 
     markup.add(
-        types.InlineKeyboardButton(text=message.lang['button.select_group'], callback_data='open.select_group'),
-        types.InlineKeyboardButton(text=message.lang['button.select_lang'], callback_data='open.select_lang')
+        types.InlineKeyboardButton(text=langs[lang_code]['button.select_group'], callback_data='open.select_group'),
+        types.InlineKeyboardButton(text=langs[lang_code]['button.select_lang'], callback_data='open.select_lang')
     )
 
     markup.add(
-        types.InlineKeyboardButton(text=message.lang['button.back'], callback_data='open.menu')
+        types.InlineKeyboardButton(text=langs[lang_code]['button.back'], callback_data='open.menu')
     )
 
     msg = {
-        'chat_id': message.chat.id,
         'text': message_text,
         'reply_markup': markup,
         'parse_mode': 'MarkdownV2'

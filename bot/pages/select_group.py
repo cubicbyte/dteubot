@@ -1,37 +1,33 @@
 import requests.exceptions
+
 from telebot import types
-from ..settings import api
+from ..settings import api, langs
 from .api_unavaliable import create_message as create_api_unavaliable_message
 
-def create_message(message: types.Message, structureId: int, facultyId: int, course: int) -> dict:
-    markup = types.InlineKeyboardMarkup()
-    message_text = message.lang['page.group']
-
+def create_message(lang_code: str, structureId: int, facultyId: int, course: int) -> dict:
     try:
-        res = api.list_groups(facultyId, course)
-
+        groups = api.list_groups(facultyId, course)
     except (
         requests.exceptions.ConnectionError,
         requests.exceptions.ReadTimeout,
         requests.exceptions.HTTPError
     ):
-        return create_api_unavaliable_message(message)
+        return create_api_unavaliable_message(lang_code)
 
+    markup = types.InlineKeyboardMarkup()
     markup.add(
-        types.InlineKeyboardButton(text=message.lang['button.back'], callback_data=f'select.schedule.faculty#structureId={structureId}&facultyId={facultyId}')
+        types.InlineKeyboardButton(text=langs[lang_code]['button.back'], callback_data=f'select.schedule.faculty#structureId={structureId}&facultyId={facultyId}')
     )
 
     buttons = []
-    for group in res:
+    for group in groups:
         buttons.append(
             types.InlineKeyboardButton(text=group['name'], callback_data=f'select.schedule.group#groupId={group["id"]}')
         )
-
     markup.add(*buttons)
 
     msg = {
-        'chat_id': message.chat.id,
-        'text': message_text,
+        'text': langs[lang_code]['page.group'],
         'reply_markup': markup,
         'parse_mode': 'MarkdownV2'
     }
