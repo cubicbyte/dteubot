@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 def handler(call: telebot.types.CallbackQuery):
     logger.debug('Handling admin callback query')
     bot.answer_callback_query(
-        text=call.message.lang['text.no_permissions'],
+        text=call.message.lang['alert.no_permissions'],
         callback_query_id=call.id,
         show_alert=True
     )

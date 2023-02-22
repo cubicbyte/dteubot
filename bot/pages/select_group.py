@@ -33,7 +33,7 @@ def create_message(message: types.Message, structureId: int, facultyId: int, cou
         'chat_id': message.chat.id,
         'text': message_text,
         'reply_markup': markup,
-        'parse_mode': 'Markdown'
+        'parse_mode': 'MarkdownV2'
     }
 
     return msg

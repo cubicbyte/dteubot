@@ -1,7 +1,7 @@
 from telebot import types
 
 def create_message(message: types.Message) -> dict:
-    message_text = message.lang['text.no_permissions']
+    message_text = message.lang['alert.no_permissions']
     markup = types.InlineKeyboardMarkup()
 
     markup.add(
@@ -12,7 +12,7 @@ def create_message(message: types.Message) -> dict:
         'chat_id': message.chat.id,
         'text': message_text,
         'reply_markup': markup,
-        'parse_mode': 'Markdown'
+        'parse_mode': 'MarkdownV2'
     }
 
     return msg

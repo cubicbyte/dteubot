@@ -7,6 +7,7 @@ from babel.dates import format_date
 from ..settings import api
 from .invalid_group import create_message as create_invalid_group_message
 from .api_unavaliable import create_message as create_api_unavaliable_message
+from ..utils.escape_markdown import escape_markdownv2
 
 logger = logging.getLogger()
 
@@ -32,7 +33,7 @@ def count_no_lesson_days(schedule: list[dict[str, any]], date: _date, direction_
     return res
 
 def get_localized_date(date: _date, message: types.Message) -> str:
-    date_localized = format_date(date, locale=message.lang_code)
+    date_localized = escape_markdownv2(format_date(date, locale=message.lang_code))
     week_day_localized = message.lang['text.time.week_day.' + str(date.weekday())]
     full_date_localized = f"*{date_localized}* `[`*{week_day_localized}*`]`"
     return full_date_localized
@@ -41,11 +42,22 @@ def create_schedule_section(schedule_day: dict[str, any], message: types.Message
     schedule_section = ''
     for lesson in schedule_day['lessons']:
         for period in lesson['periods']:
-            # Escape apostrophes in teacher names because they break Telegram Markdown
-            period['teachersName'] = period['teachersName'].replace('`', '\\`')
-            period['teachersNameFull'] = period['teachersNameFull'].replace('`', '\\`')
+            # Escape ONLY USED api result not to break telegram markdown
+            # DO NOT DELETE COMMENTS
+            period['typeStr'] = escape_markdownv2(period['typeStr'])
+            period['classroom'] = escape_markdownv2(period['classroom'])
+            #period['disciplineFullName'] = escape_markdownv2(period['disciplineFullName'])
+            period['disciplineShortName'] = escape_markdownv2(period['disciplineShortName'])
+            period['timeStart'] = escape_markdownv2(period['timeStart'])
+            period['timeEnd'] = escape_markdownv2(period['timeEnd'])
+            #period['teachersName'] = escape_markdownv2(period['teachersName'])
+            period['teachersNameFull'] = escape_markdownv2(period['teachersNameFull'])
+            #period['dateUpdated'] = escape_markdownv2(period['dateUpdated'])
+            #period['groups'] = escape_markdownv2(period['groups'])
+
 
             # If there are multiple teachers, display the first one and add +1 to the end
+            # TODO: Replace this with textwrap.shorten
             if ',' in period['teachersName']:
                 count = str(period['teachersNameFull'].count(','))
                 period['teachersName'] = period['teachersName'][:period['teachersName'].index(',')] + ' +' + count
@@ -149,7 +161,7 @@ def create_message(message: types.Message, date: _date | str) -> dict:
         'chat_id': message.chat.id,
         'text': msg_text,
         'reply_markup': markup,
-        'parse_mode': 'Markdown'
+        'parse_mode': 'MarkdownV2'
     }
 
     return msg

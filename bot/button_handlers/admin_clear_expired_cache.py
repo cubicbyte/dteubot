@@ -11,7 +11,7 @@ def handler(call: telebot.types.CallbackQuery):
     api._session.remove_expired_responses()
 
     bot.answer_callback_query(
-        text=call.message.lang['text.done'],
+        text=call.message.lang['alert.done'],
         callback_query_id=call.id,
         show_alert=True
     )

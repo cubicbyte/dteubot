@@ -6,7 +6,7 @@ def create_message(message: types.Message) -> dict:
     msg = {
         'chat_id': message.chat.id,
         'text': message_text,
-        'parse_mode': 'Markdown'
+        'parse_mode': 'MarkdownV2'
     }
 
     return msg

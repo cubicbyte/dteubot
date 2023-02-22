@@ -13,7 +13,7 @@ def handler(call: telebot.types.CallbackQuery):
     create_file(os.path.join(LOGS_PATH, 'debug.log'))
 
     bot.answer_callback_query(
-        text=call.message.lang['text.done'],
+        text=call.message.lang['alert.done'],
         callback_query_id=call.id,
         show_alert=True
     )
