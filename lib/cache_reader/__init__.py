@@ -5,10 +5,12 @@ class CacheReader:
     def __init__(self, file: str) -> None:
         self.__connection = sqlite3.connect(file, check_same_thread=False)
 
-    def get_schedule(self, groupId: int, dateStart: str | _date, dateEnd: _date = None) -> list[list] | None:
+    def get_schedule(self, groupId: int, dateStart: _date | str, dateEnd: _date | str = None) -> list[list] | None:
         if type(dateStart) == _date:
             dateStart = dateStart.strftime('%Y-%m-%d')
-        if type(dateEnd) == _date:
+        if dateEnd is None:
+            dateEnd = dateStart
+        elif type(dateEnd) == _date:
             dateEnd = dateEnd.strftime('%Y-%m-%d')
         cur = self.__connection.cursor()
         cur.execute('SELECT * FROM Schedule WHERE groupId = ? AND date BETWEEN ? AND ?;', (groupId, dateStart, dateEnd))
@@ -16,28 +18,28 @@ class CacheReader:
         cur.close()
         return res
 
-    def get_structures(self) -> list[dict]:
+    def get_structures(self) -> list[list]:
         cur = self.__connection.cursor()
         cur.execute('SELECT * FROM Structures;')
         res = cur.fetchall()
         cur.close()
         return res
 
-    def get_faculties(self, structureId: int) -> list:
+    def get_faculties(self, structureId: int) -> list[list]:
         cur = self.__connection.cursor()
         cur.execute('SELECT * FROM Faculties WHERE structureId = ?;', (structureId,))
         res = cur.fetchall()
         cur.close()
         return res
 
-    def get_courses(self, facultyId: int) -> list:
+    def get_courses(self, facultyId: int) -> list[list]:
         cur = self.__connection.cursor()
         cur.execute('SELECT * FROM Courses WHERE facultyId = ?;', (facultyId,))
         res = cur.fetchall()
         cur.close()
         return res
 
-    def get_groups(self, facultyId: int, course: int) -> list:
+    def get_groups(self, facultyId: int, course: int) -> list[list]:
         cur = self.__connection.cursor()
         cur.execute('SELECT * FROM Groups WHERE facultyId = ? AND course = ?;', (facultyId, course))
         res = cur.fetchall()

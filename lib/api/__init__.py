@@ -10,7 +10,6 @@ logger.info('Initializing api module')
 from urllib.parse import urljoin
 from datetime import timedelta, datetime, date as _date
 from requests_cache import CachedSession
-from .utils.date_range import get_date_range
 
 
 
@@ -44,73 +43,97 @@ class Api:
 
 
     # /time-table
-    def timetable_group(self, groupId: int, dateStart: _date, dateEnd: _date = None) -> list[dict]:
+    def timetable_group(self, groupId: int, dateStart: _date | str, dateEnd: _date | str = None) -> list[dict]:
         """Returns the schedule for the group"""
+        if type(dateStart) == _date:
+            dateStart = dateStart.strftime('%Y-%m-%d')
         if dateEnd is None:
-            dateEnd = dateStart + timedelta(days=6)
+            dateEnd = dateStart
+        elif type(dateEnd) == _date:
+            dateEnd = dateEnd.strftime('%Y-%m-%d')
         return self._make_request('/time-table/group', 'POST', json={
             'groupId': groupId,
-            'dateStart': dateStart.strftime('%Y-%m-%d'),
-            'dateEnd': dateEnd.strftime('%Y-%m-%d')
+            'dateStart': dateStart,
+            'dateEnd': dateEnd
         })
 
-    def timetable_student(self, studentId: int, dateStart: _date, dateEnd: _date = None) -> list[dict]:
+    def timetable_student(self, studentId: int, dateStart: _date | str, dateEnd: _date | str = None) -> list[dict]:
         """Returns the schedule for the student"""
+        if type(dateStart) == _date:
+            dateStart = dateStart.strftime('%Y-%m-%d')
         if dateEnd is None:
-            dateEnd = dateStart + timedelta(days=6)
+            dateEnd = dateStart
+        elif type(dateEnd) == _date:
+            dateEnd = dateEnd.strftime('%Y-%m-%d')
         return self._make_request('/time-table/student', 'POST', json={
             'studentId': studentId,
-            'dateStart': dateStart.strftime('%Y-%m-%d'),
-            'dateEnd': dateEnd.strftime('%Y-%m-%d')
+            'dateStart': dateStart,
+            'dateEnd': dateEnd
         })
 
-    def timetable_teacher(self, teacherId: int, dateStart: _date, dateEnd: _date = None) -> list[dict]:
+    def timetable_teacher(self, teacherId: int, dateStart: _date | str, dateEnd: _date | str = None) -> list[dict]:
         """Returns the schedule for the teacher"""
+        if type(dateStart) == _date:
+            dateStart = dateStart.strftime('%Y-%m-%d')
         if dateEnd is None:
-            dateEnd = dateStart + timedelta(days=6)
+            dateEnd = dateStart
+        elif type(dateEnd) == _date:
+            dateEnd = dateEnd.strftime('%Y-%m-%d')
         return self._make_request('/time-table/teacher', 'POST', json={
             'teacherId': teacherId,
-            'dateStart': dateStart.strftime('%Y-%m-%d'),
-            'dateEnd': dateEnd.strftime('%Y-%m-%d')
+            'dateStart': dateStart,
+            'dateEnd': dateEnd
         })
 
-    def timetable_classroom(self, classroomId: int, dateStart: _date, dateEnd: _date = None) -> list[dict]:
+    def timetable_classroom(self, classroomId: int, dateStart: _date | str, dateEnd: _date | str = None) -> list[dict]:
         """Returns audience schedule (when and what groups are in it)"""
+        if type(dateStart) == _date:
+            dateStart = dateStart.strftime('%Y-%m-%d')
         if dateEnd is None:
-            dateEnd = dateStart + timedelta(days=6)
+            dateEnd = dateStart
+        elif type(dateEnd) == _date:
+            dateEnd = dateEnd.strftime('%Y-%m-%d')
         return self._make_request('/time-table/classroom', 'POST', json={
             'classroomId': classroomId,
             'dateStart': dateStart.strftime('%Y-%m-%d'),
             'dateEnd': dateEnd.strftime('%Y-%m-%d')
         })
 
-    def timetable_universal(self, date: _date) -> list[dict]:
+    def timetable_universal(self, date: _date | str) -> list[dict]:
         """Returns whole university schedule"""
+        if type(date) == _date:
+            date = date.strftime('%Y-%m-%d')
         return self._make_request('/time-table/universal', 'POST', json={
-            'date': date.strftime('%Y-%m-%d')
+            'date': date
         })
 
     def timetable_call(self) -> list[dict]:
         """Returns the call schedule"""
         return self._make_request('/time-table/call-schedule', 'POST')
 
-    def timetable_ad(self, classCode: int, date: str) -> list[dict]:
+    def timetable_ad(self, classCode: int, date: _date | str) -> list[dict]:
         """Returns an announcement for the current lesson\n
         Usually contains a lesson link in Teams/Zoom"""
+        if type(date) == _date:
+            date = date.strftime('%Y-%m-%d')
         return self._make_request('/time-table/schedule-ad', 'POST', json={
             'r1': classCode,
             'r2': date
         })
 
-    def timetable_free_classrooms(self, structureId: int, corpusId: int, lessonNumberStart: int, lessonNumberEnd: int, date: datetime) -> list[dict]:
-        """Returns list of free classrooms"""
+    def timetable_free_classrooms(self, structureId: int, corpusId: int, lessonNumberStart: int, lessonNumberEnd: int, date: datetime | str) -> list[dict]:
+        """Returns list of free classrooms
+        Date format: `2023-02-23T10:26:00.000Z` or `datetime.datetime`"""
+        if type(date) == datetime:
+            date = date.astimezone(pytz.UTC).isoformat(sep='T', timespec='milliseconds') + 'Z'
         return self._make_request('/time-table/free-classroom', 'POST', json={
             'structureId': structureId,
             'corpusId': corpusId,
             'lessonNumberStart': lessonNumberStart,
             'lessonNumberEnd': lessonNumberEnd,
-            'date': date.astimezone(pytz.UTC).isoformat(sep='T', timespec='milliseconds') + 'Z'
+            'date': date
         })
+
 
 
     # /list
