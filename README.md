@@ -2,7 +2,7 @@
 <img src="https://user-images.githubusercontent.com/81159301/193612153-e085ffb7-230b-413c-a7b2-c450536cd397.png" alt="Logo" width="200"><br><br>
 
 # Розклад ДТЕУ/КНТЕУ
-[![Python 3.6+](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads)
+[![Python 3.6+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 Телеграм-бот для зручного перегляду розкладу пар в Державному Торговельно-Економісному Університеті ([ДТЕУ](https://knute.edu.ua)).<br>
@@ -48,7 +48,7 @@
 
 ## 1. Звичайний спосіб
 
-> :warning: Для цього способу вам потрібен **Python** версії **3.7+**
+> :warning: Для цього способу вам потрібен **Python** версії **3.8+**
 
 1. Завантажте цей репозиторій та відкрийте в ньому командний рядок.<br>
    Для завантаження, нажміть зелену кнопку **<span style="color: lightgreen;"><> Code</span> > Download ZIP**<br>

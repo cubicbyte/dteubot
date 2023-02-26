@@ -2,7 +2,7 @@
 <img src="https://user-images.githubusercontent.com/81159301/193612153-e085ffb7-230b-413c-a7b2-c450536cd397.png" alt="Logo" width="200"><br><br>
 
 # SUTE Schedule Bot
-[![Python 3.6+](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads)
+[![Python 3.6+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 Telegram bot for getting the schedule in Ukrainian State University of Trade and Economics ([SUTE](https://knute.edu.ua)).<br>
@@ -47,7 +47,7 @@ The bot can be started in two ways: Docker and directly
 
 ## 1. The usual way
 
-> :warning: For this method you need **Python** version **3.7+**
+> :warning: For this method you need **Python** version **3.8+**
 
 1. Download this repository and open a command line in it.<br>
    To download, click the green button **<span style="color: lightgreen;"><> Code</span> > Download ZIP**<br>
