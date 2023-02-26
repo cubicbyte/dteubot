@@ -7,7 +7,7 @@ from .api_unavaliable import create_message as create_api_unavaliable_message
 def get_text() -> str:
     msg = ''
 
-    for call in api.timetable_call():
+    for call in api.timetable_call_schedule():
         msg += '`{number})` *{timeStart}* `-` *{timeEnd}*\n'.format(**call)
 
     return msg
