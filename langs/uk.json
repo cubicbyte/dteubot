@@ -4,6 +4,7 @@
 
 
     "text.not_selected": "\u274c Не вибрано",
+    "text.unknown": "Невідомо",
     "text.schedule.period": "`———— ``{timeStart}`` ——— ``{timeEnd}`` ————`\n`  `*{disciplineShortName}*`[{typeStr}]`\n`{lessonNumber} `{classroom}\n`  `{teachersNameFull}\n",
 
     "text.subjects.missing_today": "\ud83d\udccb *Пари на сьогодні відсутні*",
@@ -82,10 +83,10 @@
     "page.group": "*Виберіть групу*",
     "page.group_incorrect": "\u274c *Не вдалося отримати розклад для вашої групи*\n\nСпробуйте вибрати іншу\\.",
     "page.menu": "\ud83c\udfe0 *Меню*\n\nЦей бот був створений для швидкого та зручного перегляду розкладу пар в ДТЕУ\\.",
-    "page.settings": "\u2699\ufe0f *Налаштування*\n\n*Ваша група:* `{group_id}`",
+    "page.settings": "\u2699\ufe0f *Налаштування*\n\n*Ваша група:* {group_id}",
     "page.lang_select": "\ud83c\uddec\ud83c\udde7 *Зміна мови*\n\n*Ваша поточна мова*: {lang}",
     "page.more": "\ud83d\uddc2 *Додатково*",
-    "page.info": "\u2139\ufe0f *Інформація*\n\n*Створив бота*\nСтудент ФІТ 2\\-8\n[Марухненко Богдан](tg://user?id=1807718374)\n\n\ud83c\udf10 *Початковий код* \\- [github\\.com/cubicbyte/dteubot](https://github.com/cubicbyte/dteubot)\n\nВикористовуйте бота @dteubot як інструмент для отримання розкладу пар на кожен день\\.",
+    "page.info": "\u2139\ufe0f *Інформація*\n\n*Створив бота*\nСтудент ФІТ 2\\-8\n[Марухненко Богдан](tg://resolve?domain=cubicbyte)\n\n\u2699\ufe0f *Версія API*: {api_ver}\n\u2699\ufe0f *Підтримка версії*: {api_ver_supported}\n\ud83c\udf10 *Початковий код* \\- [github\\.com/cubicbyte/dteubot](https://github.com/cubicbyte/dteubot)\n\nВикористовуйте бота @dteubot як інструмент для отримання розкладу пар на кожен день\\.",
     "page.schedule": "\ud83d\udcc5   {date}   \ud83d\udcc5\n\n{schedule}",
     "page.schedule.empty": "\ud83d\udcc5   {date}   \ud83d\udcc5\n\n`—————————————————————————`\n\n`      Пари відсутні`\n\n`—————————————————————————`",
     "page.schedule.empty.multiple_days": "`Від`  \ud83d\udcc5 {dateStart}\n`До `  \ud83d\udcc5 {dateEnd}\n\n`—————————————————————————`\n\n`      Пари відсутні`\n\n`—————————————————————————`",

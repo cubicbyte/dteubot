@@ -4,6 +4,7 @@
 
 
     "text.not_selected": "\u274c Not selected",
+    "text.unknown": "Unknown",
     "text.schedule.period": "`———— ``{timeStart}`` ——— ``{timeEnd}`` ————`\n`  `*{disciplineShortName}*`[{typeStr}]`\n`{lessonNumber} `{classroom}\n`  `{teachersNameFull}\n",
 
     "text.subjects.missing_today": "\ud83d\udccb *No classes for today*",
@@ -51,7 +52,7 @@
     "button.info": "\u2139\ufe0f Info",
     "button.refresh": "\ud83d\udd04 Refresh",
     "button.select_group": "\ud83d\udd0e Select group",
-    "button.select_lang": "\ud83c\uddec\ud83c\udde7 Change lang",
+    "button.select_lang": "\ud83c\uddec\ud83c\udde7 Change language",
     "button.schedule": "\ud83d\udccb Classes schedule",
     "button.schedule.today": "\ud83d\udccb Classes today",
     "button.schedule.tomorrow": "\ud83d\udccb Classes tomorrow",
@@ -82,10 +83,10 @@
     "page.group": "*Select group*",
     "page.group_incorrect": "\u274c *Failed to get schedule for your group*\n\nPlease try to select another one\\.",
     "page.menu": "\ud83c\udfe0 *Menu*\n\nThis bot was created for convenient and quick schedule reviewing in SUTE\\.",
-    "page.settings": "\u2699\ufe0f *Settings*\n\n*Your group:* `{group_id}`",
+    "page.settings": "\u2699\ufe0f *Settings*\n\n*Your group:* {group_id}",
     "page.lang_select": "\ud83c\uddec\ud83c\udde7 *Change language*\n\n*Your current language*: {lang}",
     "page.more": "\ud83d\uddc2 *Additionally*",
-    "page.info": "\u2139\ufe0f *Information*\n\n\ud83d\uddff *Bot creator*\nStudent of FIT 2\\-8\n[Marukhnenko Bohdan](tg://user?id=1807718374)\n\n\ud83c\udf10 *Source code* \\- [github\\.com/cubicbyte/dteubot](https://github.com/cubicbyte/dteubot)\n\nUse the @dteubot as a tool to get the schedule for every day\\.",
+    "page.info": "\u2139\ufe0f *Information*\n\n*Bot creator*\nStudent of FIT 2\\-8\n[Marukhnenko Bohdan](tg://resolve?domain=cubicbyte)\n\n\u2699\ufe0f *Api version*: {api_ver}\n\u2699\ufe0f *Supported API version*: {api_ver_supported}\n\ud83c\udf10 *Source code* \\- [github\\.com/cubicbyte/dteubot](https://github.com/cubicbyte/dteubot)\n\nUse the @dteubot as a tool to get the schedule for every day\\.",
     "page.schedule": "\ud83d\udcc5   {date}   \ud83d\udcc5\n\n{schedule}",
     "page.schedule.empty": "\ud83d\udcc5   {date}   \ud83d\udcc5\n\n`—————————————————————————`\n\n`       No lessons`\n\n`—————————————————————————`",
     "page.schedule.empty.multiple_days": "`From`  \ud83d\udcc5 {dateStart}\n`To  `  \ud83d\udcc5 {dateEnd}\n\n`—————————————————————————`\n\n`       No lessons`\n\n`—————————————————————————`",

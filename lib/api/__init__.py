@@ -15,6 +15,8 @@ logger.info('Initializing api module')
 
 
 class Api:
+    VERSION = '1.6.1'
+
     def __init__(self, url: str, timeout: int = None, **kwargs) -> None:
         logger.info('Creating Api instance with url %s' % url)
         self.url = url
