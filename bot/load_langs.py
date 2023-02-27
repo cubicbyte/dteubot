@@ -1,5 +1,4 @@
 import os
-import sys
 import json
 import logging
 from pathlib import Path
@@ -9,7 +8,7 @@ logger = logging.getLogger(__name__)
 
 
 
-def load_langs(dirpath: str) -> dict[str, dict[str, str]]:
+def load_langs(dirpath: str) -> dict[str, str]:
     "Load .json language files from directory"
 
     logger.info('Loading langs from dir %s' % dirpath)

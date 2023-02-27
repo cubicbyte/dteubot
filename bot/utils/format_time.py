@@ -1,7 +1,7 @@
 from datetime import timedelta
 from ..settings import langs
 
-def format_time(lang_code: str, time: timedelta, depth = 1) -> str:
+def format_time(lang_code: str, time: timedelta, depth = 1, short = True) -> str:
     """Formats timedelta into a readable format
 
     Example
@@ -18,14 +18,32 @@ def format_time(lang_code: str, time: timedelta, depth = 1) -> str:
         cur_depth += 1
 
     if cur_depth < depth and time >= timedelta(hours=1):
-        result += ' ' + str(time.seconds // 3600) + ' ' + langs[lang_code]['text.time.short.hours']
+        if cur_depth != 0:
+            result += ' '
         cur_depth += 1
+        result += str(time.seconds // 3600)
+        if short:
+            result += langs[lang_code]['text.time.short.hours']
+        else:
+            result += ' ' + langs[lang_code]['text.time.hours']
 
     if cur_depth < depth and time >= timedelta(minutes=1):
-        result += ' ' + str(time.seconds // 60 % 60) + ' ' + langs[lang_code]['text.time.short.minutes']
+        if cur_depth != 0:
+            result += ' '
         cur_depth += 1
+        result += str(time.seconds // 60 % 60)
+        if short:
+            result += langs[lang_code]['text.time.short.minutes']
+        else:
+            result += ' ' + langs[lang_code]['text.time.minutes']
 
     if cur_depth < depth:
-        result += ' ' + str(time.seconds % 60) + ' ' + langs[lang_code]['text.time.short.seconds']
+        if cur_depth != 0:
+            result += ' '
+        result += str(time.seconds % 60)
+        if short:
+            result += langs[lang_code]['text.time.short.seconds']
+        else:
+            result += ' ' + langs[lang_code]['text.time.seconds']
 
     return result

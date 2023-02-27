@@ -9,6 +9,10 @@ def create_message(lang_code: str) -> dict:
 
     markup.add(
         types.InlineKeyboardButton(text=langs[lang_code]['button.calls'], callback_data='open.calls'),
+        types.InlineKeyboardButton(text=langs[lang_code]['button.left'], callback_data='open.left')
+    )
+
+    markup.add(
         types.InlineKeyboardButton(text=langs[lang_code]['button.info'], callback_data='open.info')
     )
 

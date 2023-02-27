@@ -4,7 +4,7 @@ from ..settings import langs
 
 @cache
 def create_message(lang_code: str) -> dict:
-    message_text = langs[lang_code]['page.group_incorrect']
+    message_text = langs[lang_code]['page.invalid_group']
     markup = types.InlineKeyboardMarkup()
 
     markup.add(
