@@ -49,6 +49,7 @@ logger.info('Running setup')
 
 from lib.api import Api, CachedApi
 from scripts.update_chat_configs import main as update_chat_configs
+from .exception_handler import ExceptionHandler
 from .tg_logger import TelegramLogger
 from .chat_configs import ChatConfigs
 from .load_langs import load_langs
@@ -71,6 +72,7 @@ else:
 update_chat_configs(CHAT_CONFIGS_PATH)
 logger.info('Creating a bot instance')
 bot = telebot.TeleBot(BOT_TOKEN)
+bot.exception_handler = ExceptionHandler(bot=bot, log_chat_id=os.getenv('LOG_CHAT_ID'))
 api = _Api(url=api_url, timeout=api_timeout, expires_after=api_expires)
 tg_logger = TelegramLogger(os.path.join(LOGS_PATH, 'telegram'))
 chat_configs = ChatConfigs(CHAT_CONFIGS_PATH)
