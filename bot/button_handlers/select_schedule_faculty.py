@@ -10,4 +10,4 @@ def handler(call: telebot.types.CallbackQuery):
     logger.debug('Handling callback query')
     faculty_id = int(call.args['facultyId'])
     struct_id = int(call.args['structureId'])
-    bot.edit_message_text(**select_course.create_message(call.message.lang_code, struct_id, faculty_id), chat_id=call.message.chat.id, message_id=call.message.id)
+    bot.edit_message_text(**select_course.create_message(call.message.lang_code, struct_id, faculty_id), chat_id=call.message.chat.id, message_id=call.message.message_id)

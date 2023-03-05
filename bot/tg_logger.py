@@ -114,7 +114,7 @@ class TelegramLogger:
             time=datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
             chat_id=message.chat.id,
             user_id=message.from_user.id,
-            message_id=message.id,
+            message_id=message.message_id,
             content_type=message.content_type,
             text=msg_text
         ))
@@ -132,7 +132,7 @@ class TelegramLogger:
             time=datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
             chat_id=call.message.chat.id,
             user_id=call.from_user.id,
-            message_id=call.message.id,
+            message_id=call.message.message_id,
             data=call.data
         ))
         fp.close()
