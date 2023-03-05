@@ -30,7 +30,7 @@ class Api:
             **kwargs
         )
 
-    def _make_request(self, path: str, method: str = 'GET', json: dict = None, *args, **kwargs) -> any:
+    def _make_request(self, path: str, method: str = 'GET', json: dict = None, raw = False, *args, **kwargs) -> any:
         logger.debug(f'Making {method} request to {path} with JSON data {json}')
         headers = {
             'Accept-Language': 'uk',
@@ -41,6 +41,8 @@ class Api:
         res = self._session.request(method, url, headers=headers, json=json, timeout=self._timeout, *args, **kwargs)
         res.raise_for_status()
 
+        if raw:
+            return res
         return res.json()
 
 
