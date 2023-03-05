@@ -10,10 +10,6 @@ logger = logging.getLogger()
 logger.info('Starting application')
 
 
-#from bot.pages import left
-#print(left.create_message('uk', 741)['text'])
-#exit(0)
-
 
 @bot.middleware_handler(update_types=['message'])
 def message_middleware(bot_instance, message: telebot.types.Message):
