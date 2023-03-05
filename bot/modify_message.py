@@ -25,14 +25,7 @@ def lang_code(self):
     lang_code = self.config['lang']
 
     if lang_code is None:
-        if hasattr(self, 'from_user'):
-            lang_code = self.from_user.language_code
-        else:
-            lang_code = self.message.from_user.language_code
-
-        if not lang_code in langs:
-            lang_code = os.getenv('DEFAULT_LANG')
-
+        lang_code = os.getenv('DEFAULT_LANG')
         self._config = chat_configs.set_chat_config_field(self._config_id, 'lang', lang_code)
 
     return lang_code
