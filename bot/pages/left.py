@@ -1,10 +1,8 @@
 import requests.exceptions
-
-from telebot import types
+from telegram import InlineKeyboardMarkup, InlineKeyboardButton
+from telegram.ext import ContextTypes
 from . import api_unavaliable, invalid_group
 from .. import remaining_time
-from ..settings import langs
-from ..utils.escape_markdown import escape_markdownv2
 
 def create_message(lang_code: str, groupId: int | None) -> dict:
     if groupId is None:

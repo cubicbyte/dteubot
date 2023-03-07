@@ -1,10 +1,7 @@
-from functools import cache
-from telebot import types
+from telegram import InlineKeyboardMarkup, InlineKeyboardButton
+from telegram.ext import ContextTypes
 from requests.exceptions import RequestException
-from ..settings import langs, api
-from ..utils.escape_markdown import escape_markdownv2
 
-@cache
 def create_message(lang_code: str) -> dict:
     try:
         api_ver = escape_markdownv2(api.version()['name'])

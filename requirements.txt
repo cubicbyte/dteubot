@@ -1,4 +1,4 @@
-pyTelegramBotAPI>=3.7.2
+python-telegram-bot
 python-dotenv>=0.16.0
 babel>=2.7.0
 

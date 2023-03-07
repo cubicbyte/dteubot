@@ -1,8 +1,6 @@
 import requests.exceptions
-
-from telebot import types
-from ..settings import api, langs
-from .api_unavaliable import create_message as create_api_unavaliable_message
+from telegram import InlineKeyboardMarkup, InlineKeyboardButton
+from telegram.ext import ContextTypes
 
 def get_text() -> str:
     msg = ''

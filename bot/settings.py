@@ -1,9 +1,9 @@
 import os
 import sys
-import telebot
 import logging
 from datetime import timedelta
 from dotenv import load_dotenv
+from telegram.ext import ApplicationBuilder
 from .utils.check_int import check_int
 
 CHAT_CONFIGS_PATH = 'chat-configs'
@@ -14,7 +14,6 @@ sys.path.append('../../lib')                # Required to load external librarie
 sys.path.append('../../scripts')            # Required to load external scripts
 load_dotenv('.env')                         # Load .env file in current dir
 load_dotenv()                               # Load .env file in bot dir
-telebot.apihelper.ENABLE_MIDDLEWARE = True  # Enable telegram bot middleware
 
 
 # Set environment variable default values
@@ -49,8 +48,8 @@ logger.info('Running setup')
 
 from lib.api import Api, CachedApi
 from scripts.update_chat_configs import main as update_chat_configs
-from .exception_handler import ExceptionHandler
-from .tg_logger import TelegramLogger
+#from .exception_handler import ExceptionHandler
+#from .tg_logger import TelegramLogger
 from .chat_configs import ChatConfigs
 from .load_langs import load_langs
 
@@ -71,9 +70,9 @@ else:
 
 update_chat_configs(CHAT_CONFIGS_PATH)
 logger.info('Creating a bot instance')
-bot = telebot.TeleBot(BOT_TOKEN)
-bot.exception_handler = ExceptionHandler(bot=bot, log_chat_id=os.getenv('LOG_CHAT_ID'))
+bot = ApplicationBuilder().token(BOT_TOKEN).build()
+#bot.exception_handler = ExceptionHandler(bot=bot, log_chat_id=os.getenv('LOG_CHAT_ID')) #TODO
 api = _Api(url=api_url, timeout=api_timeout, expires_after=api_expires)
-tg_logger = TelegramLogger(os.path.join(LOGS_PATH, 'telegram'))
+#tg_logger = TelegramLogger(os.path.join(LOGS_PATH, 'telegram'))
 chat_configs = ChatConfigs(CHAT_CONFIGS_PATH)
 langs = load_langs(LANGS_PATH)

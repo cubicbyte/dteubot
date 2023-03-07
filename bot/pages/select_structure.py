@@ -1,9 +1,7 @@
 import requests.exceptions
-
-from telebot import types
-from ..settings import api, langs
-from .select_faculty import create_message as create_select_faculty_message
-from .api_unavaliable import create_message as create_api_unavaliable_message
+from telegram import InlineKeyboardMarkup, InlineKeyboardButton
+from telegram.ext import ContextTypes
+from . import api_unavaliable
 
 def create_message(lang_code: str) -> dict:
     try:

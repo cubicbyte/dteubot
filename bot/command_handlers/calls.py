@@ -1,11 +1,9 @@
-import logging
-import telebot.types
-from ..settings import bot
+from telegram import Update
+from telegram.ext import ContextTypes, CommandHandler
+from . import register_handler
 from ..pages import calls
 
-logger = logging.getLogger(__name__)
+async def command_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    context.bot.send_message(**calls.create_message(context), chat_id=update.effective_chat.id)
 
-@bot.message_handler(commands=['calls'])
-def handle_command(message: telebot.types.Message):
-    logger.info('Handling /calls command from chat %s' % message.chat.id)
-    bot.send_message(**calls.create_message(message.lang_code), chat_id=message.chat.id)
+register_handler(CommandHandler('calls', command_handler))

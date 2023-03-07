@@ -1,6 +1,11 @@
+from telegram.ext import BaseHandler
+
+handlers = list[BaseHandler]()
+def register_handler(handler: BaseHandler):
+    handlers.append(handler)
+
 # https://stackoverflow.com/questions/1057431/how-to-load-all-modules-in-a-folder
 # Necessary to initialize the handlers
-
 from os.path import dirname, basename, isfile, join
 import glob
 modules = glob.glob(join(dirname(__file__), "*.py"))

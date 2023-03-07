@@ -1,7 +1,7 @@
-from telebot import types
-from ..settings import tg_logger
+from telegram import InlineKeyboardMarkup, InlineKeyboardButton
+from telegram.ext import ContextTypes
 
-def create_message(message: types.Message) -> dict:
+def create_message(context: ContextTypes.DEFAULT_TYPE) -> dict:
     chat_dir = tg_logger.get_chat_log_dir(message.chat.id)
 
     # Get first message date

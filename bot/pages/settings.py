@@ -1,9 +1,6 @@
-from functools import cache
-from telebot import types
-from ..settings import langs, api, CachedApi
-from ..utils.escape_markdown import escape_markdownv2
+from telegram import InlineKeyboardMarkup, InlineKeyboardButton
+from telegram.ext import ContextTypes
 
-@cache
 def create_message(lang_code: str, groupId: int) -> dict:
     if groupId is not None:
         if type(api) is CachedApi:

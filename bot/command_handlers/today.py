@@ -1,12 +1,10 @@
-import logging
-import telebot.types
-from datetime import date
-from ..settings import bot
+from datetime import date as _date
+from telegram import Update
+from telegram.ext import ContextTypes, CommandHandler
+from . import register_handler
 from ..pages import schedule
 
-logger = logging.getLogger(__name__)
+async def command_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    context.bot.send_message(**schedule.create_message(context, _date.today()), chat_id=update.effective_chat.id)
 
-@bot.message_handler(commands=['today'])
-def handle_command(message: telebot.types.Message):
-    logger.info('Handling /today command from chat %s' % message.chat.id)
-    bot.send_message(**schedule.create_message(message.lang_code, message.config['groupId'], date.today()), chat_id=message.chat.id)
+register_handler(CommandHandler('today', command_handler))

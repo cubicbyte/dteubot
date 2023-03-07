@@ -1,10 +1,16 @@
 import os
 import json
 import logging
-from .default_chat_config import DEFAULT_CHAT_CONFIG
 from .utils.fs import open_file, exists
 
 logger = logging.getLogger(__name__)
+
+DEFAULT_CHAT_CONFIG = {
+    'lang': os.getenv('DEFAULT_LANG'),
+    'ref': None,
+    'admin': False,
+    'groupId': None
+}
 
 
 

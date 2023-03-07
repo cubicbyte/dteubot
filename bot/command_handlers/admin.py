@@ -1,15 +1,13 @@
-import logging
-import telebot.types
-from ..settings import bot
+from telegram import Update
+from telegram.ext import ContextTypes, CommandHandler
+from . import register_handler
 from ..pages import admin_panel, access_denied
 
-logger = logging.getLogger(__name__)
+async def command_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if context.user_data.get('admin') is not True:
+        context.bot.send_message(**access_denied.create_message(context), chat_id=update.effective_chat.id)
+        return
 
-@bot.message_handler(commands=['admin'])
-def handle_command(message: telebot.types.Message):
-    logger.info('Handling /admin command from chat %s' % message.chat.id)
+    context.bot.send_message(**admin_panel.create_message(context), chat_id=update.effective_chat.id)
 
-    if message.config['admin'] is not True:
-        return bot.send_message(**access_denied.create_message(message.lang_code), chat_id=message.chat.id)
-
-    bot.send_message(**admin_panel.create_message(message.lang_code), chat_id=message.chat.id)
+register_handler(CommandHandler('admin', command_handler))

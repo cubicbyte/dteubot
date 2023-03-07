@@ -1,21 +1,18 @@
-import logging
-import telebot.types
-from ..settings import bot, chat_configs
+from telegram import Update
+from telegram.ext import ContextTypes, CommandHandler
+from . import register_handler
 from ..pages import menu, select_structure
 
-logger = logging.getLogger(__name__)
-
-@bot.message_handler(commands=['select'])
-def handle_command(message: telebot.types.Message):
-    logger.info('Handling /select command from chat %s' % message.chat.id)
-
-    if len(message.args) == 0:
-        bot.send_message(**select_structure.create_message(message.lang_code), chat_id=message.chat.id)
+async def command_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if len(context.args) == 0:
+        context.bot.send_message(**select_structure.create_message(context), chat_id=update.effective_chat.id)
     else:
-        group_id = message.args[0]
+        group_id = context.args[0]
 
         if group_id.isnumeric():
-            group_id = abs(int(group_id))
-            message._config = chat_configs.set_chat_config_field(message.chat.id, 'groupId', group_id)
+            group_id = int(group_id)
+            context.chat_data['groupId'] = group_id
 
-        bot.send_message(**menu.create_message(message), chat_id=message.chat.id)
+        context.bot.send_message(**menu.create_message(context), chat_id=update.effective_chat.id)
+
+register_handler(CommandHandler('select', command_handler))

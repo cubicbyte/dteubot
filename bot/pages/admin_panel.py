@@ -1,18 +1,16 @@
-from functools import cache
-from telebot import types
-from ..settings import langs
+from telegram import InlineKeyboardMarkup, InlineKeyboardButton
+from telegram.ext import ContextTypes
 
-@cache
-def create_message(lang_code: str) -> dict:
-    message_text = langs[lang_code]['page.admin_panel']
-    markup = types.InlineKeyboardMarkup(row_width=1)
+def create_message(context: ContextTypes.DEFAULT_TYPE) -> dict:
+    lang_code = context.chat_data.get('lang')
+    message_text = context.bot_data['langs'][lang_code]['page.admin_panel']
 
-    markup.add(
-        types.InlineKeyboardButton(text=langs[lang_code]['button.admin.clear_expired_cache'], callback_data='admin.clear_expired_cache'),
-        types.InlineKeyboardButton(text=langs[lang_code]['button.admin.clear_all_cache'], callback_data='admin.clear_all_cache'),
-        types.InlineKeyboardButton(text=langs[lang_code]['button.admin.get_logs'], callback_data='admin.get_logs'),
-        types.InlineKeyboardButton(text=langs[lang_code]['button.admin.clear_logs'], callback_data='admin.clear_logs'),
-        types.InlineKeyboardButton(text=langs[lang_code]['button.back'], callback_data='open.menu')
+    markup = InlineKeyboardMarkup(
+        InlineKeyboardButton(text=context.bot_data['langs'][lang_code]['button.admin.clear_expired_cache'], callback_data='admin.clear_expired_cache'),
+        InlineKeyboardButton(text=context.bot_data['langs'][lang_code]['button.admin.clear_all_cache'], callback_data='admin.clear_all_cache'),
+        InlineKeyboardButton(text=context.bot_data['langs'][lang_code]['button.admin.get_logs'], callback_data='admin.get_logs'),
+        InlineKeyboardButton(text=context.bot_data['langs'][lang_code]['button.admin.clear_logs'], callback_data='admin.clear_logs'),
+        InlineKeyboardButton(text=context.bot_data['langs'][lang_code]['button.back'], callback_data='open.menu')
     )
 
     msg = {

@@ -1,8 +1,6 @@
-from functools import cache
-from telebot import types
-from ..settings import langs
+from telegram import InlineKeyboardMarkup, InlineKeyboardButton
+from telegram.ext import ContextTypes
 
-@cache
 def create_message(lang_code: str) -> dict:
     message_text = langs[lang_code]['page.more']
     markup = types.InlineKeyboardMarkup()
