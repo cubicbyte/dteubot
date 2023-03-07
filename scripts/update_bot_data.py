@@ -11,8 +11,9 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Setting cli arguments
-parser = argparse.ArgumentParser(description='Update bot chat configs')
-parser.add_argument('path', type=str, help='Chat configs directory path')
+parser = argparse.ArgumentParser(description='Update bot data to the latest version')
+parser.add_argument('path', type=str, help='Bot data directory path')
+
 
 
 def parse_cmd_args():
@@ -42,19 +43,10 @@ def insert_after(key: str, value: any, obj: dict, after_key: str):
 
     return res
 
-
-
-def main(path: str):
-    """Update chat configs to the latest version"""
+def update_chat_configs(path: str):
     logger.info('Starting chat configs parser')
 
-    try:
-        logger.info('Reading directory files')
-        files = os.listdir(path)
-    except FileNotFoundError:
-        logger.error('The directory does not exist. Skip update')
-        return
-
+    files = os.listdir(path)
     count = len(files)
     logger.info('Converting %s files' % count)
 
@@ -105,8 +97,35 @@ def main(path: str):
         logger.debug('Writing the updated config to a file')
         json.dump(conf, fp, ensure_ascii=False, indent=4)
 
-    logger.info('Converting done')
+    logger.info('Chat configs updated')
 
+def update_logs(path: str):
+    logger.info('Starting logs parser')
+
+    # 1.6.0
+    # Now logs are stored in the single file
+    if os.path.exists(os.path.join(path, 'debug')):
+        logger.info('logs/debug folder detected, removing')
+        os.rmdir(os.path.join(path, 'debug'))
+
+    logger.info('Logs updated')
+
+def update_cache(path: str):
+    pass
+
+def update_langs(path: str):
+    pass
+
+
+
+def main(path: str):
+    """Update bot data to the latest version"""
+    logger.info('Starting bot data parser')
+    update_chat_configs(os.path.join(path, 'chat-configs'))
+    update_logs(os.path.join(path, 'logs'))
+    update_cache(os.path.join(path, 'cache'))
+    update_langs(os.path.join(path, 'langs')) # TODO
+    logger.info('Bot data updated')
 
 if __name__ == '__main__':
     args = parse_cmd_args()
