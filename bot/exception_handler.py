@@ -16,7 +16,7 @@ class ExceptionHandler(_ExceptionHandler):
     Class for handling exceptions while Polling
     """
 
-    def __init__(self, bot: TeleBot = None, log_chat_id: str | int = None):
+    def __init__(self, bot: TeleBot = None, log_chat_id: int | str = None):
         self.bot = bot
         self.log_chat_id = log_chat_id
 
@@ -32,7 +32,7 @@ class ExceptionHandler(_ExceptionHandler):
         if isinstance(e, ConnectionError):
             logger.exception('Connection error')
             return True
-        
+
         if isinstance(e, ApiException):
             if e.description.startswith(TelegramException.MESSAGE_NOT_MODIFIED):
                 logger.warn('Message not modified')

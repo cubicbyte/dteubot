@@ -10,7 +10,7 @@ class FormattedTime:
 
 def get_lesson(calls: list, lessons: list[int], timestamp = datetime.now()) -> dict:
     """Returns the current time relative to today's lessons
-    
+
     Example
     --------------
     >>> api.get_lesson([1, 2, 3, 4])
