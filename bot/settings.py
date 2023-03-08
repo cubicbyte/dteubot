@@ -50,7 +50,7 @@ logger.info('Running setup')
 
 
 from lib.api import Api, CachedApi
-#from scripts.update_chat_configs import main as update_chat_configs
+from scripts.update_bot_data import main as update_bot_data
 #from .exception_handler import ExceptionHandler
 from .tg_logger import TelegramLogger
 from .load_langs import load_langs
@@ -70,7 +70,7 @@ if os.path.isfile('cache/mkr-cache.sqlite'):
 else:
     _Api = Api
 
-#update_chat_configs(CHAT_CONFIGS_PATH)
+update_bot_data('.')
 logger.info('Creating a bot instance')
 bot = ApplicationBuilder().token(BOT_TOKEN).build()
 #bot.exception_handler = ExceptionHandler(bot=bot, log_chat_id=os.getenv('LOG_CHAT_ID')) #TODO
