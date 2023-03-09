@@ -1,19 +1,14 @@
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import ContextTypes
 
-def create_message(lang_code: str) -> dict:
-    message_text = langs[lang_code]['page.invalid_group']
-    markup = types.InlineKeyboardMarkup()
+def create_message(context: ContextTypes.DEFAULT_TYPE) -> dict:
+    buttons = [[
+        InlineKeyboardButton(text=context._chat_data.lang['button.select_group'], callback_data='open.select_group'),
+        InlineKeyboardButton(text=context._chat_data.lang['button.menu'], callback_data='open.menu')
+    ]]
 
-    markup.add(
-        types.InlineKeyboardButton(text=langs[lang_code]['button.select_group'], callback_data='open.select_group'),
-        types.InlineKeyboardButton(text=langs[lang_code]['button.menu'], callback_data='open.menu')
-    )
-
-    msg = {
-        'text': message_text,
-        'reply_markup': markup,
+    return {
+        'text': context._chat_data.lang['page.invalid_group'],
+        'reply_markup': InlineKeyboardMarkup(buttons),
         'parse_mode': 'MarkdownV2'
     }
-
-    return msg

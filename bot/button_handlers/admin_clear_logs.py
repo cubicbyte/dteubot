@@ -1,19 +1,13 @@
-import telebot.types
-import logging
 import os.path
-from ..settings import bot, LOGS_PATH
-from ..utils.fs import create_file
+from telegram import Update
+from telegram.ext import CallbackContext
+from . import register_button_handler
+from ..settings import LOGS_PATH
 
-logger = logging.getLogger(__name__)
-
-@bot.callback_query_handler(func=lambda call: call.query == 'admin.clear_logs')
-def handler(call: telebot.types.CallbackQuery):
-    logger.debug('Handling admin callback query')
-
-    create_file(os.path.join(LOGS_PATH, 'debug.log'))
-
-    bot.answer_callback_query(
-        text=call.message.lang['alert.done'],
-        callback_query_id=call.id,
+@register_button_handler(r'^admin.clear_logs$')
+async def handler(update: Update, context: CallbackContext):
+    open(os.path.join(LOGS_PATH, 'debug.log'), 'w').close()
+    await update.callback_query.answer(
+        text=context._chat_data.lang['alert.done'],
         show_alert=True
     )

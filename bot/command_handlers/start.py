@@ -1,17 +1,17 @@
 from telegram import Update
-from telegram.ext import ContextTypes, CommandHandler
-from . import register_handler
+from telegram.ext import ContextTypes
+from . import register_command_handler
 from ..pages import greeting, select_structure
 
-async def command_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+@register_command_handler('start')
+async def handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if len(context.args) == 0:
         ref = None
     else:
         ref = context.args[0]
 
-    # TODO: save ref
+    if context._user_data.ref is None:
+        context._user_data.ref = ref
 
-    context.bot.send_message(**greeting.create_message(context), chat_id=update.effective_chat.id)
-    context.bot.send_message(**select_structure.create_message(context), chat_id=update.effective_chat.id)
-
-register_handler(CommandHandler('start', command_handler))
+    await update.effective_chat.send_message(**greeting.create_message(context))
+    await update.effective_chat.send_message(**select_structure.create_message(context))

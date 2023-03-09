@@ -1,8 +1,11 @@
-from telegram.ext import BaseHandler
+from telegram.ext import CommandHandler
 
-handlers = list[BaseHandler]()
-def register_handler(handler: BaseHandler):
-    handlers.append(handler)
+handlers = list[CommandHandler]()
+def register_command_handler(command, filters = None, block = None):
+    def decorator(func):
+        handlers.append(CommandHandler(command=command, callback=func, filters=filters, block=block))
+        return func
+    return decorator
 
 # https://stackoverflow.com/questions/1057431/how-to-load-all-modules-in-a-folder
 # Necessary to initialize the handlers

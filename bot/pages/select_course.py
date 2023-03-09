@@ -2,34 +2,29 @@ import requests.exceptions
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import ContextTypes
 from . import api_unavaliable
+from ..settings import api
 
-def create_message(lang_code: str, structureId: int, facultyId: int) -> dict:
-    markup = types.InlineKeyboardMarkup()
-    message_text = langs[lang_code]['page.course']
-
+def create_message(context: ContextTypes.DEFAULT_TYPE, structure_id: int, faculty_id: int) -> dict:
     try:
-        res = api.list_courses(facultyId)
-
+        courses = api.list_courses(faculty_id)
     except (
         requests.exceptions.ConnectionError,
         requests.exceptions.ReadTimeout,
         requests.exceptions.HTTPError
     ):
-        return create_api_unavaliable_message(lang_code)
+        return api_unavaliable.create_message(context)
 
-    markup.add(
-        types.InlineKeyboardButton(text=langs[lang_code]['button.back'], callback_data=f'select.schedule.structure#structureId={structureId}')
-    )
+    buttons = [[
+        InlineKeyboardButton(text=context._chat_data.lang['button.back'], callback_data=f'select.schedule.structure#structureId={structure_id}')
+    ]]
 
-    for course in res:
-        markup.add(
-            types.InlineKeyboardButton(text=str(course['course']), callback_data=f'select.schedule.course#structureId={structureId}&facultyId={facultyId}&course={course["course"]}')
-        )
+    for course in courses:
+        buttons.append([
+            InlineKeyboardButton(text=str(course['course']), callback_data=f'select.schedule.course#structureId={structure_id}&facultyId={faculty_id}&course={course["course"]}')
+        ])
 
-    msg = {
-        'text': message_text,
-        'reply_markup': markup,
+    return {
+        'text': context._chat_data.lang['page.course'],
+        'reply_markup': InlineKeyboardMarkup(buttons),
         'parse_mode': 'MarkdownV2'
     }
-
-    return msg

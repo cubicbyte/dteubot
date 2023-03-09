@@ -1,5 +1,7 @@
 /dev/
 /chat-configs/
+/user-data/
+/chat-data/
 /logs/
 /cache/
 

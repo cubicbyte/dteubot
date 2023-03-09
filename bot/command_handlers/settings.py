@@ -1,9 +1,8 @@
 from telegram import Update
-from telegram.ext import ContextTypes, CommandHandler
-from . import register_handler
+from telegram.ext import ContextTypes
+from . import register_command_handler
 from ..pages import settings
 
-async def command_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    context.bot.send_message(**settings.create_message(context), chat_id=update.effective_chat.id)
-
-register_handler(CommandHandler('settings', command_handler))
+@register_command_handler('settings')
+async def handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.effective_chat.send_message(**settings.create_message(context))

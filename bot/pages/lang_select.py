@@ -1,24 +1,21 @@
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import ContextTypes
 
-def create_message(lang_code: str) -> dict:
-    message_text = langs[lang_code]['page.lang_select'].format(lang=langs[lang_code]['lang_name'])
-    markup = types.InlineKeyboardMarkup()
+def create_message(context: ContextTypes.DEFAULT_TYPE) -> dict:
+    buttons = []
 
-    for lang in langs:
-        markup.add(
-            types.InlineKeyboardButton(text=langs[lang]['lang_name'], callback_data=f'select.lang#lang={lang}')
-        )
+    for i in context.bot_data.langs:
+        buttons.append([
+            InlineKeyboardButton(text=context.bot_data.langs[i]['lang_name'], callback_data=f'select.lang#lang={i}')
+        ])
 
-    markup.add(
-        types.InlineKeyboardButton(text=langs[lang_code]['button.back'], callback_data='open.settings'),
-        types.InlineKeyboardButton(text=langs[lang_code]['button.menu'], callback_data='open.menu')
-    )
+    buttons.append([
+        InlineKeyboardButton(text=context._chat_data.lang['button.back'], callback_data='open.settings'),
+        InlineKeyboardButton(text=context._chat_data.lang['button.menu'], callback_data='open.menu')
+    ])
 
-    msg = {
-        'text': message_text,
-        'reply_markup': markup,
+    return {
+        'text': context._chat_data.lang['page.lang_select'].format(lang=context._chat_data.lang['lang_name']),
+        'reply_markup': InlineKeyboardMarkup(buttons),
         'parse_mode': 'MarkdownV2'
     }
-
-    return msg

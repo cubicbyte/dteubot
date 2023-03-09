@@ -1,12 +1,11 @@
-import telebot.types
-import logging
-from ..settings import bot, chat_configs
+from telegram import Update
+from telegram.ext import CallbackContext
+from . import register_button_handler
 from ..pages import select_faculty
+from ..utils.parse_callback_query import parse_callback_query
 
-logger = logging.getLogger(__name__)
-
-@bot.callback_query_handler(func=lambda call: call.query == 'select.schedule.structure')
-def handler(call: telebot.types.CallbackQuery):
-    logger.debug('Handling callback query')
-    struct_id = int(call.args['structureId'])
-    bot.edit_message_text(**select_faculty.create_message(call.message.lang_code, struct_id), chat_id=call.message.chat.id, message_id=call.message.message_id)
+@register_button_handler(r'^select.schedule.structure')
+async def handler(update: Update, context: CallbackContext):
+    args = parse_callback_query(update.callback_query.data)['args']
+    structure_id = int(args['structureId'])
+    await update.effective_message.edit_text(**select_faculty.create_message(context, structure_id))

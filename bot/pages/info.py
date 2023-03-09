@@ -1,28 +1,26 @@
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import ContextTypes
+from telegram.helpers import escape_markdown
 from requests.exceptions import RequestException
 
-def create_message(lang_code: str) -> dict:
+def create_message(context: ContextTypes.DEFAULT_TYPE) -> dict:
     try:
-        api_ver = escape_markdownv2(api.version()['name'])
+        api_ver = escape_markdown(context.bot_data.api.version()['name'], version=2)
     except RequestException:
-        api_ver = langs[lang_code]['text.unknown']
+        api_ver = context._chat_data.lang['text.unknown']
 
-    message_text = langs[lang_code]['page.info'].format(
+    message_text = context._chat_data.lang['page.info'].format(
         api_ver=api_ver,
-        api_ver_supported=escape_markdownv2(api.VERSION)
+        api_ver_supported=escape_markdown(context.bot_data.api.VERSION, version=2)
     )
 
-    markup = types.InlineKeyboardMarkup()
-    markup.add(
-        types.InlineKeyboardButton(text=langs[lang_code]['button.back'], callback_data='open.more'),
-        types.InlineKeyboardButton(text=langs[lang_code]['button.menu'], callback_data='open.menu')
-    )
+    buttons = [[
+        InlineKeyboardButton(text=context._chat_data.lang['button.back'], callback_data='open.more'),
+        InlineKeyboardButton(text=context._chat_data.lang['button.menu'], callback_data='open.menu')
+    ]]
 
-    msg = {
+    return {
         'text': message_text,
-        'reply_markup': markup,
+        'reply_markup': InlineKeyboardMarkup(buttons),
         'parse_mode': 'MarkdownV2'
     }
-
-    return msg

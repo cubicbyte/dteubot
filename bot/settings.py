@@ -6,9 +6,11 @@ from dotenv import load_dotenv
 from telegram.ext import ApplicationBuilder
 from .utils.check_int import check_int
 
-CHAT_CONFIGS_PATH = 'chat-configs'
+USER_DATA_PATH = 'user-data'
+CHAT_DATA_PATH = 'chat-data'
 LANGS_PATH = os.path.join(sys.path[0], 'langs')
 LOGS_PATH = 'logs'
+#TODO DEFAULT_LANG = ..., LOGGING_LEVEL = ..., ...
 
 sys.path.append('../../lib')                # Required to load external libraries
 sys.path.append('../../scripts')            # Required to load external scripts
@@ -30,8 +32,9 @@ assert check_int(os.getenv('API_REQUEST_TIMEOUT')), 'The API_REQUEST_TIMEOUT env
 assert check_int(os.getenv('API_CACHE_EXPIRES')), 'The API_CACHE_EXPIRES environment variable must be an integer. Received: %s' % os.getenv('API_CACHE_EXPIRES')
 
 
-if not os.path.exists(LOGS_PATH):
-    os.mkdir(LOGS_PATH)
+os.makedirs(LOGS_PATH, exist_ok=True)
+os.makedirs(USER_DATA_PATH, exist_ok=True)
+os.makedirs(CHAT_DATA_PATH, exist_ok=True)
 
 
 logging.basicConfig(
@@ -47,10 +50,9 @@ logger.info('Running setup')
 
 
 from lib.api import Api, CachedApi
-from scripts.update_chat_configs import main as update_chat_configs
+#from scripts.update_chat_configs import main as update_chat_configs
 #from .exception_handler import ExceptionHandler
-#from .tg_logger import TelegramLogger
-from .chat_configs import ChatConfigs
+from .tg_logger import TelegramLogger
 from .load_langs import load_langs
 
 
@@ -68,11 +70,10 @@ if os.path.isfile('cache/mkr-cache.sqlite'):
 else:
     _Api = Api
 
-update_chat_configs(CHAT_CONFIGS_PATH)
+#update_chat_configs(CHAT_CONFIGS_PATH)
 logger.info('Creating a bot instance')
 bot = ApplicationBuilder().token(BOT_TOKEN).build()
 #bot.exception_handler = ExceptionHandler(bot=bot, log_chat_id=os.getenv('LOG_CHAT_ID')) #TODO
 api = _Api(url=api_url, timeout=api_timeout, expires_after=api_expires)
-#tg_logger = TelegramLogger(os.path.join(LOGS_PATH, 'telegram'))
-chat_configs = ChatConfigs(CHAT_CONFIGS_PATH)
+tg_logger = TelegramLogger(os.path.join(LOGS_PATH, 'telegram'))
 langs = load_langs(LANGS_PATH)

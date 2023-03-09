@@ -2,16 +2,13 @@ from telegram import InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import ContextTypes
 
 def create_message(context: ContextTypes) -> dict:
-    message_text = context.bot_data['langs'][lang_code]['page.api_unavaliable']
-    markup = InlineKeyboardMarkup(
-        InlineKeyboardButton(text=context.bot_data['langs'][lang_code]['button.menu'], callback_data='open.menu'),
-        InlineKeyboardButton(text=context.bot_data['langs'][lang_code]['button.write_me'], url='https://t.me/cubicbyte')
-    )
+    buttons = [[
+        InlineKeyboardButton(text=context._chat_data.lang['button.menu'], callback_data='open.menu'),
+        InlineKeyboardButton(text=context._chat_data.lang['button.write_me'], url='https://t.me/cubicbyte')
+    ]]
 
-    msg = {
-        'text': message_text,
-        'reply_markup': markup,
+    return {
+        'text': context._chat_data.lang['page.api_unavaliable'],
+        'reply_markup': InlineKeyboardMarkup(buttons),
         'parse_mode': 'MarkdownV2'
     }
-
-    return msg
