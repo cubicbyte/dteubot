@@ -3,13 +3,14 @@ from telegram import Update
 from telegram.ext import CallbackContext
 from . import register_button_handler
 from ..pages import more, lang_select
+from ..settings import langs
 from ..utils.parse_callback_query import parse_callback_query
 
 @register_button_handler(r'^select.lang')
 async def handler(update: Update, context: CallbackContext):
     lang_code = parse_callback_query(update.callback_query.data)['args']['lang']
 
-    if not lang_code in context.bot_data.langs:
+    if not lang_code in langs:
         lang_code = os.getenv('DEFAULT_LANG')
 
     if lang_code == context._chat_data.lang_code:

@@ -15,7 +15,7 @@ def parse_callback_query(query: str) -> dict:
     """
     split = query.split('#')
 
-    # If there is 
+    # If there are arguments, then parse them
     if len(split) != 1:
         args = dict(parse_qsl(split[1]))
     else:

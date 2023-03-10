@@ -7,7 +7,6 @@ from ..settings import api
 def get_schedule_section_text() -> str:
     text = ''
     for call in api.timetable_call_schedule():
-        # TODO move this to locale files
         text += '`{number})` *{timeStart}* `-` *{timeEnd}*\n'.format(**call)
     return text
 

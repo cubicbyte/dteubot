@@ -73,6 +73,9 @@ class TelegramLogger:
         for field in user_dict:
             if not field in latest_update or user_dict[field] != latest_update[field]:
                 upd[field] = user_dict[field]
+        for field in latest_update:
+            if not field in user_dict:
+                upd[field] = None
 
         # If the user profile is updated, write the new changes
         if upd:
@@ -136,8 +139,7 @@ class TelegramLogger:
 
 
 
-    def message_middleware(self, update: Update):
-        "Message middleware handler"
+    async def message_handler(self, update: Update, ctx):
         logger.info('Handling message from chat %s' % update.effective_chat.id)
 
         if not self.__chat_log_initialized(update.effective_chat.id):
@@ -149,8 +151,7 @@ class TelegramLogger:
         self.__handle_message(update)
         self.__handle_user_update(update)
 
-    def callback_query_middleware(self, update: Update):
-        "Callback query middleware handler"
+    async def callback_query_handler(self, update: Update, ctx):
         logger.info('Handling callback query from chat %s' % update.effective_chat.id)
 
         if not self.__chat_log_initialized(update.effective_chat.id):

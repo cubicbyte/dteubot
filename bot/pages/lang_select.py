@@ -1,12 +1,13 @@
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import ContextTypes
+from ..settings import langs
 
 def create_message(context: ContextTypes.DEFAULT_TYPE) -> dict:
     buttons = []
 
-    for i in context.bot_data.langs:
+    for i in langs:
         buttons.append([
-            InlineKeyboardButton(text=context.bot_data.langs[i]['lang_name'], callback_data=f'select.lang#lang={i}')
+            InlineKeyboardButton(text=langs[i]['lang_name'], callback_data=f'select.lang#lang={i}')
         ])
 
     buttons.append([

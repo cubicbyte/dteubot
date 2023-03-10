@@ -6,11 +6,7 @@ import os
 import json
 from functools import cache
 from abc import ABC, abstractmethod
-from .settings import langs, api, USER_DATA_PATH, CHAT_DATA_PATH
-
-class BotData:
-    langs = langs
-    api = api
+from .settings import langs, USER_DATA_PATH, CHAT_DATA_PATH
 
 class DataManager(ABC):
     __data_cache = {}

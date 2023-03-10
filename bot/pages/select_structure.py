@@ -13,7 +13,7 @@ def create_message(context: ContextTypes.DEFAULT_TYPE) -> dict:
         requests.exceptions.HTTPError
     ):
         return api_unavaliable.create_message(context)
-    
+
     if len(structures) == 1:
         return select_faculty.create_message(context, structures[0]['id'])
 
