@@ -1,17 +1,14 @@
-import telebot.types
-import logging
-from ..settings import bot, api
+from telegram import Update
+from telegram.ext import CallbackContext
+from . import register_button_handler, validate_admin
+from ..settings import api, API_TYPE, API_TYPE_DEFAULT
 
-logger = logging.getLogger(__name__)
-
-@bot.callback_query_handler(func=lambda call: call.query == 'admin.clear_expired_cache')
-def handler(call: telebot.types.CallbackQuery):
-    logger.debug('Handling admin callback query')
-
-    api._session.remove_expired_responses()
-
-    bot.answer_callback_query(
-        text=call.message.lang['alert.done'],
-        callback_query_id=call.id,
+@register_button_handler(r'^admin.clear_expired_cache$')
+@validate_admin
+async def handler(update: Update, context: CallbackContext):
+    if API_TYPE == API_TYPE_DEFAULT:
+        api._session.remove_expired_responses()
+    await update.callback_query.answer(
+        text=context._chat_data.lang['alert.done'],
         show_alert=True
     )

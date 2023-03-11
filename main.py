@@ -1,46 +1,40 @@
-import os
 import logging
-import telebot.types
-from bot.command_handlers import *
-from bot.button_handlers import *
-from bot.modify_message import modify_message, modify_callback_query
-from bot.settings import bot, tg_logger
 
+# Update bot data to the latest version
+from scripts.update_bot_data import main as update_bot_data
+update_bot_data('.')
+
+
+from telegram.ext import MessageHandler, CallbackQueryHandler
+from bot.settings import bot, tg_logger, LOG_CHAT_ID
+from bot.button_handlers import *
+from bot.button_handlers import handlers as button_handlers, register_button_handler
+from bot.command_handlers import *
+from bot.command_handlers import handlers as command_handlers
+from bot.pages import menu
+from bot.data import UserData, ChatData
+from bot import error_handler
+
+
+
+error_handler.log_chat_id = LOG_CHAT_ID
 logger = logging.getLogger()
 logger.info('Starting application')
 
+async def apply_data(upd, ctx):
+    ctx._user_data = UserData(upd.effective_user.id)
+    ctx._chat_data = ChatData(upd.effective_chat.id)
 
+@register_button_handler()
+async def unsupported_btn_handler(upd, ctx):
+    await upd.callback_query.answer(ctx._chat_data.lang['alert.callback_query_unsupported'], show_alert=True)
+    await upd.callback_query.message.edit_text(**menu.create_message(ctx))
 
-@bot.middleware_handler(update_types=['message'])
-def message_middleware(bot_instance, message: telebot.types.Message):
-    # This applies to every new message
-    # Adds methods to them to get the chat config, etc.
-    logger.debug('Called modify message middleware')
-    modify_message(message)
-
-@bot.middleware_handler(update_types=['callback_query'])
-def callback_query_middleware(bot_instance, call: telebot.types.CallbackQuery):
-    # Same as above, but for button click
-    logger.debug('Called main callback query middleware: %s' % call.data)
-    modify_callback_query(call)
-
-
-
-# Calling a logger to write a message or button click to the logs for stats
-bot.middleware_handler(update_types=['message'])(tg_logger.message_middleware)
-bot.middleware_handler(update_types=['callback_query'])(tg_logger.callback_query_middleware)
-
+bot.add_handlers([CallbackQueryHandler(apply_data), MessageHandler(None, apply_data)])
+bot.add_handlers(button_handlers + command_handlers, 10)
+bot.add_handlers([CallbackQueryHandler(tg_logger.callback_query_handler), MessageHandler(None, tg_logger.message_handler)], 20)
+bot.add_error_handler(error_handler.handler)
 
 
 # Run bot
-if os.getenv('MODE') == 'prod':
-    logger.info('Running in production mode')
-    bot.infinity_polling(allowed_updates=['message', 'callback_query'])
-
-elif os.getenv('MODE') == 'dev':
-    logger.info('Running in dev mode')
-
-    # In development mode, there is no error handler here
-    while True:
-        logger.debug('Start polling')
-        bot.polling(none_stop=True)
+bot.run_polling()

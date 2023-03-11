@@ -1,35 +1,34 @@
 import requests.exceptions
+from telegram import InlineKeyboardMarkup, InlineKeyboardButton
+from telegram.ext import ContextTypes
+from . import api_unavaliable
+from ..settings import api
+from ..utils import array_split
 
-from telebot import types
-from ..settings import api, langs
-from .api_unavaliable import create_message as create_api_unavaliable_message
-
-def create_message(lang_code: str, structureId: int, facultyId: int, course: int) -> dict:
+def create_message(context: ContextTypes.DEFAULT_TYPE, structure_id: int, faculty_id: int, course: int) -> dict:
     try:
-        groups = api.list_groups(facultyId, course)
+        groups = api.list_groups(faculty_id, course)
     except (
         requests.exceptions.ConnectionError,
         requests.exceptions.ReadTimeout,
         requests.exceptions.HTTPError
     ):
-        return create_api_unavaliable_message(lang_code)
+        return api_unavaliable.create_message(context)
 
-    markup = types.InlineKeyboardMarkup()
-    markup.add(
-        types.InlineKeyboardButton(text=langs[lang_code]['button.back'], callback_data=f'select.schedule.faculty#structureId={structureId}&facultyId={facultyId}')
-    )
+    buttons = [[
+        InlineKeyboardButton(text=context._chat_data.lang['button.back'], callback_data=f'select.schedule.faculty#structureId={structure_id}&facultyId={faculty_id}')
+    ]]
 
-    buttons = []
+    group_btns = []
     for group in groups:
-        buttons.append(
-            types.InlineKeyboardButton(text=group['name'], callback_data=f'select.schedule.group#groupId={group["id"]}')
+        group_btns.append(
+            InlineKeyboardButton(text=group['name'], callback_data=f'select.schedule.group#groupId={group["id"]}')
         )
-    markup.add(*buttons)
 
-    msg = {
-        'text': langs[lang_code]['page.group'],
-        'reply_markup': markup,
+    buttons.extend(array_split(group_btns, 3))
+
+    return {
+        'text': context._chat_data.lang['page.group'],
+        'reply_markup': InlineKeyboardMarkup(buttons, ),
         'parse_mode': 'MarkdownV2'
     }
-
-    return msg

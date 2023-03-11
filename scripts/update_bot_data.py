@@ -23,7 +23,7 @@ def parse_cmd_args():
     return vars(args) # Return as dict
 
 def insert_after(key: str, value: any, obj: dict, after_key: str):
-    """Inserts a value after a specific key in an object"""
+    "Inserts a value after a specific key in dict"
 
     logger.debug('Insert %s: %s after key %s' % (key, value, after_key))
     keys = list(obj.keys())
@@ -44,19 +44,23 @@ def insert_after(key: str, value: any, obj: dict, after_key: str):
     return res
 
 def update_chat_configs(path: str):
-    logger.info('Starting chat configs parser')
+    "Update chat configs (chat data) to the latest version. (outdated)"
+    logger.info('Scanning for an outdated chat-configs folder')
+
+    if not os.path.exists(path):
+        logger.info('Flder not found.')
+        return
 
     files = os.listdir(path)
     count = len(files)
-    logger.info('Converting %s files' % count)
+    logger.info('Updating %s files' % count)
 
     for i, file in enumerate(files):
-        logger.info(f'Converting #{i + 1}/{count}')
+        logger.info(f'Progress: {i + 1}/{count}')
 
         # Read config
         file_path = os.path.join(path, file)
-        logger.debug('Opening file %s' % file_path)
-        fp = open(file_path, 'r+', encoding='utf-8')
+        fp = open(file_path, 'r+')
         conf = json.load(fp)
 
         # Required to overwrite a file
@@ -99,6 +103,59 @@ def update_chat_configs(path: str):
 
     logger.info('Chat configs updated')
 
+def migrate_chat_configs(path: str, user_data_path: str, chat_data_path: str):
+    "Migrate the old chat-configs folder to the new format, with the user and chat data separated"
+    # 2.3.0
+    logger.info('Migrating the old chat-configs folder to the new format')
+
+    if not os.path.exists(path):
+        logger.info('Folder not found.')
+        return
+
+    os.makedirs(user_data_path, exist_ok=True)
+    os.makedirs(chat_data_path, exist_ok=True)
+
+    files = os.listdir(path)
+    count = len(files)
+    logger.info('Migrating %s files' % count)
+
+    for i, file in enumerate(files):
+        logger.info(f'Progress: {i + 1}/{count}')
+
+        # Read config
+        file_path = os.path.join(path, file)
+        fp = open(file_path)
+        conf = json.load(fp)
+        fp.close()
+
+        if not file.startswith('-'):
+            # All group, supergroup and channel IDs start with "-", which means this thing will only save user data
+            user_fp = open(os.path.join(user_data_path, file), 'w')
+            user_data = {
+                'admin': conf['admin'],
+                'ref': conf['ref']}
+            json.dump(user_data, user_fp, ensure_ascii=False, indent=4)
+            user_fp.close()
+
+        chat_fp = open(os.path.join(chat_data_path, file), 'w')
+        chat_data = {
+            'lang_code': conf['lang'],
+            'group_id': conf['groupId']}
+        json.dump(chat_data, chat_fp, ensure_ascii=False, indent=4)
+        chat_fp.close()
+        os.remove(file_path)
+
+    os.rmdir(path)
+    logger.info('Chat configs migrated')
+
+def update_user_data(path: str):
+    # Implement when needed
+    pass
+
+def update_chat_data(path: str):
+    # Implement when needed
+    pass
+
 def update_logs(path: str):
     logger.info('Starting logs parser')
 
@@ -111,9 +168,11 @@ def update_logs(path: str):
     logger.info('Logs updated')
 
 def update_cache(path: str):
+    # TODO
     pass
 
 def update_langs(path: str):
+    # TODO
     pass
 
 
@@ -121,10 +180,21 @@ def update_langs(path: str):
 def main(path: str):
     """Update bot data to the latest version"""
     logger.info('Starting bot data parser')
-    update_chat_configs(os.path.join(path, 'chat-configs'))
-    update_logs(os.path.join(path, 'logs'))
-    update_cache(os.path.join(path, 'cache'))
-    update_langs(os.path.join(path, 'langs')) # TODO
+
+    chat_configs_path = os.path.join(path, 'chat-configs')
+    user_data_path = os.path.join(path, 'user-data')
+    chat_data_path = os.path.join(path, 'chat-data')
+    logs_path = os.path.join(path, 'logs')
+    cache_path = os.path.join(path, 'cache')
+    langs_path = os.path.join(path, 'langs')
+
+    update_chat_configs(chat_configs_path)
+    migrate_chat_configs(chat_configs_path, user_data_path, chat_data_path)
+    update_user_data(user_data_path)
+    update_chat_data(chat_data_path)
+    update_logs(logs_path)
+    update_cache(cache_path)
+    update_langs(langs_path)
     logger.info('Bot data updated')
 
 if __name__ == '__main__':

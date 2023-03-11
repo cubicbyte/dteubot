@@ -1,15 +1,12 @@
 import requests.exceptions
-import logging
-
-from telebot import types
+from telegram import InlineKeyboardMarkup, InlineKeyboardButton
+from telegram.ext import ContextTypes
+from telegram.helpers import escape_markdown
 from datetime import datetime, timedelta, date as _date
 from babel.dates import format_date
-from .invalid_group import create_message as create_invalid_group_message
-from .api_unavaliable import create_message as create_api_unavaliable_message
-from ..settings import api, langs
-from ..utils.escape_markdown import escape_markdownv2
-
-logger = logging.getLogger()
+from . import invalid_group, api_unavaliable
+from ..settings import api
+from ..utils import array_split
 
 
 
@@ -32,38 +29,37 @@ def count_no_lesson_days(schedule: list[dict[str, any]], date: _date, direction_
 
     return res
 
-def get_localized_date(date: _date, lang_code: str) -> str:
-    date_localized = escape_markdownv2(format_date(date, locale=lang_code))
-    week_day_localized = langs[lang_code]['text.time.week_day.' + str(date.weekday())]
+def get_localized_date(context: ContextTypes.DEFAULT_TYPE, date: _date) -> str:
+    date_localized = escape_markdown(format_date(date, locale=context._chat_data.lang_code), version=2)
+    week_day_localized = context._chat_data.lang['text.time.week_day.' + str(date.weekday())]
     full_date_localized = f"*{date_localized}* `[`*{week_day_localized}*`]`"
     return full_date_localized
 
-def create_schedule_section(lang_code: str, schedule_day: dict[str, any]) -> str:
+def create_schedule_section(context: ContextTypes.DEFAULT_TYPE, schedule_day: dict[str, any]) -> str:
     schedule_section = ''
     for lesson in schedule_day['lessons']:
         for period in lesson['periods']:
             # Escape ONLY USED api result not to break telegram markdown
             # DO NOT DELETE COMMENTS
-            period['typeStr'] = escape_markdownv2(period['typeStr'])
-            period['classroom'] = escape_markdownv2(period['classroom'])
-            #period['disciplineFullName'] = escape_markdownv2(period['disciplineFullName'])
-            period['disciplineShortName'] = escape_markdownv2(period['disciplineShortName'])
-            period['timeStart'] = escape_markdownv2(period['timeStart'])
-            period['timeEnd'] = escape_markdownv2(period['timeEnd'])
-            #period['teachersName'] = escape_markdownv2(period['teachersName'])
-            period['teachersNameFull'] = escape_markdownv2(period['teachersNameFull'])
-            #period['dateUpdated'] = escape_markdownv2(period['dateUpdated'])
-            #period['groups'] = escape_markdownv2(period['groups'])
+            period['typeStr'] = escape_markdown(period['typeStr'], version=2)
+            period['classroom'] = escape_markdown(period['classroom'], version=2)
+            #period['disciplineFullName'] = escape_markdown(period['disciplineFullName'], version=2)
+            period['disciplineShortName'] = escape_markdown(period['disciplineShortName'], version=2)
+            period['timeStart'] = escape_markdown(period['timeStart'], version=2)
+            period['timeEnd'] = escape_markdown(period['timeEnd'], version=2)
+            #period['teachersName'] = escape_markdown(period['teachersName'], version=2)
+            period['teachersNameFull'] = escape_markdown(period['teachersNameFull'], version=2)
+            #period['dateUpdated'] = escape_markdown(period['dateUpdated'], version=2)
+            #period['groups'] = escape_markdown(period['groups'], version=2)
 
 
-            # If there are multiple teachers, display the first one and add +1 to the end
-            # TODO: Replace this with textwrap.shorten
+            # If there are multiple teachers, display the first one and add +n to the end
             if ',' in period['teachersName']:
                 count = str(period['teachersNameFull'].count(','))
                 period['teachersName'] = period['teachersName'][:period['teachersName'].index(',')] + ' +' + count
                 period['teachersNameFull'] = period['teachersNameFull'][:period['teachersNameFull'].index(',')] + ' +' + count
 
-            schedule_section += langs[lang_code]['text.schedule.period'].format(
+            schedule_section += context._chat_data.lang['text.schedule.period'].format(
                 **period,
                 lessonNumber=lesson['number']
             )
@@ -73,7 +69,7 @@ def create_schedule_section(lang_code: str, schedule_day: dict[str, any]) -> str
 
 
 
-def create_message(lang_code: str, groupId: int, date: _date | str) -> dict:
+def create_message(context: ContextTypes.DEFAULT_TYPE, date: _date | str) -> dict:
     # Create "date_str" and "date" variables
     if isinstance(date, _date):
         date_str = date.strftime('%Y-%m-%d')
@@ -86,16 +82,16 @@ def create_message(lang_code: str, groupId: int, date: _date | str) -> dict:
     dateStart = date - timedelta(days=date.weekday() + 7)
     dateEnd = dateStart + timedelta(days=20)
     try:
-        schedule = api.timetable_group(groupId, dateStart, dateEnd)
+        schedule = api.timetable_group(context._chat_data.group_id, dateStart, dateEnd)
     except requests.exceptions.HTTPError as err:
         if err.response.status_code == 422:
-            return create_invalid_group_message(lang_code)
-        return create_api_unavaliable_message(lang_code)
+            return invalid_group.create_message(context)
+        return api_unavaliable.create_message(context)
     except (
         requests.exceptions.ConnectionError,
         requests.exceptions.ReadTimeout
     ):
-        return create_api_unavaliable_message(lang_code)
+        return api_unavaliable.create_message(context)
 
 
     # Find schedule of current day
@@ -107,10 +103,12 @@ def create_message(lang_code: str, groupId: int, date: _date | str) -> dict:
 
 
     # Create the schedule page content
+    lang = context._chat_data.lang
+    lang_code = context._chat_data.lang_code
     if cur_day_schedule is not None:
-        msg_text = langs[lang_code]['page.schedule'].format(
-            date=get_localized_date(date, lang_code),
-            schedule=create_schedule_section(lang_code, cur_day_schedule)
+        msg_text = lang['page.schedule'].format(
+            date=get_localized_date(context, date),
+            schedule=create_schedule_section(context, cur_day_schedule)
         )
     # If there is no lesson for the current day
     else:
@@ -124,43 +122,39 @@ def create_message(lang_code: str, groupId: int, date: _date | str) -> dict:
         # If there are no lessons for multiple days
         # Then combine all the days without lessons into one page
         if skip_left.days > 1 or skip_right.days > 1:
-            dateStart_localized = get_localized_date(date - skip_left + timedelta(days=1), lang_code)
-            dateEnd_localized = get_localized_date(date + skip_right - timedelta(days=1), lang_code)
-            msg_text = langs[lang_code]['page.schedule.empty.multiple_days'].format(
+            dateStart_localized = get_localized_date(context, date - skip_left + timedelta(days=1))
+            dateEnd_localized = get_localized_date(context, date + skip_right - timedelta(days=1))
+            msg_text = lang['page.schedule.empty.multiple_days'].format(
                 dateStart=dateStart_localized,
                 dateEnd=dateEnd_localized
             )
         # If no lessons for only one day
         else:
-            msg_text = langs[lang_code]['page.schedule.empty'].format(date=get_localized_date(date, lang_code))
+            msg_text = lang['page.schedule.empty'].format(date=get_localized_date(date, lang_code))
 
+
+    if cur_day_schedule is not None:
+        next_day_date = date + timedelta(days=1)
+        prev_day_date = date - timedelta(days=1)
+    else:
+        next_day_date = date + skip_right
+        prev_day_date = date - skip_left
 
 
     # Create buttons
-    if cur_day_schedule is not None:
-        day_next = date + timedelta(days=1)
-        day_prev = date - timedelta(days=1)
-    else:
-        day_next = date + skip_right
-        day_prev = date - skip_left
-    markup = types.InlineKeyboardMarkup(row_width=2)
     buttons = [
-        types.InlineKeyboardButton(text=langs[lang_code]['button.navigation.day_previous'], callback_data='open.schedule.day#date=' + day_prev.strftime('%Y-%m-%d')),
-        types.InlineKeyboardButton(text=langs[lang_code]['button.navigation.day_next'], callback_data='open.schedule.day#date=' + day_next.strftime('%Y-%m-%d')),
-        types.InlineKeyboardButton(text=langs[lang_code]['button.navigation.week_previous'], callback_data='open.schedule.day#date=' + (date - timedelta(days=7)).strftime('%Y-%m-%d')),
-        types.InlineKeyboardButton(text=langs[lang_code]['button.navigation.week_next'], callback_data='open.schedule.day#date=' + (date + timedelta(days=7)).strftime('%Y-%m-%d')),
-        types.InlineKeyboardButton(text=langs[lang_code]['button.menu'], callback_data='open.menu')
+        InlineKeyboardButton(text=lang['button.navigation.day_previous'], callback_data='open.schedule.day#date=' + prev_day_date.strftime('%Y-%m-%d')),
+        InlineKeyboardButton(text=lang['button.navigation.day_next'], callback_data='open.schedule.day#date=' + next_day_date.strftime('%Y-%m-%d')),
+        InlineKeyboardButton(text=lang['button.navigation.week_previous'], callback_data='open.schedule.day#date=' + (date - timedelta(days=7)).strftime('%Y-%m-%d')),
+        InlineKeyboardButton(text=lang['button.navigation.week_next'], callback_data='open.schedule.day#date=' + (date + timedelta(days=7)).strftime('%Y-%m-%d')),
+        InlineKeyboardButton(text=lang['button.menu'], callback_data='open.menu')
     ]
     # If the selected day is not today, then add "today" button
     if date != _date.today():
-        buttons.append(types.InlineKeyboardButton(text=langs[lang_code]['button.navigation.today'], callback_data='open.schedule.today'))
-    markup.add(*buttons)
+        buttons.append(InlineKeyboardButton(text=lang['button.navigation.today'], callback_data='open.schedule.today'))
 
-
-    msg = {
+    return {
         'text': msg_text,
-        'reply_markup': markup,
+        'reply_markup': InlineKeyboardMarkup(array_split(buttons, 2)),
         'parse_mode': 'MarkdownV2'
     }
-
-    return msg

@@ -1,39 +1,32 @@
 import requests.exceptions
+from telegram import InlineKeyboardMarkup, InlineKeyboardButton
+from telegram.ext import ContextTypes
+from ..pages import api_unavaliable
+from ..settings import api
 
-from telebot import types
-from ..settings import api, langs
-from .api_unavaliable import create_message as create_api_unavaliable_message
-
-def get_text() -> str:
-    msg = ''
-
+def get_schedule_section_text() -> str:
+    text = ''
     for call in api.timetable_call_schedule():
-        msg += '`{number})` *{timeStart}* `-` *{timeEnd}*\n'.format(**call)
+        text += '`{number})` *{timeStart}* `-` *{timeEnd}*\n'.format(**call)
+    return text
 
-    return msg
-
-def create_message(lang_code: str) -> dict:
+def create_message(context: ContextTypes.DEFAULT_TYPE) -> dict:
     try:
-        schedule = get_text()
+        schedule_section = get_schedule_section_text()
     except (
         requests.exceptions.ConnectionError,
         requests.exceptions.ReadTimeout,
         requests.exceptions.HTTPError
     ):
-        return create_api_unavaliable_message(lang_code)
+        return api_unavaliable.create_message(context)
 
-    message_text = langs[lang_code]['page.calls'].format(schedule=schedule)
-    markup = types.InlineKeyboardMarkup()
+    buttons = [[
+        InlineKeyboardButton(text=context._chat_data.lang['button.back'], callback_data='open.more'),
+        InlineKeyboardButton(text=context._chat_data.lang['button.menu'], callback_data='open.menu')
+    ]]
 
-    markup.add(
-        types.InlineKeyboardButton(text=langs[lang_code]['button.back'], callback_data='open.more'),
-        types.InlineKeyboardButton(text=langs[lang_code]['button.menu'], callback_data='open.menu')
-    )
-
-    msg = {
-        'text': message_text,
-        'reply_markup': markup,
+    return {
+        'text': context._chat_data.lang['page.calls'].format(schedule=schedule_section),
+        'reply_markup': InlineKeyboardMarkup(buttons),
         'parse_mode': 'MarkdownV2'
     }
-
-    return msg

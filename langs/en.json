@@ -75,6 +75,7 @@
 
     "alert.done": "\u2705 Done",
     "alert.no_permissions": "\u2757\ufe0f You do not have permission to run this command.",
+    "alert.callback_query_unsupported": "\u2757\ufe0f Failed: The button is outdated.\n\nPlease try again.",
 
 
 

@@ -1,20 +1,13 @@
-from functools import cache
-from telebot import types
-from ..settings import langs
+from telegram import InlineKeyboardMarkup, InlineKeyboardButton
+from telegram.ext import ContextTypes
 
-@cache
-def create_message(lang_code: str) -> dict:
-    message_text = langs[lang_code]['alert.no_permissions']
-    markup = types.InlineKeyboardMarkup()
+def create_message(context: ContextTypes.DEFAULT_TYPE) -> dict:
+    buttons = [[
+        InlineKeyboardButton(text=context._chat_data.lang['button.menu'], callback_data='open.menu')
+    ]]
 
-    markup.add(
-        types.InlineKeyboardButton(text=langs[lang_code]['button.menu'], callback_data='open.menu')
-    )
-
-    msg = {
-        'text': message_text,
-        'reply_markup': markup,
+    return {
+        'text': context._chat_data.lang['alert.no_permissions'],
+        'reply_markup': InlineKeyboardMarkup(buttons),
         'parse_mode': 'MarkdownV2'
     }
-
-    return msg

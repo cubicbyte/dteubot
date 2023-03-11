@@ -1,11 +1,8 @@
-import logging
-import telebot.types
-from ..settings import bot
+from telegram import Update
+from telegram.ext import ContextTypes
+from . import register_command_handler
 from ..pages import menu
 
-logger = logging.getLogger(__name__)
-
-@bot.message_handler(commands=['menu'])
-def handle_command(message: telebot.types.Message):
-    logger.info('Handling /menu command from chat %s' % message.chat.id)
-    bot.send_message(**menu.create_message(message), chat_id=message.chat.id)
+@register_command_handler('menu')
+async def handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.chat.send_message(**menu.create_message(context))

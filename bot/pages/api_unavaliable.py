@@ -1,21 +1,14 @@
-from functools import cache
-from telebot import types
-from ..settings import langs
+from telegram import InlineKeyboardMarkup, InlineKeyboardButton
+from telegram.ext import ContextTypes
 
-@cache
-def create_message(lang_code: str) -> dict:
-    message_text = langs[lang_code]['page.api_unavaliable']
-    markup = types.InlineKeyboardMarkup()
+def create_message(context: ContextTypes) -> dict:
+    buttons = [[
+        InlineKeyboardButton(text=context._chat_data.lang['button.menu'], callback_data='open.menu'),
+        InlineKeyboardButton(text=context._chat_data.lang['button.write_me'], url='https://t.me/cubicbyte')
+    ]]
 
-    markup.add(
-        types.InlineKeyboardButton(text=langs[lang_code]['button.menu'], callback_data='open.menu'),
-        types.InlineKeyboardButton(text=langs[lang_code]['button.write_me'], url='https://t.me/cubicbyte')
-    )
-
-    msg = {
-        'text': message_text,
-        'reply_markup': markup,
+    return {
+        'text': context._chat_data.lang['page.api_unavaliable'],
+        'reply_markup': InlineKeyboardMarkup(buttons),
         'parse_mode': 'MarkdownV2'
     }
-
-    return msg

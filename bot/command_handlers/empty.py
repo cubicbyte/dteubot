@@ -1,11 +1,8 @@
-import logging
-import telebot.types
-from ..settings import bot
+from telegram import Update
+from telegram.ext import ContextTypes
+from . import register_command_handler
 from ..pages import statistic
 
-logger = logging.getLogger(__name__)
-
-@bot.message_handler(content_types=['text'], func=lambda msg: msg.text.startswith('/empty_'))
-def handle_command(message: telebot.types.Message):
-    logger.info('Handling /empty_* command from chat %s' % message.chat.id)
-    bot.send_message(**statistic.create_message(message), chat_id=message.chat.id)
+@register_command_handler(['empty_0', 'empty_1'])
+async def handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.chat.send_message(**statistic.create_message(update, context))

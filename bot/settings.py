@@ -1,20 +1,14 @@
 import os
 import sys
-import telebot
 import logging
 from datetime import timedelta
 from dotenv import load_dotenv
-from .utils.check_int import check_int
-
-CHAT_CONFIGS_PATH = 'chat-configs'
-LANGS_PATH = os.path.join(sys.path[0], 'langs')
-LOGS_PATH = 'logs'
+from telegram.ext import ApplicationBuilder
+from .utils import check_int
 
 sys.path.append('../../lib')                # Required to load external libraries
-sys.path.append('../../scripts')            # Required to load external scripts
 load_dotenv('.env')                         # Load .env file in current dir
 load_dotenv()                               # Load .env file in bot dir
-telebot.apihelper.ENABLE_MIDDLEWARE = True  # Enable telegram bot middleware
 
 
 # Set environment variable default values
@@ -31,49 +25,63 @@ assert check_int(os.getenv('API_REQUEST_TIMEOUT')), 'The API_REQUEST_TIMEOUT env
 assert check_int(os.getenv('API_CACHE_EXPIRES')), 'The API_CACHE_EXPIRES environment variable must be an integer. Received: %s' % os.getenv('API_CACHE_EXPIRES')
 
 
-if not os.path.exists(LOGS_PATH):
-    os.mkdir(LOGS_PATH)
+BOT_TOKEN = os.getenv('BOT_TOKEN')
+API_URL = os.getenv('API_URL')
+DEFAULT_LANG = os.getenv('DEFAULT_LANG')
+API_REQUEST_TIMEOUT = int(os.getenv('API_REQUEST_TIMEOUT'))
+API_CACHE_EXPIRES = int(os.getenv('API_CACHE_EXPIRES'))
+LOGGING_LEVEL = os.getenv('LOGGING_LEVEL')
+MODE = os.getenv('MODE')
+LOG_CHAT_ID = os.getenv('LOG_CHAT_ID')
+
+USER_DATA_PATH = 'user-data'
+CHAT_DATA_PATH = 'chat-data'
+LANGS_PATH = os.path.join(sys.path[0], 'langs')
+LOGS_PATH = 'logs'
+CACHE_PATH = 'cache'
+API_TYPE_CACHED = 'CachedApi'
+API_TYPE_DEFAULT = 'Api'
+
+if API_REQUEST_TIMEOUT <= 0:
+    API_REQUEST_TIMEOUT = None
+
+
+os.makedirs(LOGS_PATH, exist_ok=True)
+os.makedirs(USER_DATA_PATH, exist_ok=True)
+os.makedirs(CHAT_DATA_PATH, exist_ok=True)
 
 
 logging.basicConfig(
-    level=os.getenv('LOGGING_LEVEL'),
+    level=LOGGING_LEVEL,
     filename=os.path.join(LOGS_PATH, 'debug.log'),
     filemode='a',
     format='%(asctime)s [%(levelname)s] %(name)s: %(message)s',
     force=True
 )
 
-logger = logging.getLogger(__name__)
-logger.info('Running setup')
+_logger = logging.getLogger(__name__)
+_logger.info('Running setup')
 
 
 from lib.api import Api, CachedApi
-from scripts.update_bot_data import main as update_bot_data
-from .exception_handler import ExceptionHandler
+#from .exception_handler import ExceptionHandler
 from .tg_logger import TelegramLogger
-from .chat_configs import ChatConfigs
 from .load_langs import load_langs
 
 
 
-BOT_TOKEN = os.getenv('BOT_TOKEN')
-api_url = os.getenv('API_URL')
-api_timeout = int(os.getenv('API_REQUEST_TIMEOUT'))
-api_expires = timedelta(seconds=int(os.getenv('API_CACHE_EXPIRES')))
-
-if api_timeout <= 0:
-    api_timeout = None
-
-if os.path.isfile('cache/mkr-cache.sqlite'):
+if os.path.isfile(os.path.join(CACHE_PATH, 'mkr-cache.sqlite')):
+    API_TYPE = 'CachedApi'
     _Api = CachedApi
 else:
+    API_TYPE = 'Api'
     _Api = Api
 
-update_bot_data('.')
-logger.info('Creating a bot instance')
-bot = telebot.TeleBot(BOT_TOKEN)
-bot.exception_handler = ExceptionHandler(bot=bot, log_chat_id=os.getenv('LOG_CHAT_ID'))
-api = _Api(url=api_url, timeout=api_timeout, expires_after=api_expires)
+bot = ApplicationBuilder().token(BOT_TOKEN).build()
+api = _Api(
+    url=API_URL,
+    timeout=API_REQUEST_TIMEOUT,
+    expires_after=timedelta(seconds=API_CACHE_EXPIRES),
+    cache_name=os.path.join(CACHE_PATH, 'http-cache'))
 tg_logger = TelegramLogger(os.path.join(LOGS_PATH, 'telegram'))
-chat_configs = ChatConfigs(CHAT_CONFIGS_PATH)
 langs = load_langs(LANGS_PATH)

@@ -1,12 +1,9 @@
-import telebot.types
-import logging
 from datetime import date
-from ..settings import bot
+from telegram import Update
+from telegram.ext import CallbackContext
+from . import register_button_handler
 from ..pages import schedule
 
-logger = logging.getLogger(__name__)
-
-@bot.callback_query_handler(func=lambda call: call.query == 'open.schedule.today')
-def handler(call: telebot.types.CallbackQuery):
-    logger.debug('Handling callback query')
-    bot.edit_message_text(**schedule.create_message(call.message.lang_code, call.message.config['groupId'], date.today()), chat_id=call.message.chat.id, message_id=call.message.message_id)
+@register_button_handler(r'^open.schedule.today$')
+async def handler(update: Update, context: CallbackContext):
+    await update.callback_query.message.edit_text(**schedule.create_message(context, date=date.today()))

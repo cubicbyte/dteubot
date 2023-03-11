@@ -1,28 +1,22 @@
-from telebot import types
+from telegram import InlineKeyboardMarkup, InlineKeyboardButton
+from telegram.ext import ContextTypes
 
-def create_message(message: types.Message) -> dict:
-    message_text = message.lang['page.menu']
-    markup = types.InlineKeyboardMarkup()
-
-    markup.add(
-        types.InlineKeyboardButton(text=message.lang['button.schedule'], callback_data='open.schedule.today')
-    )
-
-    markup.add(
-        types.InlineKeyboardButton(text=message.lang['button.settings'], callback_data='open.settings'),
-        types.InlineKeyboardButton(text=message.lang['button.more'], callback_data='open.more')
-    )
+def create_message(context: ContextTypes.DEFAULT_TYPE) -> dict:
+    buttons = [[
+        InlineKeyboardButton(text=context._chat_data.lang['button.schedule'], callback_data='open.schedule.today')
+    ], [
+        InlineKeyboardButton(text=context._chat_data.lang['button.settings'], callback_data='open.settings'),
+        InlineKeyboardButton(text=context._chat_data.lang['button.more'], callback_data='open.more')
+    ]]
 
     # If user is admin, then add control panel button
-    if message.config['admin'] is True:
-        markup.add(
-            types.InlineKeyboardButton(text=message.lang['button.admin.panel'], callback_data='admin.open_panel')
-        )
+    if context._user_data.admin:
+        buttons.append([
+            InlineKeyboardButton(text=context._chat_data.lang['button.admin.panel'], callback_data='admin.open_panel')
+        ])
 
-    msg = {
-        'text': message_text,
-        'reply_markup': markup,
+    return {
+        'text': context._chat_data.lang['page.menu'],
+        'reply_markup': InlineKeyboardMarkup(buttons),
         'parse_mode': 'MarkdownV2'
     }
-
-    return msg

@@ -1,41 +1,33 @@
 import requests.exceptions
+from telegram import InlineKeyboardMarkup, InlineKeyboardButton
+from telegram.ext import ContextTypes
+from . import api_unavaliable, select_faculty
+from ..settings import api
 
-from telebot import types
-from ..settings import api, langs
-from .select_faculty import create_message as create_select_faculty_message
-from .api_unavaliable import create_message as create_api_unavaliable_message
-
-def create_message(lang_code: str) -> dict:
+def create_message(context: ContextTypes.DEFAULT_TYPE) -> dict:
     try:
         structures = api.list_structures()
-
     except (
         requests.exceptions.ConnectionError,
         requests.exceptions.ReadTimeout,
         requests.exceptions.HTTPError
     ):
-        return create_api_unavaliable_message(lang_code)
-
-    markup = types.InlineKeyboardMarkup()
-    message_text = langs[lang_code]['page.structure']
+        return api_unavaliable.create_message(context)
 
     if len(structures) == 1:
-        # If there is only one structure, then skip this menu
-        return create_select_faculty_message(lang_code, structures[0]['id'])
+        return select_faculty.create_message(context, structures[0]['id'])
 
-    markup.add(
-        types.InlineKeyboardButton(text=langs[lang_code]['button.back'], callback_data='open.menu')
-    )
+    buttons = [[
+        InlineKeyboardButton(text=context._chat_data.lang['button.back'], callback_data=f'open.menu')
+    ]]
 
     for structure in structures:
-        markup.add(
-            types.InlineKeyboardButton(text=structure['fullName'], callback_data=f'select.schedule.structure#structureId={structure["id"]}')
-        )
+        buttons.append([
+            InlineKeyboardButton(text=structure['fullName'], callback_data=f'select.schedule.structure#structureId={structure["id"]}')
+        ])
 
-    msg = {
-        'text': message_text,
-        'reply_markup': markup,
+    return {
+        'text': context._chat_data.lang['page.structure'],
+        'reply_markup': InlineKeyboardMarkup(buttons),
         'parse_mode': 'MarkdownV2'
     }
-
-    return msg

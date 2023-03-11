@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from .settings import api
-from .utils.format_time import format_time
+from .utils.time_formatter import format_time
 
 @dataclass
 class FormattedTime:
@@ -81,11 +81,11 @@ def get_lesson(calls: list, lessons: list[int], timestamp = datetime.now()) -> d
 
     return result
 
-def get_time(groupId: int, timestamp = datetime.now()) -> dict | None:
+def get_time(group_id: int, timestamp = datetime.now()) -> dict | None:
     """Returns the time before the start/end of the lesson"""
 
     date = timestamp.date()
-    schedule = api.timetable_group(groupId, date, date)
+    schedule = api.timetable_group(group_id, date, date)
     calls = api.timetable_call_schedule()
     date = timestamp.strftime('%Y-%m-%d')
 
@@ -104,8 +104,8 @@ def get_time(groupId: int, timestamp = datetime.now()) -> dict | None:
 
     return get_lesson(calls, lessons, timestamp)
 
-def get_time_formatted(lang_code: str, groupId: int, timestamp = datetime.now()) -> dict:
-    remaining_time = get_time(groupId, timestamp)
+def get_time_formatted(lang_code: str, group_id: int, timestamp = datetime.now()) -> dict:
+    remaining_time = get_time(group_id, timestamp)
 
     if remaining_time is None:
         formatted = None

@@ -75,6 +75,7 @@
 
     "alert.done": "\u2705 Готово",
     "alert.no_permissions": "\u2757\ufe0f У вас недостатньо прав для виконання цієї команди.",
+    "alert.callback_query_unsupported": "\u2757\ufe0f Не вдалося виконати: кнопка застаріла.\n\nСпробуйте ще раз.",
 
 
 

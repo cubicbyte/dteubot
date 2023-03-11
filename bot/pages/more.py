@@ -1,29 +1,18 @@
-from functools import cache
-from telebot import types
-from ..settings import langs
+from telegram import InlineKeyboardMarkup, InlineKeyboardButton
+from telegram.ext import ContextTypes
 
-@cache
-def create_message(lang_code: str) -> dict:
-    message_text = langs[lang_code]['page.more']
-    markup = types.InlineKeyboardMarkup()
+def create_message(context: ContextTypes.DEFAULT_TYPE) -> dict:
+    buttons = [[
+        InlineKeyboardButton(text=context._chat_data.lang['button.calls'], callback_data='open.calls'),
+        InlineKeyboardButton(text=context._chat_data.lang['button.left'], callback_data='open.left')
+    ], [
+        InlineKeyboardButton(text=context._chat_data.lang['button.info'], callback_data='open.info')
+    ], [
+        InlineKeyboardButton(text=context._chat_data.lang['button.back'], callback_data='open.menu')
+    ]]
 
-    markup.add(
-        types.InlineKeyboardButton(text=langs[lang_code]['button.calls'], callback_data='open.calls'),
-        types.InlineKeyboardButton(text=langs[lang_code]['button.left'], callback_data='open.left')
-    )
-
-    markup.add(
-        types.InlineKeyboardButton(text=langs[lang_code]['button.info'], callback_data='open.info')
-    )
-
-    markup.add(
-        types.InlineKeyboardButton(text=langs[lang_code]['button.back'], callback_data='open.menu')
-    )
-
-    msg = {
-        'text': message_text,
-        'reply_markup': markup,
+    return {
+        'text': context._chat_data.lang['page.more'],
+        'reply_markup': InlineKeyboardMarkup(buttons),
         'parse_mode': 'MarkdownV2'
     }
-
-    return msg

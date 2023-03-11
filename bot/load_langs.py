@@ -2,7 +2,6 @@ import os
 import json
 import logging
 from pathlib import Path
-from .utils.fs import open_file
 
 logger = logging.getLogger(__name__)
 
@@ -22,7 +21,7 @@ def load_langs(dirpath: str) -> dict[str, str]:
         logger.info('Loading %s lang' % lang_name)
 
         # Load lang
-        fp = open_file(filepath, 'r', encoding='utf-8')
+        fp = open(filepath, 'r', encoding='utf-8')
         logger.debug('Reading json content of a file')
         lang = json.load(fp)
         fp.close()
