@@ -5,4 +5,4 @@ from ..pages import menu
 
 @register_command_handler('menu')
 async def handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.effective_chat.send_message(**menu.create_message(context))
+    await update.message.chat.send_message(**menu.create_message(context))

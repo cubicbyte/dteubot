@@ -6,7 +6,7 @@ from ..pages import menu, select_structure
 @register_command_handler('select')
 async def handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if len(context.args) == 0:
-        await update.effective_chat.send_message(**select_structure.create_message(context))
+        await update.message.chat.send_message(**select_structure.create_message(context))
         return
 
     group_id = context.args[0]
@@ -15,4 +15,4 @@ async def handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         group_id = int(group_id)
         context._chat_data.group_id = group_id
 
-    await update.effective_chat.send_message(**menu.create_message(context))
+    await update.message.chat.send_message(**menu.create_message(context))

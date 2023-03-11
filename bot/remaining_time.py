@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from .settings import api
-from .utils.format_time import format_time
+from .utils.time_formatter import format_time
 
 @dataclass
 class FormattedTime:

@@ -7,4 +7,4 @@ from ..pages import schedule
 @register_command_handler('tomorrow')
 async def handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     date = _date.today() + timedelta(days=1)
-    await update.effective_chat.send_message(**schedule.create_message(context, date))
+    await update.message.chat.send_message(**schedule.create_message(context, date))

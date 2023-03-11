@@ -6,7 +6,7 @@ from datetime import datetime, timedelta, date as _date
 from babel.dates import format_date
 from . import invalid_group, api_unavaliable
 from ..settings import api
-from ..utils.array_split import array_split
+from ..utils import array_split
 
 
 
@@ -53,8 +53,7 @@ def create_schedule_section(context: ContextTypes.DEFAULT_TYPE, schedule_day: di
             #period['groups'] = escape_markdown(period['groups'], version=2)
 
 
-            # If there are multiple teachers, display the first one and add +1 to the end
-            # TODO Replace this with textwrap.shorten
+            # If there are multiple teachers, display the first one and add +n to the end
             if ',' in period['teachersName']:
                 count = str(period['teachersNameFull'].count(','))
                 period['teachersName'] = period['teachersName'][:period['teachersName'].index(',')] + ' +' + count

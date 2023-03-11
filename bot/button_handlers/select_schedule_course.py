@@ -2,7 +2,7 @@ from telegram import Update
 from telegram.ext import CallbackContext
 from . import register_button_handler
 from ..pages import select_group
-from ..utils.parse_callback_query import parse_callback_query
+from ..utils import parse_callback_query
 
 @register_button_handler(r'^select.schedule.course')
 async def handler(update: Update, context: CallbackContext):
@@ -10,4 +10,4 @@ async def handler(update: Update, context: CallbackContext):
     structure_id = int(args['structureId'])
     faculty_id = int(args['facultyId'])
     course = int(args['course'])
-    await update.effective_message.edit_text(**select_group.create_message(context, structure_id, faculty_id, course))
+    await update.callback_query.message.edit_text(**select_group.create_message(context, structure_id, faculty_id, course))

@@ -1,12 +1,13 @@
 
 # API docs can be found at https://mkr.org.ua/portal-api-docs.html
 
+import os.path
 import logging
 import pytz
 
 from urllib.parse import urljoin
 from datetime import timedelta, datetime, date as _date
-from requests_cache import CachedSession
+from requests_cache import CachedSession, DEFAULT_CACHE_NAME
 from .schemas import *
 
 logger = logging.getLogger(__name__)
@@ -22,7 +23,6 @@ class Api:
         self.url = url
         self._timeout = timeout
         self._session = CachedSession(
-            cache_name='cache/http-cache',
             cache_control=True,
             allowable_methods=['GET', 'POST'],
             match_headers=True,
@@ -294,8 +294,10 @@ from ..cache_reader import CacheReader
 class CachedApi(Api):
     def __init__(self, url: str, timeout: int = None, enable_http = False, **kwargs):
         super().__init__(url, timeout, **kwargs)
+        cache_name = DEFAULT_CACHE_NAME if not 'cache_name' in kwargs else kwargs['cache_name']
+        cache_path = os.path.join(os.path.dirname(cache_name), 'mkr-cache.sqlite')
         self._http_enabled = enable_http
-        self._cache = CacheReader('cache/mkr-cache.sqlite')
+        self._cache = CacheReader(cache_path)
 
     def timetable_group(self, groupId: int, dateStart: _date, dateEnd: _date = None) -> list[dict]:
         if dateEnd is None:

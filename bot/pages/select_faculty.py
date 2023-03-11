@@ -7,6 +7,7 @@ from ..settings import api
 def create_message(context: ContextTypes.DEFAULT_TYPE, structure_id: int) -> dict:
     try:
         faculties = api.list_faculties(structure_id)
+        structures = api.list_structures()
     except (
         requests.exceptions.ConnectionError,
         requests.exceptions.ReadTimeout,
@@ -14,10 +15,16 @@ def create_message(context: ContextTypes.DEFAULT_TYPE, structure_id: int) -> dic
     ):
         return api_unavaliable.create_message(context)
 
-    buttons = [[
-        # TODO open structure select page if possible
-        InlineKeyboardButton(text=context._chat_data.lang['button.back'], callback_data=f'open.menu')
-    ]]
+    buttons = []
+
+    if len(structures) > 1:
+        buttons.append([
+            InlineKeyboardButton(text=context._chat_data.lang['button.back'], callback_data='open.select_group')
+        ])
+    else:
+        buttons.append([
+            InlineKeyboardButton(text=context._chat_data.lang['button.back'], callback_data='open.menu')
+        ])
 
     for faculty in faculties:
         buttons.append([

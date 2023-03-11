@@ -1,18 +1,23 @@
 import logging
+
+# Update bot data to the latest version
+from scripts.update_bot_data import main as update_bot_data
+update_bot_data('.')
+
+
 from telegram.ext import MessageHandler, CallbackQueryHandler
+from bot.settings import bot, tg_logger, LOG_CHAT_ID
 from bot.button_handlers import *
-from bot.button_handlers import handlers as button_handlers
+from bot.button_handlers import handlers as button_handlers, register_button_handler
 from bot.command_handlers import *
 from bot.command_handlers import handlers as command_handlers
-from bot.settings import bot, tg_logger
+from bot.pages import menu
 from bot.data import UserData, ChatData
+from bot import error_handler
 
-#
-# TODO validate user permissions on admin button click
-# TODO update requirements
-# TODO add a separate menu to respond to unsupported callback queries
-#
 
+
+error_handler.log_chat_id = LOG_CHAT_ID
 logger = logging.getLogger()
 logger.info('Starting application')
 
@@ -20,24 +25,16 @@ async def apply_data(upd, ctx):
     ctx._user_data = UserData(upd.effective_user.id)
     ctx._chat_data = ChatData(upd.effective_chat.id)
 
-bot.add_handlers([CallbackQueryHandler(apply_data), MessageHandler(None, apply_data)])
-bot.add_handlers(button_handlers, 10)
-bot.add_handlers(command_handlers, 20)
-bot.add_handlers([CallbackQueryHandler(tg_logger.callback_query_handler), MessageHandler(None, tg_logger.message_handler)], 30)
+@register_button_handler()
+async def unsupported_btn_handler(upd, ctx):
+    await upd.callback_query.answer(ctx._chat_data.lang['alert.callback_query_unsupported'], show_alert=True)
+    await upd.callback_query.message.edit_text(**menu.create_message(ctx))
 
+bot.add_handlers([CallbackQueryHandler(apply_data), MessageHandler(None, apply_data)])
+bot.add_handlers(button_handlers + command_handlers, 10)
+bot.add_handlers([CallbackQueryHandler(tg_logger.callback_query_handler), MessageHandler(None, tg_logger.message_handler)], 20)
+bot.add_error_handler(error_handler.handler)
 
 
 # Run bot
-# TODO
-#if os.getenv('MODE') == 'prod':
-#    logger.info('Running in production mode')
-#    bot.infinity_polling(allowed_updates=['message', 'callback_query'])
-#
-#elif os.getenv('MODE') == 'dev':
-#    logger.info('Running in dev mode')
-#
-#    # In development mode, there is no error handler here
-#    while True:
-#        logger.debug('Start polling')
-#        bot.polling(none_stop=True)
 bot.run_polling()

@@ -82,6 +82,8 @@ class ChatData(DataManager):
         return self._get_data(self.__get_file())['lang_code']
     @lang_code.setter
     def lang_code(self, val):
+        if not val in langs:
+            val = os.getenv('DEFAULT_LANG')
         self._get_data(self.__get_file())['lang_code'] = val
         self._update_data(self.__get_file())
 

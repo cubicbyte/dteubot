@@ -5,4 +5,4 @@ from ..pages import settings
 
 @register_command_handler('settings')
 async def handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.effective_chat.send_message(**settings.create_message(context))
+    await update.message.chat.send_message(**settings.create_message(context))

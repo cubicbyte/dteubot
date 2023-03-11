@@ -3,7 +3,7 @@ from telegram import InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import ContextTypes
 from . import api_unavaliable
 from ..settings import api
-from ..utils.array_split import array_split
+from ..utils import array_split
 
 def create_message(context: ContextTypes.DEFAULT_TYPE, structure_id: int, faculty_id: int, course: int) -> dict:
     try:

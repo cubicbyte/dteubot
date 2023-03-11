@@ -7,4 +7,4 @@ from ..pages import schedule
 @register_button_handler(r'^open.schedule.tomorrow$')
 async def handler(update: Update, context: CallbackContext):
     date = _date.today() + timedelta(days=1)
-    await update.effective_message.edit_text(**schedule.create_message(context, date=date))
+    await update.callback_query.message.edit_text(**schedule.create_message(context, date=date))

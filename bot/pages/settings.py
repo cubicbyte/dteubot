@@ -1,11 +1,11 @@
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import ContextTypes
 from telegram.helpers import escape_markdown
-from ..settings import api, CachedApi
+from ..settings import api, API_TYPE, API_TYPE_CACHED
 
 def create_message(context: ContextTypes.DEFAULT_TYPE) -> dict:
     if context._chat_data.group_id is not None:
-        if type(api) is CachedApi:
+        if API_TYPE == API_TYPE_CACHED:
             group = escape_markdown(api._cache.get_group(context._chat_data.group_id)[2], version=2)
         else:
             group = context._chat_data.group_id

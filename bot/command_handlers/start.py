@@ -13,5 +13,5 @@ async def handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if context._user_data.ref is None:
         context._user_data.ref = ref
 
-    await update.effective_chat.send_message(**greeting.create_message(context))
-    await update.effective_chat.send_message(**select_structure.create_message(context))
+    await update.message.chat.send_message(**greeting.create_message(context))
+    await update.message.chat.send_message(**select_structure.create_message(context))

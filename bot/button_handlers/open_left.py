@@ -5,4 +5,4 @@ from ..pages import left
 
 @register_button_handler(r'^open.left$')
 async def handler(update: Update, context: CallbackContext):
-    await update.effective_message.edit_text(**left.create_message(context))
+    await update.callback_query.message.edit_text(**left.create_message(context))
