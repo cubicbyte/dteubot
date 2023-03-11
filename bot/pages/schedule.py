@@ -130,7 +130,7 @@ def create_message(context: ContextTypes.DEFAULT_TYPE, date: _date | str) -> dic
             )
         # If no lessons for only one day
         else:
-            msg_text = lang['page.schedule.empty'].format(date=get_localized_date(date, lang_code))
+            msg_text = lang['page.schedule.empty'].format(date=get_localized_date(context, date))
 
 
     if cur_day_schedule is not None:
