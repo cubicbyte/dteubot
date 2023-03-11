@@ -14,11 +14,11 @@ async def handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         _logger.warn(context.error)
         if context.error.message.startswith('Message is not modified'):
             return
-        
-    if isinstance(context.error, NetworkError):
-        _logger.warn(context.error)
+
+    if type(context.error) == NetworkError and context.error.message.startswith('httpx'):
+        # telegram.ext._updater already logs this error
         return
-    
+
     if not isinstance(context.error, TelegramError):
         print(traceback.format_exc())
 
@@ -30,5 +30,5 @@ async def _send_error(bot: Bot, e: Exception):
         for err_text in smart_split(f'[{datetime.now()}] {traceback.format_exc()}'):
             try:
                 await bot.send_message(chat_id=log_chat_id, text=err_text)
-            except TelegramError as e:
-                _logger.exception('Failed to send exception to log chat: %s' % e)
+            except:
+                _logger.exception('Failed to send exception to log chat')
