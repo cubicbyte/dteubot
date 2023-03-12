@@ -1,12 +1,12 @@
 from telegram import Update
 from telegram.ext import ContextTypes
 from . import register_command_handler
-from ..pages import menu, select_structure
+from ..pages import menu, structure_list
 
 @register_command_handler('select')
 async def handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if len(context.args) == 0:
-        await update.message.chat.send_message(**select_structure.create_message(context))
+        await update.message.chat.send_message(**structure_list.create_message(context))
         return
 
     group_id = context.args[0]

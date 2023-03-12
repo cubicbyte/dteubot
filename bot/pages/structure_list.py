@@ -1,7 +1,7 @@
 import requests.exceptions
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import ContextTypes
-from . import api_unavaliable, select_faculty
+from . import api_unavaliable, faculty_list
 from ..settings import api
 
 def create_message(context: ContextTypes.DEFAULT_TYPE) -> dict:
@@ -15,7 +15,7 @@ def create_message(context: ContextTypes.DEFAULT_TYPE) -> dict:
         return api_unavaliable.create_message(context)
 
     if len(structures) == 1:
-        return select_faculty.create_message(context, structures[0]['id'])
+        return faculty_list.create_message(context, structures[0]['id'])
 
     buttons = [[
         InlineKeyboardButton(text=context._chat_data.lang['button.back'], callback_data=f'open.menu')

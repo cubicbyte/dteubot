@@ -1,7 +1,7 @@
 from telegram import Update
 from telegram.ext import ContextTypes
 from . import register_command_handler
-from ..pages import greeting, select_structure
+from ..pages import greeting, structure_list
 
 @register_command_handler('start')
 async def handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -14,4 +14,4 @@ async def handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         context._user_data.ref = ref
 
     await update.message.chat.send_message(**greeting.create_message(context))
-    await update.message.chat.send_message(**select_structure.create_message(context))
+    await update.message.chat.send_message(**structure_list.create_message(context))
