@@ -136,10 +136,11 @@ def create_message(context: ContextTypes.DEFAULT_TYPE, date: _date | str) -> dic
     if cur_day_schedule is not None:
         next_day_date = date + timedelta(days=1)
         prev_day_date = date - timedelta(days=1)
+        enable_today_button = date != _date.today()
     else:
         next_day_date = date + skip_right
         prev_day_date = date - skip_left
-
+        enable_today_button = not next_day_date > _date.today() > prev_day_date
 
     # Create buttons
     buttons = [
@@ -150,7 +151,7 @@ def create_message(context: ContextTypes.DEFAULT_TYPE, date: _date | str) -> dic
         InlineKeyboardButton(text=lang['button.menu'], callback_data='open.menu')
     ]
     # If the selected day is not today, then add "today" button
-    if date != _date.today():
+    if enable_today_button:
         buttons.append(InlineKeyboardButton(text=lang['button.navigation.today'], callback_data='open.schedule.today'))
 
     return {
