@@ -21,12 +21,12 @@ def create_message(context: ContextTypes.DEFAULT_TYPE) -> dict:
         return api_unavaliable.create_message(context)
 
     buttons = [[
-        InlineKeyboardButton(text=context._chat_data.lang['button.back'], callback_data='open.more'),
-        InlineKeyboardButton(text=context._chat_data.lang['button.menu'], callback_data='open.menu')
+        InlineKeyboardButton(text=context._chat_data.get_lang()['button.back'], callback_data='open.more'),
+        InlineKeyboardButton(text=context._chat_data.get_lang()['button.menu'], callback_data='open.menu')
     ]]
 
     return {
-        'text': context._chat_data.lang['page.calls'].format(schedule=schedule_section),
+        'text': context._chat_data.get_lang()['page.calls'].format(schedule=schedule_section),
         'reply_markup': InlineKeyboardMarkup(buttons),
         'parse_mode': 'MarkdownV2'
     }

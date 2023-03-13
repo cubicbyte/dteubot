@@ -18,7 +18,7 @@ def create_message(context: ContextTypes.DEFAULT_TYPE) -> dict:
         return faculty_list.create_message(context, structures[0]['id'])
 
     buttons = [[
-        InlineKeyboardButton(text=context._chat_data.lang['button.back'], callback_data=f'open.menu')
+        InlineKeyboardButton(text=context._chat_data.get_lang()['button.back'], callback_data=f'open.menu')
     ]]
 
     for structure in structures:
@@ -27,7 +27,7 @@ def create_message(context: ContextTypes.DEFAULT_TYPE) -> dict:
         ])
 
     return {
-        'text': context._chat_data.lang['page.structure'],
+        'text': context._chat_data.get_lang()['page.structure'],
         'reply_markup': InlineKeyboardMarkup(buttons),
         'parse_mode': 'MarkdownV2'
     }

@@ -9,6 +9,6 @@ from ..settings import LOGS_PATH
 async def handler(update: Update, context: CallbackContext):
     open(os.path.join(LOGS_PATH, 'debug.log'), 'w').close()
     await update.callback_query.answer(
-        text=context._chat_data.lang['alert.done'],
+        text=context._chat_data.get_lang()['alert.done'],
         show_alert=True
     )

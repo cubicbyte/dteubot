@@ -9,6 +9,6 @@ async def handler(update: Update, context: CallbackContext):
     if API_TYPE == API_TYPE_DEFAULT:
         api._session.remove_expired_responses(expire_after=1)
     await update.callback_query.answer(
-        text=context._chat_data.lang['alert.done'],
+        text=context._chat_data.get_lang()['alert.done'],
         show_alert=True
     )

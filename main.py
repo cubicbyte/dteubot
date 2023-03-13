@@ -43,7 +43,7 @@ async def msg_handler(upd, ctx):
 
 @register_button_handler()
 async def unsupported_btn_handler(upd, ctx):
-    await upd.callback_query.answer(ctx._chat_data.lang['alert.callback_query_unsupported'], show_alert=True)
+    await upd.callback_query.answer(ctx._chat_data.get_lang()['alert.callback_query_unsupported'], show_alert=True)
     await upd.callback_query.message.edit_text(**menu.create_message(ctx))
 
 bot.add_handlers([CallbackQueryHandler(btn_handler), MessageHandler(None, msg_handler)])

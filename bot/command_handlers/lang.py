@@ -10,5 +10,5 @@ async def handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     lang_code = context.args[0].lower()
-    context._chat_data.lang_code = lang_code
+    context._chat_data.get_lang()_code = lang_code
     await update.message.chat.send_message(**menu.create_message(context))

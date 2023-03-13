@@ -10,17 +10,17 @@ def create_message(context: ContextTypes.DEFAULT_TYPE) -> dict:
         else:
             group = context._chat_data.group_id
     else:
-        group = context._chat_data.lang['text.not_selected']
+        group = context._chat_data.get_lang()['text.not_selected']
 
     buttons = [[
-        InlineKeyboardButton(text=context._chat_data.lang['button.select_group'], callback_data='open.select_group'),
-        InlineKeyboardButton(text=context._chat_data.lang['button.select_lang'], callback_data='open.select_lang')
+        InlineKeyboardButton(text=context._chat_data.get_lang()['button.select_group'], callback_data='open.select_group'),
+        InlineKeyboardButton(text=context._chat_data.get_lang()['button.select_lang'], callback_data='open.select_lang')
     ], [
-        InlineKeyboardButton(text=context._chat_data.lang['button.back'], callback_data='open.menu')
+        InlineKeyboardButton(text=context._chat_data.get_lang()['button.back'], callback_data='open.menu')
     ]]
 
     return {
-        'text': context._chat_data.lang['page.settings'].format(group_id=group),
+        'text': context._chat_data.get_lang()['page.settings'].format(group_id=group),
         'reply_markup': InlineKeyboardMarkup(buttons),
         'parse_mode': 'MarkdownV2'
     }

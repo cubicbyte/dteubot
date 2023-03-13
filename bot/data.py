@@ -3,6 +3,7 @@
 
 
 import os
+import time
 import json
 from functools import cache
 from abc import ABC, abstractmethod
@@ -17,8 +18,8 @@ class DataManager(ABC):
         pass
 
     @classmethod
-    def _get_data(cls, file: str) -> dict[str, any]:
-        if file in cls.__data_cache:
+    def _get_data(cls, file: str, ignore_cache: bool = False) -> dict[str, any]:
+        if not ignore_cache and file in cls.__data_cache:
             return cls.__data_cache[file]
         if not os.path.exists(file):
             fp = open(file, 'w')
@@ -36,10 +37,12 @@ class DataManager(ABC):
         fp.close()
 
 class UserData(DataManager):
-    _DEFAULT_DATA = {
-        'admin': False,
-        'ref': None
-    }
+    @property
+    def _DEFAULT_DATA(self) -> dict[str, any]:
+        return {
+            'admin': False,
+            'ref': None
+        }
 
     def __init__(self, user_id: int | str) -> None:
         self._user_id = str(user_id)
@@ -48,27 +51,20 @@ class UserData(DataManager):
     def __get_file(self) -> str:
         return os.path.join(USER_DATA_PATH, '%s.json' % self._user_id)
 
-    @property
-    def admin(self) -> bool:
-        return self._get_data(self.__get_file())['admin']
-    @admin.setter
-    def admin(self, val):
-        self._get_data(self.__get_file())['admin'] = val
-        self._update_data(self.__get_file())
+    def __getattr__(self, __name: str) -> any:
+        return self._get_data(self.__get_file())[__name]
 
-    @property
-    def ref(self) -> str | None:
-        return self._get_data(self.__get_file())['ref']
-    @ref.setter
-    def ref(self, val):
-        self._get_data(self.__get_file())['ref'] = val
+    def __setattr__(self, __name: str, __value: any):
+        self._get_data(self.__get_file())[__name] = __value
         self._update_data(self.__get_file())
 
 class ChatData(DataManager):
-    _DEFAULT_DATA = {
-        'lang_code': os.getenv('DEFAULT_LANG'),
-        'group_id': None
-    }
+    @property
+    def _DEFAULT_DATA(self) -> dict[str, any]:
+        return {
+            'lang_code': os.getenv('DEFAULT_LANG'),
+            'group_id': None
+        }
 
     def __init__(self, chat_id: int | str) -> None:
         self._chat_id = str(chat_id)
@@ -77,24 +73,21 @@ class ChatData(DataManager):
     def __get_file(self) -> str:
         return os.path.join(CHAT_DATA_PATH, '%s.json' % self._chat_id)
 
+    def __getattr__(self, __name: str) -> any:
+        return self._get_data(self.__get_file())[__name]
+
+    def __setattr__(self, __name: str, __value: any):
+        self._get_data(self.__get_file())[__name] = __value
+        self._update_data(self.__get_file())
+
     @property
     def lang_code(self) -> str:
-        return self._get_data(self.__get_file())['lang_code']
-    @lang_code.setter
+        return self.__getattr__('lang_code')
+    @property
     def lang_code(self, val):
         if not val in langs:
             val = os.getenv('DEFAULT_LANG')
-        self._get_data(self.__get_file())['lang_code'] = val
-        self._update_data(self.__get_file())
+        self.__setattr__('lang_code', val)
 
-    @property
-    def group_id(self) -> int | None:
-        return self._get_data(self.__get_file())['group_id']
-    @group_id.setter
-    def group_id(self, val):
-        self._get_data(self.__get_file())['group_id'] = val
-        self._update_data(self.__get_file())
-
-    @property
-    def lang(self) -> dict[str, str]:
+    def get_lang(self) -> dict[str, str]:
         return langs[self.lang_code]

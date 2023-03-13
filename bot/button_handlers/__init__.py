@@ -14,7 +14,7 @@ def validate_admin(func):
             if not update.callback_query:
                 return
             await update.callback_query.answer(
-                text=context._chat_data.lang['alert.no_permissions'],
+                text=context._chat_data.get_lang()['alert.no_permissions'],
                 show_alert=True)
             return
         return await func(update, context)
