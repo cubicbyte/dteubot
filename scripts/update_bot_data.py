@@ -1,4 +1,5 @@
 import os
+import time
 import json
 import logging
 import argparse
@@ -18,13 +19,11 @@ parser.add_argument('path', type=str, help='Bot data directory path')
 
 def parse_cmd_args():
     "Get command line arguments"
-
     args = parser.parse_args()
     return vars(args) # Return as dict
 
 def insert_after(key: str, value: any, obj: dict, after_key: str):
     "Inserts a value after a specific key in dict"
-
     logger.debug('Insert %s: %s after key %s' % (key, value, after_key))
     keys = list(obj.keys())
     values = list(obj.values())
@@ -36,17 +35,14 @@ def insert_after(key: str, value: any, obj: dict, after_key: str):
     keys.insert(i, key)
     values.insert(i, value)
 
-    # Write result to new object
     res = {}
     for i in range(len(keys)):
         res[keys[i]] = values[i]
-
     return res
 
 def update_chat_configs(path: str):
     "Update chat configs (chat data) to the latest version. (outdated)"
     logger.info('Scanning for an outdated chat-configs folder')
-
     if not os.path.exists(path):
         logger.info('Flder not found.')
         return
@@ -54,7 +50,6 @@ def update_chat_configs(path: str):
     files = os.listdir(path)
     count = len(files)
     logger.info('Updating %s files' % count)
-
     for i, file in enumerate(files):
         logger.info(f'Progress: {i + 1}/{count}')
 
@@ -71,41 +66,33 @@ def update_chat_configs(path: str):
         if 'schedule' in conf:
             if conf['schedule']['structure_id'] is not None:
                 conf['schedule']['structure_id'] = int(conf['schedule']['structure_id'])
-
             if conf['schedule']['faculty_id'] is not None:
                 conf['schedule']['faculty_id'] = int(conf['schedule']['faculty_id'])
-
             if conf['schedule']['course'] is not None:
                 conf['schedule']['course'] = int(conf['schedule']['course'])
-
             if conf['schedule']['group_id'] is not None:
                 conf['schedule']['group_id'] = int(conf['schedule']['group_id'])
 
-        # 1.2.0
-        # Create "ref" field
+        # 1.2.0: create "ref" field
         if not 'ref' in conf:
             conf = insert_after('ref', None, conf, 'lang')
 
-        # 1.4.2
-        # Create "admin" field
+        # 1.4.2: create "admin" field
         if not 'admin' in conf:
             conf = insert_after('admin', False, conf, 'ref')
 
-        # 1.5.0
-        # Remove structure, faculty and course from config
+        # 1.5.0: remove structure, faculty and course from config
         if 'schedule' in conf:
             group_id = conf['schedule']['group_id']
             del conf['schedule']
             conf = insert_after('groupId', group_id, conf, 'admin')
 
-        logger.debug('Writing the updated config to a file')
         json.dump(conf, fp, ensure_ascii=False, indent=4)
-
     logger.info('Chat configs updated')
 
+# 2.3.0
 def migrate_chat_configs(path: str, user_data_path: str, chat_data_path: str):
     "Migrate the old chat-configs folder to the new format, with the user and chat data separated"
-    # 2.3.0
     logger.info('Migrating the old chat-configs folder to the new format')
 
     if not os.path.exists(path):
@@ -149,18 +136,65 @@ def migrate_chat_configs(path: str, user_data_path: str, chat_data_path: str):
     logger.info('Chat configs migrated')
 
 def update_user_data(path: str):
-    # Implement when needed
-    pass
+    logger.info('Updating user data')
+
+    files = os.listdir(path)
+    count = len(files)
+    logger.info('Updating %s files' % count)
+
+    for i, file in enumerate(files):
+        logger.info(f'Progress: {i + 1}/{count}')
+
+        # Read config
+        file_path = os.path.join(path, file)
+        fp = open(file_path, 'r+')
+        conf = json.load(fp)
+
+        # Required to overwrite a file
+        fp.seek(0)      # Move cursor to start of the file
+        fp.truncate(0)  # Clear file
+
+        # 2.3.0: create "updated" field
+        if not 'updated' in conf:
+            conf = insert_after('updated', int(time.time()), conf, 'ref')
+
+        json.dump(conf, fp, ensure_ascii=False, indent=4)
+    logger.info('User data updated')
 
 def update_chat_data(path: str):
-    # Implement when needed
-    pass
+    logger.info('Updating chat data')
+
+    files = os.listdir(path)
+    count = len(files)
+    logger.info('Updating %s files' % count)
+
+    for i, file in enumerate(files):
+        logger.info(f'Progress: {i + 1}/{count}')
+
+        # Read config
+        file_path = os.path.join(path, file)
+        fp = open(file_path, 'r+')
+        conf = json.load(fp)
+
+        # Required to overwrite a file
+        fp.seek(0)      # Move cursor to start of the file
+        fp.truncate(0)  # Clear file
+
+        # 2.3.0: create "cl_notif_15m", "cl_notif_start", "updated" fields
+        if not 'cl_notif_15m' in conf:
+            conf = insert_after('cl_notif_15m', False, conf, 'group_id')
+        if not 'cl_notif_start' in conf:
+            conf = insert_after('cl_notif_start', False, conf, 'cl_notif_15m')
+        if not 'updated' in conf:
+            conf = insert_after('updated', int(time.time()), conf, 'cl_notif_start')
+
+        json.dump(conf, fp, ensure_ascii=False, indent=4)
+    logger.info('Chat data updated')
 
 def update_logs(path: str):
     logger.info('Starting logs parser')
 
-    # 1.6.0
-    # Now logs are stored in the single file
+    # 1.6.0: now logs are stored in the single file
     if os.path.exists(os.path.join(path, 'debug')):
         logger.info('logs/debug folder detected, removing')
         os.rmdir(os.path.join(path, 'debug'))
