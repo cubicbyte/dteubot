@@ -42,7 +42,7 @@ class UserData(DataManager):
         return {
             'admin': False,
             'ref': None,
-            'updated': int(time.time())
+            '_updated': int(time.time())
         }
 
     def __init__(self, user_id: int | str) -> None:
@@ -67,7 +67,7 @@ class ChatData(DataManager):
             'group_id': None,
             'cl_notif_15m': False,
             'cl_notif_start': False,
-            'updated': int(time.time())
+            '_updated': int(time.time())
         }
 
     def __init__(self, chat_id: int | str) -> None:

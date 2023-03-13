@@ -155,8 +155,8 @@ def update_user_data(path: str):
         fp.truncate(0)  # Clear file
 
         # 2.3.0: create "updated" field
-        if not 'updated' in conf:
-            conf = insert_after('updated', int(time.time()), conf, 'ref')
+        if not '_updated' in conf:
+            conf = insert_after('_updated', int(time.time()), conf, 'ref')
 
         json.dump(conf, fp, ensure_ascii=False, indent=4)
     logger.info('User data updated')
@@ -185,8 +185,8 @@ def update_chat_data(path: str):
             conf = insert_after('cl_notif_15m', False, conf, 'group_id')
         if not 'cl_notif_start' in conf:
             conf = insert_after('cl_notif_start', False, conf, 'cl_notif_15m')
-        if not 'updated' in conf:
-            conf = insert_after('updated', int(time.time()), conf, 'cl_notif_start')
+        if not '_updated' in conf:
+            conf = insert_after('_updated', int(time.time()), conf, 'cl_notif_start')
 
         json.dump(conf, fp, ensure_ascii=False, indent=4)
     logger.info('Chat data updated')
