@@ -30,7 +30,7 @@ def count_no_lesson_days(schedule: list[dict[str, any]], date: _date, direction_
     return res
 
 def get_localized_date(context: ContextTypes.DEFAULT_TYPE, date: _date) -> str:
-    date_localized = escape_markdown(format_date(date, locale=context._chat_data.get_lang()_code), version=2)
+    date_localized = escape_markdown(format_date(date, locale=context._chat_data.lang_code), version=2)
     week_day_localized = context._chat_data.get_lang()['text.time.week_day.' + str(date.weekday())]
     full_date_localized = f"*{date_localized}* `[`*{week_day_localized}*`]`"
     return full_date_localized
@@ -104,7 +104,7 @@ def create_message(context: ContextTypes.DEFAULT_TYPE, date: _date | str) -> dic
 
     # Create the schedule page content
     lang = context._chat_data.get_lang()
-    lang_code = context._chat_data.get_lang()_code
+    lang_code = context._chat_data.lang_code
     if cur_day_schedule is not None:
         msg_text = lang['page.schedule'].format(
             date=get_localized_date(context, date),

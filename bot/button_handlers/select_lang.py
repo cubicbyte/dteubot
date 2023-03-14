@@ -13,9 +13,9 @@ async def handler(update: Update, context: CallbackContext):
     if not lang_code in langs:
         lang_code = os.getenv('DEFAULT_LANG')
 
-    if lang_code == context._chat_data.get_lang()_code:
+    if lang_code == context._chat_data.lang_code:
         await update.callback_query.message.edit_text(**more.create_message(context))
         return
 
-    context._chat_data.get_lang()_code = lang_code
+    context._chat_data.lang_code = lang_code
     await update.callback_query.message.edit_text(**lang_selection.create_message(context))

@@ -10,7 +10,7 @@ def create_message(context: ContextTypes.DEFAULT_TYPE) -> dict:
         return invalid_group.create_message(context)
 
     try:
-        rem_time = remaining_time.get_time_formatted(context._chat_data.get_lang()_code, context._chat_data.group_id)
+        rem_time = remaining_time.get_time_formatted(context._chat_data.lang_code, context._chat_data.group_id)
     except (
         requests.exceptions.ConnectionError,
         requests.exceptions.ReadTimeout,
