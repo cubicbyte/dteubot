@@ -39,10 +39,12 @@ class DataManager(ABC):
 class UserData(DataManager):
     @property
     def _DEFAULT_DATA(self) -> dict[str, any]:
+        cur_timestamp_s = int(time.time())
         return {
             'admin': False,
             'ref': None,
-            '_updated': int(time.time())
+            '_created': cur_timestamp_s,
+            '_updated': cur_timestamp_s
         }
 
     def __init__(self, user_id: int | str) -> None:
@@ -62,12 +64,14 @@ class UserData(DataManager):
 class ChatData(DataManager):
     @property
     def _DEFAULT_DATA(self) -> dict[str, any]:
+        cur_timestamp_s = int(time.time())
         return {
             'lang_code': os.getenv('DEFAULT_LANG'),
             'group_id': None,
             'cl_notif_15m': False,
             'cl_notif_start': False,
-            '_updated': int(time.time())
+            '_created': cur_timestamp_s,
+            '_updated': cur_timestamp_s
         }
 
     def __init__(self, chat_id: int | str) -> None:
