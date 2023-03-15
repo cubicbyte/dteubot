@@ -1,10 +1,5 @@
 import logging
 
-# Update bot data to the latest version
-from scripts.update_bot_data import main as update_bot_data
-update_bot_data('.')
-
-
 from telegram.ext import MessageHandler, CallbackQueryHandler
 from bot.settings import bot, tg_logger, LOG_CHAT_ID
 from bot.button_handlers import *
