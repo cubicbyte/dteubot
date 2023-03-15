@@ -46,12 +46,17 @@ def set_chat_accessibility(file: str, status: bool):
         json.dump(data, fp, indent=4, ensure_ascii=False)
 
 async def main(token: str, path: str):
-    _logger.info('Starting chat access scan')
+    _logger.info('Starting chat accessibility scan')
     bot = Bot(token)
-    for f in os.listdir(path):
+    files = os.listdir(path)
+    flen = len(files)
+
+    for i, f in enumerate(files):
         file = os.path.join(path, f)
         chat_id = f.split('.')[0]
-        _logger.info(f'Scanning chat {chat_id}[!n]')
+        indents = ' ' * (len(str(flen)) - len(str(i + 1)))
+
+        _logger.info(f'[{i + 1}/{flen}]{indents} {chat_id}[!n]')
         try:
             await bot.send_chat_action(chat_id, 'upload_document')
         except BadRequest as e:
@@ -70,6 +75,8 @@ async def main(token: str, path: str):
                 indents = ' ' + indents
             icon = '✅' if access else '❌'
             _logger.info(f'{indents} {icon}')
+
+    _logger.info('✅ Finished')
 
 
 if __name__ == '__main__':
