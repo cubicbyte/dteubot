@@ -100,7 +100,7 @@ class ChatData(DataManager):
             'lang_code': os.getenv('DEFAULT_LANG'), # Language code
             'group_id': None,                       # Group ID
             'cl_notif_15m': False,                  # Notification 15 minutes before class
-            'cl_notif_start': False,                # Notification when classes starts
+            'cl_notif_1m': False,                   # Notification when classes starts
             '_accessible': True,                    # No access to chat (user blocked bot or no access to chat)
             '_created': cur_timestamp_s,            # Chat creation timestamp
             '_updated': cur_timestamp_s             # Chat latest update timestamp
@@ -136,8 +136,8 @@ class ChatData(DataManager):
     def cl_notif_15m(self) -> bool:
         return self.__getattr('cl_notif_15m')
     @property
-    def cl_notif_start(self) -> bool:
-        return self.__getattr('cl_notif_start')
+    def cl_notif_1m(self) -> bool:
+        return self.__getattr('cl_notif_1m')
     @property
     def _accessible(self) -> bool:
         return self.__getattr('_accessible')
@@ -159,9 +159,9 @@ class ChatData(DataManager):
     @cl_notif_15m.setter
     def cl_notif_15m(self, value: bool):
         self.__setattr('cl_notif_15m', value)
-    @cl_notif_start.setter
-    def cl_notif_start(self, value: bool):
-        self.__setattr('cl_notif_start', value)
+    @cl_notif_1m.setter
+    def cl_notif_1m(self, value: bool):
+        self.__setattr('cl_notif_1m', value)
     @_accessible.setter
     def _accessible(self, value: bool):
         self.__setattr('_accessible', value)

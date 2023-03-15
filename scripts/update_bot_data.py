@@ -187,9 +187,9 @@ def update_chat_data(path: str):
         if not 'cl_notif_15m' in conf:
             conf = insert_after('cl_notif_15m', False, conf, 'group_id')
         if not 'cl_notif_start' in conf:
-            conf = insert_after('cl_notif_start', False, conf, 'cl_notif_15m')
+            conf = insert_after('cl_notif_1m', False, conf, 'cl_notif_15m')
         if not '_accessible' in conf:
-            conf = insert_after('_accessible', False, conf, 'cl_notif_start')
+            conf = insert_after('_accessible', False, conf, 'cl_notif_1m')
         if not '_created' in conf:
             conf = insert_after('_created', 0, conf, '_accessible')
         if not '_updated' in conf:
