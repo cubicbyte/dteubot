@@ -1,3 +1,5 @@
+# Merge multiple bot data directories into main one
+
 import os
 import time
 import json
@@ -142,7 +144,7 @@ def _merge_user_updates(main_path: str, other_path: List[str]):
                 data_cache[user_id] = []
             with open(os.path.join(path, user_id, 'updates.txt')) as fp:
                 _merge_chat(fp, data_cache[user_id])
-                
+
     logger.info('Flushing logs/telegram/users/.../updates.txt')
     for user_id, data in data_cache.items():
         with open(os.path.join(main_path, 'logs', 'telegram', 'users', user_id, 'updates.txt'), 'w') as fp:

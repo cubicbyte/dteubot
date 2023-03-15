@@ -19,6 +19,8 @@ logger.info('Starting application')
 async def apply_data(upd, ctx):
     ctx._user_data = UserData(upd.effective_user.id)
     ctx._chat_data = ChatData(upd.effective_chat.id)
+    if not ctx._chat_data._accessible:
+        ctx._chat_data._accessible = True
 
 async def btn_handler(upd, ctx):
     logger.info('[chat/{0} user/{1} msg/{2}] callback query: {3}'.format(
