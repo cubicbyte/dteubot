@@ -18,16 +18,14 @@ parser.add_argument('path', type=str, help='Bot data directory path')
 
 
 
-def parse_cmd_args():
-    "Get command line arguments"
-    args = parser.parse_args()
-    return vars(args) # Return as dict
-
-def insert_after(key: str, value: any, obj: dict, after_key: str):
+def insert_after(key: str, value: any, after_key: str, obj: dict, ignore_existing: bool = True):
     "Inserts a value after a specific key in dict"
     logger.debug('Insert %s: %s after key %s' % (key, value, after_key))
     keys = list(obj.keys())
     values = list(obj.values())
+
+    if ignore_existing and key in keys:
+        return obj
 
     # Find the index of the key to be inserted
     i = keys.index(after_key) + 1
@@ -74,21 +72,16 @@ def update_chat_configs(path: str):
             if conf['schedule']['group_id'] is not None:
                 conf['schedule']['group_id'] = int(conf['schedule']['group_id'])
 
-        # 1.2.0: create "ref" field
-        if not 'ref' in conf:
-            conf = insert_after('ref', None, conf, 'lang')
-
-        # 1.4.2: create "admin" field
-        if not 'admin' in conf:
-            conf = insert_after('admin', False, conf, 'ref')
+        conf = insert_after('ref', None, 'lang', conf)   # 1.2.0: create "ref" field
+        conf = insert_after('admin', False, 'ref', conf) # 1.4.2: create "admin" field
 
         # 1.5.0: remove structure, faculty and course from config
         if 'schedule' in conf:
             group_id = conf['schedule']['group_id']
             del conf['schedule']
-            conf = insert_after('groupId', group_id, conf, 'admin')
+            conf = insert_after('groupId', group_id, 'admin', conf)
 
-        json.dump(conf, fp, ensure_ascii=False, indent=4)
+        json.dump(conf, fp, indent=4, ensure_ascii=False)
     logger.info('Chat configs updated')
 
 # 2.3.0
@@ -156,10 +149,8 @@ def update_user_data(path: str):
         fp.truncate(0)  # Clear file
 
         # 2.3.0: create "_created" and "_updated" fields
-        if not '_created' in conf:
-            conf = insert_after('_created', 0, conf, 'ref')
-        if not '_updated' in conf:
-            conf = insert_after('_updated', 0, conf, '_created')
+        conf = insert_after('_created', 0, 'ref', conf)
+        conf = insert_after('_updated', 0, '_created', conf)
 
         json.dump(conf, fp, ensure_ascii=False, indent=4)
     logger.info('User data updated')
@@ -184,18 +175,14 @@ def update_chat_data(path: str):
         fp.truncate(0)  # Clear file
 
         # 2.3.0
-        if not 'cl_notif_15m' in conf:
-            conf = insert_after('cl_notif_15m', False, conf, 'group_id')
-        if not 'cl_notif_start' in conf:
-            conf = insert_after('cl_notif_1m', False, conf, 'cl_notif_15m')
-        if not '_accessible' in conf:
-            conf = insert_after('_accessible', False, conf, 'cl_notif_1m')
-        if not '_created' in conf:
-            conf = insert_after('_created', 0, conf, '_accessible')
-        if not '_updated' in conf:
-            conf = insert_after('_updated', 0, conf, '_created')
+        conf = insert_after('cl_notif_15m', False, 'group_id', conf)
+        conf = insert_after('cl_notif_1m', False, 'cl_notif_15m', conf)
+        conf = insert_after('cl_notif_suggested', False, 'cl_notif_1m', conf)
+        conf = insert_after('_accessible', True, 'cl_notif_suggested', conf)
+        conf = insert_after('_created', 0, '_accessible', conf)
+        conf = insert_after('_updated', 0, '_created', conf)
 
-        json.dump(conf, fp, ensure_ascii=False, indent=4)
+        json.dump(conf, fp, indent=4, ensure_ascii=False)
     logger.info('Chat data updated')
 
 def update_logs(path: str):
@@ -239,5 +226,5 @@ def main(path: str):
     logger.info('Bot data updated')
 
 if __name__ == '__main__':
-    args = parse_cmd_args()
-    main(args['path'])
+    args = parser.parse_args()
+    main(args.path)
