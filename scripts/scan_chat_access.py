@@ -5,28 +5,15 @@
 
 import os
 import json
-import asyncio
 import logging
 import argparse
-from telegram import Bot
-from telegram.error import BadRequest, Forbidden
-
-class MStreamHandler(logging.StreamHandler):
-    # https://stackoverflow.com/a/65235302/19633174
-    """Handler that controls the writing of the newline character"""
-    special_code = '[!n]'
-
-    def emit(self, record) -> None:
-        if self.special_code in record.msg:
-            record.msg = record.msg.replace(self.special_code, '')
-            self.terminator = ''
-        else:
-            self.terminator = '\n'
-
-        return super().emit(record)
+import requests
+from pathlib import Path
+from functools import partial
+from multiprocessing import Pool
 
 _logger = logging.getLogger(__name__)
-_logger.addHandler(MStreamHandler())
+_logger.addHandler(logging.StreamHandler())
 _logger.setLevel(logging.INFO)
 
 # Setting cli arguments
@@ -34,6 +21,8 @@ _parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter,
 Checks each chat to see if the bot has access to it.''')
 _parser.add_argument('-t', '--token', type=str, help='Bot token')
 _parser.add_argument('-p', '--path', type=str, help='Bot chat data directory path')
+
+
 
 def set_chat_accessibility(file: str, status: bool):
     with open(file, 'r+') as fp:
@@ -45,40 +34,42 @@ def set_chat_accessibility(file: str, status: bool):
         fp.truncate(0)
         json.dump(data, fp, indent=4, ensure_ascii=False)
 
-async def main(token: str, path: str):
+def scan(file: str, token: str) -> tuple[str, bool]:
+    chat_id = Path(file).stem
+    _logger.debug(f'Scanning chat {chat_id}')
+    url = f'https://api.telegram.org/bot{token}/sendChatAction?chat_id={chat_id}&action=upload_document'
+    res = requests.get(url)
+
+    if res.status_code == 200:
+        set_chat_accessibility(file, True)
+        return file, True
+
+    if res.status_code == 403 or res.status_code == 400:
+        set_chat_accessibility(file, False)
+        return file, False
+
+def main(token: str, path: str):
     _logger.info('Starting chat accessibility scan')
-    bot = Bot(token)
-    files = os.listdir(path)
+    files = [os.path.join(path, f) for f in os.listdir(path)]
     flen = len(files)
 
-    for i, f in enumerate(files):
-        file = os.path.join(path, f)
-        chat_id = f.split('.')[0]
-        indents = ' ' * (len(str(flen)) - len(str(i + 1)))
+    i = 0
+    with Pool(processes=flen) as pool:
+        results = pool.imap_unordered(partial(scan, token=token), files)
 
-        _logger.info(f'[{i + 1}/{flen}]{indents} {chat_id}[!n]')
-        try:
-            await bot.send_chat_action(chat_id, 'upload_document')
-        except BadRequest as e:
-            if not (e.message.startswith('Chat not found') or
-                    e.message.startswith('Peer_id_invalid')):
-                raise e
-            access = False
-        except Forbidden:
-            access = False
-        else:
-            access = True
-        finally:
-            set_chat_accessibility(file, access)
-            indents = ' •' * ((16 - len(chat_id)) // 2)
+        for file, access in results:
+            i += 1
+            chat_id = Path(file).stem
+            indents_1 = ' ' * (len(str(flen)) - len(str(i)))
+            indents_2 = ' •' * ((16 - len(chat_id)) // 2)
             if len(chat_id) % 2 != 0:
-                indents = ' ' + indents
+                indents_2 = ' ' + indents_2
             icon = '✅' if access else '❌'
-            _logger.info(f'{indents} {icon}')
+            _logger.info(f'[{i}/{flen}]{indents_1} {chat_id}{indents_2} {icon}')
 
     _logger.info('✅ Finished')
 
 
 if __name__ == '__main__':
     args = _parser.parse_args()
-    asyncio.run(main(args.token, args.path))
+    main(args.token, args.path)
