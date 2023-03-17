@@ -3,6 +3,9 @@
 
 
 
+    "text.yes": "Yes",
+    "text.no": "No",
+    "text.no_thanks": "No, thanks",
     "text.not_selected": "\u274c Not selected",
     "text.unknown": "Unknown",
     "text.schedule.period": "`———— ``{timeStart}`` ——— ``{timeEnd}`` ————`\n`  `*{disciplineShortName}*`[{typeStr}]`\n`{lessonNumber} `{classroom}\n`  `{teachersNameFull}\n",
@@ -76,6 +79,7 @@
     "alert.done": "\u2705 Done",
     "alert.no_permissions": "\u2757\ufe0f You do not have permission to run this command.",
     "alert.callback_query_unsupported": "\u2757\ufe0f Failed: The button is outdated.\n\nPlease try again.",
+    "alert.cl_notif_enabled_tooltip": "Now you will receive a notification 1 min. before the start of classes.\n\nYou can change the time or turn off notifications in the settings.",
 
 
 
@@ -98,5 +102,6 @@
     "page.left.no_more": "\ud83d\udccb *Classes are over for today*",
     "page.schedule": "\ud83d\udcc5   {date}   \ud83d\udcc5\n\n{schedule}",
     "page.schedule.empty": "\ud83d\udcc5   {date}   \ud83d\udcc5\n\n`—————————————————————————`\n\n`       No lessons`\n\n`—————————————————————————`",
-    "page.schedule.empty.multiple_days": "`From`  \ud83d\udcc5 {dateStart}\n`To  `  \ud83d\udcc5 {dateEnd}\n\n`—————————————————————————`\n\n`       No lessons`\n\n`—————————————————————————`"
+    "page.schedule.empty.multiple_days": "`From`  \ud83d\udcc5 {dateStart}\n`To  `  \ud83d\udcc5 {dateEnd}\n\n`—————————————————————————`\n\n`       No lessons`\n\n`—————————————————————————`",
+    "page.notification_feature_suggestion": "Now bot can remind you that classes are about to start\\!\n\nWould you like to turn on classes start notifications?"
 }

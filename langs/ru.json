@@ -3,6 +3,9 @@
 
 
 
+    "text.yes": "Да",
+    "text.no": "Нет",
+    "text.no_thanks": "Нет, спасибо",
     "text.not_selected": "\u274c Не выбрано",
     "text.unknown": "Неизвестно",
     "text.schedule.period": "`———— ``{timeStart}`` ——— ``{timeEnd}`` ————`\n`  `*{disciplineShortName}*`[{typeStr}]`\n`{lessonNumber} `{classroom}\n`  `{teachersNameFull}\n",
@@ -76,6 +79,7 @@
     "alert.done": "\u2705 Готово",
     "alert.no_permissions": "\u2757\ufe0f У вас недостаточно прав для выполнения этой команды.",
     "alert.callback_query_unsupported": "\u2757\ufe0f Не удалось выполнить: кнопка устарела.\n\nПопробуйте ещё раз.",
+    "alert.cl_notif_enabled_tooltip": "Теперь вы будете получать оповещения за 1 мин. до начала пар.\n\nИзменить время или отключить оповещения можно в настройках.",
 
 
 
@@ -98,5 +102,6 @@
     "page.left.no_more": "\ud83d\udccb *Пары на сегодня закончились*",
     "page.schedule": "\ud83d\udcc5   {date}   \ud83d\udcc5\n\n{schedule}",
     "page.schedule.empty": "\ud83d\udcc5   {date}   \ud83d\udcc5\n\n`—————————————————————————`\n\n`    Пары отсутствуют`\n\n`—————————————————————————`",
-    "page.schedule.empty.multiple_days": "`От`  \ud83d\udcc5 {dateStart}\n`До`  \ud83d\udcc5 {dateEnd}\n\n`—————————————————————————`\n\n`    Пары отсутствуют`\n\n`—————————————————————————`"
+    "page.schedule.empty.multiple_days": "`От`  \ud83d\udcc5 {dateStart}\n`До`  \ud83d\udcc5 {dateEnd}\n\n`—————————————————————————`\n\n`    Пары отсутствуют`\n\n`—————————————————————————`",
+    "page.notification_feature_suggestion": "Теперь бот умеет напоминать о том, что скоро начнутся пары\\!\n\nЖелаете включить оповещение о начале пар?"
 }

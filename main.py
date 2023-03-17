@@ -1,16 +1,21 @@
 import logging
 
+from asyncio import sleep
 from telegram.ext import MessageHandler, CallbackQueryHandler
 from bot.settings import bot, tg_logger, LOG_CHAT_ID
 from bot.button_handlers import *
 from bot.button_handlers import handlers as button_handlers, register_button_handler
 from bot.command_handlers import *
 from bot.command_handlers import handlers as command_handlers
-from bot.pages import menu
+from bot.pages import menu, notification_feature_suggestion
 from bot.data import UserData, ChatData
 from bot import error_handler
 
-
+#
+# TODO Replace update.callback_query.message.edit_text with update.callback_query.edit_message_text
+# TODO Remove r'' from callback query handlers
+# TODO Add ability to change classes notification settings
+#
 
 error_handler.log_chat_id = LOG_CHAT_ID
 logger = logging.getLogger()
@@ -43,8 +48,15 @@ async def unsupported_btn_handler(upd, ctx):
     await upd.callback_query.answer(ctx._chat_data.get_lang()['alert.callback_query_unsupported'], show_alert=True)
     await upd.callback_query.message.edit_text(**menu.create_message(ctx))
 
+async def suggest_notif_feature(upd, ctx):
+    if not ctx._chat_data.cl_notif_suggested and ctx._chat_data._created == 0:
+        await sleep(1)
+        await upd.effective_message.reply_text(**notification_feature_suggestion.create_message(ctx))
+        ctx._chat_data.cl_notif_suggested = True
+
 bot.add_handlers([CallbackQueryHandler(btn_handler), MessageHandler(None, msg_handler)])
 bot.add_handlers(button_handlers + command_handlers, 10)
+bot.add_handlers([CallbackQueryHandler(suggest_notif_feature), MessageHandler(None, suggest_notif_feature)], 15)
 bot.add_handlers([CallbackQueryHandler(tg_logger.callback_query_handler), MessageHandler(None, tg_logger.message_handler)], 20)
 bot.add_error_handler(error_handler.handler)
 

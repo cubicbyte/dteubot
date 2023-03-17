@@ -139,6 +139,9 @@ class ChatData(DataManager):
     def cl_notif_1m(self) -> bool:
         return self.__getattr('cl_notif_1m')
     @property
+    def cl_notif_suggested(self) -> bool:
+        return self.__getattr('cl_notif_suggested')
+    @property
     def _accessible(self) -> bool:
         return self.__getattr('_accessible')
     @property
@@ -162,6 +165,9 @@ class ChatData(DataManager):
     @cl_notif_1m.setter
     def cl_notif_1m(self, value: bool):
         self.__setattr('cl_notif_1m', value)
+    @cl_notif_suggested.setter
+    def cl_notif_suggested(self, value: bool):
+        self.__setattr('cl_notif_suggested', value)
     @_accessible.setter
     def _accessible(self, value: bool):
         self.__setattr('_accessible', value)

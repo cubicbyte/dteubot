@@ -3,6 +3,9 @@
 
 
 
+    "text.yes": "Так",
+    "text.no": "Ні",
+    "text.no_thanks": "Ні, дякую",
     "text.not_selected": "\u274c Не вибрано",
     "text.unknown": "Невідомо",
     "text.schedule.period": "`———— ``{timeStart}`` ——— ``{timeEnd}`` ————`\n`  `*{disciplineShortName}*`[{typeStr}]`\n`{lessonNumber} `{classroom}\n`  `{teachersNameFull}\n",
@@ -76,6 +79,7 @@
     "alert.done": "\u2705 Готово",
     "alert.no_permissions": "\u2757\ufe0f У вас недостатньо прав для виконання цієї команди.",
     "alert.callback_query_unsupported": "\u2757\ufe0f Не вдалося виконати: кнопка застаріла.\n\nСпробуйте ще раз.",
+    "alert.cl_notif_enabled_tooltip": "Тепер ви будете отримувати сповіщення за 1 хв. до початку пар.\n\nЗмінити час або вимкнути сповіщення можна в налаштуваннях.",
 
 
 
@@ -98,5 +102,6 @@
     "page.left.no_more": "\ud83d\udccb *Пари на сьогодні закінчилися*",
     "page.schedule": "\ud83d\udcc5   {date}   \ud83d\udcc5\n\n{schedule}",
     "page.schedule.empty": "\ud83d\udcc5   {date}   \ud83d\udcc5\n\n`—————————————————————————`\n\n`      Пари відсутні`\n\n`—————————————————————————`",
-    "page.schedule.empty.multiple_days": "`Від`  \ud83d\udcc5 {dateStart}\n`До `  \ud83d\udcc5 {dateEnd}\n\n`—————————————————————————`\n\n`      Пари відсутні`\n\n`—————————————————————————`"
+    "page.schedule.empty.multiple_days": "`Від`  \ud83d\udcc5 {dateStart}\n`До `  \ud83d\udcc5 {dateEnd}\n\n`—————————————————————————`\n\n`      Пари відсутні`\n\n`—————————————————————————`",
+    "page.notification_feature_suggestion": "Тепер бот уміє нагадувати про те, що скоро почнуться пари\\!\n\nБажаєте увімкнути сповіщення про початок пар?"
 }
