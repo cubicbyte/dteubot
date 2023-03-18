@@ -4,7 +4,7 @@ from . import register_button_handler
 from ..pages import group_list
 from ..utils import parse_callback_query
 
-@register_button_handler(r'^select.schedule.course')
+@register_button_handler('^select.schedule.course')
 async def handler(update: Update, context: CallbackContext):
     args = parse_callback_query(update.callback_query.data)['args']
     structure_id = int(args['structureId'])

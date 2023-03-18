@@ -4,7 +4,7 @@ from . import register_button_handler
 from ..pages import menu
 from ..utils import parse_callback_query
 
-@register_button_handler(r'^select.schedule.group')
+@register_button_handler('^select.schedule.group')
 async def handler(update: Update, context: CallbackContext):
     args = parse_callback_query(update.callback_query.data)['args']
     group_id = int(args['groupId'])

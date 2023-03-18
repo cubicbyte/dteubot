@@ -4,7 +4,7 @@ from . import register_button_handler
 from ..pages import settings
 from ..utils import parse_callback_query
 
-@register_button_handler(r'^set.cl_notif_1m')
+@register_button_handler('^set.cl_notif_1m')
 async def handler(update: Update, context: CallbackContext):
     args = parse_callback_query(update.callback_query.data)['args']
     state = args['state'] == '1'

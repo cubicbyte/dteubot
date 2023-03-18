@@ -6,7 +6,7 @@ from ..pages import lang_selection, more
 from ..settings import langs
 from ..utils import parse_callback_query
 
-@register_button_handler(r'^select.lang')
+@register_button_handler('^select.lang')
 async def handler(update: Update, context: CallbackContext):
     lang_code = parse_callback_query(update.callback_query.data)['args']['lang']
 
