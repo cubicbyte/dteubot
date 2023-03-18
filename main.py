@@ -12,7 +12,6 @@ from bot.data import UserData, ChatData
 from bot import error_handler
 
 #
-# TODO Replace update.callback_query.message.edit_text with update.callback_query.edit_message_text
 # TODO Add ability to change classes notification settings
 #
 

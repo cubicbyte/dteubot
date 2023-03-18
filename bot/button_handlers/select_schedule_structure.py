@@ -8,4 +8,4 @@ from ..utils import parse_callback_query
 async def handler(update: Update, context: CallbackContext):
     args = parse_callback_query(update.callback_query.data)['args']
     structure_id = int(args['structureId'])
-    await update.callback_query.message.edit_text(**faculty_list.create_message(context, structure_id))
+    await update.callback_query.edit_message_text(**faculty_list.create_message(context, structure_id))

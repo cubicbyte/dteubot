@@ -9,4 +9,4 @@ async def handler(update: Update, context: CallbackContext):
     args = parse_callback_query(update.callback_query.data)['args']
     group_id = int(args['groupId'])
     context._chat_data.group_id = group_id
-    await update.callback_query.message.edit_text(**menu.create_message(context))
+    await update.callback_query.edit_message_text(**menu.create_message(context))
