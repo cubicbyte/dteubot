@@ -20,7 +20,7 @@ def create_message(context: ContextTypes.DEFAULT_TYPE, structure_id: int, facult
 
     for course in courses:
         buttons.append([
-            InlineKeyboardButton(text=str(course['course']), callback_data=f'select.schedule.course#structureId={structure_id}&facultyId={faculty_id}&course={course["course"]}')
+            InlineKeyboardButton(text=str(course.course), callback_data=f'select.schedule.course#structureId={structure_id}&facultyId={faculty_id}&course={course.course}')
         ])
 
     return {

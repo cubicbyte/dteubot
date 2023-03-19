@@ -22,7 +22,7 @@ def create_message(context: ContextTypes.DEFAULT_TYPE, structure_id: int, facult
     group_btns = []
     for group in groups:
         group_btns.append(
-            InlineKeyboardButton(text=group['name'], callback_data=f'select.schedule.group#groupId={group["id"]}')
+            InlineKeyboardButton(text=group.name, callback_data=f'select.schedule.group#groupId={group.id}')
         )
 
     buttons.extend(array_split(group_btns, 3))

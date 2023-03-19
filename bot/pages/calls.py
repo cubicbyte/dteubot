@@ -7,7 +7,7 @@ from ..settings import api
 def get_schedule_section_text() -> str:
     text = ''
     for call in api.timetable_call_schedule():
-        text += '`{number})` *{timeStart}* `-` *{timeEnd}*\n'.format(**call)
+        text += '`{number})` *{timeStart}* `-` *{timeEnd}*\n'.format(**call.__dict__)
     return text
 
 def create_message(context: ContextTypes.DEFAULT_TYPE) -> dict:

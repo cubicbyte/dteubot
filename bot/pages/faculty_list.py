@@ -28,7 +28,7 @@ def create_message(context: ContextTypes.DEFAULT_TYPE, structure_id: int) -> dic
 
     for faculty in faculties:
         buttons.append([
-            InlineKeyboardButton(text=faculty['fullName'], callback_data=f'select.schedule.faculty#structureId={structure_id}&facultyId={faculty["id"]}')
+            InlineKeyboardButton(text=faculty.fullName, callback_data=f'select.schedule.faculty#structureId={structure_id}&facultyId={faculty.id}')
         ])
 
     return {

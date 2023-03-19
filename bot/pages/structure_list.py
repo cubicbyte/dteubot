@@ -15,7 +15,7 @@ def create_message(context: ContextTypes.DEFAULT_TYPE) -> dict:
         return api_unavaliable.create_message(context)
 
     if len(structures) == 1:
-        return faculty_list.create_message(context, structures[0]['id'])
+        return faculty_list.create_message(context, structures[0].id)
 
     buttons = [[
         InlineKeyboardButton(text=context._chat_data.get_lang()['button.back'], callback_data=f'open.menu')
@@ -23,7 +23,7 @@ def create_message(context: ContextTypes.DEFAULT_TYPE) -> dict:
 
     for structure in structures:
         buttons.append([
-            InlineKeyboardButton(text=structure['fullName'], callback_data=f'select.schedule.structure#structureId={structure["id"]}')
+            InlineKeyboardButton(text=structure.fullName, callback_data=f'select.schedule.structure#structureId={structure.id}')
         ])
 
     return {

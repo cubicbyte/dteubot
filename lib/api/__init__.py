@@ -5,8 +5,9 @@ import os.path
 import logging
 import pytz
 
-from urllib.parse import urljoin
+from typing import List
 from datetime import timedelta, datetime, date as _date
+from urllib.parse import urljoin
 from requests_cache import CachedSession, DEFAULT_CACHE_NAME
 from .schemas import *
 
@@ -47,7 +48,7 @@ class Api:
 
 
     # /time-table
-    def timetable_group(self, groupId: int, dateStart: _date | str, dateEnd: _date | str = None) -> list[TimeTableDate]:
+    def timetable_group(self, groupId: int, dateStart: _date | str, dateEnd: _date | str = None) -> List[TimeTableDate]:
         """Returns the schedule for the group"""
         if type(dateStart) == _date:
             dateStart = dateStart.strftime('%Y-%m-%d')
@@ -55,13 +56,14 @@ class Api:
             dateEnd = dateStart
         elif type(dateEnd) == _date:
             dateEnd = dateEnd.strftime('%Y-%m-%d')
-        return self._make_request('/time-table/group', 'POST', json={
+        return TimeTableDate.from_json(self._make_request('/time-table/group', 'POST', json={
             'groupId': groupId,
             'dateStart': dateStart,
             'dateEnd': dateEnd
-        })
+        }))
 
-    def timetable_student(self, studentId: int, dateStart: _date | str, dateEnd: _date | str = None) -> list[TimeTableDate]:
+
+    def timetable_student(self, studentId: int, dateStart: _date | str, dateEnd: _date | str = None) -> List[TimeTableDate]:
         """Returns the schedule for the student"""
         if type(dateStart) == _date:
             dateStart = dateStart.strftime('%Y-%m-%d')
@@ -69,13 +71,13 @@ class Api:
             dateEnd = dateStart
         elif type(dateEnd) == _date:
             dateEnd = dateEnd.strftime('%Y-%m-%d')
-        return self._make_request('/time-table/student', 'POST', json={
+        return TimeTableDate.from_json(self._make_request('/time-table/student', 'POST', json={
             'studentId': studentId,
             'dateStart': dateStart,
             'dateEnd': dateEnd
-        })
+        }))
 
-    def timetable_teacher(self, teacherId: int, dateStart: _date | str, dateEnd: _date | str = None) -> list[TimeTableDate]:
+    def timetable_teacher(self, teacherId: int, dateStart: _date | str, dateEnd: _date | str = None) -> List[TimeTableDate]:
         """Returns the schedule for the teacher"""
         if type(dateStart) == _date:
             dateStart = dateStart.strftime('%Y-%m-%d')
@@ -83,13 +85,13 @@ class Api:
             dateEnd = dateStart
         elif type(dateEnd) == _date:
             dateEnd = dateEnd.strftime('%Y-%m-%d')
-        return self._make_request('/time-table/teacher', 'POST', json={
+        return TimeTableDate.from_json(self._make_request('/time-table/teacher', 'POST', json={
             'teacherId': teacherId,
             'dateStart': dateStart,
             'dateEnd': dateEnd
-        })
+        }))
 
-    def timetable_classroom(self, classroomId: int, dateStart: _date | str, dateEnd: _date | str = None) -> list[TimeTableDate]:
+    def timetable_classroom(self, classroomId: int, dateStart: _date | str, dateEnd: _date | str = None) -> List[TimeTableDate]:
         """Returns audience schedule (when and what groups are in it)"""
         if type(dateStart) == _date:
             dateStart = dateStart.strftime('%Y-%m-%d')
@@ -97,99 +99,91 @@ class Api:
             dateEnd = dateStart
         elif type(dateEnd) == _date:
             dateEnd = dateEnd.strftime('%Y-%m-%d')
-        return self._make_request('/time-table/classroom', 'POST', json={
+        return TimeTableDate.from_json(self._make_request('/time-table/classroom', 'POST', json={
             'classroomId': classroomId,
             'dateStart': dateStart.strftime('%Y-%m-%d'),
             'dateEnd': dateEnd.strftime('%Y-%m-%d')
-        })
+        }))
 
-    def timetable_universal(self, date: _date | str) -> list[UniversalLesson]:
-        """Returns whole university schedule"""
-        if type(date) == _date:
-            date = date.strftime('%Y-%m-%d')
-        return self._make_request('/time-table/universal', 'POST', json={
-            'date': date
-        })
-
-    def timetable_call_schedule(self) -> list[CallSchedule]:
+    def timetable_call_schedule(self) -> List[CallSchedule]:
         """Returns the call schedule"""
-        return self._make_request('/time-table/call-schedule', 'POST')
+        return CallSchedule.from_json(self._make_request('/time-table/call-schedule', 'POST'))
 
     def timetable_ad(self, classCode: int, date: _date | str) -> Rd:
         """Returns an announcement for the current lesson\n
         Usually contains a lesson link in Teams/Zoom"""
         if type(date) == _date:
             date = date.strftime('%Y-%m-%d')
-        return self._make_request('/time-table/schedule-ad', 'POST', json={
+        return Rd.from_json(self._make_request('/time-table/schedule-ad', 'POST', json={
             'r1': classCode,
             'r2': date
-        })
+        }))
 
-    def timetable_free_classrooms(self, structureId: int, corpusId: int, lessonNumberStart: int, lessonNumberEnd: int, date: datetime | str) -> list[Classroom]:
+    def timetable_free_classrooms(self, structureId: int, corpusId: int, lessonNumberStart: int, lessonNumberEnd: int, date: datetime | str) -> List[Classroom]:
         """Returns list of free classrooms
         Date format: `2023-02-23T10:26:00.000Z` or `datetime.datetime`"""
         if type(date) == datetime:
             date = date.astimezone(pytz.UTC).isoformat(sep='T', timespec='milliseconds') + 'Z'
-        return self._make_request('/time-table/free-classroom', 'POST', json={
+        return Classroom.from_json(self._make_request('/time-table/free-classroom', 'POST', json={
             'structureId': structureId,
             'corpusId': corpusId,
             'lessonNumberStart': lessonNumberStart,
             'lessonNumberEnd': lessonNumberEnd,
             'date': date
-        })
+        }))
 
 
     # /list
-    def list_structures(self) -> list[Structure]:
+    def list_structures(self) -> List[Structure]:
         """Returns list of structures"""
-        return self._make_request('/list/structures')
+        return Structure.from_json(self._make_request('/list/structures'))
 
-    def list_faculties(self, structureId: int) -> list[Faculty]:
+    def list_faculties(self, structureId: int) -> List[Faculty]:
         """Returns list of faculties"""
-        return self._make_request('/list/faculties', 'POST', json={
+        return Faculty.from_json(self._make_request('/list/faculties', 'POST', json={
             'structureId': structureId
-        })
+        }))
 
-    def list_courses(self, facultyId: int) -> list[Course]:
+    def list_courses(self, facultyId: int) -> List[Course]:
         """Returns list of courses"""
-        return self._make_request('/list/courses', 'POST', json={
+        return Course.from_json(self._make_request('/list/courses', 'POST', json={
             'facultyId': facultyId
-        })
+        }))
 
-    def list_groups(self, facultyId: int, course: int) -> list[Group]:
+    def list_groups(self, facultyId: int, course: int) -> List[Group]:
         """Return list of groups"""
-        return self._make_request('/list/groups', 'POST', json={
+        return Group.from_json(self._make_request('/list/groups', 'POST', json={
             'facultyId': facultyId,
             'course': course
-        })
+        }))
 
-    def list_chairs(self, structureId: int, facultyId: int) -> list[Chair]:
+    def list_chairs(self, structureId: int, facultyId: int) -> List[Chair]:
         """Returns list of chairs"""
-        return self._make_request('/list/chairs', 'POST', json={
+        return Chair.from_json(self._make_request('/list/chairs', 'POST', json={
             'structureId': structureId,
             'facultyId': facultyId
-        })
+        }))
 
-    def list_teachers_by_chair(self, chairId: int) -> list[Person]:
+    def list_teachers_by_chair(self, chairId: int) -> List[Person]:
         """Returns a list of teachers from the given chair"""
-        return self._make_request('/list/teachers-by-chair', 'POST', json={
+        return Person.from_json(self._make_request('/list/teachers-by-chair', 'POST', json={
             'chairId': chairId
-        })
+        }))
 
-    def list_students_by_group(self, groupId: int) -> list[Student]:
+    def list_students_by_group(self, groupId: int) -> List[Student]:
         """Returns a list of students from the given group"""
-        return self._make_request('/list/students-by-group', 'POST', json={
+        return Student.from_json(self._make_request('/list/students-by-group', 'POST', json={
             'groupId': groupId
-        })
+        }))
 
 
     # /other
-    def search_teacher(self, name: str) -> list[TeacherByName]:
+    def search_teacher(self, name: str) -> List[TeacherByName]:
         """Looking for a teacher by a fragment of his last name only\n
         Not case sensitive, returns an array of the first 50 teachers found"""
-        return self._make_request('/other/search-teachers', 'POST', json={
+        return TeacherByName.from_json(self._make_request('/other/search-teachers', 'POST', json={
             'name': name
-        })
+        }))
 
 
     # General
@@ -199,10 +193,12 @@ class Api:
 
     def version(self) -> Version:
         """Returns the version of the API"""
-        return self._make_request('/version')
+        return Version.from_json(self._make_request('/version'))
 
 
     # Not implemented
+    def timetable_universal(self, date: _date | str) -> List[dict]:
+        raise NotImplementedError
     def user_info2(self, id: int) -> dict:
         raise NotImplementedError
     def user_info(self) -> dict:
@@ -219,73 +215,73 @@ class Api:
         raise NotImplementedError
     def user_create(self, id: int, type: int, username: str, email: str, password: str) -> dict:
         raise NotImplementedError
-    def user_search_student(self, code: int, birthday: _date | str, type: int) -> list[dict]:
+    def user_search_student(self, code: int, birthday: _date | str, type: int) -> List[dict]:
         raise NotImplementedError
-    def user_search_teacher(self, inn: str, birthday: _date | str) -> list[dict]:
+    def user_search_teacher(self, inn: str, birthday: _date | str) -> List[dict]:
         raise NotImplementedError
     def user_change_account(self, type: int, id: int) -> None:
         raise NotImplementedError
     def user_change_account2(self, id: int, type: int, newId: int) -> None:
         raise NotImplementedError
-    def inquiry_types(self, facultyId: int) -> list[dict]:
+    def inquiry_types(self, facultyId: int) -> List[dict]:
         raise NotImplementedError
-    def journal_student(self, year: int, semester: int) -> list[dict]:
+    def journal_student(self, year: int, semester: int) -> List[dict]:
         raise NotImplementedError
-    def journal_full_discipline_journal(self, disciplineId: int, type: int, year: int, semester: int) -> list[dict]:
+    def journal_full_discipline_journal(self, disciplineId: int, type: int, year: int, semester: int) -> List[dict]:
         raise NotImplementedError
-    def org_students(self, lastId: int) -> list[dict]:
+    def org_students(self, lastId: int) -> List[dict]:
         raise NotImplementedError
-    def student_semester_list(self, onlyActive: bool) -> list[dict]:
+    def student_semester_list(self, onlyActive: bool) -> List[dict]:
         raise NotImplementedError
     def student_info(self) -> dict:
         raise NotImplementedError
-    def student_search_by_email(self, email: str) -> list[dict]:
+    def student_search_by_email(self, email: str) -> List[dict]:
         raise NotImplementedError
-    def student_search(self, lastName: str, facultyId: int, specialityFullName: str, course: int, groupName: str) -> list[dict]:
+    def student_search(self, lastName: str, facultyId: int, specialityFullName: str, course: int, groupName: str) -> List[dict]:
         raise NotImplementedError
-    def docs_get_new_docs(self) -> list[dict]:
+    def docs_get_new_docs(self) -> List[dict]:
         raise NotImplementedError
-    def docs_mark_docs_as_read(self, docs: list[int]) -> None:
+    def docs_mark_docs_as_read(self, docs: List[int]) -> None:
         raise NotImplementedError
-    def docs_get_docs_on_control(self, countDays: int) -> list[dict]:
+    def docs_get_docs_on_control(self, countDays: int) -> List[dict]:
         raise NotImplementedError
-    def org_dols(self) -> list[dict]:
+    def org_dols(self) -> List[dict]:
         raise NotImplementedError
-    def org_structures(self) -> list[dict]:
+    def org_structures(self) -> List[dict]:
         raise NotImplementedError
-    def org_faculties(self, structureId: int) -> list[dict]:
+    def org_faculties(self, structureId: int) -> List[dict]:
         raise NotImplementedError
-    def org_chairs(self, structureId: int, facultyId: int) -> list[dict]:
+    def org_chairs(self, structureId: int, facultyId: int) -> List[dict]:
         raise NotImplementedError
-    def org_teacher_identifiers(self, lastId: int) -> list[dict]:
+    def org_teacher_identifiers(self, lastId: int) -> List[dict]:
         raise NotImplementedError
-    def org_chair_info(self, chairIds: list[int]) -> list[dict]:
+    def org_chair_info(self, chairIds: List[int]) -> List[dict]:
         raise NotImplementedError
-    def org_group_info(self, groupIds: list[int]) -> list[dict]:
+    def org_group_info(self, groupIds: List[int]) -> List[dict]:
         raise NotImplementedError
-    def org_students(self, lastId: int) -> list[dict]:
+    def org_students(self, lastId: int) -> List[dict]:
         raise NotImplementedError
-    def org_teachers(self, lastId: int) -> list[dict]:
+    def org_teachers(self, lastId: int) -> List[dict]:
         raise NotImplementedError
-    def org_set_external_ids(self, externalIds: list[dict]) -> dict:
+    def org_set_external_ids(self, externalIds: List[dict]) -> dict:
         raise NotImplementedError
     def login(self, username: str, password: str, app_key: str) -> dict:
         raise NotImplementedError
     def auth_data(self, username: str, password: str, key: str) -> dict:
         raise NotImplementedError
-    def academ_disciplines(self, lastId: int, year: int, semester: int) -> list[dict]:
+    def academ_disciplines(self, lastId: int, year: int, semester: int) -> List[dict]:
         raise NotImplementedError
-    def academ_learning_plans(self, disciplineIds: list[int], year: int, semester: int) -> list[dict]:
+    def academ_learning_plans(self, disciplineIds: List[int], year: int, semester: int) -> List[dict]:
         raise NotImplementedError
-    def exam_sheets(self, year: int, semester: int, educationDisciplineId: int, groupId: int) -> list[dict]:
+    def exam_sheets(self, year: int, semester: int, educationDisciplineId: int, groupId: int) -> List[dict]:
         raise NotImplementedError
-    def exam_statement_list(self, year: int, semester: int, educationDisciplineId: int, groupId: int) -> list[dict]:
+    def exam_statement_list(self, year: int, semester: int, educationDisciplineId: int, groupId: int) -> List[dict]:
         raise NotImplementedError
     def exam_set_date_enter(self, sheetId: int, dateEnter: _date | str) -> None:
         raise NotImplementedError
     def exam_close(self, sheetId: int) -> None:
         raise NotImplementedError
-    def exam_set_marks(self, sheetId: int, marks: list[dict]) -> None:
+    def exam_set_marks(self, sheetId: int, marks: List[dict]) -> None:
         raise NotImplementedError
 
 
@@ -299,7 +295,7 @@ class CachedApi(Api):
         self._http_enabled = enable_http
         self._cache = CacheReader(cache_path)
 
-    def timetable_group(self, groupId: int, dateStart: _date, dateEnd: _date = None) -> list[dict]:
+    def timetable_group(self, groupId: int, dateStart: _date, dateEnd: _date = None) -> List[TimeTableDate]:
         if dateEnd is None:
             dateEnd = dateStart + timedelta(days=6)
         res = self._cache.get_schedule(groupId, dateStart, dateEnd)
@@ -315,9 +311,9 @@ class CachedApi(Api):
                     'date': day[1],
                     'lessons': json.loads(day[2])
                 })
-        return res
+        return TimeTableDate.from_json(res)
 
-    def list_structures(self) -> list[dict]:
+    def list_structures(self) -> List[Structure]:
         data = self._cache.get_structures()
         res = list({
             'id': i[0],
@@ -328,9 +324,9 @@ class CachedApi(Api):
             if self.__http_enabled:
                 res = super().list_structures()
             else: res = []
-        return res
+        return Structure.from_json(res)
 
-    def list_faculties(self, structureId: int) -> list[dict]:
+    def list_faculties(self, structureId: int) -> List[Faculty]:
         data = self._cache.get_faculties(structureId)
         res = list({
             'id': i[1],
@@ -341,9 +337,9 @@ class CachedApi(Api):
             if self.__http_enabled:
                 res = super().list_faculties(structureId)
             else: res = []
-        return res
+        return Faculty.from_json(res)
 
-    def list_courses(self, facultyId: int) -> list[dict]:
+    def list_courses(self, facultyId: int) -> List[Course]:
         data = self._cache.get_courses(facultyId)
         res = list({
             'course': i[1]
@@ -352,9 +348,9 @@ class CachedApi(Api):
             if self.__http_enabled:
                 res = super().list_courses(facultyId)
             else: res = []
-        return res
+        return Course.from_json(res)
 
-    def list_groups(self, facultyId: int, course: int) -> list[dict]:
+    def list_groups(self, facultyId: int, course: int) -> List[Group]:
         data = self._cache.get_groups(facultyId, course)
         res = list({
             'id': i[1],
@@ -367,4 +363,4 @@ class CachedApi(Api):
             if self.__http_enabled:
                 res = super().list_groups(facultyId, course)
             else: res = []
-        return res
+        return Group.from_json(res)

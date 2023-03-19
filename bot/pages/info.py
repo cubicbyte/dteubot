@@ -6,7 +6,7 @@ from ..settings import api
 
 def create_message(context: ContextTypes.DEFAULT_TYPE) -> dict:
     try:
-        api_ver = escape_markdown(api.version()['name'], version=2)
+        api_ver = escape_markdown(api.version().name, version=2)
     except RequestException:
         api_ver = context._chat_data.get_lang()['text.unknown']
 

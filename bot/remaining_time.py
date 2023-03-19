@@ -1,5 +1,7 @@
+from typing import List
 from dataclasses import dataclass
 from datetime import datetime, timedelta
+from lib.api.schemas import CallSchedule
 from .settings import api
 from .utils.time_formatter import format_time
 
@@ -8,7 +10,7 @@ class FormattedTime:
     time: timedelta
     text: str
 
-def get_lesson(calls: list, lessons: list[int], timestamp = datetime.now()) -> dict:
+def get_lesson(calls: List[CallSchedule], lessons: list[int], timestamp = datetime.now()) -> dict:
     """Returns the current time relative to today's lessons
 
     Example
@@ -39,10 +41,10 @@ def get_lesson(calls: list, lessons: list[int], timestamp = datetime.now()) -> d
     date = timestamp.date()
     calls_formatted = {}
     for call in calls:
-        timeStart = datetime.combine(date, datetime.strptime(call['timeStart'], '%H:%M').time())
-        timeEnd = datetime.combine(date, datetime.strptime(call['timeEnd'], '%H:%M').time())
-        calls_formatted[str(call['number'])] = {
-            'number': call['number'],
+        timeStart = datetime.combine(date, datetime.strptime(call.timeStart, '%H:%M').time())
+        timeEnd = datetime.combine(date, datetime.strptime(call.timeEnd, '%H:%M').time())
+        calls_formatted[str(call.number)] = {
+            'number': call.number,
             'timeStart': timeStart,
             'timeEnd': timeEnd
         }
@@ -91,16 +93,16 @@ def get_time(group_id: int, timestamp = datetime.now()) -> dict | None:
 
     # If there are no lessons, return None
     day = None
-    for i in schedule:
-        if i['date'] == date:
-            day = i
+    for d in schedule:
+        if d.date == date:
+            day = d
             break
     if day is None:
         return None
 
     lessons = []
-    for lesson in day['lessons']:
-        lessons.append(lesson['number'])
+    for lesson in day.lesson:
+        lessons.append(lesson.number)
 
     return get_lesson(calls, lessons, timestamp)
 
