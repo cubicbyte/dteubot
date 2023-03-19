@@ -5,8 +5,9 @@
 import os
 import time
 import json
-from functools import cache
 from abc import ABC, abstractmethod
+from pathlib import Path
+from functools import cache
 from .settings import langs, USER_DATA_PATH, CHAT_DATA_PATH
 
 class DataManager(ABC):
@@ -48,6 +49,19 @@ class UserData(DataManager):
             '_created': cur_timestamp_s,
             '_updated': cur_timestamp_s
         }
+
+    @staticmethod
+    def get_all():
+        for file in os.listdir(USER_DATA_PATH):
+            yield ChatData(Path(file).stem)
+
+    @staticmethod
+    def exists(chat_id: int | str) -> bool:
+        for file in os.listdir(CHAT_DATA_PATH):
+            _chat_id = Path(file).stem
+            if _chat_id == str(chat_id):
+                return True
+        return False
 
     def __init__(self, user_id: int | str) -> None:
         self._user_id = str(user_id)
@@ -105,6 +119,19 @@ class ChatData(DataManager):
             '_created': cur_timestamp_s,            # Chat creation timestamp
             '_updated': cur_timestamp_s             # Chat latest update timestamp
         }
+
+    @staticmethod
+    def get_all():
+        for file in os.listdir(CHAT_DATA_PATH):
+            yield ChatData(Path(file).stem)
+
+    @staticmethod
+    def exists(chat_id: int | str) -> bool:
+        for file in os.listdir(CHAT_DATA_PATH):
+            _chat_id = Path(file).stem
+            if _chat_id == str(chat_id):
+                return True
+        return False
 
     def __init__(self, chat_id: int | str) -> None:
         self._chat_id = str(chat_id)

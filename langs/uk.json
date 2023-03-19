@@ -50,6 +50,7 @@
     "button.calls": "🕓 Розклад дзвінків",
     "button.left": "🕓 Час до перерви",
     "button.write_me": "✉️ Написати мені",
+    "button.close_page": "✖️ Закрити",
     "button.menu": "🏠 Меню",
     "button.back": "⬅️ Назад",
     "button.more": "🗂 Ще",
@@ -105,5 +106,6 @@
     "page.schedule": "📅   {date}   📅\n\n{schedule}",
     "page.schedule.empty": "📅   {date}   📅\n\n`—————————————————————————`\n\n`      Пари відсутні`\n\n`—————————————————————————`",
     "page.schedule.empty.multiple_days": "`Від`  📅 {dateStart}\n`До `  📅 {dateEnd}\n\n`—————————————————————————`\n\n`      Пари відсутні`\n\n`—————————————————————————`",
-    "page.notification_feature_suggestion": "Тепер бот уміє нагадувати про те, що скоро почнуться пари\\!\n\nБажаєте увімкнути сповіщення про початок пар?"
+    "page.notification_feature_suggestion": "Тепер бот уміє нагадувати про те, що скоро почнуться пари\\! \\(доступно в налаштуваннях\\)\n\nБажаєте увімкнути сповіщення про початок пар?",
+    "page.classes_notification": "Нагадування: через {remaining} хв\\. почнуться пари\\!\n\n{schedule}"
 }

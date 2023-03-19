@@ -1,6 +1,5 @@
+import asyncio
 import logging
-
-from asyncio import sleep
 from telegram.ext import MessageHandler, CallbackQueryHandler
 from bot.settings import bot, tg_logger, LOG_CHAT_ID
 from bot.button_handlers import *
@@ -8,6 +7,7 @@ from bot.button_handlers import handlers as button_handlers, register_button_han
 from bot.command_handlers import *
 from bot.command_handlers import handlers as command_handlers
 from bot.pages import menu, notification_feature_suggestion
+from bot.notification_scheduler import scheduler
 from bot.data import UserData, ChatData
 from bot import error_handler
 
@@ -46,7 +46,7 @@ async def unsupported_btn_handler(upd, ctx):
 
 async def suggest_notif_feature(upd, ctx):
     if not ctx._chat_data.cl_notif_suggested and ctx._chat_data._created == 0:
-        await sleep(1)
+        await asyncio.sleep(1)
         await upd.effective_message.reply_text(**notification_feature_suggestion.create_message(ctx))
         ctx._chat_data.cl_notif_suggested = True
 
@@ -57,5 +57,7 @@ bot.add_handlers([CallbackQueryHandler(tg_logger.callback_query_handler), Messag
 bot.add_error_handler(error_handler.handler)
 
 
+# Run notifications scheduler
+scheduler.start()
 # Run bot
 bot.run_polling()
