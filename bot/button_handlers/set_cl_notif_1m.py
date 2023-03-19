@@ -7,9 +7,12 @@ from ..utils import parse_callback_query
 @register_button_handler('^set.cl_notif_1m')
 async def handler(update: Update, context: CallbackContext):
     args = parse_callback_query(update.callback_query.data)['args']
-    state = args['state'] == '1'
-    suggestion = args['suggestion'] == '1'
+    state = args.get('state') == '1'
+    suggestion = args.get('suggestion') == '1'
     context._chat_data.cl_notif_1m = state
+
+    if state:
+        context._chat_data.cl_notif_15m = False
 
     if suggestion:
         await update.callback_query.answer(context._chat_data.get_lang()['alert.cl_notif_enabled_tooltip'], show_alert=True)

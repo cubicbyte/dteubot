@@ -11,9 +11,7 @@ from bot.pages import menu, notification_feature_suggestion
 from bot.data import UserData, ChatData
 from bot import error_handler
 
-#
-# TODO Add ability to change classes notification settings
-#
+
 
 error_handler.log_chat_id = LOG_CHAT_ID
 logger = logging.getLogger()
