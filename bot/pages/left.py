@@ -19,15 +19,15 @@ def create_message(context: ContextTypes.DEFAULT_TYPE) -> dict:
         return api_unavaliable.create_message(context)
 
     if rem_time['time'] is None or rem_time['time']['status'] == 3:
-        page_text = context._chat_data.lang['page.left.no_more']
+        page_text = context._chat_data.get_lang()['page.left.no_more']
     elif rem_time['time']['status'] == 1:
-        page_text = context._chat_data.lang['page.left.to_end'].format(left=escape_markdown(rem_time['text'], version=2))
+        page_text = context._chat_data.get_lang()['page.left.to_end'].format(left=escape_markdown(rem_time['text'], version=2))
     else:
-        page_text = context._chat_data.lang['page.left.to_start'].format(left=escape_markdown(rem_time['text'], version=2))
+        page_text = context._chat_data.get_lang()['page.left.to_start'].format(left=escape_markdown(rem_time['text'], version=2))
 
     buttons = [[
-        InlineKeyboardButton(text=context._chat_data.lang['button.back'], callback_data='open.more'),
-        InlineKeyboardButton(text=context._chat_data.lang['button.menu'], callback_data='open.menu')
+        InlineKeyboardButton(text=context._chat_data.get_lang()['button.back'], callback_data='open.more'),
+        InlineKeyboardButton(text=context._chat_data.get_lang()['button.menu'], callback_data='open.menu')
     ]]
 
     return {

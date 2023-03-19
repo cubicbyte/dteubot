@@ -19,20 +19,20 @@ def create_message(context: ContextTypes.DEFAULT_TYPE, structure_id: int) -> dic
 
     if len(structures) > 1:
         buttons.append([
-            InlineKeyboardButton(text=context._chat_data.lang['button.back'], callback_data='open.select_group')
+            InlineKeyboardButton(text=context._chat_data.get_lang()['button.back'], callback_data='open.select_group')
         ])
     else:
         buttons.append([
-            InlineKeyboardButton(text=context._chat_data.lang['button.back'], callback_data='open.menu')
+            InlineKeyboardButton(text=context._chat_data.get_lang()['button.back'], callback_data='open.menu')
         ])
 
     for faculty in faculties:
         buttons.append([
-            InlineKeyboardButton(text=faculty['fullName'], callback_data=f'select.schedule.faculty#structureId={structure_id}&facultyId={faculty["id"]}')
+            InlineKeyboardButton(text=faculty.fullName, callback_data=f'select.schedule.faculty#structureId={structure_id}&facultyId={faculty.id}')
         ])
 
     return {
-        'text': context._chat_data.lang['page.faculty'],
+        'text': context._chat_data.get_lang()['page.faculty'],
         'reply_markup': InlineKeyboardMarkup(buttons),
         'parse_mode': 'MarkdownV2'
     }

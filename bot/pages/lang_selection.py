@@ -11,12 +11,12 @@ def create_message(context: ContextTypes.DEFAULT_TYPE) -> dict:
         ])
 
     buttons.append([
-        InlineKeyboardButton(text=context._chat_data.lang['button.back'], callback_data='open.settings'),
-        InlineKeyboardButton(text=context._chat_data.lang['button.menu'], callback_data='open.menu')
+        InlineKeyboardButton(text=context._chat_data.get_lang()['button.back'], callback_data='open.settings'),
+        InlineKeyboardButton(text=context._chat_data.get_lang()['button.menu'], callback_data='open.menu')
     ])
 
     return {
-        'text': context._chat_data.lang['page.lang_select'].format(lang=context._chat_data.lang['lang_name']),
+        'text': context._chat_data.get_lang()['page.lang_select'].format(lang=context._chat_data.get_lang()['lang_name']),
         'reply_markup': InlineKeyboardMarkup(buttons),
         'parse_mode': 'MarkdownV2'
     }

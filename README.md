@@ -4,11 +4,11 @@
 # Розклад ДТЕУ/КНТЕУ
 [![Python 3.6+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-
-Телеграм-бот для зручного перегляду розкладу пар в Державному Торговельно-Економісному Університеті ([ДТЕУ](https://knute.edu.ua)).<br>
-Бот доступний для використання: [@dteubot](https://t.me/dteubot).
 ## [English version](README.md)
-</div>
+
+Телеграм-бот для зручного перегляду розкладу пар у Державному Торговельно-Економісному Університеті ([ДТЕУ](https://knute.edu.ua)).<br>
+Бот доступний для використання: [@dteubot](https://t.me/dteubot).
+</div><br>
 
 > **Note** *Ви також можете налаштувати цього бота для відображення розкладу інших університетів, що використовують систему АСУ МКР.*<br>
 

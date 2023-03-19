@@ -1,17 +1,13 @@
+import asyncio
 import logging
-
-# Update bot data to the latest version
-from scripts.update_bot_data import main as update_bot_data
-update_bot_data('.')
-
-
 from telegram.ext import MessageHandler, CallbackQueryHandler
 from bot.settings import bot, tg_logger, LOG_CHAT_ID
 from bot.button_handlers import *
 from bot.button_handlers import handlers as button_handlers, register_button_handler
 from bot.command_handlers import *
 from bot.command_handlers import handlers as command_handlers
-from bot.pages import menu
+from bot.pages import menu, notification_feature_suggestion
+from bot.notification_scheduler import scheduler
 from bot.data import UserData, ChatData
 from bot import error_handler
 
@@ -24,6 +20,8 @@ logger.info('Starting application')
 async def apply_data(upd, ctx):
     ctx._user_data = UserData(upd.effective_user.id)
     ctx._chat_data = ChatData(upd.effective_chat.id)
+    if not ctx._chat_data._accessible:
+        ctx._chat_data._accessible = True
 
 async def btn_handler(upd, ctx):
     logger.info('[chat/{0} user/{1} msg/{2}] callback query: {3}'.format(
@@ -43,14 +41,23 @@ async def msg_handler(upd, ctx):
 
 @register_button_handler()
 async def unsupported_btn_handler(upd, ctx):
-    await upd.callback_query.answer(ctx._chat_data.lang['alert.callback_query_unsupported'], show_alert=True)
+    await upd.callback_query.answer(ctx._chat_data.get_lang()['alert.callback_query_unsupported'], show_alert=True)
     await upd.callback_query.message.edit_text(**menu.create_message(ctx))
+
+async def suggest_notif_feature(upd, ctx):
+    if not ctx._chat_data.cl_notif_suggested and ctx._chat_data._created == 0:
+        await asyncio.sleep(1)
+        await upd.effective_message.reply_text(**notification_feature_suggestion.create_message(ctx))
+        ctx._chat_data.cl_notif_suggested = True
 
 bot.add_handlers([CallbackQueryHandler(btn_handler), MessageHandler(None, msg_handler)])
 bot.add_handlers(button_handlers + command_handlers, 10)
+bot.add_handlers([CallbackQueryHandler(suggest_notif_feature), MessageHandler(None, suggest_notif_feature)], 15)
 bot.add_handlers([CallbackQueryHandler(tg_logger.callback_query_handler), MessageHandler(None, tg_logger.message_handler)], 20)
 bot.add_error_handler(error_handler.handler)
 
 
+# Run notifications scheduler
+scheduler.start()
 # Run bot
 bot.run_polling()

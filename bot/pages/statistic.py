@@ -29,7 +29,7 @@ def create_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> dict:
     )
 
     buttons = [[
-        InlineKeyboardButton(text=context._chat_data.lang['button.menu'], callback_data='open.menu'),
+        InlineKeyboardButton(text=context._chat_data.get_lang()['button.menu'], callback_data='open.menu'),
         InlineKeyboardButton(text='How Did We Get Here?', url='https://github.com/cubicbyte/dteubot')
     ]]
 

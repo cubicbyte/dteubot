@@ -6,18 +6,18 @@ from ..settings import api
 
 def create_message(context: ContextTypes.DEFAULT_TYPE) -> dict:
     try:
-        api_ver = escape_markdown(api.version()['name'], version=2)
+        api_ver = escape_markdown(api.version().name, version=2)
     except RequestException:
-        api_ver = context._chat_data.lang['text.unknown']
+        api_ver = context._chat_data.get_lang()['text.unknown']
 
-    message_text = context._chat_data.lang['page.info'].format(
+    message_text = context._chat_data.get_lang()['page.info'].format(
         api_ver=api_ver,
         api_ver_supported=escape_markdown(api.VERSION, version=2)
     )
 
     buttons = [[
-        InlineKeyboardButton(text=context._chat_data.lang['button.back'], callback_data='open.more'),
-        InlineKeyboardButton(text=context._chat_data.lang['button.menu'], callback_data='open.menu')
+        InlineKeyboardButton(text=context._chat_data.get_lang()['button.back'], callback_data='open.more'),
+        InlineKeyboardButton(text=context._chat_data.get_lang()['button.menu'], callback_data='open.menu')
     ]]
 
     return {

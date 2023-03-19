@@ -15,16 +15,16 @@ def create_message(context: ContextTypes.DEFAULT_TYPE, structure_id: int, facult
         return api_unavaliable.create_message(context)
 
     buttons = [[
-        InlineKeyboardButton(text=context._chat_data.lang['button.back'], callback_data=f'select.schedule.structure#structureId={structure_id}')
+        InlineKeyboardButton(text=context._chat_data.get_lang()['button.back'], callback_data=f'select.schedule.structure#structureId={structure_id}')
     ]]
 
     for course in courses:
         buttons.append([
-            InlineKeyboardButton(text=str(course['course']), callback_data=f'select.schedule.course#structureId={structure_id}&facultyId={faculty_id}&course={course["course"]}')
+            InlineKeyboardButton(text=str(course.course), callback_data=f'select.schedule.course#structureId={structure_id}&facultyId={faculty_id}&course={course.course}')
         ])
 
     return {
-        'text': context._chat_data.lang['page.course'],
+        'text': context._chat_data.get_lang()['page.course'],
         'reply_markup': InlineKeyboardMarkup(buttons),
         'parse_mode': 'MarkdownV2'
     }

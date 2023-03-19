@@ -4,20 +4,21 @@ from telegram.ext import ContextTypes
 from telegram.helpers import escape_markdown
 from datetime import datetime, timedelta, date as _date
 from babel.dates import format_date
+from lib.api.schemas import TimeTableDate
 from . import invalid_group, api_unavaliable
 from ..settings import api
 from ..utils import array_split
 
 
 
-def count_no_lesson_days(schedule: list[dict[str, any]], date: _date, direction_right = True) -> timedelta | None:
+def count_no_lesson_days(schedule: list[TimeTableDate], date: _date, direction_right = True) -> timedelta | None:
     'Counts the number of days without lessons'
     if not direction_right:
         schedule = reversed(schedule)
 
     res = None
     for day in schedule:
-        day_date = datetime.strptime(day['date'], '%Y-%m-%d').date()
+        day_date = datetime.strptime(day.date, '%Y-%m-%d').date()
         if direction_right:
             if day_date > date:
                 res = day_date - date
@@ -31,37 +32,38 @@ def count_no_lesson_days(schedule: list[dict[str, any]], date: _date, direction_
 
 def get_localized_date(context: ContextTypes.DEFAULT_TYPE, date: _date) -> str:
     date_localized = escape_markdown(format_date(date, locale=context._chat_data.lang_code), version=2)
-    week_day_localized = context._chat_data.lang['text.time.week_day.' + str(date.weekday())]
+    week_day_localized = context._chat_data.get_lang()['text.time.week_day.' + str(date.weekday())]
     full_date_localized = f"*{date_localized}* `[`*{week_day_localized}*`]`"
     return full_date_localized
 
-def create_schedule_section(context: ContextTypes.DEFAULT_TYPE, schedule_day: dict[str, any]) -> str:
+def create_schedule_section(context: ContextTypes.DEFAULT_TYPE, day: TimeTableDate) -> str:
     schedule_section = ''
-    for lesson in schedule_day['lessons']:
-        for period in lesson['periods']:
+    for lesson in day.lessons:
+        for period in lesson.periods:
             # Escape ONLY USED api result not to break telegram markdown
             # DO NOT DELETE COMMENTS
-            period['typeStr'] = escape_markdown(period['typeStr'], version=2)
-            period['classroom'] = escape_markdown(period['classroom'], version=2)
-            #period['disciplineFullName'] = escape_markdown(period['disciplineFullName'], version=2)
-            period['disciplineShortName'] = escape_markdown(period['disciplineShortName'], version=2)
-            period['timeStart'] = escape_markdown(period['timeStart'], version=2)
-            period['timeEnd'] = escape_markdown(period['timeEnd'], version=2)
-            #period['teachersName'] = escape_markdown(period['teachersName'], version=2)
-            period['teachersNameFull'] = escape_markdown(period['teachersNameFull'], version=2)
-            #period['dateUpdated'] = escape_markdown(period['dateUpdated'], version=2)
-            #period['groups'] = escape_markdown(period['groups'], version=2)
+            period.typeStr = escape_markdown(period.typeStr, version=2)
+            period.classroom = escape_markdown(period.classroom, version=2)
+#           period.disciplineFullName = escape_markdown(period.disciplineFullName, version=2)
+            period.disciplineShortName = escape_markdown(period.disciplineShortName, version=2)
+            period.timeStart = escape_markdown(period.timeStart, version=2)
+            period.timeEnd = escape_markdown(period.timeEnd, version=2)
+#           period.teachersName = escape_markdown(period.teachersName, version=2)
+            period.teachersNameFull = escape_markdown(period.teachersNameFull, version=2)
+#           period.chairName = escape_markdown(period.chairName, version=2)
+#           period.dateUpdated = escape_markdown(period.dateUpdated, version=2)
+#           period.groups = escape_markdown(period.groups, version=2)
 
 
             # If there are multiple teachers, display the first one and add +n to the end
-            if ',' in period['teachersName']:
-                count = str(period['teachersNameFull'].count(','))
-                period['teachersName'] = period['teachersName'][:period['teachersName'].index(',')] + ' +' + count
-                period['teachersNameFull'] = period['teachersNameFull'][:period['teachersNameFull'].index(',')] + ' +' + count
+            if ',' in period.teachersName:
+                count = str(period.teachersNameFull.count(','))
+                period.teachersName = period.teachersName[:period.teachersName.index(',')] + ' +' + count
+                period.teachersNameFull = period.teachersNameFull[:period.teachersNameFull.index(',')] + ' +' + count
 
-            schedule_section += context._chat_data.lang['text.schedule.period'].format(
-                **period,
-                lessonNumber=lesson['number']
+            schedule_section += context._chat_data.get_lang()['text.schedule.period'].format(
+                **period.__dict__,
+                lessonNumber=lesson.number
             )
 
     schedule_section += '`—――—―``―——``―—―``――``—``―``—``――――``――``―――`'
@@ -97,14 +99,13 @@ def create_message(context: ContextTypes.DEFAULT_TYPE, date: _date | str) -> dic
     # Find schedule of current day
     cur_day_schedule = None
     for day in schedule:
-        if day['date'] == date_str:
+        if day.date == date_str:
             cur_day_schedule = day
             break
 
 
     # Create the schedule page content
-    lang = context._chat_data.lang
-    lang_code = context._chat_data.lang_code
+    lang = context._chat_data.get_lang()
     if cur_day_schedule is not None:
         msg_text = lang['page.schedule'].format(
             date=get_localized_date(context, date),
