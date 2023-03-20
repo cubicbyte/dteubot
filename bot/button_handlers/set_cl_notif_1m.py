@@ -15,7 +15,7 @@ async def handler(update: Update, context: CallbackContext):
         context._chat_data.cl_notif_15m = False
 
     if suggestion:
-        await update.callback_query.answer(context._chat_data.get_lang()['alert.cl_notif_enabled_tooltip'], show_alert=True)
+        await update.callback_query.answer(context._chat_data.get_lang()['alert.cl_notif_enabled_tooltip'].format(remaining='1'), show_alert=True)
         await update.callback_query.delete_message()
         return
 

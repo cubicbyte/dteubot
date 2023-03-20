@@ -3,8 +3,8 @@ from telegram.ext import ContextTypes
 
 def create_message(context: ContextTypes.DEFAULT_TYPE) -> dict:
     buttons = [[
-        InlineKeyboardButton(text=context._chat_data.get_lang()['text.yes'], callback_data='set.cl_notif_1m#state=1&suggestion=1'),
-        InlineKeyboardButton(text=context._chat_data.get_lang()['text.no_thanks'], callback_data='close_page')
+        InlineKeyboardButton(text=context._chat_data.get_lang()['text.yes'], callback_data='set.cl_notif_15m#state=1&suggestion=1'),
+        InlineKeyboardButton(text=context._chat_data.get_lang()['text.no'], callback_data='close_page')
     ]]
 
     return {
