@@ -101,7 +101,7 @@ def get_time(group_id: int, timestamp = datetime.now()) -> dict | None:
         return None
 
     lessons = []
-    for lesson in day.lesson:
+    for lesson in day.lessons:
         lessons.append(lesson.number)
 
     return get_lesson(calls, lessons, timestamp)
