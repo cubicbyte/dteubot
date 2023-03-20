@@ -58,16 +58,18 @@ async def send_notifications_1m(lesson_number: int):
             break
 
 def is_lesson_in_interval(group_id: int, interval: timedelta) -> bool:
-    cur_time = datetime.now()
-    schedule = api.timetable_group(group_id, date.today())
+    cur_dt = datetime(2023, 3, 20, 8, 5)
+    cur_time = cur_dt.time()
+    with_interval = (cur_dt + interval).time()
+    schedule = api.timetable_group(group_id, cur_dt.date())
     if len(schedule) == 0:
         return False
     calls = api.timetable_call_schedule()
     first_lesson_number = schedule[0].lessons[0].number
     for call in calls:
         if call.number == first_lesson_number:
-            call_time = datetime.strptime(call.timeStart, '%H:%M')
-            if cur_time < call_time < cur_time + interval:
+            call_time = datetime.strptime(call.timeStart, '%H:%M').time()
+            if cur_time < call_time < with_interval:
                 return True
     return False
 
