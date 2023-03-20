@@ -48,7 +48,7 @@ async def send_notifications_1m(lesson_number: int):
     for call in calls:
         if call.number == lesson_number:
             call_time = datetime.strptime(call.timeStart, '%H:%M')
-            next_call_time = datetime.combine(datetime.today() + timedelta(days=1), (call_time - timedelta(minutes=1, seconds=30)).time())
+            next_call_time = datetime.combine(date.today() + timedelta(days=1), (call_time - timedelta(minutes=1, seconds=30)).time())
             scheduler.add_job(
                 partial(send_notifications_1m, lesson_number=lesson_number),
                 'date',
@@ -58,7 +58,7 @@ async def send_notifications_1m(lesson_number: int):
             break
 
 def is_lesson_in_interval(group_id: int, interval: timedelta) -> bool:
-    cur_dt = datetime(2023, 3, 20, 8, 5)
+    cur_dt = datetime.now()
     cur_time = cur_dt.time()
     with_interval = (cur_dt + interval).time()
     schedule = api.timetable_group(group_id, cur_dt.date())
