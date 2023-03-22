@@ -63,12 +63,3 @@ bot.add_error_handler(error_handler.handler)
 scheduler.start()
 # Run bot
 bot.run_polling()
-
-#import datetime
-#from bot.data import Message
-#
-#c = ChatData(726146539)
-#
-#print(c.get_messages())
-#c.add_message(Message(1, '2', datetime.datetime.now()))
-#print(c.get_messages()[1].timestamp.second)
