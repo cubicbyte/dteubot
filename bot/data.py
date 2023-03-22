@@ -23,9 +23,8 @@ class Message:
 class DataManager(ABC):
     _data_cache: dict[str, dict[str, any]] = {}
 
-    @property
     @abstractmethod
-    def _DEFAULT_DATA(self) -> dict[str, any]:
+    def _get_default_data(self) -> dict[str, any]:
         pass
 
     @classmethod
@@ -34,7 +33,7 @@ class DataManager(ABC):
         if data:
             return data
         if not os.path.exists(file):
-            data = cls._DEFAULT_DATA.copy()
+            data = cls._get_default_data()
             with open(file, 'w') as fp:
                 json.dump(data, fp, indent=4, ensure_ascii=False)
             cls._data_cache[file] = data
@@ -50,8 +49,8 @@ class DataManager(ABC):
             json.dump(cls._get_data(file), fp, indent=4, ensure_ascii=False)
 
 class UserData(DataManager):
-    @property
-    def _DEFAULT_DATA(self) -> dict[str, any]:
+    @staticmethod
+    def _get_default_data() -> dict[str, any]:
         cur_timestamp_s = int(time.time())
         return {
             'admin': False,
@@ -89,8 +88,8 @@ class UserData(DataManager):
         self._update_data(self._get_file())
 
 class ChatData(DataManager):
-    @property
-    def _DEFAULT_DATA(self) -> dict[str, any]:
+    @staticmethod
+    def _get_default_data() -> dict[str, any]:
         cur_timestamp_s = int(time.time())
         return {
             'lang_code': os.getenv('DEFAULT_LANG'), # Language code
