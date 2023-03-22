@@ -5,14 +5,14 @@ from ..settings import api, API_TYPE, API_TYPE_CACHED
 
 def create_message(context: ContextTypes.DEFAULT_TYPE) -> dict:
     lang = context._chat_data.get_lang()
-    cl_notif_15m = context._chat_data.cl_notif_15m
-    cl_notif_1m = context._chat_data.cl_notif_1m
+    cl_notif_15m = context._chat_data.get('cl_notif_15m')
+    cl_notif_1m = context._chat_data.get('cl_notif_1m')
 
-    if context._chat_data.group_id is not None:
+    if context._chat_data.get('group_id') is not None:
         if API_TYPE == API_TYPE_CACHED:
-            group = escape_markdown(api._cache.get_group(context._chat_data.group_id)[2], version=2)
+            group = escape_markdown(api._cache.get_group(context._chat_data.get('group_id'))[2], version=2)
         else:
-            group = context._chat_data.group_id
+            group = context._chat_data.get('group_id')
     else:
         group = lang['text.not_selected']
 

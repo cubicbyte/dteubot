@@ -10,7 +10,7 @@ def create_message(context: ContextTypes.DEFAULT_TYPE) -> dict:
     ]]
 
     # If user is admin, then add control panel button
-    if context._user_data.admin:
+    if context._user_data.get('admin'):
         buttons.append([
             InlineKeyboardButton(text=context._chat_data.get_lang()['button.admin.panel'], callback_data='admin.open_panel')
         ])

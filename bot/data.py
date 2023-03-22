@@ -7,8 +7,18 @@ import time
 import json
 from abc import ABC, abstractmethod
 from pathlib import Path
+from datetime import datetime
 from functools import cache
+from dataclasses import dataclass, field
 from .settings import langs, USER_DATA_PATH, CHAT_DATA_PATH
+
+@dataclass(frozen=True)
+class Message:
+    id: int
+    timestamp: datetime
+    page_name: str
+    lang_code: str
+    data: dict[str, any] = field(default_factory=dict)
 
 class DataManager(ABC):
     _data_cache: dict[str, dict[str, any]] = {}
@@ -70,41 +80,13 @@ class UserData(DataManager):
     def _get_file(self) -> str:
         return os.path.join(USER_DATA_PATH, '%s.json' % self._user_id)
 
-    def __getattr(self, name: str) -> any:
+    def get(self, name: str) -> any:
         return self._get_data(self._get_file())[name]
 
-    def __setattr(self, name: str, value: any):
+    def set(self, name: str, value: any):
         data = self._get_data(self._get_file())
         data[name] = value
-        if not name.startswith('_'):
-            data['_updated'] = int(time.time())
         self._update_data(self._get_file())
-
-    @property
-    def admin(self) -> bool:
-        return self.__getattr('admin')
-    @property
-    def ref(self) -> str | None:
-        return self.__getattr('ref')
-    @property
-    def _created(self) -> int:
-        return self.__getattr('_created')
-    @property
-    def _updated(self) -> int:
-        return self.__getattr('_updated')
-
-    @admin.setter
-    def admin(self, value: bool):
-        self.__setattr('admin', value)
-    @ref.setter
-    def ref(self, value: str | None):
-        self.__setattr('ref', value)
-    @_created.setter
-    def _created(self, value: int):
-        self.__setattr('_created', value)
-    @_updated.setter
-    def _updated(self, value: int):
-        self.__setattr('_updated', value)
 
 class ChatData(DataManager):
     @property
@@ -115,10 +97,13 @@ class ChatData(DataManager):
             'group_id': None,                       # Group ID
             'cl_notif_15m': False,                  # Notification 15 minutes before class
             'cl_notif_1m': False,                   # Notification when classes starts
+            'cl_notif_suggested': False,            # Is classes notification suggested
+            '_messages': [],                         # List of bot messages sent to chat
             '_accessible': True,                    # No access to chat (user blocked bot or no access to chat)
             '_created': cur_timestamp_s,            # Chat creation timestamp
             '_updated': cur_timestamp_s             # Chat latest update timestamp
         }
+    MESSAGES_LIMIT = 16
 
     @staticmethod
     def get_all():
@@ -140,67 +125,48 @@ class ChatData(DataManager):
     def __get_file(self) -> str:
         return os.path.join(CHAT_DATA_PATH, '%s.json' % self._chat_id)
 
-    def __getattr(self, name: str) -> any:
-        return self._get_data(self.__get_file())[name]
+    def get(self, field: str) -> any:
+        return self._get_data(self.__get_file())[field]
 
-    def __setattr(self, name: str, value: any):
+    def set(self, field: str, value: any):
         data = self._get_data(self.__get_file())
-        data[name] = value
-        if not name.startswith('_'):
-            data['_updated'] = int(time.time())
+        data[field] = value
         self._update_data(self.__get_file())
 
+
     def get_lang(self) -> dict[str, str]:
-        return langs[self.lang_code]
+        return langs[self.get('lang_code')]
+    
+    def get_messages(self, page_name: str = None) -> list[Message]:
+        messages = self.get('_messages')
+        res = []
+        for m in messages:
+            if page_name is not None and m[2] != page_name:
+                continue
+            res.append(Message(m[0], datetime.fromtimestamp(m[1]), m[2], m[3], m[4]))
+        return res
 
-    @property
-    def lang_code(self) -> str:
-        return self.__getattr('lang_code')
-    @property
-    def group_id(self) -> str | None:
-        return self.__getattr('group_id')
-    @property
-    def cl_notif_15m(self) -> bool:
-        return self.__getattr('cl_notif_15m')
-    @property
-    def cl_notif_1m(self) -> bool:
-        return self.__getattr('cl_notif_1m')
-    @property
-    def cl_notif_suggested(self) -> bool:
-        return self.__getattr('cl_notif_suggested')
-    @property
-    def _accessible(self) -> bool:
-        return self.__getattr('_accessible')
-    @property
-    def _created(self) -> int:
-        return self.__getattr('_created')
-    @property
-    def _updated(self) -> int:
-        return self.__getattr('_updated')
+    def add_message(self, msg: Message):
+        messages_raw = self.get('_messages')
+        msg_raw = [msg.id, int(msg.timestamp.timestamp()), msg.page_name, msg.lang_code, msg.data]
 
-    @lang_code.setter
-    def lang_code(self, value: str):
-        if not value in langs:
-            value = os.getenv('DEFAULT_LANG')
-        self.__setattr('lang_code', value)
-    @group_id.setter
-    def group_id(self, value: str | None):
-        self.__setattr('group_id', value)
-    @cl_notif_15m.setter
-    def cl_notif_15m(self, value: bool):
-        self.__setattr('cl_notif_15m', value)
-    @cl_notif_1m.setter
-    def cl_notif_1m(self, value: bool):
-        self.__setattr('cl_notif_1m', value)
-    @cl_notif_suggested.setter
-    def cl_notif_suggested(self, value: bool):
-        self.__setattr('cl_notif_suggested', value)
-    @_accessible.setter
-    def _accessible(self, value: bool):
-        self.__setattr('_accessible', value)
-    @_created.setter
-    def _created(self, value: int):
-        self.__setattr('_created', value)
-    @_updated.setter
-    def _updated(self, value: int):
-        self.__setattr('_updated', value)
+        # Add a message or update an old one with this ID
+        for i, m in enumerate(messages_raw):
+            if m[0] == msg.id:
+                messages_raw[i] = msg_raw
+                break
+        else:
+            messages_raw.append(msg_raw)
+
+        if len(messages_raw) > self.MESSAGES_LIMIT:
+            messages_raw.pop(0)
+
+        self._update_data(self.__get_file())
+
+    def remove_message(self, msg_id: int):
+        messages_raw = self.get('_messages')
+        for i, m in enumerate(messages_raw):
+            if m[0] == msg_id:
+                messages_raw.pop(i)
+                break
+        self._update_data(self.__get_file())

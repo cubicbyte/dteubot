@@ -8,7 +8,7 @@ from bot.command_handlers import *
 from bot.command_handlers import handlers as command_handlers
 from bot.pages import menu, notification_feature_suggestion
 from bot.notification_scheduler import scheduler
-from bot.data import UserData, ChatData
+from bot.data import UserData, ChatData, Message
 from bot import error_handler
 
 
@@ -20,8 +20,8 @@ logger.info('Starting application')
 async def apply_data(upd, ctx):
     ctx._user_data = UserData(upd.effective_user.id)
     ctx._chat_data = ChatData(upd.effective_chat.id)
-    if not ctx._chat_data._accessible:
-        ctx._chat_data._accessible = True
+    if not ctx._chat_data.get('_accessible'):
+        ctx._chat_data.set('_accessible', True)
 
 async def btn_handler(upd, ctx):
     logger.info('[chat/{0} user/{1} msg/{2}] callback query: {3}'.format(
@@ -42,13 +42,15 @@ async def msg_handler(upd, ctx):
 @register_button_handler()
 async def unsupported_btn_handler(upd, ctx):
     await upd.callback_query.answer(ctx._chat_data.get_lang()['alert.callback_query_unsupported'], show_alert=True)
-    await upd.callback_query.message.edit_text(**menu.create_message(ctx))
+    msg = await upd.callback_query.message.edit_text(**menu.create_message(ctx))
+    ctx._chat_data.add_message(Message(msg.message_id, msg.date, 'menu', ctx._chat_data.get('lang_code')))
 
 async def suggest_notif_feature(upd, ctx):
-    if not ctx._chat_data.cl_notif_suggested and ctx._chat_data._created == 0:
+    if not ctx._chat_data.get('cl_notif_suggested') and ctx._chat_data.get('_created') == 0:
         await asyncio.sleep(1)
-        await upd.effective_message.reply_text(**notification_feature_suggestion.create_message(ctx))
-        ctx._chat_data.cl_notif_suggested = True
+        msg = await upd.effective_message.reply_text(**notification_feature_suggestion.create_message(ctx))
+        ctx._chat_data.add_message(Message(msg.message_id, msg.date, 'notification_feature_suggestion', ctx._chat_data.get('lang_code')))
+        ctx._chat_data.set('cl_notif_suggested', True)
 
 bot.add_handlers([CallbackQueryHandler(btn_handler), MessageHandler(None, msg_handler)])
 bot.add_handlers(button_handlers + command_handlers, 10)
@@ -61,3 +63,12 @@ bot.add_error_handler(error_handler.handler)
 scheduler.start()
 # Run bot
 bot.run_polling()
+
+#import datetime
+#from bot.data import Message
+#
+#c = ChatData(726146539)
+#
+#print(c.get_messages())
+#c.add_message(Message(1, '2', datetime.datetime.now()))
+#print(c.get_messages()[1].timestamp.second)

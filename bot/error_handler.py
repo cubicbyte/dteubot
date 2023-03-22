@@ -18,14 +18,14 @@ async def handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if context.error.message.startswith('Chat not found') or \
                 context.error.message.startswith('Peer_id_invalid'):
             _chat_data = ChatData(update.effective_chat.id) # For some reason context._chat_data is None
-            _chat_data._accessible = False
+            _chat_data.set('_accessible', False)
             return
 
     if isinstance(context.error, Forbidden):
         # Bot was blocked by the user
         _logger.warn(context.error)
         _chat_data = ChatData(update.effective_chat.id)
-        _chat_data._accessible = False
+        _chat_data.set('_accessible', False)
         return
 
     if isinstance(context.error, NetworkError) and context.error.message.startswith('httpx'):

@@ -3,7 +3,7 @@ import requests.exceptions
 from datetime import date, datetime, timedelta
 from functools import partial
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from .data import ChatData
+from .data import ChatData, Message
 from .pages import classes_notification
 from .settings import bot, api
 
@@ -13,7 +13,7 @@ api_retries_limit = 5
 
 def _get_day(chat_data: ChatData):
     try:
-        day = api.timetable_group(chat_data.group_id, date.today())[0]
+        day = api.timetable_group(chat_data.get('group_id'), date.today())[0]
     except (
         requests.exceptions.ConnectionError,
         requests.exceptions.ReadTimeout,
@@ -24,20 +24,22 @@ def _get_day(chat_data: ChatData):
 
 async def send_notification_15m(chat_data: ChatData):
     if (day := _get_day(chat_data)) is not None:
-        await bot.bot.send_message(chat_id=chat_data._chat_id, **classes_notification.create_message_15m(chat_data, day))
+        msg = await bot.bot.send_message(chat_id=chat_data.get('_chat_id'), **classes_notification.create_message_15m(chat_data, day))
+        chat_data.add_message(Message(msg.message_id, msg.date, 'cl_notif_15m', chat_data.get('lang_code')))
 
 async def send_notification_1m(chat_data: ChatData):
     if (day := _get_day(chat_data)) is not None:
-        await bot.bot.send_message(chat_id=chat_data._chat_id, **classes_notification.create_message_1m(chat_data, day))
+        msg = await bot.bot.send_message(chat_id=chat_data.get('_chat_id'), **classes_notification.create_message_1m(chat_data, day))
+        chat_data.add_message(Message(msg.message_id, msg.date, 'cl_notif_1m', chat_data.get('lang_code')))
 
 async def send_notifications_15m(lesson_number: int):
     api_retries = 0
     for chat_data in ChatData.get_all():
-        if not chat_data.cl_notif_15m or not chat_data._accessible or chat_data.group_id is None:
+        if not chat_data.get('cl_notif_15m') or not chat_data.get('_accessible') or chat_data.get('group_id') is None:
             continue
 
         try:
-            if not is_lesson_in_interval(chat_data.group_id, timedelta(minutes=20)):
+            if not is_lesson_in_interval(chat_data.get('group_id'), timedelta(minutes=20)):
                 continue
         except (
             requests.exceptions.ConnectionError,
@@ -67,11 +69,11 @@ async def send_notifications_15m(lesson_number: int):
 async def send_notifications_1m(lesson_number: int):
     api_retries = 0
     for chat_data in ChatData.get_all():
-        if not chat_data.cl_notif_1m or not chat_data._accessible or chat_data.group_id is None:
+        if not chat_data.get('cl_notif_1m') or not chat_data.get('_accessible') or chat_data.get('group_id') is None:
             continue
 
         try:
-            if not is_lesson_in_interval(chat_data.group_id, timedelta(minutes=5)):
+            if not is_lesson_in_interval(chat_data.get('group_id'), timedelta(minutes=5)):
                 continue
         except (
             requests.exceptions.ConnectionError,

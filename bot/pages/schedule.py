@@ -31,7 +31,7 @@ def count_no_lesson_days(schedule: list[TimeTableDate], date: _date, direction_r
     return res
 
 def get_localized_date(context: ContextTypes.DEFAULT_TYPE, date: _date) -> str:
-    date_localized = escape_markdown(format_date(date, locale=context._chat_data.lang_code), version=2)
+    date_localized = escape_markdown(format_date(date, locale=context._chat_data.get('lang_code')), version=2)
     week_day_localized = context._chat_data.get_lang()['text.time.week_day.' + str(date.weekday())]
     full_date_localized = f"*{date_localized}* `[`*{week_day_localized}*`]`"
     return full_date_localized
@@ -84,7 +84,7 @@ def create_message(context: ContextTypes.DEFAULT_TYPE, date: _date | str) -> dic
     dateStart = date - timedelta(days=date.weekday() + 7)
     dateEnd = dateStart + timedelta(days=20)
     try:
-        schedule = api.timetable_group(context._chat_data.group_id, dateStart, dateEnd)
+        schedule = api.timetable_group(context._chat_data.get('group_id'), dateStart, dateEnd)
     except requests.exceptions.HTTPError as err:
         if err.response.status_code == 422:
             return invalid_group.create_message(context)

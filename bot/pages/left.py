@@ -6,11 +6,11 @@ from . import api_unavaliable, invalid_group
 from .. import remaining_time
 
 def create_message(context: ContextTypes.DEFAULT_TYPE) -> dict:
-    if context._chat_data.group_id is None:
+    if context._chat_data.get('group_id') is None:
         return invalid_group.create_message(context)
 
     try:
-        rem_time = remaining_time.get_time_formatted(context._chat_data.lang_code, context._chat_data.group_id)
+        rem_time = remaining_time.get_time_formatted(context._chat_data.get('lang_code'), context._chat_data.get('group_id'))
     except (
         requests.exceptions.ConnectionError,
         requests.exceptions.ReadTimeout,

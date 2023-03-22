@@ -175,6 +175,7 @@ def update_chat_data(path: str):
         conf = insert_after('cl_notif_15m', False, 'group_id', conf)
         conf = insert_after('cl_notif_1m', False, 'cl_notif_15m', conf)
         conf = insert_after('cl_notif_suggested', False, 'cl_notif_1m', conf)
+        conf = insert_after('_messages', [], 'cl_notif_suggested', conf)
         conf = insert_after('_accessible', True, 'cl_notif_suggested', conf)
         conf = insert_after('_created', 0, '_accessible', conf)
         conf = insert_after('_updated', 0, '_created', conf)

@@ -10,7 +10,7 @@ def register_button_handler(pattern = None, block = None):
 
 def validate_admin(func):
     async def wrapper(update, context):
-        if not context._user_data.admin:
+        if not context._user_data.get('admin'):
             if not update.callback_query:
                 return
             await update.callback_query.answer(
