@@ -10,7 +10,7 @@ class FormattedTime:
     time: timedelta
     text: str
 
-def get_lesson(calls: List[CallSchedule], lessons: list[int], timestamp = datetime.now()) -> dict:
+def get_lesson(calls: List[CallSchedule], lessons: list[int], timestamp: datetime = None) -> dict:
     """Returns the current time relative to today's lessons
 
     Example
@@ -38,6 +38,8 @@ def get_lesson(calls: List[CallSchedule], lessons: list[int], timestamp = dateti
 
     lessons.sort()
 
+    if not timestamp:
+        timestamp = datetime.now()
     date = timestamp.date()
     calls_formatted = {}
     for call in calls:
@@ -83,7 +85,9 @@ def get_lesson(calls: List[CallSchedule], lessons: list[int], timestamp = dateti
 
     return result
 
-def get_time(group_id: int, timestamp = datetime.now()) -> dict | None:
+def get_time(group_id: int, timestamp: datetime = None) -> dict | None:
+    if not timestamp:
+        timestamp = datetime.now()
     """Returns the time before the start/end of the lesson"""
 
     date = timestamp.date()
@@ -106,7 +110,9 @@ def get_time(group_id: int, timestamp = datetime.now()) -> dict | None:
 
     return get_lesson(calls, lessons, timestamp)
 
-def get_time_formatted(lang_code: str, group_id: int, timestamp = datetime.now()) -> dict:
+def get_time_formatted(lang_code: str, group_id: int, timestamp: datetime = None) -> dict:
+    if not timestamp:
+        timestamp = datetime.now()
     remaining_time = get_time(group_id, timestamp)
 
     if remaining_time is None:
