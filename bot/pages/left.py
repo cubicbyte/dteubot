@@ -25,10 +25,16 @@ def create_message(context: ContextTypes.DEFAULT_TYPE) -> dict:
     else:
         page_text = context._chat_data.get_lang()['page.left.to_start'].format(left=escape_markdown(rem_time['text'], version=2))
 
-    buttons = [[
-        InlineKeyboardButton(text=context._chat_data.get_lang()['button.back'], callback_data='open.more'),
-        InlineKeyboardButton(text=context._chat_data.get_lang()['button.menu'], callback_data='open.menu')
-    ]]
+    if rem_time['time'] is None or rem_time['time']['status'] == 3:
+        buttons = [[
+            InlineKeyboardButton(text=context._chat_data.get_lang()['button.back'], callback_data='open.more'),
+            InlineKeyboardButton(text=context._chat_data.get_lang()['button.menu'], callback_data='open.menu')
+        ]]
+    else:
+        buttons = [[
+            InlineKeyboardButton(text=context._chat_data.get_lang()['button.menu'], callback_data='open.menu'),
+            InlineKeyboardButton(text=context._chat_data.get_lang()['button.refresh'], callback_data='open.left')
+        ]]
 
     return {
         'text': page_text,
