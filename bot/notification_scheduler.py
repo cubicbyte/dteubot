@@ -89,7 +89,7 @@ async def send_notifications_1m(lesson_number: int):
     for call in calls:
         if call.number == lesson_number:
             call_time = datetime.strptime(call.timeStart, '%H:%M')
-            next_call_time = datetime.combine(date.today() + timedelta(days=1), (call_time - timedelta(minutes=1, seconds=30)).time())
+            next_call_time = datetime.combine(date.today() + timedelta(days=1), (call_time - timedelta(minutes=1)).time())
             scheduler.add_job(
                 partial(send_notifications_1m, lesson_number=lesson_number),
                 'date',
@@ -124,7 +124,7 @@ _today = datetime.today()
 for call in calls:
     _call_time = datetime.strptime(call.timeStart, '%H:%M')
     _call_time_15m = datetime.combine(_today, (_call_time - timedelta(minutes=15)).time())
-    _call_time_1m = datetime.combine(_today, (_call_time - timedelta(minutes=1, seconds=30)).time())
+    _call_time_1m = datetime.combine(_today, (_call_time - timedelta(minutes=1)).time())
 
     if _call_time_15m < _cur_time:
         _call_time_15m += timedelta(days=1)
