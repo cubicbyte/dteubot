@@ -24,12 +24,12 @@ def _get_day(chat_data: ChatData):
 
 async def send_notification_15m(chat_data: ChatData):
     if (day := _get_day(chat_data)) is not None:
-        msg = await bot.bot.send_message(chat_id=chat_data.get('_chat_id'), **classes_notification.create_message_15m(chat_data, day))
+        msg = await bot.bot.send_message(chat_id=chat_data._chat_id, **classes_notification.create_message_15m(chat_data, day))
         chat_data.add_message(Message(msg.message_id, msg.date, 'cl_notif_15m', chat_data.get('lang_code')))
 
 async def send_notification_1m(chat_data: ChatData):
     if (day := _get_day(chat_data)) is not None:
-        msg = await bot.bot.send_message(chat_id=chat_data.get('_chat_id'), **classes_notification.create_message_1m(chat_data, day))
+        msg = await bot.bot.send_message(chat_id=chat_data._chat_id, **classes_notification.create_message_1m(chat_data, day))
         chat_data.add_message(Message(msg.message_id, msg.date, 'cl_notif_1m', chat_data.get('lang_code')))
 
 async def send_notifications_15m(lesson_number: int):
