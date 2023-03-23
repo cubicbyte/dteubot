@@ -1,8 +1,10 @@
 import logging
 import requests.exceptions
+from typing import List
 from datetime import date, datetime, timedelta
 from functools import partial
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from lib.api.schemas import CallSchedule
 from .data import ChatData, Message
 from .pages import classes_notification
 from .settings import bot, api
@@ -22,24 +24,20 @@ def _get_day(chat_data: ChatData):
         return None
     return day
 
-async def send_notification_15m(chat_data: ChatData):
+async def send_notification(chat_data: ChatData, remaining: str):
     if (day := _get_day(chat_data)) is not None:
-        msg = await bot.bot.send_message(chat_id=chat_data._chat_id, **classes_notification.create_message_15m(chat_data, day))
-        chat_data.add_message(Message(msg.message_id, msg.date, 'cl_notif_15m', chat_data.get('lang_code')))
+        msg = await bot.bot.send_message(chat_id=chat_data._chat_id, **classes_notification.create_message(chat_data, day, remaining))
+        chat_data.add_message(Message(msg.message_id, msg.date, 'cl_notif_%sm' % remaining, chat_data.get('lang_code')))
 
-async def send_notification_1m(chat_data: ChatData):
-    if (day := _get_day(chat_data)) is not None:
-        msg = await bot.bot.send_message(chat_id=chat_data._chat_id, **classes_notification.create_message_1m(chat_data, day))
-        chat_data.add_message(Message(msg.message_id, msg.date, 'cl_notif_1m', chat_data.get('lang_code')))
-
-async def send_notifications_15m(lesson_number: int):
+async def send_notifications(offset_s: int):
     api_retries = 0
+    remaining = str(offset_s // 60)
     for chat_data in ChatData.get_all():
-        if not chat_data.get('cl_notif_15m') or not chat_data.get('_accessible') or chat_data.get('group_id') is None:
+        if not chat_data.get(f'cl_notif_{remaining}m') or not chat_data.get('_accessible') or chat_data.get('group_id') is None:
             continue
 
         try:
-            if not is_lesson_in_interval(chat_data.get('group_id'), timedelta(minutes=20)):
+            if not is_lesson_in_interval(chat_data.get('group_id'), timedelta(seconds=offset_s + 60)):
                 continue
         except (
             requests.exceptions.ConnectionError,
@@ -52,53 +50,26 @@ async def send_notifications_15m(lesson_number: int):
                 break
             continue
 
-        await send_notification_15m(chat_data)
+        await send_notification(chat_data, remaining)
 
+    next_call = get_next_call(calls) or calls[0]
+    call_time = datetime.strptime(next_call.timeStart, '%H:%M')
+    next_call_time = datetime.combine(datetime.today() + timedelta(days=1), (call_time - timedelta(seconds=offset_s)).time())
+    scheduler.add_job(
+        partial(send_notifications, offset_s=offset_s),
+        'date',
+        next_run_time=next_call_time,
+        id='cl_notif_%ds' % offset_s,
+        replace_existing=True
+    )
+
+def get_next_call(calls: List[CallSchedule]) -> CallSchedule | None:
+    cur_time = datetime.now().time()
     for call in calls:
-        if call.number == lesson_number:
-            call_time = datetime.strptime(call.timeStart, '%H:%M')
-            next_call_time = datetime.combine(datetime.today() + timedelta(days=1), (call_time - timedelta(minutes=15)).time())
-            scheduler.add_job(
-                partial(send_notifications_15m, lesson_number=lesson_number),
-                'date',
-                next_run_time=next_call_time,
-                id='cl_notif_15m_%d' % lesson_number,
-                replace_existing=True)
-            break
-
-async def send_notifications_1m(lesson_number: int):
-    api_retries = 0
-    for chat_data in ChatData.get_all():
-        if not chat_data.get('cl_notif_1m') or not chat_data.get('_accessible') or chat_data.get('group_id') is None:
-            continue
-
-        try:
-            if not is_lesson_in_interval(chat_data.get('group_id'), timedelta(minutes=5)):
-                continue
-        except (
-            requests.exceptions.ConnectionError,
-            requests.exceptions.ReadTimeout,
-            requests.exceptions.HTTPError
-        ):
-            api_retries += 1
-            _logger.error(f'API request failed. {api_retries}/{api_retries_limit}')
-            if api_retries >= api_retries_limit:
-                break
-            continue
-
-        await send_notification_1m(chat_data)
-
-    for call in calls:
-        if call.number == lesson_number:
-            call_time = datetime.strptime(call.timeStart, '%H:%M')
-            next_call_time = datetime.combine(date.today() + timedelta(days=1), (call_time - timedelta(minutes=1)).time())
-            scheduler.add_job(
-                partial(send_notifications_1m, lesson_number=lesson_number),
-                'date',
-                next_run_time=next_call_time,
-                id='cl_notif_1m_%d' % lesson_number,
-                replace_existing=True)
-            break
+        call_time = datetime.strptime(call.timeStart, '%H:%M').time()
+        if cur_time < call_time:
+            return call
+    return None
 
 def is_lesson_in_interval(group_id: int, interval: timedelta) -> bool:
     cur_dt = datetime.now()
@@ -116,34 +87,33 @@ def is_lesson_in_interval(group_id: int, interval: timedelta) -> bool:
                 return True
     return False
 
+def setup(scheduler: AsyncIOScheduler):
+    _today = datetime.today()
+    _next_call = get_next_call(calls)
+
+    if _next_call is None:
+        _next_call_time = datetime.combine(_today + timedelta(days=1), datetime.strptime(calls[0].timeStart, '%H:%M').time())
+    else:
+        _next_call_time = datetime.combine(_today, datetime.strptime(_next_call.timeStart, '%H:%M').time())
+
+    # 15 minutes before
+    scheduler.add_job(
+        partial(send_notifications, offset_s=900),
+        'date',
+        next_run_time=_next_call_time - timedelta(minutes=15),
+        id='cl_notif_900s',
+        replace_existing=True
+    )
+    # 1 minute before
+    scheduler.add_job(
+        partial(send_notifications, offset_s=60),
+        'date',
+        next_run_time=_next_call_time - timedelta(minutes=1),
+        id='cl_notif_60s',
+        replace_existing=True
+    )
 
 
 scheduler = AsyncIOScheduler(timezone='Europe/Kyiv')
 calls = api.timetable_call_schedule()
-_cur_time = datetime.now()
-_today = datetime.today()
-
-for call in calls:
-    _call_time = datetime.strptime(call.timeStart, '%H:%M')
-    _call_time_15m = datetime.combine(_today, (_call_time - timedelta(minutes=15)).time())
-    _call_time_1m = datetime.combine(_today, (_call_time - timedelta(minutes=1)).time())
-
-    if _call_time_15m < _cur_time:
-        _call_time_15m += timedelta(days=1)
-    if _call_time_1m < _cur_time:
-        _call_time_1m += timedelta(days=1)
-
-    scheduler.add_job(
-        partial(send_notifications_15m, lesson_number=call.number),
-        'date',
-        next_run_time=_call_time_15m,
-        id='cl_notif_15m_%d' % call.number,
-        replace_existing=True
-    )
-    scheduler.add_job(
-        partial(send_notifications_1m, lesson_number=call.number),
-        'date',
-        next_run_time=_call_time_1m,
-        id='cl_notif_1m_%d' % call.number,
-        replace_existing=True
-    )
+setup(scheduler)
