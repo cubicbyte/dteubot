@@ -80,6 +80,7 @@ else:
 bot = ApplicationBuilder().token(BOT_TOKEN).build()
 api = _Api(
     url=API_URL,
+    enable_cache=True,
     timeout=API_REQUEST_TIMEOUT,
     expires_after=timedelta(seconds=API_CACHE_EXPIRES),
     cache_name=os.path.join(CACHE_PATH, 'http-cache'))

@@ -17,17 +17,19 @@ logger.info('Initializing api module')
 class Api:
     VERSION = '1.6.1'
 
-    def __init__(self, url: str, timeout: int = None, **kwargs) -> None:
+    def __init__(self, url: str, enable_cache: bool = False, timeout: int = None, **kwargs) -> None:
         logger.info('Creating Api instance with url %s' % url)
         self.url = url
         self._timeout = timeout
-        self._session = CachedSession(
-            cache_control=True,
-            allowable_methods=['GET', 'POST'],
-            match_headers=True,
-            stale_if_error=True,
-            **kwargs
-        )
+        self._cache_enabled = enable_cache
+        if enable_cache:
+            self._session = CachedSession(
+                cache_control=True,
+                allowable_methods=['GET', 'POST'],
+                match_headers=True,
+                stale_if_error=True,
+                **kwargs
+            )
 
     def _make_request(self, path: str, method: str = 'GET', json: dict = None, raw = False, *args, **kwargs) -> any:
         logger.debug(f'Making {method} request to {path} with JSON data {json}')
@@ -36,8 +38,9 @@ class Api:
             'Content-Type': 'application/json; charset=utf-8'
         }
 
+        _requests = self._session if not self._cache_enabled else requests
         url = urljoin(self.url, path)
-        res = self._session.request(method, url, headers=headers, json=json, timeout=self._timeout, *args, **kwargs)
+        res = _requests.request(method, url, headers=headers, json=json, timeout=self._timeout, *args, **kwargs)
         res.raise_for_status()
 
         if raw:
