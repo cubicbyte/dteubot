@@ -52,9 +52,11 @@ async def send_notifications(offset_s: int):
 
         await send_notification(chat_data, remaining)
 
-    next_call = get_next_call(calls) or calls[0]
-    call_time = datetime.strptime(next_call.timeStart, '%H:%M')
-    next_call_time = datetime.combine(datetime.today() + timedelta(days=1), (call_time - timedelta(seconds=offset_s)).time())
+    next_call = get_next_call(calls)
+    if next_call is None:
+        next_call_time = datetime.combine(datetime.today() + timedelta(days=1), datetime.strptime(calls[0].timeStart, '%H:%M').time())
+    else:
+        next_call_time = datetime.combine(datetime.today(), datetime.strptime(next_call.timeStart, '%H:%M').time())
     scheduler.add_job(
         partial(send_notifications, offset_s=offset_s),
         'date',
