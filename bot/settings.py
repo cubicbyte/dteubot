@@ -63,18 +63,18 @@ _logger = logging.getLogger(__name__)
 _logger.info('Running setup')
 
 
-from lib.api import Api, CachedApi
-#from .exception_handler import ExceptionHandler
+from lib.api import Api
+from lib.api.cached import CachedApi
 from .tg_logger import TelegramLogger
 from .load_langs import load_langs
 
 
 
 if os.path.isfile(os.path.join(CACHE_PATH, 'mkr-cache.sqlite')):
-    API_TYPE = 'CachedApi'
+    API_TYPE = API_TYPE_CACHED
     _Api = CachedApi
 else:
-    API_TYPE = 'Api'
+    API_TYPE = API_TYPE_DEFAULT
     _Api = Api
 
 bot = ApplicationBuilder().token(BOT_TOKEN).build()
