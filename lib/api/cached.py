@@ -1,7 +1,8 @@
 import os
 import json
 from datetime import date as _date, timedelta
-from . import Api, DEFAULT_CACHE_NAME
+from requests_cache import DEFAULT_CACHE_NAME
+from . import Api
 from .schemas import *
 from ..cache_reader import CacheReader
 
