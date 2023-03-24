@@ -54,9 +54,9 @@ async def send_notifications(offset_s: int):
 
     next_call = get_next_call(calls)
     if next_call is None:
-        next_call_time = datetime.combine(datetime.today() + timedelta(days=1), datetime.strptime(calls[0].timeStart, '%H:%M').time())
+        next_call_time = datetime.combine(datetime.today() + timedelta(days=1), (datetime.strptime(calls[0].timeStart, '%H:%M') - timedelta(seconds=offset_s)).time())
     else:
-        next_call_time = datetime.combine(datetime.today(), datetime.strptime(next_call.timeStart, '%H:%M').time())
+        next_call_time = datetime.combine(datetime.today(), (datetime.strptime(next_call.timeStart, '%H:%M') - timedelta(seconds=offset_s)).time())
     scheduler.add_job(
         partial(send_notifications, offset_s=offset_s),
         'date',
@@ -89,7 +89,7 @@ def is_lesson_in_interval(group_id: int, interval: timedelta) -> bool:
                 return True
     return False
 
-def setup(scheduler: AsyncIOScheduler):
+def setup():
     _today = datetime.today()
     _next_call = get_next_call(calls)
 
@@ -118,4 +118,4 @@ def setup(scheduler: AsyncIOScheduler):
 
 scheduler = AsyncIOScheduler(timezone='Europe/Kyiv')
 calls = api.timetable_call_schedule()
-setup(scheduler)
+setup()
