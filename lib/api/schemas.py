@@ -1,5 +1,6 @@
 from typing import List
 from dataclasses import dataclass
+from datetime import date as _date, datetime, time
 
 class JSONDeserializable:
     @classmethod
@@ -20,6 +21,11 @@ class CallSchedule(JSONDeserializable):
     "Номер"
     length: int
     "Длительность"
+
+    def get_time_start(self) -> time:
+        return datetime.strptime(self.timeStart, '%H:%M').time()
+    def get_time_end(self) -> time:
+        return datetime.strptime(self.timeEnd, '%H:%M').time()
 
 @dataclass
 class Chair(JSONDeserializable):
@@ -168,6 +174,13 @@ class TimeTablePeriod(JSONDeserializable):
     extraText: bool
     "Есть ли объявление"
 
+    def get_time_start(self) -> time:
+        return datetime.strptime(self.timeStart, '%H:%M').time()
+    def get_time_end(self) -> time:
+        return datetime.strptime(self.timeEnd, '%H:%M').time()
+    def get_time_updated(self) -> datetime:
+        return datetime.strptime(self.dateUpdated, '%Y-%m-%dT%H:%M:%S.%fZ')
+
 @dataclass
 class TimeTableLesson(JSONDeserializable):
     "Моделька для пары в расписании"
@@ -196,6 +209,9 @@ class TimeTableDate(JSONDeserializable):
     "Дата"
     lessons: list[TimeTableLesson]
     "Список пар"
+
+    def get_date(self) -> _date:
+        return datetime.strptime(self.date, '%Y-%m-%d').date()
 
     @staticmethod
     def from_json(raw: dict | List[dict]) -> 'TimeTableDate' | List['TimeTableDate']:
