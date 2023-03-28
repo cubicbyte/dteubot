@@ -38,7 +38,7 @@ class Api:
             'Content-Type': 'application/json; charset=utf-8'
         }
 
-        _requests = self._session if not self._cache_enabled else requests
+        _requests = self._session if self._cache_enabled else requests
         url = urljoin(self.url, path)
         res = _requests.request(method, url, headers=headers, json=json, timeout=self._timeout, *args, **kwargs)
         res.raise_for_status()
