@@ -1,13 +1,20 @@
+import inspect
 from typing import List
 from dataclasses import dataclass
 from datetime import date as _date, datetime, time
+
+def _filter_fields(cls, _dict: dict) -> dict:
+    return {
+        k: v for k, v in _dict.items()
+        if k in inspect.signature(cls).parameters
+    }
 
 class JSONDeserializable:
     @classmethod
     def from_json(cls, raw: dict | List[dict]) -> 'JSONDeserializable':
         if isinstance(raw, list):
-            return [cls(**r) for r in raw]
-        return cls(**raw)
+            return [cls(**_filter_fields(cls, r)) for r in raw]
+        return cls(**_filter_fields(cls, raw))
 
 
 @dataclass
@@ -196,11 +203,11 @@ class TimeTableLesson(JSONDeserializable):
             for r in raw:
                 periods = TimeTablePeriod.from_json(r['periods'])
                 del r['periods']
-                res.append(TimeTableLesson(**r, periods=periods))
+                res.append(TimeTableLesson(**_filter_fields(TimeTableLesson, r), periods=periods))
             return res
         periods = TimeTablePeriod.from_json(raw['periods'])
         del raw['periods']
-        return TimeTableLesson(**raw, periods=periods)
+        return TimeTableLesson(**_filter_fields(TimeTableLesson, raw), periods=periods)
 
 @dataclass
 class TimeTableDate(JSONDeserializable):
@@ -220,11 +227,11 @@ class TimeTableDate(JSONDeserializable):
             for r in raw:
                 lessons = TimeTableLesson.from_json(r['lessons'])
                 del r['lessons']
-                res.append(TimeTableDate(**r, lessons=lessons))
+                res.append(TimeTableDate(**_filter_fields(TimeTableDate, r), lessons=lessons))
             return res
         lessons = TimeTableLesson.from_json(raw['lessons'])
         del raw['lessons']
-        return TimeTableDate(**raw, lessons=lessons)
+        return TimeTableDate(**_filter_fields(TimeTableDate, raw), lessons=lessons)
 
 @dataclass
 class TeacherIdentifier(JSONDeserializable):
