@@ -7,9 +7,9 @@ from .schemas import *
 from ..cache_reader import CacheReader
 
 class CachedApi(Api):
-    def __init__(self, url: str, timeout: int = None, enable_http = False, **kwargs):
-        super().__init__(url, timeout, **kwargs)
-        cache_name = DEFAULT_CACHE_NAME if not 'cache_name' in kwargs else kwargs['cache_name']
+    def __init__(self, url: str, *api_args, enable_http: bool = False, **api_kwargs):
+        super().__init__(url, *api_args, **api_kwargs)
+        cache_name = DEFAULT_CACHE_NAME if not 'cache_name' in api_kwargs else api_kwargs['cache_name']
         cache_path = os.path.join(os.path.dirname(cache_name), 'mkr-cache.sqlite')
         self._http_enabled = enable_http
         self._cache = CacheReader(cache_path)
