@@ -1,6 +1,6 @@
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import ContextTypes
-from ..settings import langs
+from settings import langs
 
 def create_message(context: ContextTypes.DEFAULT_TYPE) -> dict:
     buttons = []

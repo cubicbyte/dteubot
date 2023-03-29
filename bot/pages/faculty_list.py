@@ -1,8 +1,8 @@
 import requests.exceptions
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import ContextTypes
+from settings import api
 from . import api_unavaliable
-from ..settings import api
 
 def create_message(context: ContextTypes.DEFAULT_TYPE, structure_id: int) -> dict:
     try:

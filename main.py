@@ -1,7 +1,7 @@
 import asyncio
 import logging
 from telegram.ext import MessageHandler, CallbackQueryHandler
-from bot.settings import bot, tg_logger, LOG_CHAT_ID
+from settings import bot, tg_logger, LOG_CHAT_ID
 from bot.button_handlers import *
 from bot.button_handlers import handlers as button_handlers, register_button_handler
 from bot.command_handlers import *

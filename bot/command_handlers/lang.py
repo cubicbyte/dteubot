@@ -1,8 +1,8 @@
 from telegram import Update
 from telegram.ext import ContextTypes
+from settings import langs, DEFAULT_LANG
 from . import register_command_handler
 from ..pages import lang_selection, menu
-from ..settings import langs, DEFAULT_LANG
 from ..data import Message
 
 @register_command_handler('lang')

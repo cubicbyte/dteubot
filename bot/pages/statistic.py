@@ -2,7 +2,7 @@ import os.path
 from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import ContextTypes
 from telegram.helpers import escape_markdown
-from ..settings import tg_logger
+from settings import tg_logger
 
 def create_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> dict:
     chat_dir = tg_logger.get_chat_log_dir(update.effective_chat.id)

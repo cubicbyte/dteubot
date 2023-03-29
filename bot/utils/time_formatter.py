@@ -1,5 +1,5 @@
 from datetime import timedelta
-from ..settings import langs
+from settings import langs
 
 def format_time(lang_code: str, time: timedelta, depth = 1, short = True) -> str:
     """Formats timedelta into a readable format

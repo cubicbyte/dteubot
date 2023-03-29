@@ -1,8 +1,8 @@
 import requests.exceptions
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import ContextTypes
+from settings import api
 from ..pages import api_unavaliable
-from ..settings import api
 
 def get_schedule_section_text() -> str:
     text = ''

@@ -2,7 +2,7 @@ from typing import List
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from lib.api.schemas import CallSchedule
-from .settings import api
+from settings import api
 from .utils.time_formatter import format_time
 
 @dataclass

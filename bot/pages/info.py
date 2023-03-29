@@ -1,8 +1,8 @@
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import ContextTypes
 from telegram.helpers import escape_markdown
+from settings import api
 from requests.exceptions import RequestException
-from ..settings import api
 
 def create_message(context: ContextTypes.DEFAULT_TYPE) -> dict:
     try:

@@ -5,7 +5,7 @@ from functools import partial
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from .data import ChatData, Message
 from .pages import classes_notification
-from .settings import bot, api
+from settings import bot, api
 
 _logger = logging.getLogger(__name__)
 api_retries_limit = 5

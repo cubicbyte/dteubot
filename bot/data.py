@@ -10,7 +10,7 @@ from pathlib import Path
 from datetime import datetime
 from functools import cache
 from dataclasses import dataclass, field
-from .settings import langs, USER_DATA_PATH, CHAT_DATA_PATH
+from settings import langs, USER_DATA_PATH, CHAT_DATA_PATH
 
 @dataclass(frozen=True)
 class Message:

@@ -3,7 +3,7 @@ from telegram.ext import CallbackContext
 from . import register_button_handler
 from ..pages import lang_selection, menu
 from ..data import Message
-from ..settings import langs, DEFAULT_LANG
+from settings import langs, DEFAULT_LANG
 from ..utils import parse_callback_query
 
 @register_button_handler('^select.lang')

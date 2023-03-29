@@ -4,7 +4,7 @@ import logging
 from datetime import timedelta
 from dotenv import load_dotenv
 from telegram.ext import ApplicationBuilder
-from .utils import check_int
+from bot.utils import check_int
 
 sys.path.append('../../lib')                # Required to load external libraries
 load_dotenv('.env')                         # Load .env file in current dir
@@ -65,8 +65,8 @@ _logger.info('Running setup')
 
 from lib.api import Api
 from lib.api.cached import CachedApi
-from .tg_logger import TelegramLogger
-from .load_langs import load_langs
+from bot.tg_logger import TelegramLogger
+from bot.load_langs import load_langs
 
 
 

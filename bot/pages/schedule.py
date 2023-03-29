@@ -5,8 +5,8 @@ from telegram.helpers import escape_markdown
 from datetime import datetime, timedelta, date as _date
 from babel.dates import format_date
 from lib.api.schemas import TimeTableDate
+from settings import api
 from . import invalid_group, api_unavaliable
-from ..settings import api
 from ..utils import array_split
 
 
