@@ -82,7 +82,7 @@ api = _Api(
     url=API_URL,
     enable_cache=True,
     timeout=API_REQUEST_TIMEOUT,
-    expires_after=timedelta(seconds=API_CACHE_EXPIRES),
+    expire_after=timedelta(seconds=API_CACHE_EXPIRES),
     cache_name=os.path.join(CACHE_PATH, 'http-cache'))
 tg_logger = TelegramLogger(os.path.join(LOGS_PATH, 'telegram'))
 langs = load_langs(LANGS_PATH)

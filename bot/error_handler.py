@@ -11,9 +11,9 @@ _logger = logging.getLogger(__name__)
 log_chat_id: int | str = None
 
 async def handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if context.effective_user is None:
+    if hasattr(context, 'effective_user'):
         context._user_data = UserData(update.effective_user.id)
-    if context.effective_chat is None:
+    if hasattr(context, 'effective_chat'):
         context._chat_data = ChatData(update.effective_chat.id)
 
     if isinstance(context.error, BadRequest):
