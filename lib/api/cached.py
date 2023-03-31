@@ -16,7 +16,7 @@ class CachedApi(Api):
 
     def timetable_group(self, groupId: int, dateStart: _date, dateEnd: _date = None, *req_args, **req_kwargs) -> List[TimeTableDate]:
         if dateEnd is None:
-            dateEnd = dateStart + timedelta(days=6)
+            dateEnd = dateStart
         res = self._cache.get_schedule(groupId, dateStart, dateEnd)
         if res is None:
             if self.__http_enabled:
