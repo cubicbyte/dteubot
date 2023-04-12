@@ -58,6 +58,7 @@
     "button.refresh": "🔄 Оновити",
     "button.select_group": "🔎 Вибрати групу",
     "button.select_lang": "🇬🇧 Змінити мову",
+    "button.open_schedule": "📋 Відкрити розклад",
     "button.settings": "⚙️ Налаштування",
     "button.settings.cl_notif_15m": "Нагадування про пари за 15 хв.",
     "button.settings.cl_notif_1m": "Нагадування про пари за 1 хв.",

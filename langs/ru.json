@@ -58,6 +58,7 @@
     "button.refresh": "🔄 Обновить",
     "button.select_group": "🔎 Выбрать группу",
     "button.select_lang": "🇬🇧 Сменить язык",
+    "button.open_schedule": "📋 Открыть расписание",
     "button.settings": "⚙️ Настройки",
     "button.settings.cl_notif_15m": "Напоминание о парах за 15 мин.",
     "button.settings.cl_notif_1m": "Напоминание о парах за 1 мин.",

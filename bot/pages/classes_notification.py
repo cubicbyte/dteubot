@@ -15,7 +15,7 @@ def get_notification_schedule_section(day: TimeTableDate) -> str:
 
 def create_message(chat_data: ChatData, day: TimeTableDate, remaining: str) -> dict:
     buttons = [[
-        InlineKeyboardButton(text=chat_data.get_lang()['button.close_page'], callback_data='close_page'),
+        InlineKeyboardButton(text=chat_data.get_lang()['button.open_schedule'], callback_data=f'open.schedule.day#date={day.date}'),
         InlineKeyboardButton(text=chat_data.get_lang()['button.settings'], callback_data='open.settings')
     ]]
 

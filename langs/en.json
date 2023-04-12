@@ -58,6 +58,7 @@
     "button.refresh": "🔄 Refresh",
     "button.select_group": "🔎 Select group",
     "button.select_lang": "🇬🇧 Change language",
+    "button.open_schedule": "📋 Open schedule",
     "button.settings": "⚙️ Settings",
     "button.settings.cl_notif_15m": "Classes reminder in 15 min.",
     "button.settings.cl_notif_1m": "Classes reminder in 1 min.",
