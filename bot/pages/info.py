@@ -4,6 +4,7 @@ from telegram.helpers import escape_markdown
 from settings import api
 from requests.exceptions import RequestException
 
+
 def create_message(context: ContextTypes.DEFAULT_TYPE) -> dict:
     try:
         api_ver = escape_markdown(api.version().name, version=2)
@@ -16,8 +17,10 @@ def create_message(context: ContextTypes.DEFAULT_TYPE) -> dict:
     )
 
     buttons = [[
-        InlineKeyboardButton(text=context._chat_data.get_lang()['button.back'], callback_data='open.more'),
-        InlineKeyboardButton(text=context._chat_data.get_lang()['button.menu'], callback_data='open.menu')
+        InlineKeyboardButton(text=context._chat_data.get_lang()['button.back'],
+                             callback_data='open.more'),
+        InlineKeyboardButton(text=context._chat_data.get_lang()['button.menu'],
+                             callback_data='open.menu')
     ]]
 
     return {

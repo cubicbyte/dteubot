@@ -3,13 +3,12 @@ import logging
 from datetime import datetime
 from telegram import Update
 
-
 logger = logging.getLogger(__name__)
-
 
 
 class TelegramLogger:
     """Logger to log messages/button clicks"""
+
     def __init__(self, dirpath):
         logger.debug('Creating TelegramLogger instance')
 
@@ -63,7 +62,6 @@ class TelegramLogger:
             data=update.callback_query.data
         ))
         fp.close()
-
 
     async def message_handler(self, update: Update, ctx):
         if not self.__chat_log_initialized(update.effective_chat.id):

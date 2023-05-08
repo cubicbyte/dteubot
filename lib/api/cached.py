@@ -6,6 +6,7 @@ from . import Api
 from .schemas import *
 from ..cache_reader import CacheReader
 
+
 class CachedApi(Api):
     def __init__(self, url: str, *api_args, enable_http: bool = False, **api_kwargs):
         super().__init__(url, *api_args, **api_kwargs)
@@ -14,14 +15,18 @@ class CachedApi(Api):
         self._http_enabled = enable_http
         self._cache = CacheReader(cache_path)
 
-    def timetable_group(self, groupId: int, dateStart: _date, dateEnd: _date = None, *req_args, **req_kwargs) -> List[TimeTableDate]:
+    def timetable_group(self, groupId: int, dateStart: _date, dateEnd: _date = None,
+                        *req_args, **req_kwargs) -> List[TimeTableDate]:
+
         if dateEnd is None:
             dateEnd = dateStart
+
         res = self._cache.get_schedule(groupId, dateStart, dateEnd)
         if res is None:
             if self.__http_enabled:
                 res = super().timetable_group(groupId, dateStart, dateEnd, *req_args, **req_kwargs)
-            else: res = []
+            else:
+                res = []
         else:
             _res = res
             res = []
@@ -30,6 +35,7 @@ class CachedApi(Api):
                     'date': day[1],
                     'lessons': json.loads(day[2])
                 })
+
         return TimeTableDate.from_json(res)
 
     def list_structures(self, *req_args, **req_kwargs) -> List[Structure]:
@@ -42,7 +48,8 @@ class CachedApi(Api):
         if len(res) == 0:
             if self.__http_enabled:
                 res = super().list_structures(*req_args, **req_kwargs)
-            else: res = []
+            else:
+                res = []
         return Structure.from_json(res)
 
     def list_faculties(self, structureId: int, *req_args, **req_kwargs) -> List[Faculty]:
@@ -55,7 +62,8 @@ class CachedApi(Api):
         if len(res) == 0:
             if self.__http_enabled:
                 res = super().list_faculties(structureId, *req_args, **req_kwargs)
-            else: res = []
+            else:
+                res = []
         return Faculty.from_json(res)
 
     def list_courses(self, facultyId: int, *req_args, **req_kwargs) -> List[Course]:
@@ -66,7 +74,8 @@ class CachedApi(Api):
         if len(res) == 0:
             if self.__http_enabled:
                 res = super().list_courses(facultyId, *req_args, **req_kwargs)
-            else: res = []
+            else:
+                res = []
         return Course.from_json(res)
 
     def list_groups(self, facultyId: int, course: int, *req_args, **req_kwargs) -> List[Group]:
@@ -81,5 +90,6 @@ class CachedApi(Api):
         if len(res) == 0:
             if self.__http_enabled:
                 res = super().list_groups(facultyId, course, *req_args, **req_kwargs)
-            else: res = []
+            else:
+                res = []
         return Group.from_json(res)

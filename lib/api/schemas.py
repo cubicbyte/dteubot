@@ -3,11 +3,13 @@ from typing import List
 from dataclasses import dataclass
 from datetime import date as _date, datetime, time
 
+
 def _filter_fields(cls, _dict: dict) -> dict:
     return {
         k: v for k, v in _dict.items()
         if k in inspect.signature(cls).parameters
     }
+
 
 class JSONDeserializable:
     @classmethod
@@ -20,6 +22,7 @@ class JSONDeserializable:
 @dataclass
 class CallSchedule(JSONDeserializable):
     "Моделька для пар"
+
     timeStart: str
     "Время начала"
     timeEnd: str
@@ -31,12 +34,15 @@ class CallSchedule(JSONDeserializable):
 
     def get_time_start(self) -> time:
         return datetime.strptime(self.timeStart, '%H:%M').time()
+
     def get_time_end(self) -> time:
         return datetime.strptime(self.timeEnd, '%H:%M').time()
+
 
 @dataclass
 class Chair(JSONDeserializable):
     "Моделька для кафедр"
+
     id: int
     "id кафедры"
     shortName: str
@@ -44,9 +50,11 @@ class Chair(JSONDeserializable):
     fullName: str
     "Название кафедры"
 
+
 @dataclass
 class Classroom(JSONDeserializable):
     "Моделька для учебных аудиторий"
+
     id: int
     "id аудитории"
     name: str
@@ -56,15 +64,19 @@ class Classroom(JSONDeserializable):
     type: int
     "Тип 0-учебная 1-лаборатория"
 
+
 @dataclass
 class Course(JSONDeserializable):
     "Моделька для курсов"
+
     course: int
     "Курс"
+
 
 @dataclass
 class Faculty(JSONDeserializable):
     "Моделька для факультетов"
+
     id: int
     "id факультета"
     shortName: str
@@ -72,9 +84,11 @@ class Faculty(JSONDeserializable):
     fullName: str
     "Название факультета(Зависит от языка приложения)"
 
+
 @dataclass
 class Group(JSONDeserializable):
     "Моделька для групп"
+
     id: int
     "id группы"
     name: str
@@ -86,9 +100,11 @@ class Group(JSONDeserializable):
     educationForm: int
     "Форма обучения"
 
+
 @dataclass
 class Person(JSONDeserializable):
     "Моделька для персон"
+
     id: int
     "id преподавателя"
     firstName: str
@@ -98,15 +114,19 @@ class Person(JSONDeserializable):
     lastName: str
     "Фамилия преподавателя"
 
+
 @dataclass
 class Rd(JSONDeserializable):
     "Моделька для объявлений в расписании"
+
     html: str
     "Объявление"
+
 
 @dataclass
 class Structure(JSONDeserializable):
     "Моделька для структур"
+
     id: int
     "id структуры"
     shortName: str
@@ -114,9 +134,11 @@ class Structure(JSONDeserializable):
     fullName: str
     "Название структуры(Зависит от языка приложения)"
 
+
 @dataclass
 class Student(JSONDeserializable):
     "Моделька для Студентов"
+
     id: int
     "id студента"
     firstName: str
@@ -126,9 +148,11 @@ class Student(JSONDeserializable):
     lastName: str
     "Фамилия студента"
 
+
 @dataclass
 class TeacherByName(JSONDeserializable):
     "Моделька для поиска преподавателя"
+
     chairName: str
     "Название кафедры"
     id: int
@@ -140,12 +164,14 @@ class TeacherByName(JSONDeserializable):
     lastName: str
     "Фамилия преподавателя"
 
+
 @dataclass
 class TimeTablePeriod(JSONDeserializable):
     "Моделька для занятия в расписании"
+
     r1: int
     "Код занятия"
-    rz14: int # По шапке бы надавал за такие названия
+    rz14: int  # По шапке бы надавал за такие названия
     rz15: int
     r5: int
     disciplineId: int
@@ -166,11 +192,11 @@ class TimeTablePeriod(JSONDeserializable):
     "Сокращенные имена преподавателей"
     teachersNameFull: str
     "ФИО преподавателей"
-    chairName: str # Missing in the docs
+    chairName: str  # Missing in the docs
     "Название кафедры"
     type: int
     "Тип занятия"
-    typeStr: str # Missing in the docs
+    typeStr: str  # Missing in the docs
     "Тип занятия (строковый формат)"
     dateUpdated: str
     "Дата последнего обновления"
@@ -183,14 +209,18 @@ class TimeTablePeriod(JSONDeserializable):
 
     def get_time_start(self) -> time:
         return datetime.strptime(self.timeStart, '%H:%M').time()
+
     def get_time_end(self) -> time:
         return datetime.strptime(self.timeEnd, '%H:%M').time()
+
     def get_time_updated(self) -> datetime:
         return datetime.strptime(self.dateUpdated, '%Y-%m-%dT%H:%M:%S.%fZ')
+
 
 @dataclass
 class TimeTableLesson(JSONDeserializable):
     "Моделька для пары в расписании"
+
     number: int
     "Номер занятия"
     periods: list[TimeTablePeriod]
@@ -209,9 +239,11 @@ class TimeTableLesson(JSONDeserializable):
         del raw['periods']
         return TimeTableLesson(**_filter_fields(TimeTableLesson, raw), periods=periods)
 
+
 @dataclass
 class TimeTableDate(JSONDeserializable):
     "Моделька для дня в расписании"
+
     date: str
     "Дата"
     lessons: list[TimeTableLesson]
@@ -233,13 +265,16 @@ class TimeTableDate(JSONDeserializable):
         del raw['lessons']
         return TimeTableDate(**_filter_fields(TimeTableDate, raw), lessons=lessons)
 
+
 @dataclass
 class TeacherIdentifier(JSONDeserializable):
     "Моделька для преподавателей (связь с другими системами)"
+
     id: int
     "id преподавателя"
     hash: str
     "Hash"
+
 
 @dataclass
 class StudentIdentifier(JSONDeserializable):
@@ -248,6 +283,7 @@ class StudentIdentifier(JSONDeserializable):
     "id обучения студента"
     hash: str
     "Hash"
+
 
 @dataclass
 class Version(JSONDeserializable):

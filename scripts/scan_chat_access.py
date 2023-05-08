@@ -23,7 +23,6 @@ _parser.add_argument('-t', '--token', type=str, help='Bot token')
 _parser.add_argument('-p', '--path', type=str, help='Bot chat data directory path')
 
 
-
 def set_chat_accessibility(file: str, status: bool):
     with open(file, 'r+') as fp:
         data = json.load(fp)
@@ -33,6 +32,7 @@ def set_chat_accessibility(file: str, status: bool):
         fp.seek(0)
         fp.truncate(0)
         json.dump(data, fp, indent=4, ensure_ascii=False)
+
 
 def scan(file: str, token: str) -> tuple[str, bool]:
     chat_id = Path(file).stem
@@ -47,6 +47,7 @@ def scan(file: str, token: str) -> tuple[str, bool]:
     if res.status_code == 403 or res.status_code == 400:
         set_chat_accessibility(file, False)
         return file, False
+
 
 def main(token: str, path: str):
     _logger.info('Starting chat accessibility scan')

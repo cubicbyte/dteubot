@@ -1,13 +1,16 @@
 from urllib.parse import parse_qsl
 
+
 def array_split(array: list, row_size: int) -> list:
     return [array[i:i + row_size] for i in range(0, len(array), row_size)]
 
+
 def check_int(s: str) -> bool:
-    'Check if a string is an integer'
+    """Check if a string is an integer"""
     if s[0] == '-' or s[0] == '+':
         return s[1:].isdigit()
     return s.isdigit()
+
 
 def parse_callback_query(query: str) -> dict:
     """Parses a callback query string

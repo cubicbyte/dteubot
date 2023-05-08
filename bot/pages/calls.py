@@ -2,7 +2,8 @@ import requests.exceptions
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import ContextTypes
 from settings import api
-from ..pages import api_unavaliable
+from bot.pages import api_unavaliable
+
 
 def get_schedule_section_text() -> str:
     text = ''
@@ -10,19 +11,22 @@ def get_schedule_section_text() -> str:
         text += '`{number})` *{timeStart}* `-` *{timeEnd}*\n'.format(**call.__dict__)
     return text
 
+
 def create_message(context: ContextTypes.DEFAULT_TYPE) -> dict:
     try:
         schedule_section = get_schedule_section_text()
     except (
-        requests.exceptions.ConnectionError,
-        requests.exceptions.ReadTimeout,
-        requests.exceptions.HTTPError
+            requests.exceptions.ConnectionError,
+            requests.exceptions.ReadTimeout,
+            requests.exceptions.HTTPError
     ):
         return api_unavaliable.create_message(context)
 
     buttons = [[
-        InlineKeyboardButton(text=context._chat_data.get_lang()['button.back'], callback_data='open.more'),
-        InlineKeyboardButton(text=context._chat_data.get_lang()['button.menu'], callback_data='open.menu')
+        InlineKeyboardButton(text=context._chat_data.get_lang()['button.back'],
+                             callback_data='open.more'),
+        InlineKeyboardButton(text=context._chat_data.get_lang()['button.menu'],
+                             callback_data='open.menu')
     ]]
 
     return {

@@ -1,8 +1,9 @@
 from telegram import Update
 from telegram.ext import CallbackContext
-from . import register_button_handler
-from ..pages import left
-from ..data import Message
+from bot.button_handlers import register_button_handler
+from bot.pages import left
+from bot.data import Message
+
 
 @register_button_handler('^open.left$')
 async def handler(update: Update, context: CallbackContext):

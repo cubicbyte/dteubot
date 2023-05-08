@@ -1,6 +1,12 @@
+"""
+This module contains the smart_split function,
+which is used to split a string into multiple strings.
+"""
+
 from typing import List
 
 MAX_MESSAGE_LENGTH = 4096
+
 
 # Copied from the pyTelegramBotApi library
 # Link: https://github.com/eternnoir/pyTelegramBotAPI/blob/5d9a76b0dd0d3ee88c5c9d1329c06b24fdc4457b/telebot/util.py#L327
@@ -14,14 +20,15 @@ def smart_split(text: str, chars_per_string: int = MAX_MESSAGE_LENGTH) -> List[s
     :type text: :obj:`str`
     :param chars_per_string: The number of maximum characters per part the text is split to.
     :type chars_per_string: :obj:`int`
-    :return: The splitted text as a list of strings.
+    :return: The split text as a list of strings.
     :rtype: :obj:`list` of :obj:`str`
     """
 
     def _text_before_last(substr: str) -> str:
         return substr.join(part.split(substr)[:-1]) + substr
 
-    if chars_per_string > MAX_MESSAGE_LENGTH: chars_per_string = MAX_MESSAGE_LENGTH
+    if chars_per_string > MAX_MESSAGE_LENGTH:
+        chars_per_string = MAX_MESSAGE_LENGTH
 
     parts = []
     while True:

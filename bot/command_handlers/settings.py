@@ -1,8 +1,9 @@
 from telegram import Update
 from telegram.ext import ContextTypes
-from . import register_command_handler
-from ..pages import settings
-from ..data import Message
+from bot.command_handlers import register_command_handler
+from bot.pages import settings
+from bot.data import Message
+
 
 @register_command_handler('settings')
 async def handler(update: Update, context: ContextTypes.DEFAULT_TYPE):

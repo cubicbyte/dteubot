@@ -18,7 +18,6 @@ _parser = argparse.ArgumentParser(description='Update bot data to the latest ver
 _parser.add_argument('path', type=str, help='Bot data directory path')
 
 
-
 def insert_after(key: str, value: any, after_key: str, obj: dict, ignore_existing: bool = True):
     "Inserts a value after a specific key in dict"
     keys = list(obj.keys())
@@ -38,6 +37,7 @@ def insert_after(key: str, value: any, after_key: str, obj: dict, ignore_existin
     for i in range(len(keys)):
         res[keys[i]] = values[i]
     return res
+
 
 def update_chat_configs(path: str):
     "Update chat configs (chat data) to the latest version. (outdated)"
@@ -59,7 +59,7 @@ def update_chat_configs(path: str):
         conf = json.load(fp)
 
         # Required to overwrite a file
-        fp.seek(0)      # Move cursor to start of the file
+        fp.seek(0)  # Move cursor to start of the file
         fp.truncate(0)  # Clear file
 
         # Convert string fields to integers
@@ -73,8 +73,8 @@ def update_chat_configs(path: str):
             if conf['schedule']['group_id'] is not None:
                 conf['schedule']['group_id'] = int(conf['schedule']['group_id'])
 
-        conf = insert_after('ref', None, 'lang', conf)   # 1.2.0: create "ref" field
-        conf = insert_after('admin', False, 'ref', conf) # 1.4.2: create "admin" field
+        conf = insert_after('ref', None, 'lang', conf)  # 1.2.0: create "ref" field
+        conf = insert_after('admin', False, 'ref', conf)  # 1.4.2: create "admin" field
 
         # 1.5.0: remove structure, faculty and course from config
         if 'schedule' in conf:
@@ -83,6 +83,7 @@ def update_chat_configs(path: str):
             conf = insert_after('groupId', group_id, 'admin', conf)
 
         json.dump(conf, fp, indent=4, ensure_ascii=False)
+
 
 # 2.3.0
 def migrate_chat_configs(path: str):
@@ -112,7 +113,8 @@ def migrate_chat_configs(path: str):
         fp.close()
 
         if not file.startswith('-'):
-            # All group, supergroup and channel IDs start with "-", which means this thing will only save user data
+            # All group, supergroup and channel IDs start with "-",
+            # which means this thing will only save user data
             user_fp = open(os.path.join(user_data_path, file), 'w')
             user_data = {
                 'admin': conf['admin'],
@@ -129,6 +131,7 @@ def migrate_chat_configs(path: str):
         os.remove(file_path)
     os.rmdir(path)
 
+
 def update_user_data(path: str):
     _logger.info('Updating ./user-data/')
     path = os.path.join(path, 'user-data')
@@ -144,7 +147,7 @@ def update_user_data(path: str):
         conf = json.load(fp)
 
         # Required to overwrite a file
-        fp.seek(0)      # Move cursor to start of the file
+        fp.seek(0)  # Move cursor to start of the file
         fp.truncate(0)  # Clear file
 
         # 2.3.0: create "_created" and "_updated" fields
@@ -152,6 +155,7 @@ def update_user_data(path: str):
         conf = insert_after('_updated', 0, '_created', conf)
 
         json.dump(conf, fp, ensure_ascii=False, indent=4)
+
 
 def update_chat_data(path: str):
     _logger.info('Updating ./chat-data/')
@@ -168,7 +172,7 @@ def update_chat_data(path: str):
         conf = json.load(fp)
 
         # Required to overwrite a file
-        fp.seek(0)      # Move cursor to start of the file
+        fp.seek(0)  # Move cursor to start of the file
         fp.truncate(0)  # Clear file
 
         # 2.3.0
@@ -182,6 +186,7 @@ def update_chat_data(path: str):
 
         json.dump(conf, fp, indent=4, ensure_ascii=False)
 
+
 def update_logs(path: str):
     _logger.info('Updating ./logs/')
     path = os.path.join(path, 'logs')
@@ -191,14 +196,15 @@ def update_logs(path: str):
         _logger.debug('./logs/debug/ folder detected. Removing')
         os.rmdir(os.path.join(path, 'debug'))
 
+
 def update_cache(path: str):
     # TODO
     pass
 
+
 def update_langs(path: str):
     # TODO
     pass
-
 
 
 def main(path: str):
@@ -211,6 +217,7 @@ def main(path: str):
     update_cache(path)
     update_langs(path)
     _logger.info(f'Bot data updated in {time.process_time():.3f}s')
+
 
 if __name__ == '__main__':
     args = _parser.parse_args()

@@ -28,11 +28,13 @@ Example:
 _parser.add_argument('-o', '--output', type=str, help='Main bot data directory path')
 _parser.add_argument('path', type=str, nargs='*', help='Other bot data directory path to merge')
 
+
 def merge_user_data(main_path: str, other_path: List[str]):
     _logger.info('Merging ./user-data/')
     _main_path = os.path.join(main_path, 'user-data')
     _other_path = [os.path.join(path, 'user-data') for path in other_path]
     _merge_data(_main_path, _other_path)
+
 
 def merge_chat_data(main_path: str, other_path: List[str]):
     _logger.info('Merging ./chat-data/')
@@ -40,8 +42,10 @@ def merge_chat_data(main_path: str, other_path: List[str]):
     _other_path = [os.path.join(path, 'chat-data') for path in other_path]
     _merge_data(_main_path, _other_path)
 
+
 def merge_cache(main_path: str, other_path: List[str]):
     pass
+
 
 def merge_logs(main_path: str, other_path: List[str]):
     # debug.log will be ignored
@@ -54,6 +58,7 @@ def merge_logs(main_path: str, other_path: List[str]):
     _logger.info('Merging ./logs/telegram/chats/.../cb_queries.txt')
     _merge_chat_cb_queries(main_path, other_path)
 
+
 def main(main_path: str, other_path: List[str]):
     """Update bot data to the latest version"""
     merge_user_data(main_path, other_path)
@@ -61,7 +66,6 @@ def main(main_path: str, other_path: List[str]):
     merge_cache(main_path, other_path)
     merge_logs(main_path, other_path)
     _logger.info(f'Merging finished in {time.process_time():.3f}s')
-
 
 
 def _merge_data(main_path: str, other_path: List[str]):
@@ -90,6 +94,7 @@ def _merge_data(main_path: str, other_path: List[str]):
         json.dump(data, fp, indent=4, ensure_ascii=False)
         fp.close()
 
+
 def _merge_chat(fp, cache):
     _cache = cache.copy()
     for line in fp:
@@ -107,11 +112,13 @@ def _merge_chat(fp, cache):
                 break
             cache.append([timestamp, line])
 
+
 def _get_latest_update_time(fp):
     for line in reversed(fp.readlines()):
         if line.startswith('['):
             return int(datetime.datetime.strptime(line[1:20], '%Y-%m-%d %H:%M:%S').timestamp())
     return int(time.time())
+
 
 def _merge_user_latest_updates(main_path: str, other_path: List[str]):
     data_cache = {}
@@ -127,7 +134,9 @@ def _merge_user_latest_updates(main_path: str, other_path: List[str]):
         path = os.path.join(main_path, 'logs', 'telegram', 'users')
         if data[1] == path:
             continue
-        shutil.copyfile(os.path.join(data[1], user_id, 'latest_update.json'), os.path.join(path, user_id, 'latest_update.json'))
+        shutil.copyfile(os.path.join(data[1], user_id, 'latest_update.json'),
+                        os.path.join(path, user_id, 'latest_update.json'))
+
 
 def _merge_user_updates(main_path: str, other_path: List[str]):
     data_cache = {}
@@ -144,6 +153,7 @@ def _merge_user_updates(main_path: str, other_path: List[str]):
             for _, line in reversed(data):
                 fp.write(line)
 
+
 def _merge_chat_messages(main_path: str, other_path: List[str]):
     data_cache = {}
     for path in other_path + [main_path]:
@@ -159,6 +169,7 @@ def _merge_chat_messages(main_path: str, other_path: List[str]):
             for _, line in reversed(data):
                 fp.write(line)
 
+
 def _merge_chat_cb_queries(main_path: str, other_path: List[str]):
     data_cache = {}
     for path in other_path + [main_path]:
@@ -173,7 +184,6 @@ def _merge_chat_cb_queries(main_path: str, other_path: List[str]):
         with open(os.path.join(main_path, 'logs', 'telegram', 'chats', chat_id, 'cb_queries.txt'), 'w') as fp:
             for _, line in reversed(data):
                 fp.write(line)
-
 
 
 if __name__ == '__main__':

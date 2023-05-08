@@ -9,8 +9,9 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from datetime import datetime
 from functools import cache
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field as _field
 from settings import langs, USER_DATA_PATH, CHAT_DATA_PATH
+
 
 @dataclass(frozen=True)
 class Message:
@@ -18,14 +19,16 @@ class Message:
     timestamp: datetime
     page_name: str
     lang_code: str
-    data: dict[str, any] = field(default_factory=dict)
+    data: dict[str, any] = _field(default_factory=dict)
+
 
 class DataManager(ABC):
-    _data_cache: dict[str, dict[str, any]] = {}
-
+    @staticmethod
     @abstractmethod
-    def _get_default_data(self) -> dict[str, any]:
+    def _get_default_data() -> dict[str, any]:
         pass
+
+    _data_cache: dict[str, dict[str, any]] = {}
 
     @classmethod
     def _get_data(cls, file: str) -> dict[str, any]:
@@ -47,6 +50,7 @@ class DataManager(ABC):
     def _update_data(cls, file: str):
         with open(file, 'w') as fp:
             json.dump(cls._get_data(file), fp, indent=4, ensure_ascii=False)
+
 
 class UserData(DataManager):
     @staticmethod
@@ -87,21 +91,23 @@ class UserData(DataManager):
         data[name] = value
         self._update_data(self._get_file())
 
+
 class ChatData(DataManager):
     @staticmethod
     def _get_default_data() -> dict[str, any]:
         cur_timestamp_s = int(time.time())
         return {
-            'lang_code': os.getenv('DEFAULT_LANG'), # Language code
-            'group_id': None,                       # Group ID
-            'cl_notif_15m': False,                  # Notification 15 minutes before class
-            'cl_notif_1m': False,                   # Notification when classes starts
-            'cl_notif_suggested': False,            # Is classes notification suggested
-            '_messages': [],                         # List of bot messages sent to chat
-            '_accessible': True,                    # No access to chat (user blocked bot or no access to chat)
-            '_created': cur_timestamp_s,            # Chat creation timestamp
-            '_updated': cur_timestamp_s             # Chat latest update timestamp
+            'lang_code': os.getenv('DEFAULT_LANG'),  # Language code
+            'group_id': None,  # Group ID
+            'cl_notif_15m': False,  # Notification 15 minutes before class
+            'cl_notif_1m': False,  # Notification when classes starts
+            'cl_notif_suggested': False,  # Is classes notification suggested
+            '_messages': [],  # List of bot messages sent to chat
+            '_accessible': True,  # No access to chat (user blocked bot or no access to chat)
+            '_created': cur_timestamp_s,  # Chat creation timestamp
+            '_updated': cur_timestamp_s  # Chat latest update timestamp
         }
+
     MESSAGES_LIMIT = 16
 
     @staticmethod
@@ -132,10 +138,9 @@ class ChatData(DataManager):
         data[field] = value
         self._update_data(self.__get_file())
 
-
     def get_lang(self) -> dict[str, str]:
         return langs[self.get('lang_code')]
-    
+
     def get_messages(self, page_name: str = None) -> list[Message]:
         messages = self.get('_messages')
         res = []

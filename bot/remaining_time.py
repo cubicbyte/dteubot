@@ -3,15 +3,21 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 from lib.api.schemas import CallSchedule
 from settings import api
-from .utils.time_formatter import format_time
+from bot.utils.time_formatter import format_time
+
 
 @dataclass
 class FormattedTime:
     time: timedelta
     text: str
 
-def get_lesson(calls: List[CallSchedule], lessons: list[int], timestamp: datetime = None) -> dict:
-    """Returns the current time relative to today's lessons
+
+def get_lesson(
+        calls: List[CallSchedule],
+        lessons: list[int],
+        timestamp: datetime | None = None) -> dict:
+    """
+    Returns the current time relative to today's lessons
 
     Example
     --------------
@@ -25,6 +31,7 @@ def get_lesson(calls: List[CallSchedule], lessons: list[int], timestamp: datetim
         "status": 0,
         "time": <datetime.timedelta>
     }
+
     Fields
     --------------
     - lesson: lesson
@@ -37,18 +44,19 @@ def get_lesson(calls: List[CallSchedule], lessons: list[int], timestamp: datetim
     """
 
     lessons.sort()
+    date = timestamp.date()
+    calls_formatted = {}
 
     if not timestamp:
         timestamp = datetime.now()
-    date = timestamp.date()
-    calls_formatted = {}
+
     for call in calls:
-        timeStart = datetime.combine(date, datetime.strptime(call.timeStart, '%H:%M').time())
-        timeEnd = datetime.combine(date, datetime.strptime(call.timeEnd, '%H:%M').time())
+        time_start = datetime.combine(date, datetime.strptime(call.timeStart, '%H:%M').time())
+        time_end = datetime.combine(date, datetime.strptime(call.timeEnd, '%H:%M').time())
         calls_formatted[str(call.number)] = {
             'number': call.number,
-            'timeStart': timeStart,
-            'timeEnd': timeEnd
+            'timeStart': time_start,
+            'timeEnd': time_end
         }
 
     result = {
@@ -73,6 +81,8 @@ def get_lesson(calls: List[CallSchedule], lessons: list[int], timestamp: datetim
             if timestamp <= lesson['timeEnd']:
                 cur_lesson = lesson
                 break
+        else:
+            return result
 
         if timestamp < cur_lesson['timeStart']:
             result['lesson'] = cur_lesson
@@ -84,6 +94,7 @@ def get_lesson(calls: List[CallSchedule], lessons: list[int], timestamp: datetim
             result['time'] = cur_lesson['timeEnd'] - timestamp
 
     return result
+
 
 def get_time(group_id: int, timestamp: datetime = None) -> dict | None:
     if not timestamp:
@@ -109,6 +120,7 @@ def get_time(group_id: int, timestamp: datetime = None) -> dict | None:
         lessons.append(lesson.number)
 
     return get_lesson(calls, lessons, timestamp)
+
 
 def get_time_formatted(lang_code: str, group_id: int, timestamp: datetime = None) -> dict:
     if not timestamp:

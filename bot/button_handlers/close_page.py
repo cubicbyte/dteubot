@@ -1,6 +1,7 @@
 from telegram import Update
 from telegram.ext import CallbackContext
-from . import register_button_handler
+from bot.button_handlers import register_button_handler
+
 
 @register_button_handler('^close_page$')
 async def handler(update: Update, context: CallbackContext):

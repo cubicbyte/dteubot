@@ -1,19 +1,24 @@
 import sqlite3
 from datetime import date as _date
 
+
 class CacheReader:
     def __init__(self, file: str) -> None:
         self.__connection = sqlite3.connect(file, check_same_thread=False)
 
-    def get_schedule(self, groupId: int, dateStart: _date | str, dateEnd: _date | str = None) -> list[list] | None:
+    def get_schedule(self, groupId: int, dateStart: _date | str,
+                     dateEnd: _date | str = None) -> list[list] | None:
+
         if type(dateStart) == _date:
             dateStart = dateStart.strftime('%Y-%m-%d')
         if dateEnd is None:
             dateEnd = dateStart
         elif type(dateEnd) == _date:
             dateEnd = dateEnd.strftime('%Y-%m-%d')
+
         cur = self.__connection.cursor()
-        cur.execute('SELECT * FROM Schedule WHERE groupId = ? AND date BETWEEN ? AND ?;', (groupId, dateStart, dateEnd))
+        cur.execute('SELECT * FROM Schedule WHERE groupId = ? AND date BETWEEN ? AND ?;',
+                    (groupId, dateStart, dateEnd))
         res = cur.fetchall()
         cur.close()
         return res

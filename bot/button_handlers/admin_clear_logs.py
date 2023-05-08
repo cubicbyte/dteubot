@@ -1,8 +1,9 @@
 import os.path
 from telegram import Update
 from telegram.ext import CallbackContext
-from . import register_button_handler, validate_admin
+from bot.button_handlers import register_button_handler, validate_admin
 from settings import LOGS_PATH
+
 
 @register_button_handler('^admin.clear_logs$')
 @validate_admin
