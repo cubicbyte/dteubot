@@ -62,8 +62,8 @@ def create_schedule_section(context: ContextTypes.DEFAULT_TYPE, day: TimeTableDa
             # If there are multiple teachers, display the first one and add +n to the end
             if ',' in period.teachersName:
                 count = str(period.teachersNameFull.count(','))
-                period.teachersName = period.teachersName[:period.teachersName.index(',')] + ' +' + count
-                period.teachersNameFull = period.teachersNameFull[:period.teachersNameFull.index(',')] + ' +' + count
+                period.teachersName = period.teachersName[:period.teachersName.index(',')] + ' \\+' + count
+                period.teachersNameFull = period.teachersNameFull[:period.teachersNameFull.index(',')] + ' \\+' + count
 
             schedule_section += context._chat_data.get_lang()['text.schedule.period'].format(
                 **period.__dict__,
