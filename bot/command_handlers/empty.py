@@ -4,7 +4,7 @@ from bot.command_handlers import register_command_handler
 from bot.pages import statistic
 
 
-@register_command_handler(['empty_0', 'empty_1'])
+@register_command_handler(['empty_1', 'empty_2'])
 async def handler(upd: Update, ctx: ContextTypes.DEFAULT_TYPE):
     msg = await upd.message.chat.send_message(
         **statistic.create_message(upd, ctx))
