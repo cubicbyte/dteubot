@@ -179,7 +179,7 @@ class ChatData(DataManager):
 
         messages_raw = self.get('_messages')
         messages = []
- 
+
         for msg in messages_raw:
             # Filter messages by page name
             if page_name is not None and msg[2] != page_name:

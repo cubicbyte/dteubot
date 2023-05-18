@@ -1,7 +1,6 @@
 # TODO: move this module to external library (/lib/notifier)
 
 import logging
-import requests.exceptions
 from datetime import date, datetime, timedelta
 from functools import partial
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
@@ -17,7 +16,7 @@ api_retries_limit = 5
 def _get_day(chat_data: ChatData):
     try:
         day = api.timetable_group(chat_data.get('group_id'), date.today())[0]
-    except ApiException:
+    except HTTPApiException:
         return None
     return day
 
