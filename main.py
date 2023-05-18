@@ -17,28 +17,41 @@ from bot.buttons import handlers as button_handlers, register_button
 from bot.commands import *
 from bot.commands import handlers as command_handlers
 from bot.notification_scheduler import scheduler
+from bot.data import ContextManager, ChatData
 from bot import error_handler, pages
 
 
-async def set_chat_accessible(ctx):
-    if not ctx.chat_data.get('_accessible'):
-        ctx.chat_data.set('_accessible', True)
+async def set_chat_accessible(upd, ctx):
+    chat_data = ChatData(upd.effective_chat.id)
+
+    if not chat_data.get('_accessible'):
+        chat_data.set('_accessible', True)
 
 
-async def button_logger(ctx):
+async def button_logger(upd, ctx):
     logger.info('[chat/{0} user/{1} msg/{2}] callback query: {3}'.format(
-        ctx.update.callback_query.message.chat.id,
-        ctx.update.callback_query.from_user.id,
-        ctx.update.callback_query.message.id,
-        ctx.update.callback_query.data))
+        upd.callback_query.message.chat.id,
+        upd.callback_query.from_user.id,
+        upd.callback_query.message.id,
+        upd.callback_query.data))
 
 
-async def message_logger(ctx):
+async def message_logger(upd, ctx):
     logger.info('[chat/{0} user/{1} msg/{2}] message: {3}'.format(
-        ctx.update.message.chat.id,
-        ctx.update.message.from_user.id,
-        ctx.update.message.id,
-        ctx.update.message.text))
+        upd.message.chat.id,
+        upd.message.from_user.id,
+        upd.message.id,
+        upd.message.text))
+    
+
+async def button_post_logger(upd, ctx):
+    manager = ContextManager(upd, ctx)
+    await tg_logger.callback_query_handler(manager)
+
+
+async def message_post_logger(upd, ctx):
+    manager = ContextManager(upd, ctx)
+    await tg_logger.message_handler(manager)
 
 
 @register_button()
@@ -60,7 +73,7 @@ bot.add_handlers([CallbackQueryHandler(button_logger), MessageHandler(None, mess
 bot.add_handlers([CallbackQueryHandler(set_chat_accessible), MessageHandler(None, set_chat_accessible)], 5)
 bot.add_handlers(button_handlers + command_handlers, 10)
 bot.add_handlers([CallbackQueryHandler(suggest_notif_feature), MessageHandler(None, suggest_notif_feature)], 15)
-bot.add_handlers([CallbackQueryHandler(tg_logger.callback_query_handler), MessageHandler(None, tg_logger.message_handler)], 20)
+bot.add_handlers([CallbackQueryHandler(button_post_logger), MessageHandler(None, message_post_logger)], 20)
 bot.add_error_handler(error_handler.handler)
 
 

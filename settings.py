@@ -30,9 +30,6 @@ assert check_int(os.getenv('API_REQUEST_TIMEOUT')), 'The API_REQUEST_TIMEOUT env
 assert check_int(os.getenv('API_CACHE_EXPIRES')), 'The API_CACHE_EXPIRES environment variable must be an integer. Received: %s' % os.getenv('API_CACHE_EXPIRES')
 
 
-USER_DATA_PATH = 'user-data'
-CHAT_DATA_PATH = 'chat-data'
-
 if int(os.getenv('API_REQUEST_TIMEOUT')) <= 0:
     os.environ.update(API_REQUEST_TIMEOUT=None)
 
