@@ -6,10 +6,10 @@ from dotenv import load_dotenv
 from telegram.ext import ApplicationBuilder
 from bot.utils import check_int
 
-sys.path.append('../../lib')                # Required to load external libraries
-load_dotenv('.env')                         # Load .env file in current dir
-load_dotenv()                               # Load .env file in bot dir
-
+# Load environment variable files (.env)
+sys.path.append('../../lib')  # Required to load external libraries
+load_dotenv('.env')           # Load .env file in current dir
+load_dotenv()                 # Load .env file in bot dir
 
 # Set environment variable default values
 os.environ.setdefault('MODE', 'prod')
@@ -17,6 +17,11 @@ os.environ.setdefault('DEFAULT_LANG', 'en')
 os.environ.setdefault('API_REQUEST_TIMEOUT', '-1')
 os.environ.setdefault('API_CACHE_EXPIRES', '-1')
 os.environ.setdefault('LOGGING_LEVEL', 'INFO')
+os.environ.setdefault('USER_DATA_PATH', 'user-data')
+os.environ.setdefault('CHAT_DATA_PATH', 'chat-data')
+os.environ.setdefault('LOGS_PATH', 'logs')
+os.environ.setdefault('CACHE_PATH', 'cache')
+os.environ.setdefault('LANGS_PATH', os.path.join(sys.path[0], 'langs'))
 
 # Validate environment variables
 assert os.getenv('MODE') in ('prod', 'dev'), 'The MODE environment variable must be only prod or dev. Received: %s' % os.getenv('MODE')
@@ -25,35 +30,22 @@ assert check_int(os.getenv('API_REQUEST_TIMEOUT')), 'The API_REQUEST_TIMEOUT env
 assert check_int(os.getenv('API_CACHE_EXPIRES')), 'The API_CACHE_EXPIRES environment variable must be an integer. Received: %s' % os.getenv('API_CACHE_EXPIRES')
 
 
-BOT_TOKEN = os.getenv('BOT_TOKEN')
-API_URL = os.getenv('API_URL')
-DEFAULT_LANG = os.getenv('DEFAULT_LANG')
-API_REQUEST_TIMEOUT = int(os.getenv('API_REQUEST_TIMEOUT'))
-API_CACHE_EXPIRES = int(os.getenv('API_CACHE_EXPIRES'))
-LOGGING_LEVEL = os.getenv('LOGGING_LEVEL')
-MODE = os.getenv('MODE')
-LOG_CHAT_ID = os.getenv('LOG_CHAT_ID')
-
 USER_DATA_PATH = 'user-data'
 CHAT_DATA_PATH = 'chat-data'
-LANGS_PATH = os.path.join(sys.path[0], 'langs')
-LOGS_PATH = 'logs'
-CACHE_PATH = 'cache'
-API_TYPE_CACHED = 'CachedApi'
-API_TYPE_DEFAULT = 'Api'
 
-if API_REQUEST_TIMEOUT <= 0:
-    API_REQUEST_TIMEOUT = None
+if int(os.getenv('API_REQUEST_TIMEOUT')) <= 0:
+    os.environ.update(API_REQUEST_TIMEOUT=None)
 
 
-os.makedirs(LOGS_PATH, exist_ok=True)
-os.makedirs(USER_DATA_PATH, exist_ok=True)
-os.makedirs(CHAT_DATA_PATH, exist_ok=True)
+# Create required directories
+os.makedirs(os.getenv('LOGS_PATH'), exist_ok=True)
+os.makedirs(os.getenv('USER_DATA_PATH'), exist_ok=True)
+os.makedirs(os.getenv('CHAT_DATA_PATH'), exist_ok=True)
 
 
 logging.basicConfig(
-    level=LOGGING_LEVEL,
-    filename=os.path.join(LOGS_PATH, 'debug.log'),
+    level=os.getenv('LOGGING_LEVEL'),
+    filename=os.path.join(os.getenv('LOGS_PATH'), 'debug.log'),
     filemode='a',
     format='%(asctime)s [%(levelname)s] %(name)s: %(message)s',
     force=True
@@ -69,20 +61,22 @@ from bot.tg_logger import TelegramLogger
 from bot.load_langs import load_langs
 
 
+# Use CachedApi if possible
+_cache_exists = os.path.isfile(os.path.join(os.getenv('CACHE_PATH'), 'mkr-cache.sqlite'))
+_Api = CachedApi if _cache_exists else Api
+API_TYPE_CACHED = 'CachedApi'
+API_TYPE_DEFAULT = 'Api'
+API_TYPE = API_TYPE_CACHED if _cache_exists else API_TYPE_DEFAULT
 
-if os.path.isfile(os.path.join(CACHE_PATH, 'mkr-cache.sqlite')):
-    API_TYPE = API_TYPE_CACHED
-    _Api = CachedApi
-else:
-    API_TYPE = API_TYPE_DEFAULT
-    _Api = Api
 
-bot = ApplicationBuilder().token(BOT_TOKEN).build()
+bot = ApplicationBuilder().token(os.getenv('BOT_TOKEN')).build()
+tg_logger = TelegramLogger(os.path.join(os.getenv('LOGS_PATH'), 'telegram'))
+langs = load_langs(os.getenv('LANGS_PATH'))
+
 api = _Api(
-    url=API_URL,
+    url=os.getenv('API_URL'),
     enable_cache=True,
-    timeout=API_REQUEST_TIMEOUT,
-    expire_after=timedelta(seconds=API_CACHE_EXPIRES),
-    cache_name=os.path.join(CACHE_PATH, 'http-cache'))
-tg_logger = TelegramLogger(os.path.join(LOGS_PATH, 'telegram'))
-langs = load_langs(LANGS_PATH)
+    timeout=int(os.getenv('API_REQUEST_TIMEOUT')),
+    expire_after=timedelta(seconds=int(os.getenv('API_CACHE_EXPIRES'))),
+    cache_name=os.path.join(os.getenv('CACHE_PATH'), 'http-cache')
+)

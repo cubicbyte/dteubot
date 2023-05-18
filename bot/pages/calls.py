@@ -3,6 +3,7 @@ from telegram import InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import ContextTypes
 from settings import api
 from bot.pages import api_unavaliable
+from lib.api.exceptions import HTTPApiException
 
 
 def get_schedule_section_text() -> str:
@@ -15,11 +16,7 @@ def get_schedule_section_text() -> str:
 def create_message(context: ContextTypes.DEFAULT_TYPE) -> dict:
     try:
         schedule_section = get_schedule_section_text()
-    except (
-            requests.exceptions.ConnectionError,
-            requests.exceptions.ReadTimeout,
-            requests.exceptions.HTTPError
-    ):
+    except HTTPApiException:
         return api_unavaliable.create_message(context)
 
     buttons = [[

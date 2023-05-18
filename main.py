@@ -1,7 +1,8 @@
+import os
 import asyncio
 import logging
 from telegram.ext import MessageHandler, CallbackQueryHandler
-from settings import bot, tg_logger, LOG_CHAT_ID
+from settings import bot, tg_logger
 from bot.button_handlers import *
 from bot.button_handlers import handlers as button_handlers, register_button_handler
 from bot.command_handlers import *
@@ -13,7 +14,7 @@ from bot import error_handler
 
 
 
-error_handler.log_chat_id = LOG_CHAT_ID
+error_handler.log_chat_id = os.getenv('LOG_CHAT_ID')
 logger = logging.getLogger()
 logger.info('Starting application')
 

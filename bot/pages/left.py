@@ -4,6 +4,7 @@ from telegram.ext import ContextTypes
 from telegram.helpers import escape_markdown
 from bot.pages import api_unavaliable, invalid_group
 from bot import remaining_time
+from lib.api.exceptions import HTTPApiException
 
 
 def create_message(context: ContextTypes.DEFAULT_TYPE) -> dict:
@@ -13,11 +14,7 @@ def create_message(context: ContextTypes.DEFAULT_TYPE) -> dict:
     try:
         rem_time = remaining_time.get_time_formatted(context._chat_data.get('lang_code'),
                                                      context._chat_data.get('group_id'))
-    except (
-            requests.exceptions.ConnectionError,
-            requests.exceptions.ReadTimeout,
-            requests.exceptions.HTTPError
-    ):
+    except HTTPApiException:
         return api_unavaliable.create_message(context)
 
     # Show "no more classes" page

@@ -3,16 +3,13 @@ from telegram import InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import ContextTypes
 from settings import api
 from bot.pages import api_unavaliable, faculty_list
+from lib.api.exceptions import HTTPApiException
 
 
 def create_message(context: ContextTypes.DEFAULT_TYPE) -> dict:
     try:
         structures = api.list_structures()
-    except (
-            requests.exceptions.ConnectionError,
-            requests.exceptions.ReadTimeout,
-            requests.exceptions.HTTPError
-    ):
+    except HTTPApiException:
         return api_unavaliable.create_message(context)
 
     # If there is only one structure, show faculties page

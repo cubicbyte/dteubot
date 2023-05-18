@@ -5,6 +5,7 @@ from telegram.helpers import escape_markdown
 from datetime import datetime, timedelta, date as _date
 from babel.dates import format_date
 from lib.api.schemas import TimeTableDate
+from lib.api.exceptions import HTTPApiException
 from settings import api
 from bot.pages import invalid_group, api_unavaliable
 from bot.utils import array_split
@@ -91,10 +92,7 @@ def create_message(context: ContextTypes.DEFAULT_TYPE, date: _date | str) -> dic
         if err.response.status_code == 422:
             return invalid_group.create_message(context)
         return api_unavaliable.create_message(context)
-    except (
-            requests.exceptions.ConnectionError,
-            requests.exceptions.ReadTimeout
-    ):
+    except HTTPApiException:
         return api_unavaliable.create_message(context)
 
     # Find schedule of current day

@@ -4,16 +4,13 @@ from telegram.ext import ContextTypes
 from settings import api
 from bot.pages import api_unavaliable
 from bot.utils import array_split
+from lib.api.exceptions import HTTPApiException
 
 
 def create_message(context: ContextTypes.DEFAULT_TYPE, structure_id: int, faculty_id: int, course: int) -> dict:
     try:
         groups = api.list_groups(faculty_id, course)
-    except (
-            requests.exceptions.ConnectionError,
-            requests.exceptions.ReadTimeout,
-            requests.exceptions.HTTPError
-    ):
+    except HTTPApiException:
         return api_unavaliable.create_message(context)
 
     buttons = [[
