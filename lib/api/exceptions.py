@@ -1,5 +1,3 @@
-import requests.exceptions
+from requests.exceptions import RequestException
 
-HTTPApiException = (requests.exceptions.ConnectionError,
-                    requests.exceptions.ReadTimeout,
-                    requests.exceptions.HTTPError)
+HTTPApiException = RequestException

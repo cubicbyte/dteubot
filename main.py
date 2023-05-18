@@ -3,14 +3,13 @@ import asyncio
 import logging
 from telegram.ext import MessageHandler, CallbackQueryHandler
 from settings import bot, tg_logger
-from bot.button_handlers import *
-from bot.button_handlers import handlers as button_handlers, register_button_handler
-from bot.command_handlers import *
-from bot.command_handlers import handlers as command_handlers
-from bot.pages import menu, notification_feature_suggestion
+from bot.buttons import *
+from bot.buttons import handlers as button_handlers, register_button_handler
+from bot.commands import *
+from bot.commands import handlers as command_handlers
 from bot.notification_scheduler import scheduler
 from bot.data import UserData, ChatData, Message
-from bot import error_handler
+from bot import error_handler, pages
 
 
 
@@ -43,13 +42,13 @@ async def msg_handler(upd, ctx):
 @register_button_handler()
 async def unsupported_btn_handler(upd, ctx):
     await upd.callback_query.answer(ctx._chat_data.get_lang()['alert.callback_query_unsupported'], show_alert=True)
-    msg = await upd.callback_query.message.edit_text(**menu.create_message(ctx))
+    msg = await upd.callback_query.message.edit_text(**pages.menu(ctx))
     ctx._chat_data.add_message(Message(msg.message_id, msg.date, 'menu', ctx._chat_data.get('lang_code')))
 
 async def suggest_notif_feature(upd, ctx):
     if not ctx._chat_data.get('cl_notif_suggested') and ctx._chat_data.get('_created') == 0:
         await asyncio.sleep(1)
-        msg = await upd.effective_message.reply_text(**notification_feature_suggestion.create_message(ctx))
+        msg = await upd.effective_message.reply_text(**pages.notification_feature_suggestion(ctx))
         ctx._chat_data.add_message(Message(msg.message_id, msg.date, 'notification_feature_suggestion', ctx._chat_data.get('lang_code')))
         ctx._chat_data.set('cl_notif_suggested', True)
 

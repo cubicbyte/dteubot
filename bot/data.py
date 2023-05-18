@@ -6,7 +6,6 @@ import os
 import time
 import json
 from abc import ABC, abstractmethod
-from typing import Optional
 from pathlib import Path
 from datetime import datetime
 from functools import cache
@@ -216,7 +215,7 @@ class ChatData(DataManager):
             self,
             page_name: str,
             message: TgMessage,
-            data: Optional[dict] = None
+            data: dict | None = None
     ):
         """Fast shortcut for `add_message`"""
 

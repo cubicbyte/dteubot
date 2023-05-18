@@ -1,4 +1,3 @@
-
 class Language(dict):
     """
     A wrapper around a language dictionary.
@@ -7,8 +6,8 @@ class Language(dict):
 
     def __init__(
             self,
-            lang: Optional[dict[str, str]],
-            code: Optional[str]
+            lang: dict[str, str] | None = None,
+            code: str | None = None
     ):
         """
         :param lang: Language dictionary

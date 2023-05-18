@@ -24,14 +24,14 @@ def _get_day(chat_data: ChatData):
 async def send_notification_15m(chat_data: ChatData):
     if (day := _get_day(chat_data)) is not None:
         msg = await bot.bot.send_message(chat_id=chat_data._chat_id,
-                                         **classes_notification.create_message(chat_data, day, '15'))
+                                         **classes_notification(chat_data, day, '15'))
         chat_data.save_message('cl_notif_15m', msg)
 
 
 async def send_notification_1m(chat_data: ChatData):
     if (day := _get_day(chat_data)) is not None:
         msg = await bot.bot.send_message(chat_id=chat_data._chat_id,
-                                         **classes_notification.create_message(chat_data, day, '1'))
+                                         **classes_notification(chat_data, day, '1'))
         chat_data.save_message('cl_notif_1m', msg)
 
 
