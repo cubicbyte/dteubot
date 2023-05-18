@@ -5,34 +5,40 @@
 import os
 import time
 import json
+import logging
 from abc import ABC, abstractmethod
 from pathlib import Path
 from datetime import datetime
 from functools import cache
-from dataclasses import dataclass, field as _field
-from telegram import Message as TgMessage
+from telegram import Update, Message as TgMessage
+from telegram.ext import ContextTypes
 from settings import langs
+from bot.schemas import StoredMessage, Language
+
+logger = logging.getLogger(__name__)
 
 
-@dataclass(frozen=True)
-class Message:
-    id: int
-    timestamp: datetime
-    page_name: str
-    lang_code: str
-    data: dict[str, any] = _field(default_factory=dict)
+class ContextManager:
+    """
+    Context manager for bot commands and callbacks.
+    Provides access to user and chat data.
+    """
 
-    @classmethod
-    def create(cls, name: str, message: TgMessage):
-        return cls(
-            message.message_id,
-            message.date,
-            name,
-            message.from_user.language_code
-        )
+    def __init__(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+        self.update = update
+        self.context = context
+        self.chat_data = ChatData(update.effective_chat.id)
+        self.user_data = UserData(update.effective_user.id)
+
+    @property
+    def lang(self) -> Language:
+        return langs.get(self.chat_data.get('lang_code')) or \
+               langs.get(os.getenv('DEFAULT_LANG'))
 
 
 class DataManager(ABC):
+    """Abstract data manager class"""
+
     @staticmethod
     @abstractmethod
     def _get_default_data() -> dict[str, any]:
@@ -173,7 +179,7 @@ class ChatData(DataManager):
         return langs.get(self.get('lang_code')) or \
                langs.get(os.getenv('DEFAULT_LANG'))
 
-    def get_messages(self, page_name: str = None) -> list[Message]:
+    def get_messages(self, page_name: str = None) -> list[StoredMessage]:
         """Get all saved messages from database"""
 
         messages_raw = self.get('_messages')
@@ -184,12 +190,12 @@ class ChatData(DataManager):
             if page_name is not None and msg[2] != page_name:
                 continue
 
-            messages.append(Message(msg[0], datetime.fromtimestamp(msg[1]),
+            messages.append(StoredMessage(msg[0], datetime.fromtimestamp(msg[1]),
                             msg[2], msg[3], msg[4]))
 
         return messages
 
-    def add_message(self, msg: Message):
+    def add_message(self, msg: StoredMessage):
         """Save a message to database"""
 
         messages_raw = self.get('_messages')
@@ -219,7 +225,7 @@ class ChatData(DataManager):
     ):
         """Fast shortcut for `add_message`"""
 
-        self.add_message(Message(
+        self.add_message(StoredMessage(
             message.message_id,
             message.date,
             page_name,

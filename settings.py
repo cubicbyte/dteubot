@@ -58,7 +58,6 @@ _logger.info('Running setup')
 from lib.api import Api
 from lib.api.cached import CachedApi
 from bot.tg_logger import TelegramLogger
-from bot.load_langs import load_langs
 
 
 # Use CachedApi if possible
@@ -71,7 +70,6 @@ API_TYPE = API_TYPE_CACHED if _cache_exists else API_TYPE_DEFAULT
 
 bot = ApplicationBuilder().token(os.getenv('BOT_TOKEN')).build()
 tg_logger = TelegramLogger(os.path.join(os.getenv('LOGS_PATH'), 'telegram'))
-langs = load_langs(os.getenv('LANGS_PATH'))
 
 api = _Api(
     url=os.getenv('API_URL'),

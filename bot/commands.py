@@ -3,40 +3,45 @@ from datetime import date as _date
 from telegram import Update
 from telegram.ext import CommandHandler, ContextTypes
 from bot import pages
+from bot.data import ContextManager
 from settings import langs
 
 handlers = list[CommandHandler]()
 
 
-def register_command_handler(command, filters=None, block=None):
+def register_command(command, filters=None, block=None):
     def decorator(func):
-        handlers.append(CommandHandler(command=command, callback=func, filters=filters, block=block))
-        return func
+        def wrapper(update: Update, context: ContextTypes.DEFAULT_TYPE):
+            ctx = ContextManager(update, context)
+            return func(ctx)
+
+        handlers.append(CommandHandler(command=command, callback=wrapper, filters=filters, block=block))
+        return wrapper
 
     return decorator
 
 
-@register_command_handler('calls')
-async def calls(upd: Update, ctx: ContextTypes.DEFAULT_TYPE):
-    msg = await upd.message.chat.send_message(
+@register_command('calls')
+async def calls(ctx: ContextManager):
+    msg = await ctx.update.message.chat.send_message(
         **pages.calls(ctx))
-    ctx._chat_data.save_message('calls', msg)
+    ctx.chat_data.save_message('calls', msg)
 
 
-@register_command_handler(['empty_1', 'empty_2'])
-async def empty(upd: Update, ctx: ContextTypes.DEFAULT_TYPE):
-    msg = await upd.message.chat.send_message(
-        **pages.statistic(upd, ctx))
-    ctx._chat_data.save_message('statistic', msg)
+@register_command(['empty_1', 'empty_2'])
+async def empty(ctx: ContextManager):
+    msg = await ctx.update.message.chat.send_message(
+        **pages.statistic(ctx))
+    ctx.chat_data.save_message('statistic', msg)
 
 
-@register_command_handler('lang')
-async def lang(upd: Update, ctx: ContextTypes.DEFAULT_TYPE):
+@register_command('lang')
+async def lang(ctx: ContextManager):
     # /lang
     if len(ctx.args) == 0:
-        msg = await upd.message.chat.send_message(
+        msg = await ctx.update.message.chat.send_message(
             **pages.lang_selection(ctx))
-        ctx._chat_data.save_message('lang_selection', msg)
+        ctx.chat_data.save_message('lang_selection', msg)
         return
 
     # /lang <lang_code>
@@ -45,34 +50,34 @@ async def lang(upd: Update, ctx: ContextTypes.DEFAULT_TYPE):
     if not lang_code in langs:
         lang_code = os.getenv('DEFAULT_LANG')
 
-    ctx._chat_data.set('lang_code', lang_code)
+    ctx.chat_data.set('lang_code', lang_code)
 
-    msg = await upd.message.chat.send_message(
+    msg = await ctx.update.message.chat.send_message(
         **pages.menu(ctx))
-    ctx._chat_data.save_message('menu', msg)
+    ctx.chat_data.save_message('menu', msg)
 
 
-@register_command_handler('left')
-async def left(upd: Update, ctx: ContextTypes.DEFAULT_TYPE):
-    msg = await upd.message.chat.send_message(
+@register_command('left')
+async def left(ctx: ContextManager):
+    msg = await ctx.update.message.chat.send_message(
         **pages.left(ctx))
-    ctx._chat_data.save_message('left', msg)
+    ctx.chat_data.save_message('left', msg)
 
 
-@register_command_handler('menu')
-async def menu(upd: Update, ctx: ContextTypes.DEFAULT_TYPE):
-    msg = await upd.message.chat.send_message(
+@register_command('menu')
+async def menu(ctx: ContextManager):
+    msg = await ctx.update.message.chat.send_message(
         **pages.menu(ctx))
-    ctx._chat_data.save_message('menu', msg)
+    ctx.chat_data.save_message('menu', msg)
 
 
-@register_command_handler('select')
-async def select(upd: Update, ctx: ContextTypes.DEFAULT_TYPE):
+@register_command('select')
+async def select(ctx: ContextManager):
     # /select
     if len(ctx.args) == 0:
-        msg = await upd.message.chat.send_message(
+        msg = await ctx.update.message.chat.send_message(
             **pages.structure_list(ctx))
-        ctx._chat_data.save_message('structure_list', msg)
+        ctx.chat_data.save_message('structure_list', msg)
         return
 
     # /select <group_id>
@@ -81,25 +86,25 @@ async def select(upd: Update, ctx: ContextTypes.DEFAULT_TYPE):
     # Check if group_id is number
     if group_id.isnumeric():
         group_id = int(group_id)
-        ctx._chat_data.set('group_id', group_id)
+        ctx.chat_data.set('group_id', group_id)
     else:
         # TODO: send error message
         pass
 
-    msg = await upd.message.chat.send_message(
+    msg = await ctx.update.message.chat.send_message(
         **pages.menu(ctx))
-    ctx._chat_data.save_message('menu', msg)
+    ctx.chat_data.save_message('menu', msg)
 
 
-@register_command_handler('settings')
-async def settings(upd: Update, ctx: ContextTypes.DEFAULT_TYPE):
-    msg = await upd.message.chat.send_message(
+@register_command('settings')
+async def settings(ctx: ContextManager):
+    msg = await ctx.update.message.chat.send_message(
         **pages.settings(ctx))
-    ctx._chat_data.save_message('settings', msg)
+    ctx.chat_data.save_message('settings', msg)
 
 
-@register_command_handler('start')
-async def start(upd: Update, ctx: ContextTypes.DEFAULT_TYPE):
+@register_command('start')
+async def start(ctx: ContextManager):
     # Get referral code
     if len(ctx.args) == 0:
         ref = None
@@ -107,39 +112,39 @@ async def start(upd: Update, ctx: ContextTypes.DEFAULT_TYPE):
         ref = ctx.args[0]
 
     # Set referral code
-    if ctx._user_data.get('ref') is None:
-        ctx._user_data.set('ref', ref)
+    if ctx.user_data.get('ref') is None:
+        ctx.user_data.set('ref', ref)
 
     # Send greeting message
-    msg = await upd.message.chat.send_message(
+    msg = await ctx.update.message.chat.send_message(
         **pages.greeting(ctx))
-    ctx._chat_data.save_message('greeting', msg)
+    ctx.chat_data.save_message('greeting', msg)
 
     # Send main message
-    msg = await upd.message.chat.send_message(
+    msg = await ctx.update.message.chat.send_message(
         **pages.structure_list(ctx))
-    ctx._chat_data.save_message('structure_list', msg)
+    ctx.chat_data.save_message('structure_list', msg)
 
 
-@register_command_handler('today')
-async def today(upd: Update, ctx: ContextTypes.DEFAULT_TYPE):
+@register_command('today')
+async def today(ctx: ContextManager):
     # Send message
     date = _date.today()
-    msg = await upd.message.chat.send_message(
+    msg = await ctx.update.message.chat.send_message(
         **pages.schedule(ctx, date))
 
     # Save message
     data = {'date': date.strftime('%Y-%m-%d')}
-    ctx._chat_data.save_message('schedule', msg, data)
+    ctx.chat_data.save_message('schedule', msg, data)
 
 
-@register_command_handler('tomorrow')
-async def tomorrow(upd: Update, ctx: ContextTypes.DEFAULT_TYPE):
+@register_command('tomorrow')
+async def tomorrow(ctx: ContextManager):
     # Send message
     date = _date.today() + pages.timedelta(days=1)
-    msg = await upd.message.chat.send_message(
+    msg = await ctx.update.message.chat.send_message(
         **pages.schedule(ctx, date))
 
     # Save message
     data = {'date': date.strftime('%Y-%m-%d')}
-    ctx._chat_data.save_message('schedule', msg, data)
+    ctx.chat_data.save_message('schedule', msg, data)

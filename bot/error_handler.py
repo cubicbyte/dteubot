@@ -1,3 +1,4 @@
+import os
 import logging
 import traceback
 import telegram.error
@@ -9,14 +10,14 @@ from bot.data import ChatData, UserData
 from bot.utils.smart_split import smart_split
 
 _logger = logging.getLogger(__name__)
-log_chat_id: int | str
+log_chat_id: int | str = os.getenv('LOG_CHAT_ID')
 
 
 async def handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if hasattr(context, 'effective_user'):
-        context._user_data = UserData(update.effective_user.id)
+        user_data = UserData(update.effective_user.id)
     if hasattr(context, 'effective_chat'):
-        context._chat_data = ChatData(update.effective_chat.id)
+        chat_data = ChatData(update.effective_chat.id)
 
     if isinstance(context.error, BadRequest):
         _logger.warning(context.error)
@@ -24,17 +25,17 @@ async def handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             return
         if context.error.message.startswith('Chat not found') or \
                 context.error.message.startswith('Peer_id_invalid'):
-            context._chat_data.set('_accessible', False)
+            chat_data.set('_accessible', False)
             return
         if context.error.message.startswith('Message can\'t be deleted for everyone'):
             if isinstance(context, CallbackContext):
-                await update.callback_query.answer(text=context._chat_data.get_lang()['alert.message_too_old'])
+                await update.callback_query.answer(text=chat_data.get_lang()['alert.message_too_old'])
             return
 
     if isinstance(context.error, Forbidden):
         # Bot was blocked by the user
         _logger.warning(context.error)
-        context._chat_data.set('_accessible', False)
+        context.data.set('_accessible', False)
         return
 
     if isinstance(context.error, NetworkError) and context.error.message.startswith('httpx'):

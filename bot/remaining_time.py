@@ -1,21 +1,15 @@
-from typing import List
-from dataclasses import dataclass
-from datetime import datetime, timedelta
-from lib.api.schemas import CallSchedule
+from datetime import datetime
 from settings import api
+from lib.api.schemas import CallSchedule
 from bot.utils.time_formatter import format_time
-
-
-@dataclass
-class FormattedTime:
-    time: timedelta
-    text: str
+from bot.schemas import FormattedTime
 
 
 def get_lesson(
-        calls: List[CallSchedule],
+        calls: list[CallSchedule],
         lessons: list[int],
-        timestamp: datetime | None = None) -> dict:
+        timestamp: datetime | None = None
+) -> dict:
     """
     Returns the current time relative to today's lessons
 
@@ -96,10 +90,14 @@ def get_lesson(
     return result
 
 
-def get_time(group_id: int, timestamp: datetime = None) -> dict | None:
+def get_time(
+        group_id: int,
+        timestamp: datetime | None = None
+) -> dict | None:
+    """Returns the time before the start/end of the lesson"""
+
     if not timestamp:
         timestamp = datetime.now()
-    """Returns the time before the start/end of the lesson"""
 
     date = timestamp.date()
     schedule = api.timetable_group(group_id, date, date)
@@ -122,9 +120,14 @@ def get_time(group_id: int, timestamp: datetime = None) -> dict | None:
     return get_lesson(calls, lessons, timestamp)
 
 
-def get_time_formatted(lang_code: str, group_id: int, timestamp: datetime = None) -> dict:
+def get_time_formatted(
+        lang_code: str,
+        group_id: int,
+        timestamp: datetime | None = None
+) -> FormattedTime:
     if not timestamp:
         timestamp = datetime.now()
+
     remaining_time = get_time(group_id, timestamp)
 
     if remaining_time is None:
@@ -132,9 +135,7 @@ def get_time_formatted(lang_code: str, group_id: int, timestamp: datetime = None
     else:
         formatted = format_time(lang_code, remaining_time['time'], depth=2)
 
-    result = {
-        'time': remaining_time,
-        'text': formatted
-    }
-
-    return result
+    return FormattedTime(
+        time=remaining_time['time'],
+        text=formatted
+    )
