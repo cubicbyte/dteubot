@@ -648,7 +648,7 @@ def _count_no_lesson_days(
                 res = date - day_date
                 break
 
-    return res.days
+    return res if res is None else res.days
 
 
 def _get_localized_date(ctx: ContextManager, date: _date) -> str:
