@@ -74,14 +74,14 @@ async def menu(ctx: ContextManager):
 @register_command('select')
 async def select(ctx: ContextManager):
     # /select
-    if len(ctx.args) == 0:
+    if len(ctx.context.args) == 0:
         msg = await ctx.update.message.chat.send_message(
             **pages.structure_list(ctx))
         ctx.chat_data.save_message('structure_list', msg)
         return
 
     # /select <group_id>
-    group_id = ctx.args[0]
+    group_id = ctx.context.args[0]
 
     # Check if group_id is number
     if group_id.isnumeric():
