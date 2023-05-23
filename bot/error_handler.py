@@ -51,7 +51,8 @@ async def handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def _send_error(bot: Bot, e: Exception):
     if log_chat_id is not None:
-        for err_text in smart_split(f'[{datetime.now()}] {traceback.format_exc()}'):
+        err_time = datetime.now().isoformat(sep=" ", timespec="seconds")
+        for err_text in smart_split(f'[{err_time}] {traceback.format_exc()}'):
             try:
                 await bot.send_message(chat_id=log_chat_id, text=err_text)
             except telegram.error.TelegramError:
