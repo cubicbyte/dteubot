@@ -636,19 +636,20 @@ def _count_no_lesson_days(
     if not direction_right:
         schedule = reversed(schedule)
 
-    res = None
     for day in schedule:
         day_date = datetime.strptime(day.date, '%Y-%m-%d').date()
         if direction_right:
             if day_date > date:
-                res = day_date - date
+                days_timedelta = day_date - date
                 break
         else:
             if day_date < date:
-                res = date - day_date
+                days_timedelta = date - day_date
                 break
+    else:
+        return None
 
-    return res if res is None else res.days
+    return days_timedelta.days
 
 
 def _get_localized_date(ctx: ContextManager, date: _date) -> str:

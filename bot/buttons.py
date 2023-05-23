@@ -75,12 +75,12 @@ async def clear_logs(ctx: ContextManager):
 @validate_admin
 async def get_logs(ctx: ContextManager):
     # Show user that bot is sending file
-    await ctx.bot.send_chat_action(ctx.update.callback_query.message.chat.id, 'upload_document')
+    await ctx.context.bot.send_chat_action(ctx.update.callback_query.message.chat.id, 'upload_document')
 
     # Read and send logs file
     filepath = os.path.join(os.getenv('LOGS_PATH'), 'debug.log')
     with open(filepath, 'rb') as file:
-        await ctx.bot.send_document(ctx.update.callback_query.message.chat.id, file)
+        await ctx.context.bot.send_document(ctx.update.callback_query.message.chat.id, file)
 
 
 @register_button('^admin.open_panel$')
