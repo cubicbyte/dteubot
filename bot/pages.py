@@ -1,14 +1,13 @@
 import os
 from datetime import date as _date, datetime, timedelta
 from babel.dates import format_date
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
-from telegram.ext import ContextTypes
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.helpers import escape_markdown
 from requests.exceptions import RequestException, HTTPError
 from lib.api.schemas import TimeTableDate
 from lib.api.exceptions import HTTPApiException
 from bot import remaining_time
-from bot.data import ContextManager
+from bot.data import ContextManager, ChatData
 from bot.utils import array_split
 from settings import api, langs, tg_logger, API_TYPE, API_TYPE_CACHED
 
@@ -82,16 +81,16 @@ def calls(ctx: ContextManager) -> dict:
     }
 
 
-def classes_notification(ctx: ContextManager, day: TimeTableDate, remaining: str) -> dict:
+def classes_notification(chat_data: ChatData, day: TimeTableDate, remaining: str) -> dict:
     buttons = [[
-        InlineKeyboardButton(text=ctx.lang.get('button.open_schedule'),
+        InlineKeyboardButton(text=chat_data.lang.get('button.open_schedule'),
                              callback_data=f'open.schedule.day#date={day.date}'),
-        InlineKeyboardButton(text=ctx.lang.get('button.settings'),
+        InlineKeyboardButton(text=chat_data.lang.get('button.settings'),
                              callback_data='open.settings')
     ]]
 
     return {
-        'text': ctx.lang.get('page.classes_notification').format(
+        'text': chat_data.lang.get('page.classes_notification').format(
             remaining=remaining,
             schedule=_get_notification_schedule_section(day)),
         'reply_markup': InlineKeyboardMarkup(buttons),

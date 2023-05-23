@@ -29,7 +29,7 @@ async def handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             return
         if context.error.message.startswith('Message can\'t be deleted for everyone'):
             if isinstance(context, CallbackContext):
-                await update.callback_query.answer(text=chat_data.get_lang()['alert.message_too_old'])
+                await update.callback_query.answer(text=chat_data.lang.get('alert.message_too_old'))
             return
 
     if isinstance(context.error, Forbidden):

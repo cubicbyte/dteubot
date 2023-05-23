@@ -306,7 +306,7 @@ async def select_cl_notif_15m(ctx: ContextManager):
     # Show tooltip if needed
     if suggestion:
         await ctx.update.callback_query.answer(
-            ctx.chat_data.get_lang()['alert.cl_notif_enabled_tooltip']
+            ctx.lang.get('alert.cl_notif_enabled_tooltip')
                 .format(remaining='15'), show_alert=True)
         await ctx.update.callback_query.delete_message()
         ctx.chat_data.remove_message(ctx.update.callback_query.message.message_id)

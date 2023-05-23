@@ -32,8 +32,8 @@ class ContextManager:
 
     @property
     def lang(self) -> Language:
-        return langs.get(self.chat_data.get('lang_code')) or \
-               langs.get(os.getenv('DEFAULT_LANG'))
+        """Get chat language"""
+        return self.chat_data.lang
 
 
 class DataManager(ABC):
@@ -174,7 +174,8 @@ class ChatData(DataManager):
         """Get chat data file path"""
         return os.path.join(os.getenv('CHAT_DATA_PATH'), '%s.json' % self._chat_id)
 
-    def get_lang(self) -> dict[str, str]:
+    @property
+    def lang(self) -> Language:
         """Get chat language"""
         return langs.get(self.get('lang_code')) or \
                langs.get(os.getenv('DEFAULT_LANG'))
