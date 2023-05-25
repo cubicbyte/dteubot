@@ -106,10 +106,10 @@ async def settings(ctx: ContextManager):
 @register_command('start')
 async def start(ctx: ContextManager):
     # Get referral code
-    if len(ctx.args) == 0:
+    if len(ctx.context.args) == 0:
         ref = None
     else:
-        ref = ctx.args[0]
+        ref = ctx.context.args[0]
 
     # Set referral code
     if ctx.user_data.get('ref') is None:
