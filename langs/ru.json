@@ -42,7 +42,6 @@
 
 
 
-    "button.admin.clear_all_cache": "Очистить весь кеш",
     "button.admin.clear_expired_cache": "Очистить истекший кеш",
     "button.admin.get_logs": "Получить файл логов",
     "button.admin.clear_logs": "Очистить файл логов",

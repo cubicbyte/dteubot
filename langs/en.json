@@ -42,7 +42,6 @@
 
 
 
-    "button.admin.clear_all_cache": "Clear all cache",
     "button.admin.clear_expired_cache": "Clear expired cache",
     "button.admin.get_logs": "Get logs file",
     "button.admin.clear_logs": "Clear logs file",
