@@ -12,7 +12,6 @@ load_dotenv('.env')           # Load .env file in current dir
 load_dotenv()                 # Load .env file in bot dir
 
 # Set environment variable default values
-os.environ.setdefault('MODE', 'prod')
 os.environ.setdefault('DEFAULT_LANG', 'en')
 os.environ.setdefault('API_REQUEST_TIMEOUT', '-1')
 os.environ.setdefault('API_CACHE_EXPIRES', '-1')
@@ -24,7 +23,6 @@ os.environ.setdefault('CACHE_PATH', 'cache')
 os.environ.setdefault('LANGS_PATH', os.path.join(sys.path[0], 'langs'))
 
 # Validate environment variables
-assert os.getenv('MODE') in ('prod', 'dev'), 'The MODE environment variable must be only prod or dev. Received: %s' % os.getenv('MODE')
 assert os.getenv('LOGGING_LEVEL') in ('NOTSET', 'DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'), 'The LOGGING_LEVEL environment variable has an invalid value. Received: %s' % os.getenv('LOGGING_LEVEL')
 assert check_int(os.getenv('API_REQUEST_TIMEOUT')), 'The API_REQUEST_TIMEOUT environment variable must be an integer. Received: %s' % os.getenv('API_REQUEST_TIMEOUT')
 assert check_int(os.getenv('API_CACHE_EXPIRES')), 'The API_CACHE_EXPIRES environment variable must be an integer. Received: %s' % os.getenv('API_CACHE_EXPIRES')
