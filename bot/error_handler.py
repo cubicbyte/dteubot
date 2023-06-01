@@ -5,15 +5,16 @@ import telegram.error
 from datetime import datetime
 from telegram import Update, Bot
 from telegram.error import BadRequest, TelegramError, NetworkError, Forbidden
-from telegram.ext import ContextTypes, CallbackContext
-from bot.data import ChatData, UserData
+from telegram.ext import CallbackContext
+from bot.data import ChatData, UserData, ContextManager
+from bot.pages import error as error_page
 from bot.utils.smart_split import smart_split
 
 _logger = logging.getLogger(__name__)
 log_chat_id: int | str = os.getenv('LOG_CHAT_ID')
 
 
-async def handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def handler(update: Update, context: CallbackContext):
     if hasattr(context, 'effective_user'):
         user_data = UserData(update.effective_user.id)
     if hasattr(context, 'effective_chat'):
@@ -44,12 +45,26 @@ async def handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if not isinstance(context.error, TelegramError):
         print(traceback.format_exc())
+        await send_error_response(update, context)
 
     _logger.exception(context.error)
-    await _send_error(context.bot, context.error)
+    await send_error_to_telegram(context.bot, context.error)
 
 
-async def _send_error(bot: Bot, e: Exception):
+async def send_error_response(update: Update, context: CallbackContext):
+    """Send an error page to the user as an error response."""
+
+    page = error_page(ContextManager(update, context))
+
+    if update.callback_query is not None:
+        # If the error happened when clicking a button
+        await update.callback_query.edit_message_text(**page)
+    else:
+        # If the error happened when sending a command
+        await update.message.reply_text(**page)
+
+
+async def send_error_to_telegram(bot: Bot, e: Exception):
     if log_chat_id is not None:
         err_time = datetime.now().isoformat(sep=" ", timespec="seconds")
         for err_text in smart_split(f'[{err_time}] {traceback.format_exc()}'):

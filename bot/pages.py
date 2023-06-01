@@ -567,6 +567,16 @@ def structure_list(ctx: ContextManager) -> dict:
     }
 
 
+def error(ctx: ContextManager) -> dict:
+    return {
+        'text': ctx.lang.get('page.error'),
+        'reply_markup': InlineKeyboardMarkup([[
+            InlineKeyboardButton(text=ctx.lang.get('button.menu'), callback_data='open.menu')
+        ]]),
+        'parse_mode': 'MarkdownV2'
+    }
+
+
 
 
 
