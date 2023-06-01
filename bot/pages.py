@@ -29,8 +29,6 @@ def admin_panel(ctx: ContextManager) -> dict:
     buttons = [
         [InlineKeyboardButton(text=ctx.lang.get('button.admin.clear_expired_cache'),
                               callback_data='admin.clear_expired_cache')],
-        [InlineKeyboardButton(text=ctx.lang.get('button.admin.clear_all_cache'),
-                              callback_data='admin.clear_all_cache')],
         [InlineKeyboardButton(text=ctx.lang.get('button.admin.get_logs'),
                               callback_data='admin.get_logs')],
         [InlineKeyboardButton(text=ctx.lang.get('button.admin.clear_logs'),
