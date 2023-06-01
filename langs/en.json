@@ -109,5 +109,5 @@
     "page.schedule.empty.multiple_days": "`From`  📅 {dateStart}\n`To  `  📅 {dateEnd}\n\n`—————————————————————————`\n\n`       No lessons`\n\n`—————————————————————————`",
     "page.notification_feature_suggestion": "Now bot can remind you that classes are about to start\\! \\(avaliable in settings\\)\n\nWould you like to turn on classes start notifications?",
     "page.classes_notification": "*Reminder:* there's a classes in *{remaining}* minutes\\!\n\n{schedule}",
-    "page.error": "❗️ *An error has occurred\\!*\n\nSomething went wrong while processing your request\\.\n\nThe error has already been sent to the developer via Telegram, the estimated time of work \\- __up to 30 mins__\\."
+    "page.error": "❗️ *An error has occurred\\!*\n\nSomething went wrong while processing your request\\.\n\nThe error has already been sent to the developer via Telegram, the average time of work \\- __up to 30 mins__\\."
 }
