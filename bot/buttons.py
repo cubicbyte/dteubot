@@ -40,7 +40,7 @@ def validate_admin(func):
 @validate_admin
 async def clear_expired_cache(ctx: ContextManager):
     if API_TYPE == API_TYPE_DEFAULT and api._cache_enabled:
-        api._session.remove_expired_responses()
+        api._session.cache.delete(expired=True)
     await ctx.update.callback_query.answer(
         text=ctx.lang.get('alert.done'),
         show_alert=True
