@@ -8,8 +8,8 @@ from lib.api.schemas import TimeTableDate
 from lib.api.exceptions import HTTPApiException
 from bot import remaining_time
 from bot.data import ContextManager, ChatData
-from bot.utils import array_split
-from settings import api, langs, tg_logger, API_TYPE, API_TYPE_CACHED
+from bot.utils import array_split, clean_html
+from settings import api, langs, tg_logger, API_TYPE, API_TYPE_CACHED, TELEGRAM_SUPPORTED_HTML_TAGS
 
 
 def access_denied(ctx: ContextManager) -> dict:
@@ -369,7 +369,7 @@ def schedule(ctx: ContextManager, date: _date | str) -> dict:
         date_str = date.strftime('%Y-%m-%d')
     else:
         date_str = date
-        date = datetime.strptime(date, '%Y-%m-%d').date()
+        date = _date.fromisoformat(date_str)
 
     # Get schedule
     try:
@@ -385,6 +385,7 @@ def schedule(ctx: ContextManager, date: _date | str) -> dict:
     except HTTPApiException:
         return api_unavaliable(ctx)
 
+
     # Find schedule of current day
     cur_day_schedule = None
     for day in schedule:
@@ -392,69 +393,171 @@ def schedule(ctx: ContextManager, date: _date | str) -> dict:
             cur_day_schedule = day
             break
 
-    # Create the schedule page content
+    if cur_day_schedule is not None:
+        # Schedule page
+        return day_schedule(ctx, date, cur_day_schedule)
+    else:
+        # "no lessons" page
+        return empty_schedule(ctx, schedule, date, date_start, date_end)
+
+
+def day_schedule(ctx: ContextManager, date: _date, day: TimeTableDate) -> dict:
     lang = ctx.lang
-    if cur_day_schedule is not None:
-        msg_text = lang.get('page.schedule').format(
-            date=_get_localized_date(ctx, date),
-            schedule=_create_schedule_section(ctx, cur_day_schedule)
-        )
 
-    # If there is no lesson for the current day
-    else:
-        # Variables with the number of days you need to skip to reach a day with lessons
-        skip_left = _count_no_lesson_days(schedule, date, direction_right=False)
-        skip_right = _count_no_lesson_days(schedule, date, direction_right=True)
-        if skip_right is None:
-            skip_right = (date_end - date + timedelta(days=1)).days
-        if skip_left is None:
-            skip_left = (date - date_start + timedelta(days=1)).days
-
-        # If there are no lessons for multiple days
-        # Then combine all the days without lessons into one page
-        if skip_left > 1 or skip_right > 1:
-            msg_text = lang.get('page.schedule.empty.multiple_days').format(
-                dateStart=_get_localized_date(ctx, date - timedelta(days=skip_left - 1)),
-                dateEnd=  _get_localized_date(ctx, date + timedelta(days=skip_right - 1)),
-            )
-        # If no lessons for only one day
-        else:
-            msg_text = lang.get('page.schedule.empty').format(date=_get_localized_date(ctx, date))
-
-    # Decide whether to show the "today" button, and also
-    # decide the "next" and "previous" buttons skip values
-    if cur_day_schedule is not None:
-        next_day_date = date + timedelta(days=1)
-        prev_day_date = date - timedelta(days=1)
-        enable_today_button = date != _date.today()
-    else:
-        next_day_date = date + timedelta(days=skip_right)
-        prev_day_date = date - timedelta(days=skip_left)
-        enable_today_button = not next_day_date > _date.today() > prev_day_date
+    msg_text = ctx.lang.get('page.schedule').format(
+        date=_get_localized_date(ctx, date),
+        schedule=_create_schedule_section(ctx, day)
+    )
 
     # Create buttons
     buttons = [
         InlineKeyboardButton(text=lang.get('button.navigation.day_previous'),
-                             callback_data='open.schedule.day#date=' + prev_day_date.strftime('%Y-%m-%d')),
+                             callback_data='open.schedule.day#date='
+                             + (date - timedelta(days=1)).strftime('%Y-%m-%d')),
         InlineKeyboardButton(text=lang.get('button.navigation.day_next'),
-                             callback_data='open.schedule.day#date=' + next_day_date.strftime('%Y-%m-%d')),
+                             callback_data='open.schedule.day#date='
+                             + (date + timedelta(days=1)).strftime('%Y-%m-%d')),
         InlineKeyboardButton(text=lang.get('button.navigation.week_previous'),
-                             callback_data='open.schedule.day#date=' + (date - timedelta(days=7)).strftime('%Y-%m-%d')),
+                             callback_data='open.schedule.day#date='
+                             + (date - timedelta(days=7)).strftime('%Y-%m-%d')),
         InlineKeyboardButton(text=lang.get('button.navigation.week_next'),
-                             callback_data='open.schedule.day#date=' + (date + timedelta(days=7)).strftime('%Y-%m-%d')),
+                             callback_data='open.schedule.day#date='
+                             + (date + timedelta(days=7)).strftime('%Y-%m-%d')),
         InlineKeyboardButton(text=lang.get('button.menu'), callback_data='open.menu')
     ]
 
-    if enable_today_button:
-        buttons.append(InlineKeyboardButton(text=lang.get('button.navigation.today'), callback_data='open.schedule.today'))
+    # "Today" button
+    if date != _date.today():
+        buttons.append(InlineKeyboardButton(
+            text=lang.get('button.navigation.today'),
+            callback_data='open.schedule.today'
+        ))
 
     # Split buttons into 2-wide rows
     buttons = array_split(buttons, 2)
+
+    # "Additional info" button
+    if _check_extra_text(day):
+        buttons.append([InlineKeyboardButton(
+            text=lang.get('button.schedule.extra'),
+            callback_data='open.schedule.extra#date=' + date.strftime('%Y-%m-%d')
+        )])
+
 
     return {
         'text': msg_text,
         'reply_markup': InlineKeyboardMarkup(buttons),
         'parse_mode': 'MarkdownV2'
+    }
+
+
+def empty_schedule(ctx: ContextManager, schedule: list[TimeTableDate],
+                   date: _date, from_date: _date, to_date: _date) -> dict:
+
+    # TODO remove from_date and to_date. Now, if we call timetable_group(today, today+5),
+    # we will get an array with size 0-6, but it should be fixed 6.
+
+    lang = ctx.lang
+
+    # Number of days you need to skip to reach a day with lessons
+    skip_left = _count_no_lesson_days(schedule, date, direction_right=False)
+    skip_right = _count_no_lesson_days(schedule, date, direction_right=True)
+    if skip_right is None:
+        skip_right = (to_date - date).days
+    if skip_left is None:
+        skip_left = (date - from_date).days
+
+    # Decide whether to show the "today" button, and also
+    # decide the "next" and "previous" buttons skip values
+    next_day_date = date + timedelta(days=skip_right)
+    prev_day_date = date - timedelta(days=skip_left)
+    enable_today_button = not next_day_date > _date.today() > prev_day_date
+
+    # If there are no lessons for multiple days
+    # Then combine all the days without lessons into one page
+    if skip_left > 1 or skip_right > 1:
+        msg_text = lang.get('page.schedule.empty.multiple_days').format(
+            dateStart=_get_localized_date(ctx, prev_day_date + timedelta(days=1)),
+            dateEnd=  _get_localized_date(ctx, next_day_date - timedelta(days=1)),
+        )
+    else:
+        # If no lessons for only one day
+        msg_text = lang.get('page.schedule.empty').format(date=_get_localized_date(ctx, date))
+
+
+    # Create buttons
+    buttons = [
+        InlineKeyboardButton(text=lang.get('button.navigation.day_previous'),
+                             callback_data='open.schedule.day#date='
+                             + prev_day_date.strftime('%Y-%m-%d')),
+        InlineKeyboardButton(text=lang.get('button.navigation.day_next'),
+                             callback_data='open.schedule.day#date='
+                             + next_day_date.strftime('%Y-%m-%d')),
+        InlineKeyboardButton(text=lang.get('button.navigation.week_previous'),
+                             callback_data='open.schedule.day#date='
+                             + (from_date - timedelta(days=7)).strftime('%Y-%m-%d')),
+        InlineKeyboardButton(text=lang.get('button.navigation.week_next'),
+                             callback_data='open.schedule.day#date='
+                             + (from_date + timedelta(days=7)).strftime('%Y-%m-%d')),
+        InlineKeyboardButton(text=lang.get('button.menu'), callback_data='open.menu')
+    ]
+
+    if enable_today_button:
+        buttons.append(InlineKeyboardButton(
+            text=lang.get('button.navigation.today'),
+            callback_data='open.schedule.today'
+        ))
+
+    # Split buttons into 2-wide rows
+    buttons = array_split(buttons, 2)
+
+
+    return {
+        'text': msg_text,
+        'reply_markup': InlineKeyboardMarkup(buttons),
+        'parse_mode': 'MarkdownV2'
+    }
+
+def schedule_extra(ctx: ContextManager, date: _date | str) -> dict:
+    if isinstance(date, _date):
+        date_str = date.isoformat()
+    else:
+        date_str = date
+        date = _date.fromisoformat(date)
+
+    # Get schedule
+    try:
+        schedule = api.timetable_group(ctx.chat_data.get('group_id'), date_str)
+    except HTTPApiException:
+        return api_unavaliable(ctx)
+    
+    # Find schedule of current day
+    cur_day_schedule = None
+    for day in schedule:
+        if day.date == date_str:
+            cur_day_schedule = day
+            break
+
+    if cur_day_schedule is None:
+        return empty_schedule(ctx, schedule, date, date, date)
+
+    page_text = ''
+
+    for lesson in cur_day_schedule.lessons:
+        for period in lesson.periods:
+            if period.extraText:
+                extra_text = api.timetable_ad(period.r1, date_str).html
+                extra_text = clean_html(extra_text, tags_whitelist=TELEGRAM_SUPPORTED_HTML_TAGS).strip()
+                page_text += f'\n\n<pre>{lesson.number})</pre> {extra_text}'
+
+    return {
+        'text': ctx.lang.get('page.schedule.extra').format(page_text[2:]),
+        'reply_markup': InlineKeyboardMarkup([[
+            InlineKeyboardButton(text=ctx.lang.get('button.back'),
+                                 callback_data='open.schedule.day#date=' + date_str)
+        ]]),
+        'parse_mode': 'HTML',
+        'disable_web_page_preview': True
     }
 
 
@@ -724,3 +827,14 @@ def _create_schedule_section(ctx: ContextManager, day: TimeTableDate) -> str:
 
     schedule_section += '`—――—―``―——``―—―``――``—``―``—``――――``――``―――`'
     return schedule_section
+
+
+def _check_extra_text(day: TimeTableDate) -> bool:
+    """Checks if the day schedule has extra text, like zoom links, etc."""
+
+    for lesson in day.lessons:
+        for period in lesson.periods:
+            if period.extraText:
+                return True
+
+    return False

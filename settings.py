@@ -6,8 +6,15 @@ from dotenv import load_dotenv
 from telegram.ext import ApplicationBuilder
 from bot.utils import check_int
 
+
+TELEGRAM_SUPPORTED_HTML_TAGS = [
+    'a', 's', 'i', 'b', 'u', 'em', 'pre',
+    'ins', 'del', 'span', 'code', 'strong',
+    'strike', 'tg-spoiler', 'tg-emoji'
+]
+
+
 # Load environment variable files (.env)
-sys.path.append('../../lib')  # Required to load external libraries
 load_dotenv('.env')           # Load .env file in current dir
 load_dotenv()                 # Load .env file in bot dir
 

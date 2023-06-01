@@ -122,6 +122,14 @@ async def open_schedule(ctx: ContextManager):
     ctx.chat_data.save_message('schedule', msg)
 
 
+@register_button('^open.schedule.extra')
+async def open_schedule_extra(ctx: ContextManager):
+    date = utils.parse_callback_query(ctx.update.callback_query.data)['args']['date']
+    msg = await ctx.update.callback_query.edit_message_text(
+        **pages.schedule_extra(ctx, date=date))
+    ctx.chat_data.save_message('schedule_extra', msg)
+
+
 @register_button('^open.schedule.today$')
 async def open_today(ctx: ContextManager):
     # Send message

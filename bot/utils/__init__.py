@@ -1,4 +1,5 @@
 import os
+import re
 import json
 from pathlib import Path
 from urllib.parse import parse_qsl
@@ -75,3 +76,15 @@ def load_lang_file(filepath: str) -> Language:
         lang = json.load(fp)
 
     return Language(lang, lang_name)
+
+
+def clean_html(raw_html: str, tags_whitelist: list[str] = []) -> str:
+    """Remove html tags from string"""
+
+    if tags_whitelist:
+        tags = '|'.join(tags_whitelist)
+        cleanr = re.compile(fr'<(?!\/?({tags})\b)[^>]*>', re.IGNORECASE)
+    else:
+        cleanr = re.compile('<.*?>')
+
+    return re.sub(cleanr, '', raw_html)
