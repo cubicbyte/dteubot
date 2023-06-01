@@ -54,14 +54,17 @@ async def handler(update: Update, context: CallbackContext):
 async def send_error_response(update: Update, context: CallbackContext):
     """Send an error page to the user as an error response."""
 
-    page = error_page(ContextManager(update, context))
+    ctx = ContextManager(update, context)
+    page = error_page(ctx)
 
     if update.callback_query is not None:
         # If the error happened when clicking a button
-        await update.callback_query.edit_message_text(**page)
+        msg = await update.callback_query.edit_message_text(**page)
     else:
         # If the error happened when sending a command
-        await update.message.reply_text(**page)
+        msg = await update.message.reply_text(**page)
+
+    ctx.chat_data.save_message('error', msg)
 
 
 async def send_error_to_telegram(bot: Bot, e: Exception):
