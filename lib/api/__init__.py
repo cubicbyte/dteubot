@@ -55,7 +55,7 @@ class Api:
         return res.json()
 
     # /time-table
-    def timetable_group(self, groupId: int, dateStart: _date | str, dateEnd: _date | str = None,
+    def timetable_group(self, groupId: int, dateStart: _date | str, dateEnd: _date | str | None = None,
                         *req_args, **req_kwargs) -> List[TimeTableDate]:
         """Returns the schedule for the group"""
 
@@ -72,7 +72,7 @@ class Api:
             'dateEnd': dateEnd
         }, *req_args, **req_kwargs))
 
-    def timetable_student(self, studentId: int, dateStart: _date | str, dateEnd: _date | str = None,
+    def timetable_student(self, studentId: int, dateStart: _date | str, dateEnd: _date | str | None = None,
                           *req_args, **req_kwargs) -> List[TimeTableDate]:
         """Returns the schedule for the student"""
 
@@ -89,7 +89,7 @@ class Api:
             'dateEnd': dateEnd
         }, *req_args, **req_kwargs))
 
-    def timetable_teacher(self, teacherId: int, dateStart: _date | str, dateEnd: _date | str = None,
+    def timetable_teacher(self, teacherId: int, dateStart: _date | str, dateEnd: _date | str | None = None,
                           *req_args, **req_kwargs) -> List[TimeTableDate]:
         """Returns the schedule for the teacher"""
 
@@ -106,7 +106,7 @@ class Api:
             'dateEnd': dateEnd
         }, *req_args, **req_kwargs))
 
-    def timetable_classroom(self, classroomId: int, dateStart: _date | str, dateEnd: _date | str = None,
+    def timetable_classroom(self, classroomId: int, dateStart: _date | str, dateEnd: _date | str | None = None,
                             *req_args, **req_kwargs) -> List[TimeTableDate]:
         """Returns audience schedule (when and what groups are in it)"""
 

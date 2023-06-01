@@ -15,7 +15,7 @@ class CachedApi(Api):
         self._http_enabled = enable_http
         self._cache = CacheReader(cache_path)
 
-    def timetable_group(self, groupId: int, dateStart: _date, dateEnd: _date = None,
+    def timetable_group(self, groupId: int, dateStart: _date | str, dateEnd: _date | str | None = None,
                         *req_args, **req_kwargs) -> List[TimeTableDate]:
 
         if dateEnd is None:
