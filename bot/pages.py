@@ -98,7 +98,7 @@ def classes_notification(chat_data: ChatData, day: TimeTableDate, remaining: str
 
 def course_list(ctx: ContextManager, structure_id: int, faculty_id: int) -> dict:
     try:
-        courses = api.list_courses(faculty_id)
+        courses = api.list_courses(faculty_id, language=ctx.chat_data.get('lang_code'))
     except HTTPApiException:
         return api_unavaliable(ctx)
 
@@ -124,8 +124,8 @@ def course_list(ctx: ContextManager, structure_id: int, faculty_id: int) -> dict
 
 def faculty_list(ctx: ContextManager, structure_id: int) -> dict:
     try:
-        faculties = api.list_faculties(structure_id)
-        structures = api.list_structures()
+        faculties = api.list_faculties(structure_id, language=ctx.chat_data.get('lang_code'))
+        structures = api.list_structures(language=ctx.chat_data.get('lang_code'))
     except HTTPApiException:
         return api_unavaliable(ctx)
 
@@ -167,7 +167,7 @@ def greeting(ctx: ContextManager) -> dict:
 
 def group_list(ctx: ContextManager, structure_id: int, faculty_id: int, course: int) -> dict:
     try:
-        groups = api.list_groups(faculty_id, course)
+        groups = api.list_groups(faculty_id, course, language=ctx.chat_data.get('lang_code'))
     except HTTPApiException:
         return api_unavaliable(ctx)
 
@@ -375,7 +375,8 @@ def schedule(ctx: ContextManager, date: _date | str) -> dict:
     try:
         date_start = date - timedelta(days=date.weekday() + 7)
         date_end = date_start + timedelta(days=20)
-        schedule = api.timetable_group(ctx.chat_data.get('group_id'), date_start, date_end)
+        schedule = api.timetable_group(ctx.chat_data.get('group_id'), date_start, date_end,
+                                       language=ctx.chat_data.get('lang_code'))
 
     except HTTPError as err:
         if err.response.status_code == 422:
@@ -527,7 +528,8 @@ def schedule_extra(ctx: ContextManager, date: _date | str) -> dict:
 
     # Get schedule
     try:
-        schedule = api.timetable_group(ctx.chat_data.get('group_id'), date_str)
+        schedule = api.timetable_group(ctx.chat_data.get('group_id'), date_str,
+                                       language=ctx.chat_data.get('lang_code'))
     except HTTPApiException:
         return api_unavaliable(ctx)
     
@@ -546,7 +548,7 @@ def schedule_extra(ctx: ContextManager, date: _date | str) -> dict:
     for lesson in cur_day_schedule.lessons:
         for period in lesson.periods:
             if period.extraText:
-                extra_text = api.timetable_ad(period.r1, date_str).html
+                extra_text = api.timetable_ad(period.r1, date_str, language=ctx.chat_data.get('lang_code')).html
                 extra_text = clean_html(extra_text, tags_whitelist=TELEGRAM_SUPPORTED_HTML_TAGS).strip()
                 page_text += f'\n\n<pre>{lesson.number})</pre> {extra_text}'
 
@@ -645,7 +647,7 @@ def statistic(ctx: ContextManager) -> dict:
 
 def structure_list(ctx: ContextManager) -> dict:
     try:
-        structures = api.list_structures()
+        structures = api.list_structures(language=ctx.chat_data.get('lang_code'))
     except HTTPApiException:
         return api_unavaliable(ctx)
 

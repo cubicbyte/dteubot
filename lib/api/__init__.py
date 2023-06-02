@@ -39,9 +39,11 @@ class Api:
 
         logger.debug(f'Making {method} request to {path} with JSON data {json}')
         headers = {
-            'Accept-Language': 'uk',
+            'Accept-Language': req_kwargs.get('language', 'uk'),
             'Content-Type': 'application/json; charset=utf-8'
         }
+
+        req_kwargs.pop('language', None)
 
         _requests = self._session if self._cache_enabled else requests
         url = urljoin(self.url, path)
