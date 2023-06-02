@@ -1,5 +1,6 @@
 import os
 import re
+import time
 import json
 from pathlib import Path
 from urllib.parse import parse_qsl
@@ -88,3 +89,18 @@ def clean_html(raw_html: str, tags_whitelist: list[str] = []) -> str:
         cleanr = re.compile('<.*?>')
 
     return re.sub(cleanr, '', raw_html)
+
+
+def timeit(func):
+    """Decorator for measuring execution time of a function"""
+
+    def wrapper(*args, **kwargs):
+        start = time.time()
+        result = func(*args, **kwargs)
+        end = time.time()
+
+        print(f'[{func.__name__}] Execution time: {(end - start) * 1000:.0f} ms')
+
+        return result
+
+    return wrapper
