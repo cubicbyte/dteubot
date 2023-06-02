@@ -111,8 +111,8 @@ def course_list(ctx: ContextManager, structure_id: int, faculty_id: int) -> dict
     for course in courses:
         buttons.append([
             InlineKeyboardButton(
-                text=str(course.course),
-                callback_data=f'select.schedule.course#structureId={structure_id}&facultyId={faculty_id}&course={course.course}')
+                text=str(course['course']),
+                callback_data=f'select.schedule.course#structureId={structure_id}&facultyId={faculty_id}&course={course["course"]}')
         ])
 
     return {
@@ -147,8 +147,8 @@ def faculty_list(ctx: ContextManager, structure_id: int) -> dict:
     for faculty in faculties:
         buttons.append([
             InlineKeyboardButton(
-                text=faculty.fullName,
-                callback_data=f'select.schedule.faculty#structureId={structure_id}&facultyId={faculty.id}')
+                text=faculty['fullName'],
+                callback_data=f'select.schedule.faculty#structureId={structure_id}&facultyId={faculty["id"]}')
         ])
 
     return {
@@ -181,8 +181,8 @@ def group_list(ctx: ContextManager, structure_id: int, faculty_id: int, course: 
     for group in groups:
         group_btns.append(
             InlineKeyboardButton(
-                text=group.name,
-                callback_data=f'select.schedule.group#groupId={group.id}')
+                text=group['name'],
+                callback_data=f'select.schedule.group#groupId={group["id"]}')
         )
 
     # Make many 3-wide button rows like this: [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
@@ -197,7 +197,7 @@ def group_list(ctx: ContextManager, structure_id: int, faculty_id: int, course: 
 
 def info(ctx: ContextManager) -> dict:
     try:
-        api_ver = escape_markdown(api.version().name, version=2)
+        api_ver = escape_markdown(api.version()['name'], version=2)
     except RequestException:
         api_ver = ctx.lang.get('text.unknown')
 
@@ -372,11 +372,11 @@ def schedule(ctx: ContextManager, date: _date | str) -> dict:
         date = _date.fromisoformat(date_str)
 
     # Get schedule
+    date_start = date - timedelta(days=date.weekday() + 7)
+    date_end = date_start + timedelta(days=20)
     try:
-        date_start = date - timedelta(days=date.weekday() + 7)
-        date_end = date_start + timedelta(days=20)
         schedule = api.timetable_group(ctx.chat_data.get('group_id'), date_start, date_end,
-                                       language=ctx.chat_data.get('lang_code'))
+                                    language=ctx.chat_data.get('lang_code'))
 
     except HTTPError as err:
         if err.response.status_code == 422:
@@ -390,7 +390,7 @@ def schedule(ctx: ContextManager, date: _date | str) -> dict:
     # Find schedule of current day
     cur_day_schedule = None
     for day in schedule:
-        if day.date == date_str:
+        if day['date'] == date_str:
             cur_day_schedule = day
             break
 
@@ -519,6 +519,7 @@ def empty_schedule(ctx: ContextManager, schedule: list[TimeTableDate],
         'parse_mode': 'MarkdownV2'
     }
 
+
 def schedule_extra(ctx: ContextManager, date: _date | str) -> dict:
     if isinstance(date, _date):
         date_str = date.isoformat()
@@ -536,7 +537,7 @@ def schedule_extra(ctx: ContextManager, date: _date | str) -> dict:
     # Find schedule of current day
     cur_day_schedule = None
     for day in schedule:
-        if day.date == date_str:
+        if day['date'] == date_str:
             cur_day_schedule = day
             break
 
@@ -545,12 +546,12 @@ def schedule_extra(ctx: ContextManager, date: _date | str) -> dict:
 
     page_text = ''
 
-    for lesson in cur_day_schedule.lessons:
-        for period in lesson.periods:
-            if period.extraText:
-                extra_text = api.timetable_ad(period.r1, date_str, language=ctx.chat_data.get('lang_code')).html
+    for lesson in cur_day_schedule['lessons']:
+        for period in lesson['periods']:
+            if period['extraText']:
+                extra_text = api.timetable_ad(period['r1'], date_str, language=ctx.chat_data.get('lang_code'))['html']
                 extra_text = clean_html(extra_text, tags_whitelist=TELEGRAM_SUPPORTED_HTML_TAGS).strip()
-                page_text += f'\n\n<pre>{lesson.number})</pre> {extra_text}'
+                page_text += f'\n\n<pre>{lesson["number"]})</pre> {extra_text}'
 
     return {
         'text': ctx.lang.get('page.schedule.extra').format(page_text[2:]),
@@ -653,7 +654,7 @@ def structure_list(ctx: ContextManager) -> dict:
 
     # If there is only one structure, show faculties page
     if len(structures) == 1:
-        return faculty_list(ctx, structures[0].id)
+        return faculty_list(ctx, structures[0]['id'])
 
     buttons = [[
         InlineKeyboardButton(text=ctx.lang.get('button.back'), callback_data=f'open.menu')
@@ -661,8 +662,8 @@ def structure_list(ctx: ContextManager) -> dict:
 
     for structure in structures:
         buttons.append([
-            InlineKeyboardButton(text=structure.fullName,
-                                 callback_data=f'select.schedule.structure#structureId={structure.id}')
+            InlineKeyboardButton(text=structure['fullName'],
+                                 callback_data=f'select.schedule.structure#structureId={structure["id"]}')
         ])
 
     return {
@@ -709,7 +710,7 @@ def _get_calls_section_text() -> str:
     parts = []
 
     for call in api.timetable_call_schedule():
-        parts.append('`{number})` *{timeStart}* `-` *{timeEnd}*'.format(**call.__dict__))
+        parts.append('`{number})` *{timeStart}* `-` *{timeEnd}*'.format(**call))
 
     return '\n'.join(parts)
 
@@ -727,12 +728,12 @@ def _get_notification_schedule_section(day: TimeTableDate) -> str:
     f = '`{0})` *{1}*`[{2}]`\n'
     section = ''
 
-    for l in day.lessons:
-        for p in l.periods:
+    for l in day['lessons']:
+        for p in l['periods']:
             section += f.format(
-                l.number,
-                escape_markdown(p.disciplineShortName, version=2),
-                escape_markdown(p.typeStr, version=2))
+                l['number'],
+                escape_markdown(p['disciplineShortName'], version=2),
+                escape_markdown(p['typeStr'], version=2))
 
     return section[:-1]
 
@@ -749,7 +750,7 @@ def _count_no_lesson_days(
         schedule = reversed(schedule)
 
     for day in schedule:
-        day_date = datetime.strptime(day.date, '%Y-%m-%d').date()
+        day_date = datetime.strptime(day['date'], '%Y-%m-%d').date()
         if direction_right:
             if day_date > date:
                 days_timedelta = day_date - date
@@ -800,31 +801,31 @@ def _create_schedule_section(ctx: ContextManager, day: TimeTableDate) -> str:
 
     schedule_section = ''
 
-    for lesson in day.lessons:
-        for period in lesson.periods:
+    for lesson in day['lessons']:
+        for period in lesson['periods']:
             # Escape ONLY USED api result not to break telegram markdown
             # DO NOT DELETE COMMENTS
-            period.typeStr = escape_markdown(period.typeStr, version=2)
-            period.classroom = escape_markdown(period.classroom, version=2)
-            # period.disciplineFullName = escape_markdown(period.disciplineFullName, version=2)
-            period.disciplineShortName = escape_markdown(period.disciplineShortName, version=2)
-            period.timeStart = escape_markdown(period.timeStart, version=2)
-            period.timeEnd = escape_markdown(period.timeEnd, version=2)
-            # period.teachersName = escape_markdown(period.teachersName, version=2)
-            period.teachersNameFull = escape_markdown(period.teachersNameFull, version=2)
-            # period.chairName = escape_markdown(period.chairName, version=2)
-            # period.dateUpdated = escape_markdown(period.dateUpdated, version=2)
-            # period.groups = escape_markdown(period.groups, version=2)
+            period['typeStr'] = escape_markdown(period['typeStr'], version=2)
+            period['classroom'] = escape_markdown(period['classroom'], version=2)
+            # period['disciplineFullName'] = escape_markdown(period['disciplineFullName'], version=2)
+            period['disciplineShortName'] = escape_markdown(period['disciplineShortName'], version=2)
+            period['timeStart'] = escape_markdown(period['timeStart'], version=2)
+            period['timeEnd'] = escape_markdown(period['timeEnd'], version=2)
+            # period['teachersName'] = escape_markdown(period['teachersName'], version=2)
+            period['teachersNameFull'] = escape_markdown(period['teachersNameFull'], version=2)
+            # period['chairName'] = escape_markdown(period['chairName'], version=2)
+            # period['dateUpdated'] = escape_markdown(period['dateUpdated'], version=2)
+            # period['groups'] = escape_markdown(period['groups'], version=2)
 
             # If there are multiple teachers, display the first one and add +n to the end
-            if ',' in period.teachersName:
-                count = str(period.teachersNameFull.count(','))
-                period.teachersName = period.teachersName[:period.teachersName.index(',')] + ' \\+' + count
-                period.teachersNameFull = period.teachersNameFull[:period.teachersNameFull.index(',')] + ' \\+' + count
+            if ',' in period['teachersName']:
+                count = str(period['teachersNameFull'].count(','))
+                period['teachersName'] = period['teachersName'][:period['teachersName'].index(',')] + ' \\+' + count
+                period['teachersNameFull'] = period['teachersNameFull'][:period['teachersNameFull'].index(',')] + ' \\+' + count
 
             schedule_section += ctx.lang.get('text.schedule.period').format(
-                **period.__dict__,
-                lessonNumber=lesson.number
+                **period,
+                lessonNumber=lesson['number']
             )
 
     schedule_section += '`—――—―``―——``―—―``――``—``―``—``――――``――``―――`'
@@ -834,9 +835,9 @@ def _create_schedule_section(ctx: ContextManager, day: TimeTableDate) -> str:
 def _check_extra_text(day: TimeTableDate) -> bool:
     """Checks if the day schedule has extra text, like zoom links, etc."""
 
-    for lesson in day.lessons:
-        for period in lesson.periods:
-            if period.extraText:
+    for lesson in day['lessons']:
+        for period in lesson['periods']:
+            if period['extraText']:
                 return True
 
     return False

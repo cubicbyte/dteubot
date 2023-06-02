@@ -77,6 +77,7 @@ api = _Api(
     url=os.getenv('API_URL'),
     enable_cache=True,
     timeout=int(os.getenv('API_REQUEST_TIMEOUT')),
+    raw_result=True,
     expire_after=timedelta(seconds=int(os.getenv('API_CACHE_EXPIRES'))),
     cache_name=os.path.join(os.getenv('CACHE_PATH'), 'http-cache')
 )

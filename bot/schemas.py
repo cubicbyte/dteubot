@@ -42,9 +42,3 @@ class StoredMessage:
     page_name: str
     lang_code: str
     data: dict[str, any] = _field(default_factory=dict)
-
-
-@dataclass
-class FormattedTime:
-    time: timedelta
-    text: str

@@ -57,8 +57,8 @@ async def send_notifications_15m(lesson_number: int):
         await send_notification_15m(chat_data)
 
     for call in calls:
-        if call.number == lesson_number:
-            call_time = datetime.strptime(call.timeStart, '%H:%M')
+        if call['number'] == lesson_number:
+            call_time = datetime.strptime(call['timeStart'], '%H:%M')
             next_call_time = datetime.combine(datetime.today() + timedelta(days=1),
                                               (call_time - timedelta(minutes=15)).time())
             scheduler.add_job(
@@ -89,8 +89,8 @@ async def send_notifications_1m(lesson_number: int):
         await send_notification_1m(chat_data)
 
     for call in calls:
-        if call.number == lesson_number:
-            call_time = datetime.strptime(call.timeStart, '%H:%M')
+        if call['number'] == lesson_number:
+            call_time = datetime.strptime(call['timeStart'], '%H:%M')
             next_call_time = datetime.combine(date.today() + timedelta(days=1),
                                               (call_time - timedelta(minutes=1)).time())
             scheduler.add_job(
@@ -110,10 +110,10 @@ def is_lesson_in_interval(group_id: int, interval: timedelta) -> bool:
     if len(schedule) == 0:
         return False
     calls = api.timetable_call_schedule()
-    first_lesson_number = schedule[0].lessons[0].number
+    first_lesson_number = schedule[0]['lessons'][0]['number']
     for call in calls:
-        if call.number == first_lesson_number:
-            call_time = datetime.strptime(call.timeStart, '%H:%M').time()
+        if call['number'] == first_lesson_number:
+            call_time = datetime.strptime(call['timeStart'], '%H:%M').time()
             if cur_time < call_time < with_interval:
                 return True
     return False
@@ -125,7 +125,7 @@ _cur_time = datetime.now()
 _today = datetime.today()
 
 for call in calls:
-    _call_time = datetime.strptime(call.timeStart, '%H:%M')
+    _call_time = datetime.strptime(call['timeStart'], '%H:%M')
     _call_time_15m = datetime.combine(_today, (_call_time - timedelta(minutes=15)).time())
     _call_time_1m = datetime.combine(_today, (_call_time - timedelta(minutes=1)).time())
 
@@ -135,16 +135,16 @@ for call in calls:
         _call_time_1m += timedelta(days=1)
 
     scheduler.add_job(
-        partial(send_notifications_15m, lesson_number=call.number),
+        partial(send_notifications_15m, lesson_number=call['number']),
         'date',
         next_run_time=_call_time_15m,
-        id='cl_notif_15m_%d' % call.number,
+        id='cl_notif_15m_%d' % call['number'],
         replace_existing=True
     )
     scheduler.add_job(
-        partial(send_notifications_1m, lesson_number=call.number),
+        partial(send_notifications_1m, lesson_number=call['number']),
         'date',
         next_run_time=_call_time_1m,
-        id='cl_notif_1m_%d' % call.number,
+        id='cl_notif_1m_%d' % call['number'],
         replace_existing=True
     )

@@ -2,7 +2,6 @@ from datetime import datetime
 from settings import api
 from lib.api.schemas import CallSchedule
 from bot.utils.time_formatter import format_time
-from bot.schemas import FormattedTime
 
 
 def get_lesson(
@@ -45,10 +44,10 @@ def get_lesson(
         timestamp = datetime.now()
 
     for call in calls:
-        time_start = datetime.combine(date, datetime.strptime(call.timeStart, '%H:%M').time())
-        time_end = datetime.combine(date, datetime.strptime(call.timeEnd, '%H:%M').time())
-        calls_formatted[str(call.number)] = {
-            'number': call.number,
+        time_start = datetime.combine(date, datetime.strptime(call['timeStart'], '%H:%M').time())
+        time_end = datetime.combine(date, datetime.strptime(call['timeEnd'], '%H:%M').time())
+        calls_formatted[str(call['number'])] = {
+            'number': call['number'],
             'timeStart': time_start,
             'timeEnd': time_end
         }
@@ -107,15 +106,15 @@ def get_time(
     # If there are no lessons, return None
     day = None
     for d in schedule:
-        if d.date == date:
+        if d['date'] == date:
             day = d
             break
     if day is None:
         return None
 
     lessons = []
-    for lesson in day.lessons:
-        lessons.append(lesson.number)
+    for lesson in day['lessons']:
+        lessons.append(lesson['number'])
 
     return get_lesson(calls, lessons, timestamp)
 
@@ -124,7 +123,7 @@ def get_time_formatted(
         lang_code: str,
         group_id: int,
         timestamp: datetime | None = None
-) -> FormattedTime:
+) -> dict[str, any]:
     if not timestamp:
         timestamp = datetime.now()
 
@@ -135,7 +134,7 @@ def get_time_formatted(
     else:
         formatted = format_time(lang_code, remaining_time['time'], depth=2)
 
-    return FormattedTime(
-        time=remaining_time['time'],
-        text=formatted
-    )
+    return {
+        'time': remaining_time,
+        'text': formatted
+    }
