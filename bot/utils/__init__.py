@@ -92,7 +92,7 @@ def clean_html(raw_html: str, tags_whitelist: list[str] = []) -> str:
     return re.sub(cleanr, '', raw_html)
 
 
-class timeit:
+def timeit(func: Callable | str = '?'):
     """
     Decorator for measuring execution time of a function
     
@@ -113,29 +113,34 @@ class timeit:
     [foo] Execution time: 800.00 ms
     """
 
-    def __init__(self, func: Callable | str = '?'):
-        self.func = func
+    class TimeitCtx:
+        def __init__(self, name: str) -> None:
+            self.name = name
 
-    def __call__(self, *args, **kwargs):
+        def __enter__(self) -> None:
+            self.start = time.time()
+
+        def __exit__(self, *args) -> None:
+            end = time.time()
+            print(f'[{self.name}] Execution time: {(end - self.start) * 1000:.2f} ms')
+
+        def start(self) -> 'TimeitCtx':
+            self.__enter__()
+            return self
+        
+        def stop(self):
+            self.__exit__()
+
+    def wrapper(*args, **kwargs):
         start = time.time()
-        result = self.func(*args, **kwargs)
+        result = func(*args, **kwargs)
         end = time.time()
 
-        print(f'[{self.func.__name__}] Execution time: {(end - start) * 1000:.2f} ms')
+        print(f'[{func.__name__}] Execution time: {(end - start) * 1000:.2f} ms')
 
         return result
 
-    def __enter__(self):
-        self.start = time.time()
-        return self
-    
-    def __exit__(self, *args):
-        self.end = time.time()
-        print(f'[{self.func}] Execution time: {(self.end - self.start) * 1000:.2f} ms')
-
-    def start(self) -> 'timeit':
-        self.__enter__()
-        return self
-
-    def stop(self):
-        self.__exit__()
+    if type(func) == 'str':
+        return TimeitCtx(func)
+    else:
+        return wrapper
