@@ -5,3 +5,4 @@ apscheduler >=3.6.3
 requests
 
 -r lib/api/requirements.txt
+-r lib/teacher_loader/requirements.txt
