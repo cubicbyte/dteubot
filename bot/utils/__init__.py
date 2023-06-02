@@ -140,7 +140,7 @@ def timeit(func: Callable | str = '?'):
 
         return result
 
-    if type(func) == 'str':
+    if type(func) == str:
         return TimeitCtx(func)
     else:
         return wrapper
