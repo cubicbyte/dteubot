@@ -2,6 +2,7 @@ import os
 import re
 import time
 import json
+from typing import Callable
 from pathlib import Path
 from urllib.parse import parse_qsl
 from bot.schemas import Language
@@ -91,16 +92,50 @@ def clean_html(raw_html: str, tags_whitelist: list[str] = []) -> str:
     return re.sub(cleanr, '', raw_html)
 
 
-def timeit(func):
-    """Decorator for measuring execution time of a function"""
+class timeit:
+    """
+    Decorator for measuring execution time of a function
+    
+    Decorator usage:
+    --------
+    >>> @timeit
+    ... def foo():
+    ...     time.sleep(0.8)
+    ...     return 42
+    >>> foo()
+    [foo] Execution time: 800.00 ms
+    42
 
-    def wrapper(*args, **kwargs):
+    Context manager usage:
+    --------
+    >>> with timeit('foo'):
+    ...     time.sleep(0.8)
+    [foo] Execution time: 800.00 ms
+    """
+
+    def __init__(self, func: Callable | str = '?'):
+        self.func = func
+
+    def __call__(self, *args, **kwargs):
         start = time.time()
-        result = func(*args, **kwargs)
+        result = self.func(*args, **kwargs)
         end = time.time()
 
-        print(f'[{func.__name__}] Execution time: {(end - start) * 1000:.0f} ms')
+        print(f'[{self.func.__name__}] Execution time: {(end - start) * 1000:.2f} ms')
 
         return result
 
-    return wrapper
+    def __enter__(self):
+        self.start = time.time()
+        return self
+    
+    def __exit__(self, *args):
+        self.end = time.time()
+        print(f'[{self.func}] Execution time: {(self.end - self.start) * 1000:.2f} ms')
+
+    def start(self) -> 'timeit':
+        self.__enter__()
+        return self
+
+    def stop(self):
+        self.__exit__()
