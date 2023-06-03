@@ -5,9 +5,9 @@ import time
 import json
 import shutil
 import logging
-import datetime
 import argparse
 from typing import List
+from datetime import datetime
 
 logging.basicConfig(
     level='INFO',
@@ -100,7 +100,7 @@ def _merge_chat(fp, cache):
     for line in fp:
         if line == '':
             continue
-        timestamp = datetime.datetime.strptime(line[1:20], '%Y-%m-%d %H:%M:%S')
+        timestamp = datetime.fromisoformat(line[1:20])
         if len(cache) == 0:
             cache.append([timestamp, line])
             continue
@@ -116,7 +116,7 @@ def _merge_chat(fp, cache):
 def _get_latest_update_time(fp):
     for line in reversed(fp.readlines()):
         if line.startswith('['):
-            return int(datetime.datetime.strptime(line[1:20], '%Y-%m-%d %H:%M:%S').timestamp())
+            return int(datetime.fromisoformat(line[1:20]).timestamp())
     return int(time.time())
 
 

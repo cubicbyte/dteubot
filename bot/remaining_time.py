@@ -101,7 +101,7 @@ def get_time(
     date = timestamp.date()
     schedule = api.timetable_group(group_id, date, date)
     calls = api.timetable_call_schedule()
-    date = timestamp.strftime('%Y-%m-%d')
+    date = timestamp.isoformat()
 
     # If there are no lessons, return None
     day = None

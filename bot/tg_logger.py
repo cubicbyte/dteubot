@@ -43,7 +43,7 @@ class TelegramLogger:
         file = os.path.join(self._dirpath, 'chats', str(update.effective_chat.id), 'messages.txt')
         fp = open(file, 'a')
         fp.write('[{time}] {chat_id}/{user_id}/{message_id}: {text}\n'.format(
-            time=datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            time=datetime.now().isoformat(sep=' ', timespec='seconds'),
             chat_id=update.effective_chat.id,
             user_id=update.effective_user.id,
             message_id=update.effective_message.id,
@@ -55,7 +55,7 @@ class TelegramLogger:
         file = os.path.join(self._dirpath, 'chats', str(update.effective_chat.id), 'cb_queries.txt')
         fp = open(file, 'a')
         fp.write('[{time}] {chat_id}/{user_id}/{message_id}: {data}\n'.format(
-            time=datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            time=datetime.now().isoformat(sep=' ', timespec='seconds'),
             chat_id=update.effective_chat.id,
             user_id=update.effective_user.id,
             message_id=update.effective_message.id,

@@ -10,11 +10,11 @@ class CacheReader:
                      dateEnd: _date | str = None) -> list[list] | None:
 
         if type(dateStart) == _date:
-            dateStart = dateStart.strftime('%Y-%m-%d')
+            dateStart = dateStart.isoformat()
         if dateEnd is None:
             dateEnd = dateStart
         elif type(dateEnd) == _date:
-            dateEnd = dateEnd.strftime('%Y-%m-%d')
+            dateEnd = dateEnd.isoformat()
 
         cur = self.__connection.cursor()
         cur.execute('SELECT * FROM Schedule WHERE groupId = ? AND date BETWEEN ? AND ?;',

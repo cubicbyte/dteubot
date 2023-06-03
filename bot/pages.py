@@ -366,7 +366,7 @@ def notification_feature_suggestion(ctx: ContextManager) -> dict:
 def schedule(ctx: ContextManager, date: _date | str) -> dict:
     # Create "date_str" and "date" variables
     if isinstance(date, _date):
-        date_str = date.strftime('%Y-%m-%d')
+        date_str = date.isoformat()
     else:
         date_str = date
         date = _date.fromisoformat(date_str)
@@ -414,16 +414,16 @@ def day_schedule(ctx: ContextManager, date: _date, day: TimeTableDate) -> dict:
     buttons = [
         InlineKeyboardButton(text=lang.get('button.navigation.day_previous'),
                              callback_data='open.schedule.day#date='
-                             + (date - timedelta(days=1)).strftime('%Y-%m-%d')),
+                             + (date - timedelta(days=1)).isoformat()),
         InlineKeyboardButton(text=lang.get('button.navigation.day_next'),
                              callback_data='open.schedule.day#date='
-                             + (date + timedelta(days=1)).strftime('%Y-%m-%d')),
+                             + (date + timedelta(days=1)).isoformat()),
         InlineKeyboardButton(text=lang.get('button.navigation.week_previous'),
                              callback_data='open.schedule.day#date='
-                             + (date - timedelta(days=7)).strftime('%Y-%m-%d')),
+                             + (date - timedelta(days=7)).isoformat()),
         InlineKeyboardButton(text=lang.get('button.navigation.week_next'),
                              callback_data='open.schedule.day#date='
-                             + (date + timedelta(days=7)).strftime('%Y-%m-%d')),
+                             + (date + timedelta(days=7)).isoformat()),
         InlineKeyboardButton(text=lang.get('button.menu'), callback_data='open.menu')
     ]
 
@@ -441,7 +441,7 @@ def day_schedule(ctx: ContextManager, date: _date, day: TimeTableDate) -> dict:
     if _check_extra_text(day):
         buttons.append([InlineKeyboardButton(
             text=lang.get('button.schedule.extra'),
-            callback_data='open.schedule.extra#date=' + date.strftime('%Y-%m-%d')
+            callback_data='open.schedule.extra#date=' + date.isoformat()
         )])
 
 
@@ -490,16 +490,16 @@ def empty_schedule(ctx: ContextManager, schedule: list[TimeTableDate],
     buttons = [
         InlineKeyboardButton(text=lang.get('button.navigation.day_previous'),
                              callback_data='open.schedule.day#date='
-                             + prev_day_date.strftime('%Y-%m-%d')),
+                             + prev_day_date.isoformat()),
         InlineKeyboardButton(text=lang.get('button.navigation.day_next'),
                              callback_data='open.schedule.day#date='
-                             + next_day_date.strftime('%Y-%m-%d')),
+                             + next_day_date.isoformat()),
         InlineKeyboardButton(text=lang.get('button.navigation.week_previous'),
                              callback_data='open.schedule.day#date='
-                             + (from_date - timedelta(days=7)).strftime('%Y-%m-%d')),
+                             + (from_date - timedelta(days=7)).isoformat()),
         InlineKeyboardButton(text=lang.get('button.navigation.week_next'),
                              callback_data='open.schedule.day#date='
-                             + (from_date + timedelta(days=7)).strftime('%Y-%m-%d')),
+                             + (from_date + timedelta(days=7)).isoformat()),
         InlineKeyboardButton(text=lang.get('button.menu'), callback_data='open.menu')
     ]
 
@@ -750,7 +750,7 @@ def _count_no_lesson_days(
         schedule = reversed(schedule)
 
     for day in schedule:
-        day_date = datetime.strptime(day['date'], '%Y-%m-%d').date()
+        day_date = _date.fromisoformat(day['date'])
         if direction_right:
             if day_date > date:
                 days_timedelta = day_date - date

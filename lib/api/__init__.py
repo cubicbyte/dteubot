@@ -58,11 +58,11 @@ class Api:
         """Returns the schedule for the group"""
 
         if type(dateStart) == _date:
-            dateStart = dateStart.strftime('%Y-%m-%d')
+            dateStart = dateStart.isoformat()
         if dateEnd is None:
             dateEnd = dateStart
         elif type(dateEnd) == _date:
-            dateEnd = dateEnd.strftime('%Y-%m-%d')
+            dateEnd = dateEnd.isoformat()
 
         res = self._make_request('/time-table/group', 'POST', json={
             'groupId': groupId,
@@ -77,11 +77,11 @@ class Api:
         """Returns the schedule for the student"""
 
         if type(dateStart) == _date:
-            dateStart = dateStart.strftime('%Y-%m-%d')
+            dateStart = dateStart.isoformat()
         if dateEnd is None:
             dateEnd = dateStart
         elif type(dateEnd) == _date:
-            dateEnd = dateEnd.strftime('%Y-%m-%d')
+            dateEnd = dateEnd.isoformat()
 
         res = self._make_request('/time-table/student', 'POST', json={
             'studentId': studentId,
@@ -96,11 +96,11 @@ class Api:
         """Returns the schedule for the teacher"""
 
         if type(dateStart) == _date:
-            dateStart = dateStart.strftime('%Y-%m-%d')
+            dateStart = dateStart.isoformat()
         if dateEnd is None:
             dateEnd = dateStart
         elif type(dateEnd) == _date:
-            dateEnd = dateEnd.strftime('%Y-%m-%d')
+            dateEnd = dateEnd.isoformat()
 
         res = self._make_request('/time-table/teacher', 'POST', json={
             'teacherId': teacherId,
@@ -115,16 +115,16 @@ class Api:
         """Returns audience schedule (when and what groups are in it)"""
 
         if type(dateStart) == _date:
-            dateStart = dateStart.strftime('%Y-%m-%d')
+            dateStart = dateStart.isoformat()
         if dateEnd is None:
             dateEnd = dateStart
         elif type(dateEnd) == _date:
-            dateEnd = dateEnd.strftime('%Y-%m-%d')
+            dateEnd = dateEnd.isoformat()
 
         res = self._make_request('/time-table/classroom', 'POST', json={
             'classroomId': classroomId,
-            'dateStart': dateStart.strftime('%Y-%m-%d'),
-            'dateEnd': dateEnd.strftime('%Y-%m-%d')
+            'dateStart': dateStart.isoformat(),
+            'dateEnd': dateEnd.isoformat()
         }, *req_args, **req_kwargs).json()
 
         return TimeTableDate.from_json(res) if not self.raw_result else res
@@ -139,7 +139,7 @@ class Api:
         Usually contains a lesson link in Teams/Zoom"""
 
         if type(date) == _date:
-            date = date.strftime('%Y-%m-%d')
+            date = date.isoformat()
 
         res = self._make_request('/time-table/schedule-ad', 'POST', json={
             'r1': classCode,

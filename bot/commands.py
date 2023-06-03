@@ -134,7 +134,7 @@ async def today(ctx: ContextManager):
         **pages.schedule(ctx, date))
 
     # Save message
-    data = {'date': date.strftime('%Y-%m-%d')}
+    data = {'date': date.isoformat()}
     ctx.chat_data.save_message('schedule', msg, data)
 
 
@@ -146,5 +146,5 @@ async def tomorrow(ctx: ContextManager):
         **pages.schedule(ctx, date))
 
     # Save message
-    data = {'date': date.strftime('%Y-%m-%d')}
+    data = {'date': date.isoformat()}
     ctx.chat_data.save_message('schedule', msg, data)
