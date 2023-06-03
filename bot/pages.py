@@ -472,6 +472,8 @@ def empty_schedule(ctx: ContextManager, schedule: list[TimeTableDate],
     # decide the "next" and "previous" buttons skip values
     next_day_date = date + timedelta(days=skip_right)
     prev_day_date = date - timedelta(days=skip_left)
+    next_week_date = from_date + timedelta(days=7)
+    prev_week_date = from_date - timedelta(days=7)
     enable_today_button = not next_day_date > _date.today() > prev_day_date
 
     # If there are no lessons for multiple days
@@ -481,6 +483,10 @@ def empty_schedule(ctx: ContextManager, schedule: list[TimeTableDate],
             dateStart=_get_localized_date(ctx, prev_day_date + timedelta(days=1)),
             dateEnd=  _get_localized_date(ctx, next_day_date - timedelta(days=1)),
         )
+        if next_week_date < next_day_date:
+            next_week_date = next_day_date
+        if prev_week_date > prev_day_date:
+            prev_week_date = prev_day_date
     else:
         # If no lessons for only one day
         msg_text = lang.get('page.schedule.empty').format(date=_get_localized_date(ctx, date))
@@ -496,10 +502,10 @@ def empty_schedule(ctx: ContextManager, schedule: list[TimeTableDate],
                              + next_day_date.isoformat()),
         InlineKeyboardButton(text=lang.get('button.navigation.week_previous'),
                              callback_data='open.schedule.day#date='
-                             + (from_date - timedelta(days=7)).isoformat()),
+                             + prev_week_date.isoformat()),
         InlineKeyboardButton(text=lang.get('button.navigation.week_next'),
                              callback_data='open.schedule.day#date='
-                             + (from_date + timedelta(days=7)).isoformat()),
+                             + next_week_date.isoformat()),
         InlineKeyboardButton(text=lang.get('button.menu'), callback_data='open.menu')
     ]
 
