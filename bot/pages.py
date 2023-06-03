@@ -1,5 +1,5 @@
 import os
-from datetime import date as _date, datetime, timedelta
+from datetime import date as _date, timedelta
 from babel.dates import format_date
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.helpers import escape_markdown
@@ -9,6 +9,7 @@ from lib.api.exceptions import HTTPApiException
 from bot import remaining_time
 from bot.data import ContextManager, ChatData
 from bot.utils import array_split, clean_html
+from bot.teacher_finder import find_teacher
 from settings import api, langs, tg_logger, API_TYPE, API_TYPE_CACHED, TELEGRAM_SUPPORTED_HTML_TAGS
 
 
@@ -448,7 +449,8 @@ def day_schedule(ctx: ContextManager, date: _date, day: TimeTableDate) -> dict:
     return {
         'text': msg_text,
         'reply_markup': InlineKeyboardMarkup(buttons),
-        'parse_mode': 'MarkdownV2'
+        'parse_mode': 'MarkdownV2',
+        'disable_web_page_preview': True
     }
 
 
@@ -809,6 +811,15 @@ def _create_schedule_section(ctx: ContextManager, day: TimeTableDate) -> str:
 
     for lesson in day['lessons']:
         for period in lesson['periods']:
+            name = period['teachersNameFull']
+            if ', ' in name:
+                name = name.split(', ')[0]
+
+            try:
+                teacher = find_teacher(name)
+            except: # TODO handle properly
+                teacher = None
+
             # Escape ONLY USED api result not to break telegram markdown
             # DO NOT DELETE COMMENTS
             period['typeStr'] = escape_markdown(period['typeStr'], version=2)
@@ -828,6 +839,9 @@ def _create_schedule_section(ctx: ContextManager, day: TimeTableDate) -> str:
                 count = str(period['teachersNameFull'].count(','))
                 period['teachersName'] = period['teachersName'][:period['teachersName'].index(',')] + ' \\+' + count
                 period['teachersNameFull'] = period['teachersNameFull'][:period['teachersNameFull'].index(',')] + ' \\+' + count
+
+            if teacher:
+                period['teachersNameFull'] = f'[{period["teachersNameFull"]}]({teacher.page_link})'
 
             schedule_section += ctx.lang.get('text.schedule.period').format(
                 **period,
