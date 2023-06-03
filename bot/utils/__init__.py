@@ -92,10 +92,10 @@ def clean_html(raw_html: str, tags_whitelist: list[str] = []) -> str:
     return re.sub(cleanr, '', raw_html)
 
 
-def timeit(func: Callable | str = '?'):
+def timeit(func: Callable | str = '?', print_result: bool = True):
     """
     Decorator for measuring execution time of a function
-    
+
     Decorator usage:
     --------
     >>> @timeit
@@ -114,20 +114,28 @@ def timeit(func: Callable | str = '?'):
     """
 
     class TimeitCtx:
-        def __init__(self, name: str) -> None:
+        def __init__(self, name: str, print_result: bool = True) -> None:
             self.name = name
+            self.print_result = print_result
 
         def __enter__(self) -> None:
             self.start = time.time()
+            return self
 
         def __exit__(self, *args) -> None:
-            end = time.time()
-            print(f'[{self.name}] Execution time: {(end - self.start) * 1000:.2f} ms')
+            self.end = time.time()
+            self.time = self.end - self.start
+
+            if self.print_result:
+                print(self)
+
+        def __str__(self) -> str:
+            return f'[{self.name}] Execution time: {self.time * 1000:.2f} ms'
 
         def start(self) -> 'TimeitCtx':
             self.__enter__()
             return self
-        
+
         def stop(self):
             self.__exit__()
 
@@ -141,6 +149,6 @@ def timeit(func: Callable | str = '?'):
         return result
 
     if type(func) == str:
-        return TimeitCtx(func)
+        return TimeitCtx(func, print_result)
     else:
         return wrapper
