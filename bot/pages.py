@@ -9,7 +9,7 @@ from lib.api.exceptions import HTTPApiException
 from bot import remaining_time
 from bot.data import ContextManager, ChatData
 from bot.utils import array_split, clean_html
-from bot.teacher_finder import find_teacher
+from bot.teacher_finder import find_teacher_safe
 from settings import api, langs, tg_logger, API_TYPE, API_TYPE_CACHED, TELEGRAM_SUPPORTED_HTML_TAGS
 
 
@@ -812,11 +812,13 @@ def _create_schedule_section(ctx: ContextManager, day: TimeTableDate) -> str:
     for lesson in day['lessons']:
         for period in lesson['periods']:
             name = period['teachersNameFull']
-            if ', ' in name:
+            multiple_teachers = ', ' in name
+
+            if multiple_teachers:
                 name = name.split(', ')[0]
 
             try:
-                teacher = find_teacher(name)
+                teacher = find_teacher_safe(name)
             except: # TODO handle properly
                 teacher = None
 
@@ -829,19 +831,21 @@ def _create_schedule_section(ctx: ContextManager, day: TimeTableDate) -> str:
             period['timeStart'] = escape_markdown(period['timeStart'], version=2)
             period['timeEnd'] = escape_markdown(period['timeEnd'], version=2)
             # period['teachersName'] = escape_markdown(period['teachersName'], version=2)
-            period['teachersNameFull'] = escape_markdown(period['teachersNameFull'], version=2)
+            # period['teachersNameFull'] = escape_markdown(period['teachersNameFull'], version=2)
             # period['chairName'] = escape_markdown(period['chairName'], version=2)
             # period['dateUpdated'] = escape_markdown(period['dateUpdated'], version=2)
             # period['groups'] = escape_markdown(period['groups'], version=2)
 
             # If there are multiple teachers, display the first one and add +n to the end
-            if ',' in period['teachersName']:
-                count = str(period['teachersNameFull'].count(','))
-                period['teachersName'] = period['teachersName'][:period['teachersName'].index(',')] + ' \\+' + count
-                period['teachersNameFull'] = period['teachersNameFull'][:period['teachersNameFull'].index(',')] + ' \\+' + count
 
             if teacher:
-                period['teachersNameFull'] = f'[{period["teachersNameFull"]}]({teacher.page_link})'
+                name = f'[{name}]({teacher.page_link})'
+
+            if multiple_teachers:
+                count = str(period['teachersNameFull'].count(','))
+                name += ' \\+' + count
+
+            period['teachersNameFull'] = name
 
             schedule_section += ctx.lang.get('text.schedule.period').format(
                 **period,
