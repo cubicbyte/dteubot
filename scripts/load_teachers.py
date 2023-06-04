@@ -30,7 +30,7 @@ def _load_teachers_to_file(filepath: str, teachers: list[Teacher]):
 
 def main():
     os.environ.setdefault('CACHE_PATH', 'cache')
-    filepath = os.path.join(os.getenv('CACHE_PATH'), 'teachers2.csv')
+    filepath = os.path.join(os.getenv('CACHE_PATH'), 'teachers.csv')
     load_teachers_to_file(filepath)
 
 
