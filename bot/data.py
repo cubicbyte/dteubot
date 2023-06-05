@@ -20,6 +20,7 @@ logger = logging.getLogger(__name__)
 
 
 class ContextManager:
+    # pylint: disable=too-few-public-methods
     """
     Context manager for bot commands and callbacks.
     Provides access to user and chat data.

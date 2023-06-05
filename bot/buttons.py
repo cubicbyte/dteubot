@@ -65,6 +65,7 @@ async def clear_expired_cache(ctx: ContextManager):
 async def clear_logs(ctx: ContextManager):
     """Clear bot logs"""
 
+    # pylint: disable=consider-using-with
     open(os.path.join(os.getenv('LOGS_PATH'), 'debug.log'), 'w', encoding='utf-8').close()
 
     await ctx.update.callback_query.answer(

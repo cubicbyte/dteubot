@@ -179,8 +179,7 @@ def smart_split(text: str, chars_per_string: int = MAX_MESSAGE_LENGTH) -> List[s
     def _text_before_last(substr: str) -> str:
         return substr.join(part.split(substr)[:-1]) + substr
 
-    if chars_per_string > MAX_MESSAGE_LENGTH:
-        chars_per_string = MAX_MESSAGE_LENGTH
+    chars_per_string = min(MAX_MESSAGE_LENGTH, chars_per_string)
 
     parts = []
     while True:

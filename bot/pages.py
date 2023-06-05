@@ -433,9 +433,9 @@ def schedule(ctx: ContextManager, date: _date | str) -> dict:
     if cur_day_schedule is not None:
         # Schedule page
         return day_schedule(ctx, date, cur_day_schedule)
-    else:
-        # "no lessons" page
-        return empty_schedule(ctx, schedule, date, date_start, date_end)
+
+    # "no lessons" page
+    return empty_schedule(ctx, schedule, date, date_start, date_end)
 
 
 def day_schedule(ctx: ContextManager, date: _date, day: dict) -> dict:
@@ -523,10 +523,9 @@ def empty_schedule(ctx: ContextManager, schedule: list[dict],
             dateStart=_get_localized_date(ctx, prev_day_date + timedelta(days=1)),
             dateEnd=  _get_localized_date(ctx, next_day_date - timedelta(days=1)),
         )
-        if next_week_date < next_day_date:
-            next_week_date = next_day_date
-        if prev_week_date > prev_day_date:
-            prev_week_date = prev_day_date
+
+        next_week_date = max(next_week_date, next_day_date)
+        prev_week_date = min(prev_week_date, prev_day_date)
     else:
         # If no lessons for only one day
         msg_text = lang.get('page.schedule.empty').format(date=_get_localized_date(ctx, date))

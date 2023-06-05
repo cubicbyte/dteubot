@@ -33,6 +33,7 @@ class Teacher:
 
 @dataclass
 class FullTeacher:
+    # pylint: disable=too-many-instance-attributes
     """Full teacher info"""
 
     name: setattr

@@ -58,9 +58,8 @@ def scan(file: str, token: str) -> tuple[str, bool]:
         set_chat_accessibility(file, True)
         return file, True
 
-    if res.status_code in (400, 403):
-        set_chat_accessibility(file, False)
-        return file, False
+    set_chat_accessibility(file, False)
+    return file, False
 
 
 def main(token: str, path: str):
