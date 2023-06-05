@@ -9,8 +9,7 @@ from settings import langs
 def format_time(
         lang_code: str,
         time: timedelta,
-        depth: int = 1,
-        short: bool = True) -> str:
+        depth: int = 1) -> str:
     """Formats timedelta into a readable format
 
     Example
@@ -33,10 +32,7 @@ def format_time(
             result += ' '
         cur_depth += 1
         result += str(time.seconds // 3600)
-        if short:
-            result += langs[lang_code]['text.time.short.hours']
-        else:
-            result += ' ' + langs[lang_code]['text.time.hours']
+        result += langs[lang_code]['text.time.short.hours']
 
     # Add {minutes}m.
     if cur_depth < depth and time >= timedelta(minutes=1):
@@ -44,19 +40,13 @@ def format_time(
             result += ' '
         cur_depth += 1
         result += str(time.seconds // 60 % 60)
-        if short:
-            result += langs[lang_code]['text.time.short.minutes']
-        else:
-            result += ' ' + langs[lang_code]['text.time.minutes']
+        result += langs[lang_code]['text.time.short.minutes']
 
     # Add {seconds}s.
     if cur_depth < depth:
         if cur_depth != 0:
             result += ' '
         result += str(time.seconds % 60)
-        if short:
-            result += langs[lang_code]['text.time.short.seconds']
-        else:
-            result += ' ' + langs[lang_code]['text.time.seconds']
+        result += langs[lang_code]['text.time.short.seconds']
 
     return result

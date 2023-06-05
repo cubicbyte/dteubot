@@ -59,7 +59,7 @@ _logger.info('Running setup')
 
 from lib.api import Api
 from lib.api.cached import CachedApi
-from bot.tg_logger import TelegramLogger
+from bot.logger import TelegramLogger
 
 
 # Use CachedApi if possible

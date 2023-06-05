@@ -6,10 +6,9 @@ from telegram.helpers import escape_markdown
 from requests.exceptions import RequestException, HTTPError
 from lib.api.schemas import TimeTableDate
 from lib.api.exceptions import HTTPApiException
-from bot import remaining_time
 from bot.data import ContextManager, ChatData
-from bot.utils import array_split, clean_html
-from bot.teacher_finder import find_teacher_safe
+from bot.utils import array_split, clean_html, timeformatter, lessontime
+from bot.teacherfinder import find_teacher_safe
 from settings import api, langs, tg_logger, API_TYPE, API_TYPE_CACHED, TELEGRAM_SUPPORTED_HTML_TAGS
 
 
@@ -265,36 +264,41 @@ def left(ctx: ContextManager) -> dict:
         return invalid_group(ctx)
 
     try:
-        rem_time = remaining_time.get_time_formatted(ctx.chat_data.get('lang_code'),
-                                                     ctx.chat_data.get('group_id'))
+        schedule = api.timetable_group(ctx.chat_data.get('group_id'), _date.today())
+        if len(schedule) != 0:
+            rem_time = lessontime.get_calls_status(schedule[0]['lessons'])
     except HTTPApiException:
         return api_unavaliable(ctx)
 
-    # Show "no more classes" page
-    if rem_time['time'] is None or rem_time['time']['status'] == 3:
-        page_text = ctx.lang.get('page.left.no_more')
+    # If there is no classes
+    if len(schedule) == 0 or rem_time is None or rem_time['status'] == 'ended':
+        return {
+            'text': ctx.lang.get('page.left.no_more'),
+            'reply_markup': InlineKeyboardMarkup([[
+                InlineKeyboardButton(text=ctx.lang.get('button.back'), callback_data='open.more'),
+                InlineKeyboardButton(text=ctx.lang.get('button.menu'), callback_data='open.menu'),
+            ]]),
+            'parse_mode': 'MarkdownV2'
+        }
+    
+    time_formatted = timeformatter.format_time(
+        lang_code=ctx.chat_data.get('lang_code'),
+        time=rem_time['time'], depth=2)
 
-    # Show "left to end" page
-    elif rem_time['time']['status'] == 1:
+    # Lesson is going
+    if rem_time['status'] == 'going':
         page_text = ctx.lang.get('page.left.to_end').format(
-            left=escape_markdown(rem_time['text'], version=2))
+            left=escape_markdown(time_formatted, version=2))
 
-    # Show "left to start" page
+    # Classes is not started yet or it's break
     else:
         page_text = ctx.lang.get('page.left.to_start').format(
-            left=escape_markdown(rem_time['text'], version=2))
+            left=escape_markdown(time_formatted, version=2))
 
-    # Disable "refresh" button if there is no classes
-    if rem_time['time'] is None or rem_time['time']['status'] == 3:
-        buttons = [[
-            InlineKeyboardButton(text=ctx.lang.get('button.back'), callback_data='open.more'),
-            InlineKeyboardButton(text=ctx.lang.get('button.menu'), callback_data='open.menu')
-        ]]
-    else:
-        buttons = [[
-            InlineKeyboardButton(text=ctx.lang.get('button.menu'), callback_data='open.menu'),
-            InlineKeyboardButton(text=ctx.lang.get('button.refresh'), callback_data='open.left')
-        ]]
+    buttons = [[
+        InlineKeyboardButton(text=ctx.lang.get('button.menu'), callback_data='open.menu'),
+        InlineKeyboardButton(text=ctx.lang.get('button.refresh'), callback_data='open.left')
+    ]]
 
     return {
         'text': page_text,

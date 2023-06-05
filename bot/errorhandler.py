@@ -6,17 +6,15 @@ from datetime import datetime
 from telegram import Update, Bot
 from telegram.error import BadRequest, TelegramError, NetworkError, Forbidden
 from telegram.ext import CallbackContext
-from bot.data import ChatData, UserData, ContextManager
+from bot.data import ChatData, ContextManager
 from bot.pages import error as error_page
-from bot.utils.smart_split import smart_split
+from bot.utils import smart_split
 
 _logger = logging.getLogger(__name__)
 log_chat_id: int | str = os.getenv('LOG_CHAT_ID')
 
 
 async def handler(update: Update, context: CallbackContext):
-    if hasattr(context, 'effective_user'):
-        user_data = UserData(update.effective_user.id)
     if hasattr(context, 'effective_chat'):
         chat_data = ChatData(update.effective_chat.id)
 

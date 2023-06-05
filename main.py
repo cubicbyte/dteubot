@@ -1,3 +1,7 @@
+"""
+This is the main file of the bot.
+"""
+
 import os
 import logging
 import settings
@@ -15,9 +19,9 @@ from bot.buttons import *
 from bot.buttons import handlers as button_handlers, register_button
 from bot.commands import *
 from bot.commands import handlers as command_handlers
-from bot.notification_scheduler import scheduler
+from bot.notifier import scheduler
 from bot.data import ContextManager, ChatData
-from bot import error_handler, pages
+from bot import errorhandler, pages
 
 
 async def set_chat_accessible(upd, ctx):
@@ -28,19 +32,21 @@ async def set_chat_accessible(upd, ctx):
 
 
 async def button_logger(upd, ctx):
-    logger.info('[chat/{0} user/{1} msg/{2}] callback query: {3}'.format(
+    logger.info('[chat/%s user/%s msg/%s] callback query: %s',
         upd.callback_query.message.chat.id,
         upd.callback_query.from_user.id,
         upd.callback_query.message.id,
-        upd.callback_query.data))
+        upd.callback_query.data
+    )
 
 
 async def message_logger(upd, ctx):
-    logger.info('[chat/{0} user/{1} msg/{2}] message: {3}'.format(
+    logger.info('[chat/%s user/%s msg/%s] message: %s',
         upd.message.chat.id,
         upd.message.from_user.id,
         upd.message.id,
-        upd.message.text))
+        upd.message.text
+    )
     
 
 async def button_post_logger(upd, ctx):
@@ -64,7 +70,7 @@ bot.add_handlers([CallbackQueryHandler(button_logger), MessageHandler(None, mess
 bot.add_handlers([CallbackQueryHandler(set_chat_accessible), MessageHandler(None, set_chat_accessible)], 5)
 bot.add_handlers(button_handlers + command_handlers, 10)
 bot.add_handlers([CallbackQueryHandler(button_post_logger), MessageHandler(None, message_post_logger)], 20)
-bot.add_error_handler(error_handler.handler)
+bot.add_error_handler(errorhandler.handler)
 
 
 # Run notifications scheduler
