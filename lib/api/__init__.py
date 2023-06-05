@@ -1,25 +1,34 @@
-# API docs can be found at https://mkr.org.ua/portal-api-docs.html
+# pylint: disable=too-many-public-methods,missing-function-docstring,
+# pylint: disable=too-many-arguments,line-too-long,keyword-arg-before-vararg
+
+"""
+API module for mkr.org.ua
+
+API docs can be found at https://mkr.org.ua/portal-api-docs.html
+"""
 
 import logging
-import pytz
-import requests
 from typing import List
 from datetime import datetime, date as _date
 from urllib.parse import urljoin
+
+import pytz
+import requests
 from requests_cache import CachedSession
-from .schemas import *
 
 logger = logging.getLogger(__name__)
 logger.info('Initializing api module')
 
 
 class Api:
+    """API wrapper for mkr.org.ua"""
+
     VERSION = '1.6.1'
 
     def __init__(self, url: str, enable_cache: bool = False,
                  timeout: int = None, raw_result: bool = False,
                  **cache_kwargs) -> None:
-        logger.info('Creating Api instance with url %s' % url)
+        logger.info('Creating Api instance with url %s', url)
 
         self.url = url
         self.timeout = timeout
@@ -53,242 +62,230 @@ class Api:
         return res
 
     # /time-table
-    def timetable_group(self, groupId: int, dateStart: _date | str, dateEnd: _date | str | None = None,
-                        *req_args, **req_kwargs) -> List[TimeTableDate]:
+    def timetable_group(self, group_id: int, date_start: _date | str,
+                        date_end: _date | str | None = None,
+                        *req_args, **req_kwargs) -> List[dict]:
         """Returns the schedule for the group"""
 
-        if type(dateStart) == _date:
-            dateStart = dateStart.isoformat()
-        if dateEnd is None:
-            dateEnd = dateStart
-        elif type(dateEnd) == _date:
-            dateEnd = dateEnd.isoformat()
+        if isinstance(date_start, _date):
+            date_start = date_start.isoformat()
+        if date_end is None:
+            date_end = date_start
+        elif isinstance(date_end, _date):
+            date_end = date_end.isoformat()
 
-        res = self._make_request('/time-table/group', 'POST', json={
-            'groupId': groupId,
-            'dateStart': dateStart,
-            'dateEnd': dateEnd
+        return self._make_request('/time-table/group', 'POST', json={
+            'groupId': group_id,
+            'dateStart': date_start,
+            'dateEnd': date_end
         }, *req_args, **req_kwargs).json()
 
-        return TimeTableDate.from_json(res) if not self.raw_result else res
-
-    def timetable_student(self, studentId: int, dateStart: _date | str, dateEnd: _date | str | None = None,
-                          *req_args, **req_kwargs) -> List[TimeTableDate]:
+    def timetable_student(self, student_id: int, date_start: _date | str,
+                          date_end: _date | str | None = None,
+                          *req_args, **req_kwargs) -> List[dict]:
         """Returns the schedule for the student"""
 
-        if type(dateStart) == _date:
-            dateStart = dateStart.isoformat()
-        if dateEnd is None:
-            dateEnd = dateStart
-        elif type(dateEnd) == _date:
-            dateEnd = dateEnd.isoformat()
+        if isinstance(date_start, _date):
+            date_start = date_start.isoformat()
+        if date_end is None:
+            date_end = date_start
+        elif isinstance(date_end, _date):
+            date_end = date_end.isoformat()
 
-        res = self._make_request('/time-table/student', 'POST', json={
-            'studentId': studentId,
-            'dateStart': dateStart,
-            'dateEnd': dateEnd
+        return self._make_request('/time-table/student', 'POST', json={
+            'studentId': student_id,
+            'dateStart': date_start,
+            'dateEnd': date_end
         }, *req_args, **req_kwargs).json()
 
-        return TimeTableDate.from_json(res) if not self.raw_result else res
-
-    def timetable_teacher(self, teacherId: int, dateStart: _date | str, dateEnd: _date | str | None = None,
-                          *req_args, **req_kwargs) -> List[TimeTableDate]:
+    def timetable_teacher(self, teacher_id: int, date_start: _date | str,
+                          date_end: _date | str | None = None,
+                          *req_args, **req_kwargs) -> List[dict]:
         """Returns the schedule for the teacher"""
 
-        if type(dateStart) == _date:
-            dateStart = dateStart.isoformat()
-        if dateEnd is None:
-            dateEnd = dateStart
-        elif type(dateEnd) == _date:
-            dateEnd = dateEnd.isoformat()
+        if isinstance(date_start, _date):
+            date_start = date_start.isoformat()
+        if date_end is None:
+            date_end = date_start
+        elif isinstance(date_end, _date):
+            date_end = date_end.isoformat()
 
-        res = self._make_request('/time-table/teacher', 'POST', json={
-            'teacherId': teacherId,
-            'dateStart': dateStart,
-            'dateEnd': dateEnd
+        return self._make_request('/time-table/teacher', 'POST', json={
+            'teacherId': teacher_id,
+            'dateStart': date_start,
+            'dateEnd': date_end
         }, *req_args, **req_kwargs).json()
 
-        return TimeTableDate.from_json(res) if not self.raw_result else res
-
-    def timetable_classroom(self, classroomId: int, dateStart: _date | str, dateEnd: _date | str | None = None,
-                            *req_args, **req_kwargs) -> List[TimeTableDate]:
+    def timetable_classroom(self, classroom_id: int, date_start: _date | str,
+                            date_end: _date | str | None = None,
+                            *req_args, **req_kwargs) -> List[dict]:
         """Returns audience schedule (when and what groups are in it)"""
 
-        if type(dateStart) == _date:
-            dateStart = dateStart.isoformat()
-        if dateEnd is None:
-            dateEnd = dateStart
-        elif type(dateEnd) == _date:
-            dateEnd = dateEnd.isoformat()
+        if isinstance(date_start, _date):
+            date_start = date_start.isoformat()
+        if date_end is None:
+            date_end = date_start
+        elif isinstance(date_end, _date):
+            date_end = date_end.isoformat()
 
-        res = self._make_request('/time-table/classroom', 'POST', json={
-            'classroomId': classroomId,
-            'dateStart': dateStart.isoformat(),
-            'dateEnd': dateEnd.isoformat()
+        return self._make_request('/time-table/classroom', 'POST', json={
+            'classroomId': classroom_id,
+            'dateStart': date_start.isoformat(),
+            'dateEnd': date_end.isoformat()
         }, *req_args, **req_kwargs).json()
 
-        return TimeTableDate.from_json(res) if not self.raw_result else res
-
-    def timetable_call_schedule(self, *req_args, **req_kwargs) -> List[CallSchedule]:
+    def timetable_call_schedule(self, *req_args, **req_kwargs) -> List[dict]:
         """Returns the call schedule"""
-        res = self._make_request('/time-table/call-schedule', 'POST', *req_args, **req_kwargs).json()
-        return CallSchedule.from_json(res) if not self.raw_result else res
+        return self._make_request('/time-table/call-schedule', 'POST',
+            *req_args, **req_kwargs).json()
 
-    def timetable_ad(self, classCode: int, date: _date | str, *req_args, **req_kwargs) -> Rd:
+    def timetable_ad(self, class_code: int, date: _date | str, *req_args, **req_kwargs) -> dict:
         """Returns an announcement for the current lesson\n
         Usually contains a lesson link in Teams/Zoom"""
 
-        if type(date) == _date:
+        if isinstance(date, _date):
             date = date.isoformat()
 
-        res = self._make_request('/time-table/schedule-ad', 'POST', json={
-            'r1': classCode,
+        return self._make_request('/time-table/schedule-ad', 'POST', json={
+            'r1': class_code,
             'r2': date
         }, *req_args, **req_kwargs).json()
 
-        return Rd.from_json(res) if not self.raw_result else res
-
-    def timetable_free_classrooms(self, structureId: int, corpusId: int,
-                                  lessonNumberStart: int, lessonNumberEnd: int,
-                                  date: datetime | str, *req_args, **req_kwargs) -> List[Classroom]:
+    def timetable_free_classrooms(self, structure_id: int, corpus_id: int,
+                                  lesson_number_start: int, lesson_number_end: int,
+                                  date: datetime | str, *req_args, **req_kwargs) -> List[dict]:
         """Returns list of free classrooms
         Date format: `2023-02-23T10:26:00.000Z` or `datetime.datetime`"""
 
-        if type(date) == datetime:
+        if isinstance(date, datetime):
             date = date.astimezone(pytz.UTC).isoformat(sep='T', timespec='milliseconds') + 'Z'
 
-        res = self._make_request('/time-table/free-classroom', 'POST', json={
-            'structureId': structureId,
-            'corpusId': corpusId,
-            'lessonNumberStart': lessonNumberStart,
-            'lessonNumberEnd': lessonNumberEnd,
+        return self._make_request('/time-table/free-classroom', 'POST', json={
+            'structureId': structure_id,
+            'corpusId': corpus_id,
+            'lessonNumberStart': lesson_number_start,
+            'lessonNumberEnd': lesson_number_end,
             'date': date
         }, *req_args, **req_kwargs).json()
 
-        return Classroom.from_json(res) if not self.raw_result else res
-
     # /list
-    def list_structures(self, *req_args, **req_kwargs) -> List[Structure]:
+    def list_structures(self, *req_args, **req_kwargs) -> List[dict]:
         """Returns list of structures"""
-        res = self._make_request('/list/structures', *req_args, **req_kwargs).json()
-        return Structure.from_json(res) if not self.raw_result else res
+        return self._make_request('/list/structures', *req_args, **req_kwargs).json()
 
-    def list_faculties(self, structureId: int, *req_args, **req_kwargs) -> List[Faculty]:
+    def list_faculties(self, structure_id: int, *req_args, **req_kwargs) -> List[dict]:
         """Returns list of faculties"""
-        res = self._make_request('/list/faculties', 'POST', json={
-            'structureId': structureId
+        return self._make_request('/list/faculties', 'POST', json={
+            'structureId': structure_id
         }, *req_args, **req_kwargs).json()
-        return Faculty.from_json(res) if not self.raw_result else res
 
-    def list_courses(self, facultyId: int, *req_args, **req_kwargs) -> List[Course]:
+    def list_courses(self, faculty_id: int, *req_args, **req_kwargs) -> List[dict]:
         """Returns list of courses"""
-        res = self._make_request('/list/courses', 'POST', json={
-            'facultyId': facultyId
+        return self._make_request('/list/courses', 'POST', json={
+            'facultyId': faculty_id
         }, *req_args, **req_kwargs).json()
-        return Course.from_json(res) if not self.raw_result else res
 
-    def list_groups(self, facultyId: int, course: int, *req_args, **req_kwargs) -> List[Group]:
+    def list_groups(self, faculty_id: int, course: int, *req_args, **req_kwargs) -> List[dict]:
         """Return list of groups"""
-        res = self._make_request('/list/groups', 'POST', json={
-            'facultyId': facultyId,
+        return self._make_request('/list/groups', 'POST', json={
+            'facultyId': faculty_id,
             'course': course
         }, *req_args, **req_kwargs).json()
-        return Group.from_json(res) if not self.raw_result else res
 
-    def list_chairs(self, structureId: int, facultyId: int, *req_args, **req_kwargs) -> List[Chair]:
+    def list_chairs(self, structure_id: int, faculty_id: int,
+                    *req_args, **req_kwargs) -> List[dict]:
         """Returns list of chairs"""
-        res = self._make_request('/list/chairs', 'POST', json={
-            'structureId': structureId,
-            'facultyId': facultyId
+        return self._make_request('/list/chairs', 'POST', json={
+            'structureId': structure_id,
+            'facultyId': faculty_id
         }, *req_args, **req_kwargs).json()
-        return Chair.from_json(res) if not self.raw_result else res
 
-    def list_teachers_by_chair(self, chairId: int, *req_args, **req_kwargs) -> List[Person]:
+    def list_teachers_by_chair(self, chair_id: int, *req_args, **req_kwargs) -> List[dict]:
         """Returns a list of teachers from the given chair"""
-        res = self._make_request('/list/teachers-by-chair', 'POST', json={
-            'chairId': chairId
+        return self._make_request('/list/teachers-by-chair', 'POST', json={
+            'chairId': chair_id
         }, *req_args, **req_kwargs).json()
-        return Person.from_json(res) if not self.raw_result else res
 
-    def list_students_by_group(self, groupId: int, *req_args, **req_kwargs) -> List[Student]:
+    def list_students_by_group(self, group_id: int, *req_args, **req_kwargs) -> List[dict]:
         """Returns a list of students from the given group"""
-        res = self._make_request('/list/students-by-group', 'POST', json={
-            'groupId': groupId
+        return self._make_request('/list/students-by-group', 'POST', json={
+            'groupId': group_id
         }, *req_args, **req_kwargs).json()
-        return Student.from_json(res) if not self.raw_result else res
 
     # /other
-    def search_teacher(self, name: str, *req_args, **req_kwargs) -> List[TeacherByName]:
+    def search_teacher(self, name: str, *req_args, **req_kwargs) -> List[dict]:
         """Looking for a teacher by a fragment of his last name only\n
         Not case sensitive, returns an array of the first 50 teachers found"""
-        res = self._make_request('/other/search-teachers', 'POST', json={
+        return self._make_request('/other/search-teachers', 'POST', json={
             'name': name
         }, *req_args, **req_kwargs).json()
-        return TeacherByName.from_json(res) if not self.raw_result else res
 
     # General
     def icon(self, *req_args, **req_kwargs) -> bytes:
         """Returns the university logo"""
         return self._make_request('/icon', *req_args, **req_kwargs).content
 
-    def version(self, *req_args, **req_kwargs) -> Version:
+    def version(self, *req_args, **req_kwargs) -> dict:
         """Returns the version of the API"""
-        res = self._make_request('/version', *req_args, **req_kwargs).json()
-        return Version.from_json(res) if not self.raw_result else res
+        return self._make_request('/version', *req_args, **req_kwargs).json()
 
     # Not implemented
     def timetable_universal(self, date: _date | str, *req_args, **req_kwargs) -> List[dict]:
         raise NotImplementedError
 
-    def user_info2(self, id: int, *req_args, **req_kwargs) -> dict:
+    def user_info2(self, id_: int, *req_args, **req_kwargs) -> dict:
         raise NotImplementedError
 
     def user_info(self, *req_args, **req_kwargs) -> dict:
         raise NotImplementedError
 
-    def user_change_password(self, password: str, newPassword: str, *req_args, **req_kwargs) -> None:
+    def user_change_password(self, password: str, new_password: str,
+                             *req_args, **req_kwargs) -> None:
         raise NotImplementedError
 
-    def user_change_password2(self, id: int, newPassword: str, *req_args, **req_kwargs) -> None:
+    def user_change_password2(self, id_: int, new_password: str,
+                              *req_args, **req_kwargs) -> None:
         raise NotImplementedError
 
-    def user_delete(self, id: int, *req_args, **req_kwargs) -> None:
+    def user_delete(self, id_: int, *req_args, **req_kwargs) -> None:
         raise NotImplementedError
 
-    def user_update2(self, id: int, blocked: int, username: str, email: str, *req_args, **req_kwargs) -> None:
+    def user_update2(self, id_: int, blocked: int, username: str,
+                     email: str, *req_args, **req_kwargs) -> None:
         raise NotImplementedError
 
     def user_update(self, username: str, email: str, *req_args, **req_kwargs) -> None:
         raise NotImplementedError
 
-    def user_create(self, id: int, type: int, username: str, email: str, password: str, *req_args, **req_kwargs) -> dict:
+    def user_create(self, id_: int, type_: int, username: str,
+                    email: str, password: str, *req_args, **req_kwargs) -> dict:
         raise NotImplementedError
 
-    def user_search_student(self, code: int, birthday: _date | str, type: int, *req_args, **req_kwargs) -> List[dict]:
+    def user_search_student(self, code: int, birthday: _date | str,
+                            type_: int, *req_args, **req_kwargs) -> List[dict]:
         raise NotImplementedError
 
-    def user_search_teacher(self, inn: str, birthday: _date | str, *req_args, **req_kwargs) -> List[dict]:
+    def user_search_teacher(self, inn: str, birthday: _date | str,
+                            *req_args, **req_kwargs) -> List[dict]:
         raise NotImplementedError
 
-    def user_change_account(self, type: int, id: int, *req_args, **req_kwargs) -> None:
+    def user_change_account(self, type_: int, id_: int, *req_args, **req_kwargs) -> None:
         raise NotImplementedError
 
-    def user_change_account2(self, id: int, type: int, newId: int, *req_args, **req_kwargs) -> None:
+    def user_change_account2(self, id_: int, type_: int, new_id: int,
+                             *req_args, **req_kwargs) -> None:
         raise NotImplementedError
 
-    def inquiry_types(self, facultyId: int, *req_args, **req_kwargs) -> List[dict]:
+    def inquiry_types(self, faculty_id: int, *req_args, **req_kwargs) -> List[dict]:
         raise NotImplementedError
 
     def journal_student(self, year: int, semester: int, *req_args, **req_kwargs) -> List[dict]:
         raise NotImplementedError
 
-    def journal_full_discipline_journal(self, disciplineId: int, type: int, year: int, semester: int, *req_args, **req_kwargs) -> List[dict]:
+    def journal_full_discipline_journal(self, discipline_id: int, type_: int, year: int, semester: int, *req_args, **req_kwargs) -> List[dict]:
         raise NotImplementedError
 
-    def org_students(self, lastId: int, *req_args, **req_kwargs) -> List[dict]:
-        raise NotImplementedError
-
-    def student_semester_list(self, onlyActive: bool, *req_args, **req_kwargs) -> List[dict]:
+    def student_semester_list(self, only_active: bool, *req_args, **req_kwargs) -> List[dict]:
         raise NotImplementedError
 
     def student_info(self, *req_args, **req_kwargs) -> dict:
@@ -297,7 +294,7 @@ class Api:
     def student_search_by_email(self, email: str, *req_args, **req_kwargs) -> List[dict]:
         raise NotImplementedError
 
-    def student_search(self, lastName: str, facultyId: int, specialityFullName: str, course: int, groupName: str, *req_args, **req_kwargs) -> List[dict]:
+    def student_search(self, last_name: str, faculty_id: int, speciality_full_name: str, course: int, group_name: str, *req_args, **req_kwargs) -> List[dict]:
         raise NotImplementedError
 
     def docs_get_new_docs(self, *req_args, **req_kwargs) -> List[dict]:
@@ -306,7 +303,7 @@ class Api:
     def docs_mark_docs_as_read(self, docs: List[int], *req_args, **req_kwargs) -> None:
         raise NotImplementedError
 
-    def docs_get_docs_on_control(self, countDays: int, *req_args, **req_kwargs) -> List[dict]:
+    def docs_get_docs_on_control(self, count_days: int, *req_args, **req_kwargs) -> List[dict]:
         raise NotImplementedError
 
     def org_dols(self, *req_args, **req_kwargs) -> List[dict]:
@@ -315,28 +312,28 @@ class Api:
     def org_structures(self, *req_args, **req_kwargs) -> List[dict]:
         raise NotImplementedError
 
-    def org_faculties(self, structureId: int, *req_args, **req_kwargs) -> List[dict]:
+    def org_faculties(self, structure_id: int, *req_args, **req_kwargs) -> List[dict]:
         raise NotImplementedError
 
-    def org_chairs(self, structureId: int, facultyId: int, *req_args, **req_kwargs) -> List[dict]:
+    def org_chairs(self, structure_id: int, faculty_id: int, *req_args, **req_kwargs) -> List[dict]:
         raise NotImplementedError
 
-    def org_teacher_identifiers(self, lastId: int, *req_args, **req_kwargs) -> List[dict]:
+    def org_teacher_identifiers(self, last_id: int, *req_args, **req_kwargs) -> List[dict]:
         raise NotImplementedError
 
-    def org_chair_info(self, chairIds: List[int], *req_args, **req_kwargs) -> List[dict]:
+    def org_chair_info(self, chair_ids: List[int], *req_args, **req_kwargs) -> List[dict]:
         raise NotImplementedError
 
-    def org_group_info(self, groupIds: List[int], *req_args, **req_kwargs) -> List[dict]:
+    def org_group_info(self, group_ids: List[int], *req_args, **req_kwargs) -> List[dict]:
         raise NotImplementedError
 
-    def org_students(self, lastId: int, *req_args, **req_kwargs) -> List[dict]:
+    def org_students(self, last_id: int, *req_args, **req_kwargs) -> List[dict]:
         raise NotImplementedError
 
-    def org_teachers(self, lastId: int, *req_args, **req_kwargs) -> List[dict]:
+    def org_teachers(self, last_id: int, *req_args, **req_kwargs) -> List[dict]:
         raise NotImplementedError
 
-    def org_set_external_ids(self, externalIds: List[dict], *req_args, **req_kwargs) -> dict:
+    def org_set_external_ids(self, external_ids: List[dict], *req_args, **req_kwargs) -> dict:
         raise NotImplementedError
 
     def login(self, username: str, password: str, app_key: str, *req_args, **req_kwargs) -> dict:
@@ -345,23 +342,23 @@ class Api:
     def auth_data(self, username: str, password: str, key: str, *req_args, **req_kwargs) -> dict:
         raise NotImplementedError
 
-    def academ_disciplines(self, lastId: int, year: int, semester: int, *req_args, **req_kwargs) -> List[dict]:
+    def academ_disciplines(self, last_id: int, year: int, semester: int, *req_args, **req_kwargs) -> List[dict]:
         raise NotImplementedError
 
-    def academ_learning_plans(self, disciplineIds: List[int], year: int, semester: int, *req_args, **req_kwargs) -> List[dict]:
+    def academ_learning_plans(self, discipline_ids: List[int], year: int, semester: int, *req_args, **req_kwargs) -> List[dict]:
         raise NotImplementedError
 
-    def exam_sheets(self, year: int, semester: int, educationDisciplineId: int, groupId: int, *req_args, **req_kwargs) -> List[dict]:
+    def exam_sheets(self, year: int, semester: int, education_discipline_id: int, group_id: int, *req_args, **req_kwargs) -> List[dict]:
         raise NotImplementedError
 
-    def exam_statement_list(self, year: int, semester: int, educationDisciplineId: int, groupId: int, *req_args, **req_kwargs) -> List[dict]:
+    def exam_statement_list(self, year: int, semester: int, education_discipline_id: int, group_id: int, *req_args, **req_kwargs) -> List[dict]:
         raise NotImplementedError
 
-    def exam_set_date_enter(self, sheetId: int, dateEnter: _date | str, *req_args, **req_kwargs) -> None:
+    def exam_set_date_enter(self, sheet_id: int, date_enter: _date | str, *req_args, **req_kwargs) -> None:
         raise NotImplementedError
 
-    def exam_close(self, sheetId: int, *req_args, **req_kwargs) -> None:
+    def exam_close(self, sheet_id: int, *req_args, **req_kwargs) -> None:
         raise NotImplementedError
 
-    def exam_set_marks(self, sheetId: int, marks: List[dict], *req_args, **req_kwargs) -> None:
+    def exam_set_marks(self, sheet_id: int, marks: List[dict], *req_args, **req_kwargs) -> None:
         raise NotImplementedError

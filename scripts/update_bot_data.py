@@ -1,4 +1,6 @@
-# Updates bot data to the latest version
+"""
+Updates bot data to the latest version
+"""
 
 import os
 import time
@@ -14,12 +16,13 @@ logging.basicConfig(
 _logger = logging.getLogger(__name__)
 
 # Setting cli arguments
-_parser = argparse.ArgumentParser(description='Update bot data to the latest version')
+_parser = argparse.ArgumentParser(description=__doc__)
 _parser.add_argument('path', type=str, help='Bot data directory path')
 
 
 def insert_after(key: str, value: any, after_key: str, obj: dict, ignore_existing: bool = True):
-    "Inserts a value after a specific key in dict"
+    """Inserts a value after a specific key in dict"""
+
     keys = list(obj.keys())
     values = list(obj.values())
 
@@ -34,13 +37,15 @@ def insert_after(key: str, value: any, after_key: str, obj: dict, ignore_existin
     values.insert(i, value)
 
     res = {}
-    for i in range(len(keys)):
+    for i in enumerate(keys):
         res[keys[i]] = values[i]
+
     return res
 
 
 def update_chat_configs(path: str):
-    "Update chat configs (chat data) to the latest version. (outdated)"
+    """Update chat configs (chat data) to the latest version. (outdated)"""
+
     _logger.info('Updating ./chat-configs/ (outdated)')
     path = os.path.join(path, 'chat-configs')
 
@@ -50,17 +55,12 @@ def update_chat_configs(path: str):
 
     files = os.listdir(path)
     count = len(files)
-    for i, file in enumerate(files):
-        _logger.debug(f'[{i + 1}/{count}] updating {file}')
+    for i, filename in enumerate(files):
+        _logger.debug('[%s/%s] updating %s', i + 1, count, filename)
 
         # Read config
-        file_path = os.path.join(path, file)
-        fp = open(file_path, 'r+')
-        conf = json.load(fp)
-
-        # Required to overwrite a file
-        fp.seek(0)  # Move cursor to start of the file
-        fp.truncate(0)  # Clear file
+        with open(os.path.join(path, filename), encoding='utf-8') as file:
+            conf = json.load(file)
 
         # Convert string fields to integers
         if 'schedule' in conf:
@@ -82,13 +82,19 @@ def update_chat_configs(path: str):
             del conf['schedule']
             conf = insert_after('groupId', group_id, 'admin', conf)
 
-        json.dump(conf, fp, indent=4, ensure_ascii=False)
+        with open(os.path.join(path, filename), 'w', encoding='utf-8') as file:
+            json.dump(conf, file, indent=4, ensure_ascii=False)
 
 
 # 2.3.0
 def migrate_chat_configs(path: str):
-    "Migrate the old chat-configs folder to the new format, with the user and chat data separated"
+    """
+    Migrate the old chat-configs folder to the new format,
+    with the user and chat data separated
+    """
+
     _logger.info('Migrating the old ./chat-configs/ folder to the new format')
+
     path = os.path.join(path, 'chat-configs')
     user_data_path = os.path.join(path, 'user-data')
     chat_data_path = os.path.join(path, 'chat-data')
@@ -103,77 +109,77 @@ def migrate_chat_configs(path: str):
     files = os.listdir(path)
     count = len(files)
 
-    for i, file in enumerate(files):
-        _logger.debug(f'[{i + 1}/{count}] migrating {file}')
+    for i, filename in enumerate(files):
+        _logger.debug('[%s/%s] migrating %s', i + 1, count, filename)
 
         # Read config
-        file_path = os.path.join(path, file)
-        fp = open(file_path)
-        conf = json.load(fp)
-        fp.close()
+        filepath = os.path.join(path, filename)
+        with open(filepath, encoding='utf-8') as file:
+            conf = json.load(file)
 
-        if not file.startswith('-'):
+        if not filename.startswith('-'):
             # All group, supergroup and channel IDs start with "-",
             # which means this thing will only save user data
-            user_fp = open(os.path.join(user_data_path, file), 'w')
             user_data = {
                 'admin': conf['admin'],
-                'ref': conf['ref']}
-            json.dump(user_data, user_fp, ensure_ascii=False, indent=4)
-            user_fp.close()
+                'ref': conf['ref']
+            }
 
-        chat_fp = open(os.path.join(chat_data_path, file), 'w')
+            with open(os.path.join(user_data_path, filename), 'w', encoding='utf-8') as file:
+                json.dump(user_data, file, ensure_ascii=False, indent=4)
+
         chat_data = {
             'lang_code': conf['lang'],
-            'group_id': conf['groupId']}
-        json.dump(chat_data, chat_fp, ensure_ascii=False, indent=4)
-        chat_fp.close()
-        os.remove(file_path)
+            'group_id': conf['groupId']
+        }
+
+        with open(os.path.join(chat_data_path, filename), 'w', encoding='utf-8') as file:
+            json.dump(chat_data, file, ensure_ascii=False, indent=4)
+
+        os.remove(filepath)
+
     os.rmdir(path)
 
 
 def update_user_data(path: str):
+    """Update user data to the latest version"""
+
     _logger.info('Updating ./user-data/')
+
     path = os.path.join(path, 'user-data')
     files = os.listdir(path)
     count = len(files)
 
     for i, file in enumerate(files):
-        _logger.debug(f'[{i + 1}/{count}] updating {file}')
+        _logger.debug('[%s/%s] updating %s', i + 1, count, file)
 
         # Read config
-        file_path = os.path.join(path, file)
-        fp = open(file_path, 'r+')
-        conf = json.load(fp)
-
-        # Required to overwrite a file
-        fp.seek(0)  # Move cursor to start of the file
-        fp.truncate(0)  # Clear file
+        with open(os.path.join(path, file), encoding='utf-8') as file:
+            conf = json.load(file)
 
         # 2.3.0: create "_created" and "_updated" fields
         conf = insert_after('_created', 0, 'ref', conf)
         conf = insert_after('_updated', 0, '_created', conf)
 
-        json.dump(conf, fp, ensure_ascii=False, indent=4)
+        with open(os.path.join(path, file), 'w', encoding='utf-8') as file:
+            json.dump(conf, file, ensure_ascii=False, indent=4)
 
 
 def update_chat_data(path: str):
+    """Update chat data to the latest version"""
+
     _logger.info('Updating ./chat-data/')
+
     path = os.path.join(path, 'chat-data')
     files = os.listdir(path)
     count = len(files)
 
     for i, file in enumerate(files):
-        _logger.debug(f'[{i + 1}/{count}] updating {file}')
+        _logger.debug('[%s/%s] updating %s', i + 1, count, file)
 
         # Read config
-        file_path = os.path.join(path, file)
-        fp = open(file_path, 'r+')
-        conf = json.load(fp)
-
-        # Required to overwrite a file
-        fp.seek(0)  # Move cursor to start of the file
-        fp.truncate(0)  # Clear file
+        with open(os.path.join(path, file), encoding='utf-8') as file:
+            conf = json.load(file)
 
         # 2.3.0
         conf = insert_after('cl_notif_15m', False, 'group_id', conf)
@@ -184,10 +190,13 @@ def update_chat_data(path: str):
         conf = insert_after('_created', 0, '_accessible', conf)
         conf = insert_after('_updated', 0, '_created', conf)
 
-        json.dump(conf, fp, indent=4, ensure_ascii=False)
+        with open(os.path.join(path, file), 'w', encoding='utf-8') as file:
+            json.dump(conf, file, indent=4, ensure_ascii=False)
 
 
 def update_logs(path: str):
+    """Update logs to the latest version"""
+
     _logger.info('Updating ./logs/')
     path = os.path.join(path, 'logs')
 
@@ -198,17 +207,18 @@ def update_logs(path: str):
 
 
 def update_cache(path: str):
-    # TODO
-    pass
+    # pylint: disable=unused-argument
+    """Update cache to the latest version"""
 
 
 def update_langs(path: str):
-    # TODO
-    pass
+    # pylint: disable=unused-argument
+    """Update langs to the latest version"""
 
 
 def main(path: str):
     """Update bot data to the latest version"""
+
     update_chat_configs(path)
     migrate_chat_configs(path)
     update_user_data(path)
@@ -216,7 +226,8 @@ def main(path: str):
     update_logs(path)
     update_cache(path)
     update_langs(path)
-    _logger.info(f'Bot data updated in {time.process_time():.3f}s')
+
+    _logger.info('Bot data updated in %ss', round(time.process_time(), 3))
 
 
 if __name__ == '__main__':

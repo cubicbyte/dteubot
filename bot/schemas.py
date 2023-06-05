@@ -1,4 +1,10 @@
-from datetime import datetime, timedelta
+# pylint: disable=invalid-name
+
+"""
+This module contains the schemas, dataclasses used by the bot.
+"""
+
+from datetime import datetime
 from dataclasses import dataclass, field as _field
 
 

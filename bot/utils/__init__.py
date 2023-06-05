@@ -1,3 +1,7 @@
+"""
+Utility functions for the bot
+"""
+
 import os
 import re
 import time
@@ -22,13 +26,16 @@ def array_split(array: list, row_size: int) -> list:
     return [array[i:i + row_size] for i in range(0, len(array), row_size)]
 
 
-def check_int(s: any) -> bool:
+def check_int(string: any) -> bool:
     """Check if a string is an integer"""
-    if not isinstance(s, str):
+
+    if not isinstance(string, str):
         return False
-    if s[0] == '-' or s[0] == '+':
-        return s[1:].isdigit()
-    return s.isdigit()
+
+    if string[0] == '-' or string[0] == '+':
+        return string[1:].isdigit()
+
+    return string.isdigit()
 
 
 def parse_callback_query(query: str) -> dict:
@@ -76,13 +83,13 @@ def load_lang_file(filepath: str) -> Language:
 
     lang_name = Path(filepath).stem
 
-    with open(filepath, 'r', encoding='utf-8') as fp:
-        lang = json.load(fp)
+    with open(filepath, 'r', encoding='utf-8') as file:
+        lang = json.load(file)
 
     return Language(lang, lang_name)
 
 
-def clean_html(raw_html: str, tags_whitelist: list[str] = []) -> str:
+def clean_html(raw_html: str, tags_whitelist: list[str] | None = None) -> str:
     """Remove html tags from string"""
 
     if tags_whitelist:
@@ -115,10 +122,13 @@ def timeit(func: Callable | str = '?', print_result: bool = True):
     [foo] Execution time: 800.00 ms
     """
 
-    class TimeitCtx:
+    class _TimeitCtx:
         def __init__(self, name: str, print_result: bool = True) -> None:
             self.name = name
             self.print_result = print_result
+            self.start = None
+            self.end = None
+            self.time = None
 
         def __enter__(self) -> None:
             self.start = time.time()
@@ -134,13 +144,6 @@ def timeit(func: Callable | str = '?', print_result: bool = True):
         def __str__(self) -> str:
             return f'[{self.name}] Execution time: {self.time * 1000:.2f} ms'
 
-        def start(self) -> 'TimeitCtx':
-            self.__enter__()
-            return self
-
-        def stop(self):
-            self.__exit__()
-
     def wrapper(*args, **kwargs):
         start = time.time()
         result = func(*args, **kwargs)
@@ -150,17 +153,18 @@ def timeit(func: Callable | str = '?', print_result: bool = True):
 
         return result
 
-    if type(func) == str:
-        return TimeitCtx(func, print_result)
-    else:
-        return wrapper
+    if isinstance(func, str):
+        return _TimeitCtx(func, print_result)
+
+    return wrapper
 
 
 # Copied from the pyTelegramBotApi library
-# Link: https://github.com/eternnoir/pyTelegramBotAPI/blob/5d9a76b0dd0d3ee88c5c9d1329c06b24fdc4457b/telebot/util.py#L327
+# https://github.com/eternnoir/pyTelegramBotAPI/blob/5d9a76b0dd0d3ee88c5c9d1329c06b24fdc4457b/telebot/util.py#L327
 def smart_split(text: str, chars_per_string: int = MAX_MESSAGE_LENGTH) -> List[str]:
     r"""
-    Splits one string into multiple strings, with a maximum amount of `chars_per_string` characters per string.
+    Splits one string into multiple strings, with a maximum
+    amount of `chars_per_string` characters per string.
     This is very useful for splitting one giant message into multiples.
     If `chars_per_string` > 4096: `chars_per_string` = 4096.
     Splits by '\n', '. ' or ' ' in exactly this priority.

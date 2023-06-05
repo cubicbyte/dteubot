@@ -1,55 +1,71 @@
-#
-# Checks each chat to see if the bot has access to it.
-# Basically sends a temporary "upload_document" status to all chats, thereby checking if the bot has access to that chat.
-#
+"""
+Checks each chat to see if the bot has access to it.
+Basically sends a temporary "upload_document" status to all chats,
+thereby checking if the bot has access to that chat.
+"""
 
 import os
 import json
 import logging
 import argparse
-import requests
 from pathlib import Path
 from functools import partial
 from multiprocessing import Pool
+
+import requests
+
+REQUEST_TIMEOUT: int = int(os.environ.get('REQUEST_TIMEOUT', '5'))
+
 
 _logger = logging.getLogger(__name__)
 _logger.addHandler(logging.StreamHandler())
 _logger.setLevel(logging.INFO)
 
 # Setting cli arguments
-_parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter, description='''
-Checks each chat to see if the bot has access to it.''')
+_parser = argparse.ArgumentParser(
+    formatter_class=argparse.RawTextHelpFormatter, description=__doc__)
 _parser.add_argument('-t', '--token', type=str, help='Bot token')
 _parser.add_argument('-p', '--path', type=str, help='Bot chat data directory path')
 
 
-def set_chat_accessibility(file: str, status: bool):
-    with open(file, 'r+') as fp:
-        data = json.load(fp)
+def set_chat_accessibility(filepath: str, status: bool):
+    """Set chat accessibility status"""
+
+    with open(filepath, 'r+', encoding='utf-8') as file:
+        data = json.load(file)
+
         if '_accessible' not in data:
-            raise ValueError('Chat data is not in the latest version. Please update it using update_bot_data.py script')
+            raise ValueError('Chat data is not in the latest version. \
+                              Please update it using update_bot_data.py script')
+
         data['_accessible'] = status
-        fp.seek(0)
-        fp.truncate(0)
-        json.dump(data, fp, indent=4, ensure_ascii=False)
+        file.seek(0)
+        file.truncate(0)
+        json.dump(data, file, indent=4, ensure_ascii=False)
 
 
 def scan(file: str, token: str) -> tuple[str, bool]:
+    """Scan chat accessibility"""
+
     chat_id = Path(file).stem
-    _logger.debug(f'Scanning chat {chat_id}')
-    url = f'https://api.telegram.org/bot{token}/sendChatAction?chat_id={chat_id}&action=upload_document'
-    res = requests.get(url)
+    _logger.debug('Scanning chat %s', chat_id)
+    url = f'https://api.telegram.org/bot{token}/sendChatAction?\
+        chat_id={chat_id}&\
+        action=upload_document'
+    res = requests.get(url, timeout=REQUEST_TIMEOUT)
 
     if res.status_code == 200:
         set_chat_accessibility(file, True)
         return file, True
 
-    if res.status_code == 403 or res.status_code == 400:
+    if res.status_code in (400, 403):
         set_chat_accessibility(file, False)
         return file, False
 
 
 def main(token: str, path: str):
+    """Main function"""
+
     _logger.info('Starting chat accessibility scan')
     files = [os.path.join(path, f) for f in os.listdir(path)]
     flen = len(files)
@@ -66,7 +82,7 @@ def main(token: str, path: str):
             if len(chat_id) % 2 != 0:
                 indents_2 = ' ' + indents_2
             icon = '✅' if access else '❌'
-            _logger.info(f'[{i}/{flen}]{indents_1} {chat_id}{indents_2} {icon}')
+            _logger.info('[%s/%s]%s %s%s %s', i, flen, indents_1, chat_id, indents_2, icon)
 
     _logger.info('✅ Finished')
 

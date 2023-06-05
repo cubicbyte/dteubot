@@ -1,8 +1,16 @@
+# pylint: disable=invalid-name
+
+"""
+This module contains functions for finding teachers on the university website.
+Used to show users teacher profile links.
+"""
+
 import os
 import csv
 import logging
 from difflib import SequenceMatcher
 from functools import cache
+
 from lib.teacher_loader.schemas import Teacher
 
 _logger = logging.getLogger(__name__)
@@ -16,6 +24,8 @@ if not cache_exists:
 
 @cache
 def find_teacher_safe(name: str) -> Teacher | None:
+    """Find teacher in the database by percentage of similarity"""
+
     if not cache_exists:
         return None
 
@@ -29,6 +39,8 @@ def find_teacher_safe(name: str) -> Teacher | None:
 
 @cache
 def find_teacher_fast(name: str) -> Teacher | None:
+    """Find teacher in the database by exact match"""
+
     if not cache_exists:
         return None
 
@@ -40,14 +52,19 @@ def find_teacher_fast(name: str) -> Teacher | None:
 
 
 def load_teachers(filepath: str) -> list[Teacher]:
-    teachers = []
-    file = open(filepath, 'r', encoding='utf-8-sig')
-    reader = csv.reader(file, delimiter=';')
+    """Load teachers from CSV file"""
 
-    for row in reader:
-        teachers.append(Teacher(name=row[0], description=row[1], photo_link=row[2], page_link=row[3]))
+    _teachers = []
 
-    return teachers
+    with open(filepath, 'r', encoding='utf-8-sig') as file:
+        reader = csv.reader(file, delimiter=';')
+
+        for row in reader:
+            _teachers.append(Teacher(
+                name=row[0], description=row[1],
+                photo_link=row[2], page_link=row[3]))
+
+    return _teachers
 
 
 if cache_exists:

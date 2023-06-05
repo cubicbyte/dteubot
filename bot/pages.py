@@ -1,10 +1,17 @@
+# pylint: disable=redefined-outer-name
+
+"""
+This module contains all bot pages.
+"""
+
 import os
 from datetime import date as _date, timedelta
+
 from babel.dates import format_date
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.helpers import escape_markdown
 from requests.exceptions import RequestException, HTTPError
-from lib.api.schemas import TimeTableDate
+
 from lib.api.exceptions import HTTPApiException
 from bot.data import ContextManager, ChatData
 from bot.utils import array_split, clean_html, timeformatter, lessontime
@@ -13,6 +20,8 @@ from settings import api, langs, tg_logger, API_TYPE, API_TYPE_CACHED, TELEGRAM_
 
 
 def access_denied(ctx: ContextManager) -> dict:
+    """Access denied page"""
+
     buttons = [[
         InlineKeyboardButton(text=ctx.lang.get('button.menu'),
                              callback_data='open.menu')
@@ -26,6 +35,8 @@ def access_denied(ctx: ContextManager) -> dict:
 
 
 def admin_panel(ctx: ContextManager) -> dict:
+    """Admin panel page"""
+
     buttons = [
         [InlineKeyboardButton(text=ctx.lang.get('button.admin.clear_expired_cache'),
                               callback_data='admin.clear_expired_cache')],
@@ -45,6 +56,8 @@ def admin_panel(ctx: ContextManager) -> dict:
 
 
 def api_unavaliable(ctx: ContextManager) -> dict:
+    """API unavaliable page"""
+
     buttons = [[
         InlineKeyboardButton(text=ctx.lang.get('button.menu'),
                              callback_data='open.menu'),
@@ -60,6 +73,8 @@ def api_unavaliable(ctx: ContextManager) -> dict:
 
 
 def calls(ctx: ContextManager) -> dict:
+    """Calls page"""
+
     try:
         schedule_section = _get_calls_section_text()
     except HTTPApiException:
@@ -79,7 +94,9 @@ def calls(ctx: ContextManager) -> dict:
     }
 
 
-def classes_notification(chat_data: ChatData, day: TimeTableDate, remaining: str) -> dict:
+def classes_notification(chat_data: ChatData, day: dict, remaining: str) -> dict:
+    """Classes notification page"""
+
     buttons = [[
         InlineKeyboardButton(text=chat_data.lang.get('button.open_schedule'),
                              callback_data=f'open.schedule.day#date={day.date}'),
@@ -97,6 +114,8 @@ def classes_notification(chat_data: ChatData, day: TimeTableDate, remaining: str
 
 
 def course_list(ctx: ContextManager, structure_id: int, faculty_id: int) -> dict:
+    """Course list page"""
+
     try:
         courses = api.list_courses(faculty_id, language=ctx.chat_data.get('lang_code'))
     except HTTPApiException:
@@ -112,7 +131,10 @@ def course_list(ctx: ContextManager, structure_id: int, faculty_id: int) -> dict
         buttons.append([
             InlineKeyboardButton(
                 text=str(course['course']),
-                callback_data=f'select.schedule.course#structureId={structure_id}&facultyId={faculty_id}&course={course["course"]}')
+                callback_data=f'select.schedule.course#\
+                    structureId={structure_id}&\
+                    facultyId={faculty_id}&\
+                    course={course["course"]}')
         ])
 
     return {
@@ -123,6 +145,8 @@ def course_list(ctx: ContextManager, structure_id: int, faculty_id: int) -> dict
 
 
 def faculty_list(ctx: ContextManager, structure_id: int) -> dict:
+    """Faculty list page"""
+
     try:
         faculties = api.list_faculties(structure_id, language=ctx.chat_data.get('lang_code'))
         structures = api.list_structures(language=ctx.chat_data.get('lang_code'))
@@ -148,7 +172,9 @@ def faculty_list(ctx: ContextManager, structure_id: int) -> dict:
         buttons.append([
             InlineKeyboardButton(
                 text=faculty['fullName'],
-                callback_data=f'select.schedule.faculty#structureId={structure_id}&facultyId={faculty["id"]}')
+                callback_data=f'select.schedule.faculty#\
+                    structureId={structure_id}&\
+                    facultyId={faculty["id"]}')
         ])
 
     return {
@@ -159,6 +185,8 @@ def faculty_list(ctx: ContextManager, structure_id: int) -> dict:
 
 
 def greeting(ctx: ContextManager) -> dict:
+    """Greeting page"""
+
     return {
         'text': ctx.lang.get('page.greeting'),
         'parse_mode': 'MarkdownV2'
@@ -166,6 +194,8 @@ def greeting(ctx: ContextManager) -> dict:
 
 
 def group_list(ctx: ContextManager, structure_id: int, faculty_id: int, course: int) -> dict:
+    """Group list page"""
+
     try:
         groups = api.list_groups(faculty_id, course, language=ctx.chat_data.get('lang_code'))
     except HTTPApiException:
@@ -174,7 +204,9 @@ def group_list(ctx: ContextManager, structure_id: int, faculty_id: int, course: 
     buttons = [[
         InlineKeyboardButton(
             text=ctx.lang.get('button.back'),
-            callback_data=f'select.schedule.faculty#structureId={structure_id}&facultyId={faculty_id}')
+            callback_data=f'select.schedule.faculty#\
+                structureId={structure_id}&\
+                facultyId={faculty_id}')
     ]]
 
     group_btns = []
@@ -196,6 +228,8 @@ def group_list(ctx: ContextManager, structure_id: int, faculty_id: int, course: 
 
 
 def info(ctx: ContextManager) -> dict:
+    """Info page"""
+
     try:
         api_ver = escape_markdown(api.version()['name'], version=2)
     except RequestException:
@@ -221,6 +255,8 @@ def info(ctx: ContextManager) -> dict:
 
 
 def invalid_group(ctx: ContextManager) -> dict:
+    """Invalid group page"""
+
     buttons = [[
         InlineKeyboardButton(text=ctx.lang.get('button.select_group'),
                              callback_data='open.select_group'),
@@ -236,12 +272,14 @@ def invalid_group(ctx: ContextManager) -> dict:
 
 
 def lang_selection(ctx: ContextManager) -> dict:
+    """Language selection page"""
+
     buttons = []
 
-    for i in langs:
+    for lang_name, lang in langs:
         buttons.append([
-            InlineKeyboardButton(text=langs[i].get('lang_name'),
-                                 callback_data=f'select.lang#lang={i}')
+            InlineKeyboardButton(text=lang.get('lang_name'),
+                                 callback_data=f'select.lang#lang={lang_name}')
         ])
 
     buttons.append([
@@ -260,6 +298,8 @@ def lang_selection(ctx: ContextManager) -> dict:
 
 
 def left(ctx: ContextManager) -> dict:
+    """Left page"""
+
     if ctx.chat_data.get('group_id') is None:
         return invalid_group(ctx)
 
@@ -280,7 +320,7 @@ def left(ctx: ContextManager) -> dict:
             ]]),
             'parse_mode': 'MarkdownV2'
         }
-    
+
     time_formatted = timeformatter.format_time(
         lang_code=ctx.chat_data.get('lang_code'),
         time=rem_time['time'], depth=2)
@@ -308,6 +348,8 @@ def left(ctx: ContextManager) -> dict:
 
 
 def menu(ctx: ContextManager) -> dict:
+    """Menu page"""
+
     buttons = [[
         InlineKeyboardButton(text=ctx.lang.get('button.schedule'),
                              callback_data='open.schedule.today')
@@ -333,6 +375,8 @@ def menu(ctx: ContextManager) -> dict:
 
 
 def more(ctx: ContextManager) -> dict:
+    """More page"""
+
     buttons = [[
         InlineKeyboardButton(text=ctx.lang.get('button.calls'),
                              callback_data='open.calls'),
@@ -354,6 +398,8 @@ def more(ctx: ContextManager) -> dict:
 
 
 def schedule(ctx: ContextManager, date: _date | str) -> dict:
+    """Schedule page"""
+
     # Create "date_str" and "date" variables
     if isinstance(date, _date):
         date_str = date.isoformat()
@@ -392,7 +438,9 @@ def schedule(ctx: ContextManager, date: _date | str) -> dict:
         return empty_schedule(ctx, schedule, date, date_start, date_end)
 
 
-def day_schedule(ctx: ContextManager, date: _date, day: TimeTableDate) -> dict:
+def day_schedule(ctx: ContextManager, date: _date, day: dict) -> dict:
+    """Schedule page"""
+
     lang = ctx.lang
 
     msg_text = ctx.lang.get('page.schedule').format(
@@ -443,8 +491,9 @@ def day_schedule(ctx: ContextManager, date: _date, day: TimeTableDate) -> dict:
     }
 
 
-def empty_schedule(ctx: ContextManager, schedule: list[TimeTableDate],
+def empty_schedule(ctx: ContextManager, schedule: list[dict],
                    date: _date, from_date: _date, to_date: _date) -> dict:
+    """Empty schedule page"""
 
     # TODO remove from_date and to_date. Now, if we call timetable_group(today, today+5),
     # we will get an array with size 0-6, but it should be fixed 6.
@@ -518,6 +567,8 @@ def empty_schedule(ctx: ContextManager, schedule: list[TimeTableDate],
 
 
 def schedule_extra(ctx: ContextManager, date: _date | str) -> dict:
+    """Schedule extra information page"""
+
     if isinstance(date, _date):
         date_str = date.isoformat()
     else:
@@ -530,7 +581,7 @@ def schedule_extra(ctx: ContextManager, date: _date | str) -> dict:
                                        language=ctx.chat_data.get('lang_code'))
     except HTTPApiException:
         return api_unavaliable(ctx)
-    
+
     # Find schedule of current day
     cur_day_schedule = None
     for day in schedule:
@@ -546,8 +597,11 @@ def schedule_extra(ctx: ContextManager, date: _date | str) -> dict:
     for lesson in cur_day_schedule['lessons']:
         for period in lesson['periods']:
             if period['extraText']:
-                extra_text = api.timetable_ad(period['r1'], date_str, language=ctx.chat_data.get('lang_code'))['html']
-                extra_text = clean_html(extra_text, tags_whitelist=TELEGRAM_SUPPORTED_HTML_TAGS).strip()
+                extra_text = api.timetable_ad(
+                    period['r1'], date_str,
+                    language=ctx.chat_data.get('lang_code'))['html']
+                extra_text = clean_html(extra_text, tags_whitelist=TELEGRAM_SUPPORTED_HTML_TAGS)
+                extra_text = extra_text.strip()
                 page_text += f'\n\n<pre>{lesson["number"]})</pre> {extra_text}'
 
     return {
@@ -562,6 +616,8 @@ def schedule_extra(ctx: ContextManager, date: _date | str) -> dict:
 
 
 def settings(ctx: ContextManager) -> dict:
+    """Settings menu page"""
+
     lang = ctx.lang
     cl_notif_15m_enabled = ctx.chat_data.get('cl_notif_15m')
     cl_notif_1m_enabled = ctx.chat_data.get('cl_notif_1m')
@@ -569,26 +625,32 @@ def settings(ctx: ContextManager) -> dict:
     # Get chat group name
     if ctx.chat_data.get('group_id') is not None:
         if API_TYPE == API_TYPE_CACHED:
-            group = escape_markdown(api._cache.get_group(ctx.chat_data.get('group_id'))[2], version=2)
+            group = escape_markdown(api.cache.get_group(
+                ctx.chat_data.get('group_id'))[2], version=2)
         else:
             group = ctx.chat_data.get('group_id')
     else:
         group = lang.get('text.not_selected')
 
     buttons = [[
-        InlineKeyboardButton(text=lang.get('button.select_group'),
-                             callback_data='open.select_group'),
-        InlineKeyboardButton(text=lang.get('button.select_lang'),
-                             callback_data='open.select_lang')
+        InlineKeyboardButton(
+            text=lang.get('button.select_group'),
+            callback_data='open.select_group'),
+        InlineKeyboardButton(
+            text=lang.get('button.select_lang'),
+            callback_data='open.select_lang')
     ], [
-        InlineKeyboardButton(text=lang.get('button.settings.cl_notif_15m'),
-                             callback_data=f'set.cl_notif_15m#state={int(not cl_notif_15m_enabled)}')
+        InlineKeyboardButton(
+            text=lang.get('button.settings.cl_notif_15m'),
+            callback_data=f'set.cl_notif_15m#state={int(not cl_notif_15m_enabled)}')
     ], [
-        InlineKeyboardButton(text=lang.get('button.settings.cl_notif_1m'),
-                             callback_data=f'set.cl_notif_1m#state={int(not cl_notif_1m_enabled)}')
+        InlineKeyboardButton(
+            text=lang.get('button.settings.cl_notif_1m'),
+            callback_data=f'set.cl_notif_1m#state={int(not cl_notif_1m_enabled)}')
     ], [
-        InlineKeyboardButton(text=lang.get('button.back'),
-                             callback_data='open.menu')
+        InlineKeyboardButton(
+            text=lang.get('button.back'),
+            callback_data='open.menu')
     ]]
 
     def get_icon(setting: bool) -> str:
@@ -608,26 +670,29 @@ def settings(ctx: ContextManager) -> dict:
 
 
 def statistic(ctx: ContextManager) -> dict:
+    """Statistic page"""
+
     chat_dir = tg_logger.get_chat_log_dir(ctx.update.effective_chat.id)
 
     # Get first message date and message count
-    with open(os.path.join(chat_dir, 'messages.txt')) as fp:
-        for messages, line in enumerate(fp):
+    with open(os.path.join(chat_dir, 'messages.txt'), encoding='utf-8') as file:
+        messages = 0
+        for messages, line in enumerate(file):
             if messages == 0:
                 first_msg_date = line[1:line.index(']')]
 
     # Get number of button clicks
-    with open(os.path.join(chat_dir, 'cb_queries.txt')) as fp:
-        for clicks, _ in enumerate(fp):
+    with open(os.path.join(chat_dir, 'cb_queries.txt'), encoding='utf-8') as file:
+        clicks = 0
+        for clicks, _ in enumerate(file):
             pass
 
-    message_text = '*Statistic*\n\nThis chat ID: {chat_id}\nYour ID: {user_id}\nMessages: {messages}\nButton clicks: {clicks}\nFirst message: {first}'.format(
-        chat_id=ctx.update.effective_chat.id,
-        user_id=ctx.update.effective_user.id,
-        messages=messages,
-        clicks=clicks,
-        first=escape_markdown(first_msg_date, version=2)
-    )
+    message_text = '*Statistic*\n\n'
+    message_text += f'This chat ID: {ctx.update.effective_chat.id}\n'
+    message_text += f'Your ID: {ctx.update.effective_user.id}\n'
+    message_text += f'Messages: {messages}\n'
+    message_text += f'Button clicks: {clicks}\n'
+    message_text += f'First message: {escape_markdown(first_msg_date, version=2)}'
 
     buttons = [[
         InlineKeyboardButton(text=ctx.lang.get('button.menu'),
@@ -644,6 +709,8 @@ def statistic(ctx: ContextManager) -> dict:
 
 
 def structure_list(ctx: ContextManager) -> dict:
+    """Structures list menu page"""
+
     try:
         structures = api.list_structures(language=ctx.chat_data.get('lang_code'))
     except HTTPApiException:
@@ -654,13 +721,14 @@ def structure_list(ctx: ContextManager) -> dict:
         return faculty_list(ctx, structures[0]['id'])
 
     buttons = [[
-        InlineKeyboardButton(text=ctx.lang.get('button.back'), callback_data=f'open.menu')
+        InlineKeyboardButton(text=ctx.lang.get('button.back'), callback_data='open.menu')
     ]]
 
     for structure in structures:
         buttons.append([
-            InlineKeyboardButton(text=structure['fullName'],
-                                 callback_data=f'select.schedule.structure#structureId={structure["id"]}')
+            InlineKeyboardButton(
+                text=structure['fullName'],
+                callback_data=f'select.schedule.structure#structureId={structure["id"]}')
         ])
 
     return {
@@ -671,6 +739,8 @@ def structure_list(ctx: ContextManager) -> dict:
 
 
 def error(ctx: ContextManager) -> dict:
+    """Error page"""
+
     return {
         'text': ctx.lang.get('page.error'),
         'reply_markup': InlineKeyboardMarkup([[
@@ -707,12 +777,16 @@ def _get_calls_section_text() -> str:
     parts = []
 
     for call in api.timetable_call_schedule():
-        parts.append('`{number})` *{timeStart}* `-` *{timeEnd}*'.format(**call))
+        number = call['number']
+        time_start = call['timeStart']
+        time_end = call['timeEnd']
+
+        parts.append(f'`{number})` *{time_start}* `-` *{time_end}*')
 
     return '\n'.join(parts)
 
 
-def _get_notification_schedule_section(day: TimeTableDate) -> str:
+def _get_notification_schedule_section(day: dict) -> str:
     """
     Creates a schedule section for the notification page
 
@@ -722,21 +796,21 @@ def _get_notification_schedule_section(day: TimeTableDate) -> str:
     3) "В" МатемЛогіка[КонсЕкз]
     ```
     """
-    f = '`{0})` *{1}*`[{2}]`\n'
+    str_format = '`{0})` *{1}*`[{2}]`\n'
     section = ''
 
-    for l in day['lessons']:
-        for p in l['periods']:
-            section += f.format(
-                l['number'],
-                escape_markdown(p['disciplineShortName'], version=2),
-                escape_markdown(p['typeStr'], version=2))
+    for lesson in day['lessons']:
+        for period in lesson['periods']:
+            section += str_format.format(
+                lesson['number'],
+                escape_markdown(period['disciplineShortName'], version=2),
+                escape_markdown(period['typeStr'], version=2))
 
     return section[:-1]
 
 
 def _count_no_lesson_days(
-        schedule: list[TimeTableDate],
+        schedule: list[dict],
         date: _date,
         direction_right=True) -> int | None:
     """
@@ -771,14 +845,15 @@ def _get_localized_date(ctx: ContextManager, date: _date) -> str:
     📅 18 трав. 2023 р. [П'ятниця] 📅
     """
 
-    date_localized = escape_markdown(format_date(date, locale=ctx.chat_data.get('lang_code')), version=2)
+    date_localized = escape_markdown(format_date(
+        date, locale=ctx.chat_data.get('lang_code')), version=2)
     week_day_localized = ctx.lang.get('text.time.week_day.' + str(date.weekday()))
     full_date_localized = f"*{date_localized}* `[`*{week_day_localized}*`]`"
 
     return full_date_localized
 
 
-def _create_schedule_section(ctx: ContextManager, day: TimeTableDate) -> str:
+def _create_schedule_section(ctx: ContextManager, day: dict) -> str:
     """
     Creates a schedule section for the schedule page
 
@@ -806,17 +881,16 @@ def _create_schedule_section(ctx: ContextManager, day: TimeTableDate) -> str:
             if multiple_teachers:
                 name = name.split(', ')[0]
 
-            try:
-                teacher = find_teacher_safe(name)
-            except: # TODO handle properly
-                teacher = None
+            teacher = find_teacher_safe(name)
 
             # Escape ONLY USED api result not to break telegram markdown
             # DO NOT DELETE COMMENTS
+            # period['disciplineFullName'] \
+            #     = escape_markdown(period['disciplineFullName'], version=2)
+            period['disciplineShortName'] \
+                = escape_markdown(period['disciplineShortName'], version=2)
             period['typeStr'] = escape_markdown(period['typeStr'], version=2)
             period['classroom'] = escape_markdown(period['classroom'], version=2)
-            # period['disciplineFullName'] = escape_markdown(period['disciplineFullName'], version=2)
-            period['disciplineShortName'] = escape_markdown(period['disciplineShortName'], version=2)
             period['timeStart'] = escape_markdown(period['timeStart'], version=2)
             period['timeEnd'] = escape_markdown(period['timeEnd'], version=2)
             # period['teachersName'] = escape_markdown(period['teachersName'], version=2)
@@ -845,7 +919,7 @@ def _create_schedule_section(ctx: ContextManager, day: TimeTableDate) -> str:
     return schedule_section
 
 
-def _check_extra_text(day: TimeTableDate) -> bool:
+def _check_extra_text(day: dict) -> bool:
     """Checks if the day schedule has extra text, like zoom links, etc."""
 
     for lesson in day['lessons']:

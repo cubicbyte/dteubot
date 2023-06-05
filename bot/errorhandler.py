@@ -1,11 +1,19 @@
+# pylint: disable=unused-argument
+
+"""
+Module for handling bot errors.
+"""
+
 import os
 import logging
 import traceback
-import telegram.error
 from datetime import datetime
+
+import telegram.error
 from telegram import Update, Bot
 from telegram.error import BadRequest, TelegramError, NetworkError, Forbidden
 from telegram.ext import CallbackContext
+
 from bot.data import ChatData, ContextManager
 from bot.pages import error as error_page
 from bot.utils import smart_split
@@ -15,6 +23,8 @@ log_chat_id: int | str = os.getenv('LOG_CHAT_ID')
 
 
 async def handler(update: Update, context: CallbackContext):
+    """Handle errors raised by the bot."""
+
     if hasattr(context, 'effective_chat'):
         chat_data = ChatData(update.effective_chat.id)
 
@@ -65,7 +75,9 @@ async def send_error_response(update: Update, context: CallbackContext):
     ctx.chat_data.save_message('error', msg)
 
 
-async def send_error_to_telegram(bot: Bot, e: Exception):
+async def send_error_to_telegram(bot: Bot, err: Exception):
+    """Send an error message to the log chat."""
+
     if log_chat_id is not None:
         err_time = datetime.now().isoformat(sep=" ", timespec="seconds")
         for err_text in smart_split(f'[{err_time}] {traceback.format_exc()}'):

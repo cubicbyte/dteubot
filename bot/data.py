@@ -1,6 +1,6 @@
-# TODO: Change this module to telegram.ext.BasePersistence
-# https://github.com/python-telegram-bot/python-telegram-bot/wiki/Making-your-bot-persistent
-
+"""
+Data management module.
+"""
 
 import os
 import time
@@ -9,9 +9,10 @@ import logging
 from abc import ABC, abstractmethod
 from pathlib import Path
 from datetime import datetime
-from functools import cache
+
 from telegram import Update, Message as TgMessage
 from telegram.ext import ContextTypes
+
 from settings import langs
 from bot.schemas import StoredMessage, Language
 
@@ -51,41 +52,41 @@ class DataManager(ABC):
     _data_cache: dict[str, dict[str, any]] = {}
 
     @classmethod
-    def _get_data(cls, file: str) -> dict[str, any]:
+    def _get_data(cls, filepath: str) -> dict[str, any]:
         """Load data from file or cache"""
 
         # If data is in cache, return it
-        data = cls._data_cache.get(file)
+        data = cls._data_cache.get(filepath)
         if data:
             return data
 
         # If file doesn't exist, create it and return default data
-        if not os.path.exists(file):
+        if not os.path.exists(filepath):
             data = cls._get_default_data()
-            with open(file, 'w') as fp:
-                json.dump(data, fp, indent=4, ensure_ascii=False)
-            cls._data_cache[file] = data
-            return cls._data_cache[file]
+            with open(filepath, 'w', encoding='utf-8') as file:
+                json.dump(data, file, indent=4, ensure_ascii=False)
+            cls._data_cache[filepath] = data
+            return cls._data_cache[filepath]
 
         # Load data from file and return it
-        with open(file) as fp:
-            data = json.load(fp)
-        cls._data_cache[file] = data
+        with open(filepath, encoding='utf-8') as file:
+            data = json.load(file)
+        cls._data_cache[filepath] = data
         return data
 
     @classmethod
-    def _update_data(cls, file: str, no_update: bool = False):
+    def _update_data(cls, filepath: str, no_update: bool = False):
         """Flush data from cache to file"""
 
-        data = cls._data_cache.get(file) or cls._get_default_data()
+        data = cls._data_cache.get(filepath) or cls._get_default_data()
 
         # Set latest data update timestamp
         if not no_update:
             data['_updated'] = int(time.time())
 
         # Save data to file
-        with open(file, 'w') as fp:
-            json.dump(data, fp, indent=4, ensure_ascii=False)
+        with open(filepath, 'w', encoding='utf-8') as file:
+            json.dump(data, file, indent=4, ensure_ascii=False)
 
     def get(self, field: str) -> any:
         """Get chat data field"""
@@ -103,12 +104,11 @@ class UserData(DataManager):
     """User data manager"""
 
     def __init__(self, user_id: int | str) -> None:
-        self._user_id = str(user_id)
+        self.user_id = str(user_id)
 
-    @cache
     def _get_file(self) -> str:
         """Get user data file path"""
-        return os.path.join(os.getenv('USER_DATA_PATH'), '%s.json' % self._user_id)
+        return os.path.join(os.getenv('USER_DATA_PATH'), f'{self.user_id}.json')
 
     @staticmethod
     def _get_default_data() -> dict[str, any]:
@@ -129,7 +129,7 @@ class UserData(DataManager):
     @staticmethod
     def exists(chat_id: int | str) -> bool:
         """Check if user data exists"""
-        filepath = os.path.join(os.getenv('USER_DATA_PATH'), '%s.json' % chat_id)
+        filepath = os.path.join(os.getenv('USER_DATA_PATH'), f'{chat_id}.json')
         return os.path.exists(filepath)
 
 
@@ -140,7 +140,7 @@ class ChatData(DataManager):
     "Saved messages limit"
 
     def __init__(self, chat_id: int | str) -> None:
-        self._chat_id = str(chat_id)
+        self.chat_id = str(chat_id)
 
     @staticmethod
     def _get_default_data() -> dict[str, any]:
@@ -152,7 +152,7 @@ class ChatData(DataManager):
             'cl_notif_1m': False,         # Notification when classes starts
             'cl_notif_suggested': False,  # Is classes notification suggested
             '_messages': [],              # List of bot messages sent to chat
-            '_accessible': True,          # Is chat accessible (user blocked bot or no access to chat)
+            '_accessible': True,          # Is chat accessible (like user blocked bot)
             '_created': cur_timestamp_s,  # Chat creation timestamp
             '_updated': cur_timestamp_s,  # Chat latest update timestamp
         }
@@ -166,13 +166,12 @@ class ChatData(DataManager):
     @staticmethod
     def exists(chat_id: int | str) -> bool:
         """Check if chat data exists"""
-        filepath = os.path.join(os.getenv('CHAT_DATA_PATH'), '%s.json' % chat_id)
+        filepath = os.path.join(os.getenv('CHAT_DATA_PATH'), f'{chat_id}.json')
         return os.path.exists(filepath)
 
-    @cache
     def _get_file(self) -> str:
         """Get chat data file path"""
-        return os.path.join(os.getenv('CHAT_DATA_PATH'), '%s.json' % self._chat_id)
+        return os.path.join(os.getenv('CHAT_DATA_PATH'), f'{self.chat_id}.json')
 
     @property
     def lang(self) -> Language:
@@ -196,16 +195,16 @@ class ChatData(DataManager):
 
         return messages
 
-    def add_message(self, msg: StoredMessage):
+    def add_message(self, message: StoredMessage):
         """Save a message to database"""
 
         messages_raw = self.get('_messages')
-        message_raw = [msg.id, int(msg.timestamp.timestamp()),
-                       msg.page_name, msg.lang_code, msg.data]
+        message_raw = [message.id, int(message.timestamp.timestamp()),
+                       message.page_name, message.lang_code, message.data]
 
         # Update message if it exists
-        for i, m in enumerate(messages_raw):
-            if m[0] == msg.id:
+        for i, msg in enumerate(messages_raw):
+            if msg[0] == message.id:
                 messages_raw[i] = message_raw
                 break
         # Add message if it doesn't exist
@@ -239,8 +238,8 @@ class ChatData(DataManager):
 
         messages_raw = self.get('_messages')
 
-        for i, m in enumerate(messages_raw):
-            if m[0] == msg_id:
+        for i, msg in enumerate(messages_raw):
+            if msg[0] == msg_id:
                 messages_raw.pop(i)
                 break
 

@@ -1,16 +1,23 @@
-import requests
+"""
+Module for parsing website
+"""
+
+import os
 from urllib.parse import urljoin
+
+import requests
 from bs4 import BeautifulSoup, Tag
+
 from .schemas import Faculty, Chair, Teacher, FullTeacher
 from .utils import format_string
 
 
-page_url = 'https://knute.edu.ua'
+PAGE_URL: str = 'https://knute.edu.ua'
+REQUEST_TIMEOUT: int = int(os.environ.get('REQUEST_TIMEOUT', '5'))
 
 
 class PageUpdatedException(Exception):
     """Exception when page structure is changed"""
-    pass
 
 
 def get_faculties() -> list[Faculty]:
@@ -22,7 +29,7 @@ def get_faculties() -> list[Faculty]:
     # При наведенні на цей пункт випадає список факультетів і кафедр, які ми і збираємося парсити.
     #
 
-    req = requests.get(page_url)
+    req = requests.get(PAGE_URL, timeout=REQUEST_TIMEOUT)
     soup = BeautifulSoup(req.text, 'html.parser')
 
     # Find navigation bar
@@ -42,21 +49,21 @@ def get_faculties() -> list[Faculty]:
 
     # Parse chairs list
     faculties = []
-    for el in chairs_list:
-        if type(el) is not Tag:
+    for element in chairs_list:
+        if not isinstance(element, Tag):
             continue
 
         # If row is faculty
-        faculty_el = el.find('span')
+        faculty_el = element.find('span')
         if faculty_el is not None:
             faculty = Faculty(name=faculty_el.string, chairs=[])
             faculties.append(faculty)
             continue
 
         # If row is chair
-        chair_el = el.find('a')
-        link = urljoin(page_url, chair_el['href'])
-        faculty.chairs.append(Chair(name=chair_el.string, page_link=link))
+        element = element.find('a')
+        link = urljoin(PAGE_URL, element['href'])
+        faculty.chairs.append(Chair(name=element.string, page_link=link))
 
     return faculties
 
@@ -72,7 +79,7 @@ def get_teachers(chair_page_url: str) -> list[Teacher]:
     #
 
     # Parse chairs page and get teachers page link
-    req = requests.get(chair_page_url)
+    req = requests.get(chair_page_url, timeout=REQUEST_TIMEOUT)
     soup = BeautifulSoup(req.text, 'html.parser')
 
     teachers_page_link_el = soup.find('a',
@@ -82,10 +89,10 @@ def get_teachers(chair_page_url: str) -> list[Teacher]:
     if teachers_page_link_el is None:
         raise PageUpdatedException('Teachers page link not found')
 
-    teachers_page_link = urljoin(page_url, teachers_page_link_el['href'])
+    teachers_page_link = urljoin(PAGE_URL, teachers_page_link_el['href'])
 
     # Parse teachers page
-    req = requests.get(teachers_page_link)
+    req = requests.get(teachers_page_link, timeout=REQUEST_TIMEOUT)
     soup = BeautifulSoup(req.text, 'html.parser')
     tables = soup.find_all('tbody')
     if not tables:
@@ -102,15 +109,18 @@ def get_teachers(chair_page_url: str) -> list[Teacher]:
             if len(p_els) < 2 or link_el is None or img_el is None:
                 continue
 
-            name = teacher_cell.find('a').parent.getText()              # get full name
-            name = format_string(name)                                  # remove extra spaces and newlines
-            name = ' '.join([s.capitalize() for s in name.split(' ')])  # capitalize each word (IGOR IVANOV -> Igor Ivanov)
+            # get full name
+            name = teacher_cell.find('a').parent.getText()
+            # remove extra spaces and newlines
+            name = format_string(name)
+            # capitalize each word (IGOR IVANOV -> Igor Ivanov)
+            name = ' '.join([s.capitalize() for s in name.split(' ')])
 
             teacher = Teacher(
                 name=name,
                 description=format_string(p_els[-1].getText()).capitalize(),
-                photo_link=urljoin(page_url, img_el['src']),
-                page_link=urljoin(page_url, link_el['href'])
+                photo_link=urljoin(PAGE_URL, img_el['src']),
+                page_link=urljoin(PAGE_URL, link_el['href'])
             )
 
             if teacher.name.count(' ') != 2 or not teacher.description:
@@ -122,4 +132,5 @@ def get_teachers(chair_page_url: str) -> list[Teacher]:
 
 
 def get_teacher(teacher_page_url: str) -> FullTeacher:
+    """Get full teacher info from teacher page"""
     raise NotImplementedError()
