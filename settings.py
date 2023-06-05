@@ -72,22 +72,20 @@ _logger.info('Running setup')
 # pylint: disable=wrong-import-position
 from bot.logger import TelegramLogger
 from lib.api import Api
-from lib.api.cached import CachedApi
 
 
 # Use CachedApi if possible
-_cache_exists = os.path.isfile(os.path.join(os.getenv('CACHE_PATH'), 'mkr-cache.sqlite'))
-_Api = CachedApi if _cache_exists else Api
+_ApiClass = Api
 API_TYPE_CACHED = 'CachedApi'
 API_TYPE_DEFAULT = 'Api'
-API_TYPE = API_TYPE_CACHED if _cache_exists else API_TYPE_DEFAULT
+API_TYPE = API_TYPE_DEFAULT
 
 
 bot = ApplicationBuilder().token(os.getenv('BOT_TOKEN')).build()
 tg_logger = TelegramLogger(os.path.join(os.getenv('LOGS_PATH'), 'telegram'))
 langs: dict = {}
 
-api = _Api(
+api = _ApiClass(
     url=os.getenv('API_URL'),
     enable_cache=True,
     timeout=int(os.getenv('API_REQUEST_TIMEOUT')),
