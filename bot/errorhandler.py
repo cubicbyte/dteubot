@@ -41,7 +41,7 @@ async def handler(update: Update, context: CallbackContext):
         # telegram.ext._updater already logs this error
         return
 
-    if not isinstance(context.error, TelegramError):
+    if not isinstance(context.error, TelegramError) or 'escaped' in context.error.message:
         print(traceback.format_exc())
         await send_error_response(update, context)
 

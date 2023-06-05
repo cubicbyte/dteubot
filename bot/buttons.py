@@ -179,7 +179,7 @@ async def open_settings(ctx: ContextManager):
 async def select_lang(ctx: ContextManager):
     lang_code = utils.parse_callback_query(ctx.update.callback_query.data)['args']['lang']
 
-    if not lang_code in langs:
+    if lang_code not in langs:
         lang_code = os.getenv('DEFAULT_LANG')
 
     # Open menu if user selected the same language

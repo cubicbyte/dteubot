@@ -78,7 +78,7 @@ def _merge_data(main_path: str, other_path: List[str]):
             fp = open(file)
             data = json.load(fp)
             fp.close()
-            if not f in data_cache:
+            if f not in data_cache:
                 mainFile = os.path.join(main_path, f)
                 if not os.path.exists(mainFile):
                     data_cache[f] = data
@@ -127,7 +127,7 @@ def _merge_user_latest_updates(main_path: str, other_path: List[str]):
         for user_id in os.listdir(path):
             with open(os.path.join(path, user_id, 'updates.txt')) as fp:
                 update_time = _get_latest_update_time(fp)
-                if not user_id in data_cache or update_time > data_cache[user_id][0]:
+                if user_id not in data_cache or update_time > data_cache[user_id][0]:
                     data_cache[user_id] = [update_time, path]
 
     for user_id, data in data_cache.items():
@@ -143,7 +143,7 @@ def _merge_user_updates(main_path: str, other_path: List[str]):
     for path in other_path + [main_path]:
         path = os.path.join(path, 'logs', 'telegram', 'users')
         for user_id in os.listdir(path):
-            if not user_id in data_cache:
+            if user_id not in data_cache:
                 data_cache[user_id] = []
             with open(os.path.join(path, user_id, 'updates.txt')) as fp:
                 _merge_chat(fp, data_cache[user_id])
@@ -159,7 +159,7 @@ def _merge_chat_messages(main_path: str, other_path: List[str]):
     for path in other_path + [main_path]:
         path = os.path.join(path, 'logs', 'telegram', 'chats')
         for chat_id in os.listdir(path):
-            if not chat_id in data_cache:
+            if chat_id not in data_cache:
                 data_cache[chat_id] = []
             with open(os.path.join(path, chat_id, 'messages.txt')) as fp:
                 _merge_chat(fp, data_cache[chat_id])
@@ -175,7 +175,7 @@ def _merge_chat_cb_queries(main_path: str, other_path: List[str]):
     for path in other_path + [main_path]:
         path = os.path.join(path, 'logs', 'telegram', 'chats')
         for chat_id in os.listdir(path):
-            if not chat_id in data_cache:
+            if chat_id not in data_cache:
                 data_cache[chat_id] = []
             with open(os.path.join(path, chat_id, 'cb_queries.txt')) as fp:
                 _merge_chat(fp, data_cache[chat_id])

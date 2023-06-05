@@ -47,7 +47,7 @@ async def lang(ctx: ContextManager):
     # /lang <lang_code>
     lang_code = ctx.args[0].lower()
 
-    if not lang_code in langs:
+    if lang_code not in langs:
         lang_code = os.getenv('DEFAULT_LANG')
 
     ctx.chat_data.set('lang_code', lang_code)
