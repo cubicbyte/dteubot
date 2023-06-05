@@ -349,21 +349,6 @@ def more(ctx: ContextManager) -> dict:
     }
 
 
-def notification_feature_suggestion(ctx: ContextManager) -> dict:
-    buttons = [[
-        InlineKeyboardButton(text=ctx.lang.get('text.yes'),
-                             callback_data='set.cl_notif_15m#state=1&suggestion=1'),
-        InlineKeyboardButton(text=ctx.lang.get('text.no'),
-                             callback_data='close_page')
-    ]]
-
-    return {
-        'text': ctx.lang.get('page.notification_feature_suggestion'),
-        'reply_markup': InlineKeyboardMarkup(buttons),
-        'parse_mode': 'MarkdownV2'
-    }
-
-
 def schedule(ctx: ContextManager, date: _date | str) -> dict:
     # Create "date_str" and "date" variables
     if isinstance(date, _date):

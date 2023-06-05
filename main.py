@@ -1,5 +1,4 @@
 import os
-import asyncio
 import logging
 import settings
 from telegram.ext import MessageHandler, CallbackQueryHandler
@@ -61,18 +60,9 @@ async def unsupported_btn_handler(ctx):
     ctx.chat_data.save_message('menu', msg)
 
 
-async def suggest_notif_feature(upd, ctx):
-    if not ctx.chat_data.get('cl_notif_suggested') and ctx.chat_data.get('_created') == 0:
-        await asyncio.sleep(1)
-        msg = await upd.effective_message.reply_text(**pages.notification_feature_suggestion(ctx))
-        ctx.chat_data.save_message('notification_feature_suggestion', msg)
-        ctx.chat_data.set('cl_notif_suggested', True)
-
-
 bot.add_handlers([CallbackQueryHandler(button_logger), MessageHandler(None, message_logger)], 0)
 bot.add_handlers([CallbackQueryHandler(set_chat_accessible), MessageHandler(None, set_chat_accessible)], 5)
 bot.add_handlers(button_handlers + command_handlers, 10)
-bot.add_handlers([CallbackQueryHandler(suggest_notif_feature), MessageHandler(None, suggest_notif_feature)], 15)
 bot.add_handlers([CallbackQueryHandler(button_post_logger), MessageHandler(None, message_post_logger)], 20)
 bot.add_error_handler(error_handler.handler)
 
