@@ -131,10 +131,10 @@ def course_list(ctx: ContextManager, structure_id: int, faculty_id: int) -> dict
         buttons.append([
             InlineKeyboardButton(
                 text=str(course['course']),
-                callback_data=f'select.schedule.course#\
-                    structureId={structure_id}&\
-                    facultyId={faculty_id}&\
-                    course={course["course"]}')
+                callback_data=f'select.schedule.course#'
+                    + f'structureId={structure_id}&'
+                    + f'facultyId={faculty_id}&'
+                    + f'course={course["course"]}')
         ])
 
     return {
@@ -172,9 +172,9 @@ def faculty_list(ctx: ContextManager, structure_id: int) -> dict:
         buttons.append([
             InlineKeyboardButton(
                 text=faculty['fullName'],
-                callback_data=f'select.schedule.faculty#\
-                    structureId={structure_id}&\
-                    facultyId={faculty["id"]}')
+                callback_data=f'select.schedule.faculty#'
+                    + f'structureId={structure_id}&'
+                    + f'facultyId={faculty["id"]}')
         ])
 
     return {
@@ -204,9 +204,9 @@ def group_list(ctx: ContextManager, structure_id: int, faculty_id: int, course: 
     buttons = [[
         InlineKeyboardButton(
             text=ctx.lang.get('button.back'),
-            callback_data=f'select.schedule.faculty#\
-                structureId={structure_id}&\
-                facultyId={faculty_id}')
+            callback_data=f'select.schedule.faculty#'
+                + f'structureId={structure_id}&'
+                + f'facultyId={faculty_id}')
     ]]
 
     group_btns = []
@@ -276,7 +276,7 @@ def lang_selection(ctx: ContextManager) -> dict:
 
     buttons = []
 
-    for lang_name, lang in langs:
+    for lang_name, lang in langs.items():
         buttons.append([
             InlineKeyboardButton(text=lang.get('lang_name'),
                                  callback_data=f'select.lang#lang={lang_name}')
