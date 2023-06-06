@@ -11,7 +11,7 @@ from datetime import datetime
 
 import telegram.error
 from telegram import Update, Bot
-from telegram.error import BadRequest, TelegramError, NetworkError, Forbidden
+from telegram.error import BadRequest, NetworkError, Forbidden, TimedOut
 from telegram.ext import CallbackContext
 
 from bot.data import ChatData, ContextManager
@@ -47,16 +47,17 @@ async def handler(update: Update, context: CallbackContext):
         context.data.set('_accessible', False)
         return
 
-    if isinstance(context.error, NetworkError) and context.error.message.startswith('httpx'):
+    if isinstance(context.error, TimedOut) or \
+            isinstance(context.error, NetworkError) \
+            and context.error.message.startswith('httpx'):
         # telegram.ext._updater already logs this error
         return
 
-    if not isinstance(context.error, TelegramError) or 'escaped' in context.error.message:
-        print(traceback.format_exc())
-        await send_error_response(update, context)
-
+    print(traceback.format_exc())
     _logger.exception(context.error)
+
     await send_error_to_telegram(context.bot, context.error)
+    await send_error_response(update, context)
 
 
 async def send_error_response(update: Update, context: CallbackContext):
