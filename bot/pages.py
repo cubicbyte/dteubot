@@ -99,7 +99,7 @@ def classes_notification(chat_data: ChatData, day: dict, remaining: str) -> dict
 
     buttons = [[
         InlineKeyboardButton(text=chat_data.lang.get('button.open_schedule'),
-                             callback_data=f'open.schedule.day#date={day.date}'),
+                             callback_data=f'open.schedule.day#date={day["date"]}'),
         InlineKeyboardButton(text=chat_data.lang.get('button.settings'),
                              callback_data='open.settings')
     ]]
