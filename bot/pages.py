@@ -880,6 +880,7 @@ def _create_schedule_section(ctx: ContextManager, day: dict) -> str:
             if multiple_teachers:
                 name = name.split(', ')[0]
 
+            name = escape_markdown(name, version=2)
             teacher = find_teacher_safe(name)
 
             # Escape ONLY USED api result not to break telegram markdown
