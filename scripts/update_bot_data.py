@@ -150,18 +150,18 @@ def update_user_data(path: str):
     files = os.listdir(path)
     count = len(files)
 
-    for i, file in enumerate(files):
-        _logger.debug('[%s/%s] updating %s', i + 1, count, file)
+    for i, filename in enumerate(files):
+        _logger.debug('[%s/%s] updating %s', i + 1, count, filename)
 
         # Read config
-        with open(os.path.join(path, file), encoding='utf-8') as file:
+        with open(os.path.join(path, filename), encoding='utf-8') as file:
             conf = json.load(file)
 
         # 2.3.0: create "_created" and "_updated" fields
         conf = insert_after('_created', 0, 'ref', conf)
         conf = insert_after('_updated', 0, '_created', conf)
 
-        with open(os.path.join(path, file), 'w', encoding='utf-8') as file:
+        with open(os.path.join(path, filename), 'w', encoding='utf-8') as file:
             json.dump(conf, file, ensure_ascii=False, indent=4)
 
 
@@ -174,11 +174,11 @@ def update_chat_data(path: str):
     files = os.listdir(path)
     count = len(files)
 
-    for i, file in enumerate(files):
-        _logger.debug('[%s/%s] updating %s', i + 1, count, file)
+    for i, filename in enumerate(files):
+        _logger.debug('[%s/%s] updating %s', i + 1, count, filename)
 
         # Read config
-        with open(os.path.join(path, file), encoding='utf-8') as file:
+        with open(os.path.join(path, filename), encoding='utf-8') as file:
             conf = json.load(file)
 
         # 2.3.0
@@ -190,7 +190,7 @@ def update_chat_data(path: str):
         conf = insert_after('_created', 0, '_accessible', conf)
         conf = insert_after('_updated', 0, '_created', conf)
 
-        with open(os.path.join(path, file), 'w', encoding='utf-8') as file:
+        with open(os.path.join(path, filename), 'w', encoding='utf-8') as file:
             json.dump(conf, file, indent=4, ensure_ascii=False)
 
 
