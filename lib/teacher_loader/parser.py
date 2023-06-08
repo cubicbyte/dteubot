@@ -91,7 +91,7 @@ def get_teachers(chair_page_url: str) -> list[Teacher]:
 
     teachers_page_link = urljoin(PAGE_URL, teachers_page_link_el['href'])
 
-    # Parse teachers page
+    # Parse teachers page to get teachers table
     req = requests.get(teachers_page_link, timeout=REQUEST_TIMEOUT)
     soup = BeautifulSoup(req.text, 'html.parser')
     tables = soup.find_all('tbody')
@@ -116,9 +116,16 @@ def get_teachers(chair_page_url: str) -> list[Teacher]:
             # capitalize each word (IGOR IVANOV -> Igor Ivanov)
             name = ' '.join([s.capitalize() for s in name.split(' ')])
 
+            # Merge all paragraphs into one string
+            description = ' '.join([p.getText() for p in p_els[1:]])
+            # Remove extra spaces and newlines
+            description = format_string(description)
+            # Capitalize first letter
+            description = description.capitalize()
+
             teacher = Teacher(
                 name=name,
-                description=format_string(p_els[-1].getText()).capitalize(),
+                description=description,    
                 photo_link=urljoin(PAGE_URL, img_el['src']),
                 page_link=urljoin(PAGE_URL, link_el['href'])
             )
