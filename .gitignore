@@ -1,11 +1,8 @@
-/dev/
-/chat-configs/
 /user-data/
 /chat-data/
 /logs/
 /cache/
 
-/bin/
 __pycache__/
 
 .env

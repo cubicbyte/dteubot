@@ -3,6 +3,7 @@ python-dotenv >=0.16.0
 babel >=2.7.0
 apscheduler >=3.6.3
 requests
+progressbar2
 
 -r lib/api/requirements.txt
 -r lib/teacher_loader/requirements.txt

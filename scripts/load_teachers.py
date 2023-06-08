@@ -9,6 +9,9 @@ import sys
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
 import csv
+
+import progressbar
+
 from lib.teacher_loader import get_faculties, get_teachers
 from lib.teacher_loader.schemas import Teacher
 
@@ -19,10 +22,17 @@ def load_teachers_to_file(filepath: str):
 
 
 def _load_teachers() -> list[Teacher]:
+    """Load teachers from site"""
+
     teachers = []
-    for faculty in get_faculties():
-        for chair in faculty.chairs:
+    faculties = get_faculties()
+    print(f'Faculties: {len(faculties)}')
+
+    for faculty in faculties:
+        bar = progressbar.ProgressBar(max_value=len(faculty.chairs))
+        for chair in bar(faculty.chairs):
             teachers.extend(get_teachers(chair.page_link))
+
     return teachers
 
 
