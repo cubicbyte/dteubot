@@ -24,8 +24,7 @@
 
 # Скріншоти
 
-![Скріншот команди /start](https://github.com/cubicbyte/dteubot/assets/81159301/d4ccdd7a-af8c-46ed-a020-58887137611e)
-![Скріншот меню розкладу](https://github.com/cubicbyte/dteubot/assets/81159301/82764637-c7d0-4e32-9694-a9641205cac3)
+![Скріншот взаємодії](https://github.com/cubicbyte/dteubot/assets/81159301/554f4df6-9812-4a65-b06e-9a6fd47df889)
 
 
 # Команди

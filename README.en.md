@@ -22,8 +22,7 @@ You can try the bot live: ([@dteubot](https://t.me/dteubot))
 
 
 # Screenshots
-![Screenshot of start menu](https://github.com/cubicbyte/dteubot/assets/81159301/d4ccdd7a-af8c-46ed-a020-58887137611e)
-![Screenshot of schedule menu](https://github.com/cubicbyte/dteubot/assets/81159301/82764637-c7d0-4e32-9694-a9641205cac3)
+![Screenshot of usage](https://github.com/cubicbyte/dteubot/assets/81159301/554f4df6-9812-4a65-b06e-9a6fd47df889)
 
 
 # Commands
