@@ -55,7 +55,7 @@ def parse_callback_query(query: str) -> dict:
 
     # If there are arguments, then parse them
     if len(split) != 1:
-        args = dict(parse_qsl(split[1]))
+        args = dict(parse_qsl(split[1], keep_blank_values=True))
     else:
         args = {}
 

@@ -457,10 +457,10 @@ def day_schedule(ctx: ContextManager, date: _date, day: dict) -> dict:
                              callback_data='open.schedule.day#date='
                              + (date + timedelta(days=1)).isoformat()),
         InlineKeyboardButton(text=lang.get('button.navigation.week_previous'),
-                             callback_data='open.schedule.day#date='
+                             callback_data='open.schedule.day#week&date='
                              + (date - timedelta(days=7)).isoformat()),
         InlineKeyboardButton(text=lang.get('button.navigation.week_next'),
-                             callback_data='open.schedule.day#date='
+                             callback_data='open.schedule.day#week&date='
                              + (date + timedelta(days=7)).isoformat()),
         InlineKeyboardButton(text=lang.get('button.menu'), callback_data='open.menu')
     ]
@@ -512,8 +512,8 @@ def empty_schedule(ctx: ContextManager, schedule: list[dict],
     # decide the "next" and "previous" buttons skip values
     next_day_date = date + timedelta(days=skip_right)
     prev_day_date = date - timedelta(days=skip_left)
-    next_week_date = from_date + timedelta(days=7)
-    prev_week_date = from_date - timedelta(days=7)
+    next_week_date = date + timedelta(days=7)
+    prev_week_date = date - timedelta(days=7)
     enable_today_button = not next_day_date > _date.today() > prev_day_date
 
     # If there are no lessons for multiple days
@@ -540,10 +540,10 @@ def empty_schedule(ctx: ContextManager, schedule: list[dict],
                              callback_data='open.schedule.day#date='
                              + next_day_date.isoformat()),
         InlineKeyboardButton(text=lang.get('button.navigation.week_previous'),
-                             callback_data='open.schedule.day#date='
+                             callback_data='open.schedule.day#week&date='
                              + prev_week_date.isoformat()),
         InlineKeyboardButton(text=lang.get('button.navigation.week_next'),
-                             callback_data='open.schedule.day#date='
+                             callback_data='open.schedule.day#week&date='
                              + next_week_date.isoformat()),
         InlineKeyboardButton(text=lang.get('button.menu'), callback_data='open.menu')
     ]
