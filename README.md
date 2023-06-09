@@ -1,26 +1,35 @@
 <div align="center">
-<img src="https://user-images.githubusercontent.com/81159301/193612153-e085ffb7-230b-413c-a7b2-c450536cd397.png" alt="Logo" width="200"><br><br>
+
+<img src="https://user-images.githubusercontent.com/81159301/193612153-e085ffb7-230b-413c-a7b2-c450536cd397.png" alt="Логотип бота" width="200"><br><br>
 
 # Розклад ДТЕУ/КНТЕУ
-[![Python 3.6+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads)
+[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 ## [English version](README.md)
 
 Телеграм-бот для зручного перегляду розкладу пар у Державному Торговельно-Економісному Університеті ([ДТЕУ](https://knute.edu.ua)).<br>
 Бот доступний для використання: [@dteubot](https://t.me/dteubot).
+
 </div><br>
 
-> **Note** *Ви також можете налаштувати цього бота для відображення розкладу інших університетів, що використовують систему АСУ МКР.*<br>
 
+# Функції
+
+- ✅ Перегляд розкладу пар
+- ✅ Перегляд розкладу дзвінків
+- ✅ Нагадування про початок пар
+- ✅ Інформація про викладачів
+- ✅ Перегляд часу до перерви
 
 
 # Скріншоти
-![Скріншот бота](https://user-images.githubusercontent.com/81159301/193561985-2414eafb-3423-4ef6-b149-24926831df7a.png)
 
+![Скріншот команди /start](https://github.com/cubicbyte/dteubot/assets/81159301/d4ccdd7a-af8c-46ed-a020-58887137611e)
+![Скріншот меню розкладу](https://github.com/cubicbyte/dteubot/assets/81159301/82764637-c7d0-4e32-9694-a9641205cac3)
 
 
 # Команди
-Основний метод управління ботом - за допомогою кнопок, проте команди також підтримуються:
+
 * **/today**<br>
     пари сьогодні
 * **/tomorrow**<br>
@@ -60,7 +69,7 @@
    ```shell
    pip install -r requirements.txt
    ```
-3. Налаштуйте файл `.env` по прикладу `env.example`
+3. Створіть та налаштуйте файл `.env` по прикладу `env.example`
 4. Запустіть бота наступною командою
    ```shell
    python main.py
@@ -70,6 +79,9 @@
 Якщо ж файл не створити, програма буде шукати його в своїй кореневій директорії.
 
 ## 2. Docker
+
+> :warning: На даний момент не оновлюється
+
 1. Установіть Docker
 2. Створіть директорію, в якій будуть зберігатися дані бота
 3. В цій директорії створіть файл `.env` та заповніть його за прикладом файла [env.example](env.example)
@@ -88,3 +100,5 @@
 docker stop schedule-bot
 ```
 
+
+> **Note** *Ви також можете налаштувати цього бота для відображення розкладу інших університетів, що використовують систему АСУ МКР.*<br>

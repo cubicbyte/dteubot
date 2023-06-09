@@ -1,25 +1,33 @@
 <div align="center">
-<img src="https://user-images.githubusercontent.com/81159301/193612153-e085ffb7-230b-413c-a7b2-c450536cd397.png" alt="Logo" width="200"><br><br>
+
+<img src="https://user-images.githubusercontent.com/81159301/193612153-e085ffb7-230b-413c-a7b2-c450536cd397.png" alt="Bot logo" width="200"><br><br>
 
 # SUTE Schedule Bot
-[![Python 3.6+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads)
+[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 Telegram bot for getting the schedule in Ukrainian State University of Trade and Economics ([SUTE](https://knute.edu.ua)).<br>
 You can try the bot live: ([@dteubot](https://t.me/dteubot))
+
 </div>
 
-> **Note** You can also configure this bot to display schedule from other universities using the MKR ACS system
 
+# Features
+
+- ✅ View the classes schedule
+- ✅ View the call schedule
+- ✅ Reminder about the beginning of classes
+- ✅ Information about teachers
+- ✅ View time to break
 
 
 # Screenshots
-![Bot screenshot](https://user-images.githubusercontent.com/81159301/193561985-2414eafb-3423-4ef6-b149-24926831df7a.png)
-
+![Screenshot of start menu](https://github.com/cubicbyte/dteubot/assets/81159301/d4ccdd7a-af8c-46ed-a020-58887137611e)
+![Screenshot of schedule menu](https://github.com/cubicbyte/dteubot/assets/81159301/82764637-c7d0-4e32-9694-a9641205cac3)
 
 
 # Commands
-Basically, the main way to control the bot - with the buttons. But the bot also supports the following commands:
+
 * **/today**<br>
     lessons today
 * **/tomorrow**<br>
@@ -59,7 +67,7 @@ The bot can be started in two ways: Docker and directly
     ```shell
     pip install -r requirements.txt
     ```
-3. Configure the file `.env` by example `env.example`
+3. Create and configure the file `.env` by example `env.example`
 4. Start the bot with the following comand
     ```shell
     python main.py
@@ -69,6 +77,9 @@ This bot also supports running in another directory: you need to create an .env 
 If the file is not created, the program will search for it in its root directory.
 
 ## 2. Docker
+
+> :warning: Not updated at the moment
+
 1. Install Docker
 2. Create a directory in which the bot data will be stored
 3. In this directory, create an `.env` file by example [env.example](env.example)
@@ -87,3 +98,5 @@ To stop, execute the command
 docker stop schedule-bot
 ```
 
+
+> **Note** You can also configure this bot to display schedule from other universities using the MKR ACS system
