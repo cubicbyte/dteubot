@@ -88,7 +88,7 @@
 
 
 
-    "page.greeting": "👋 *Greetings\\!*\n\nThis is a bot for getting the schedule of classes at the Ukrainian State University of Trade and Economics \\(SUTE\\)\\.\n\nThis bot works always \\- even during power outages when the website is unavailable\\!",
+    "page.greeting": "👋 *Greetings\\!*\n\nThis is a bot for getting the schedule of classes at the Ukrainian State University of Trade and Economics \\(SUTE\\)\\.",
     "page.structure": "*Select structure*",
     "page.faculty": "*Select faculty*",
     "page.course": "*Select course*",
