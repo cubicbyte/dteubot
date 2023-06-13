@@ -98,7 +98,7 @@
     "page.settings": "⚙️ *Settings*\n\n*Your group:* {group_id}\n\n*Your settings*\n{cl_notif_15m} Classes reminder in 15 min\\.\n{cl_notif_1m} Classes reminder in 1 min\\.",
     "page.lang_select": "🇬🇧 *Change language*\n\n*Your current language*: {lang}",
     "page.more": "🗂 *Additionally*",
-    "page.info": "ℹ️ *Information*\n\n*Bot creator*\nStudent of FIT 2\\-8\n[Marukhnenko Bohdan](tg://resolve?domain=cubicbyte)\n\n⚙️ *Api version*: {api_ver}\n⚙️ *Supported API version*: {api_ver_supported}\n🌐 *Source code* \\- [github\\.com/cubicbyte/dteubot](https://github.com/cubicbyte/dteubot)\n\nUse the @dteubot as a tool to get the schedule for every day\\.",
+    "page.info": "ℹ️ *Information*\n\n*Bot creator*\nStudent of FIT 3\\-8\n[Marukhnenko Bohdan](tg://resolve?domain=cubicbyte)\n\n⚙️ *Api version*: {api_ver}\n⚙️ *Supported API version*: {api_ver_supported}\n🌐 *Source code* \\- [github\\.com/cubicbyte/dteubot](https://github.com/cubicbyte/dteubot)\n\nUse the @dteubot as a tool to get the schedule for every day\\.",
     "page.api_unavaliable": "Seems like the timetable site is down/not responding right now\\.\n\nPlease, try later\\.",
     "page.calls": "🕓 *Calls schedule*\n\n{schedule}",
     "page.admin_panel": "🛠 *Control panel*",
