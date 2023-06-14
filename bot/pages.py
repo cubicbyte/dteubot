@@ -753,6 +753,21 @@ def error(ctx: ContextManager) -> dict:
     }
 
 
+def notification_feature_suggestion(ctx: ContextManager) -> dict:
+    buttons = [[
+        InlineKeyboardButton(text=ctx.lang.get('text.yes'),
+                             callback_data='set.cl_notif#time=15m&state=1&suggestion'),
+        InlineKeyboardButton(text=ctx.lang.get('text.no'),
+                             callback_data='close_page#page=notification_feature_suggestion')
+    ]]
+
+    return {
+        'text': ctx.lang.get('page.notification_feature_suggestion'),
+        'reply_markup': InlineKeyboardMarkup(buttons),
+        'parse_mode': 'MarkdownV2'
+    }
+
+
 
 
 

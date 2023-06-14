@@ -98,7 +98,7 @@ async def open_admin_panel(ctx: ContextManager):
     ctx.chat_data.save_message('admin_panel', msg)
 
 
-@register_button('^close_page$')
+@register_button('^close_page')
 async def close_page(ctx: ContextManager):
     """Delete page message"""
     await ctx.update.callback_query.delete_message()

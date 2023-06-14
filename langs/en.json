@@ -109,7 +109,7 @@
     "page.schedule.extra": "ℹ️ <b>Additional information</b>\n\n{0}",
     "page.schedule.empty": "📅   {date}   📅\n\n`—————————————————————————`\n\n`       No lessons`\n\n`—————————————————————————`",
     "page.schedule.empty.multiple_days": "`From`  📅 {dateStart}\n`To  `  📅 {dateEnd}\n\n`—————————————————————————`\n\n`       No lessons`\n\n`—————————————————————————`",
-    "page.notification_feature_suggestion": "Now bot can remind you that classes are about to start\\! \\(avaliable in settings\\)\n\nWould you like to turn on classes start notifications?",
+    "page.notification_feature_suggestion": "Did you know that bot can remind you that classes are about to start\\? \\(avaliable in settings\\)\n\nWould you like to turn on classes start notifications?",
     "page.classes_notification": "*Reminder:* there's a classes in *{remaining}* minutes\\!\n\n{schedule}",
     "page.error": "❗️ *An error has occurred\\!*\n\nSomething went wrong while processing your request\\. The error has already been sent to the developer via Telegram."
 }

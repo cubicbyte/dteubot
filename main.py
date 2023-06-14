@@ -5,6 +5,8 @@ This is the main file of the bot.
 """
 
 import os
+import time
+import asyncio
 import logging
 
 from telegram.ext import MessageHandler, CallbackQueryHandler
@@ -26,7 +28,7 @@ from bot.commands import handlers as command_handlers
 from bot.notifier import scheduler
 from bot.data import ContextManager, ChatData
 from bot import errorhandler, pages
-from settings import bot, tg_logger
+from settings import bot, tg_logger, NOTIFICATIONS_SUGGESTION_DELAY_S
 
 
 async def set_chat_accessible(upd, ctx):
@@ -39,7 +41,7 @@ async def set_chat_accessible(upd, ctx):
         chat_data.set('_accessible', True)
 
 
-async def button_logger(upd, ctx):
+async def log_button(upd, ctx):
     # pylint: disable=unused-argument
     """Log button clicks"""
 
@@ -51,7 +53,7 @@ async def button_logger(upd, ctx):
     )
 
 
-async def message_logger(upd, ctx):
+async def log_message(upd, ctx):
     # pylint: disable=unused-argument
     """Log messages"""
 
@@ -75,6 +77,30 @@ async def message_statistic_logger(upd, ctx):
     await tg_logger.message_handler(manager)
 
 
+async def suggest_cl_notif(upd, ctx):
+    """Suggest classes notifications to user"""
+
+    # If chat is old enough and user haven't seen settings yet,
+    # suggest him to enable notifications
+
+    _ctx = ContextManager(upd, ctx)
+
+    if not _ctx.chat_data.get('seen_settings'):
+        cur_timestamp = int(time.time())
+        created = _ctx.chat_data.get('_created') or 0
+
+        if cur_timestamp - created < NOTIFICATIONS_SUGGESTION_DELAY_S:
+            return
+
+        # After 1 second, send new message with notification suggestion
+        await asyncio.sleep(1)
+
+        msg = await upd.effective_message.reply_text(**pages.notification_feature_suggestion(_ctx))
+        _ctx.chat_data.save_message('notification_feature_suggestion', msg)
+
+        _ctx.chat_data.set('seen_settings', True)
+
+
 @register_button()
 async def unsupported_btn_handler(ctx):
     """Handle unsupported button"""
@@ -87,18 +113,23 @@ async def unsupported_btn_handler(ctx):
 
 # Logging
 bot.add_handlers([
-    CallbackQueryHandler(button_logger),
-    MessageHandler(None, message_logger)], 0)
-# Update chat accessibility
-bot.add_handlers([
-    CallbackQueryHandler(set_chat_accessible),
-    MessageHandler(None, set_chat_accessible)], 5)
+    CallbackQueryHandler(log_button),
+    MessageHandler(None, log_message)], 0)
 # Main handlers
 bot.add_handlers(button_handlers + command_handlers, 10)
 # Statistics
 bot.add_handlers([
     CallbackQueryHandler(button_statistic_logger),
     MessageHandler(None, message_statistic_logger)], 20)
+# Update chat accessibility
+bot.add_handlers([
+    CallbackQueryHandler(set_chat_accessible),
+    MessageHandler(None, set_chat_accessible)], 30)
+# Notifications suggestion
+bot.add_handlers([
+    CallbackQueryHandler(suggest_cl_notif),
+    MessageHandler(None, suggest_cl_notif)], 40)
+
 
 bot.add_error_handler(errorhandler.handler)
 
