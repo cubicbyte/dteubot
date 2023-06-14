@@ -37,7 +37,7 @@ def insert_after(key: str, value: any, after_key: str, obj: dict, ignore_existin
     values.insert(i, value)
 
     res = {}
-    for i in enumerate(keys):
+    for i, k in enumerate(keys):
         res[keys[i]] = values[i]
 
     return res
@@ -83,7 +83,7 @@ def update_chat_configs(path: str):
             conf = insert_after('groupId', group_id, 'admin', conf)
 
         with open(os.path.join(path, filename), 'w', encoding='utf-8') as file:
-            json.dump(conf, file, indent=4, ensure_ascii=False)
+            json.dump(conf, file, indent=2, ensure_ascii=False)
 
 
 # 2.3.0
@@ -126,7 +126,7 @@ def migrate_chat_configs(path: str):
             }
 
             with open(os.path.join(user_data_path, filename), 'w', encoding='utf-8') as file:
-                json.dump(user_data, file, ensure_ascii=False, indent=4)
+                json.dump(user_data, file, ensure_ascii=False, indent=2)
 
         chat_data = {
             'lang_code': conf['lang'],
@@ -134,7 +134,7 @@ def migrate_chat_configs(path: str):
         }
 
         with open(os.path.join(chat_data_path, filename), 'w', encoding='utf-8') as file:
-            json.dump(chat_data, file, ensure_ascii=False, indent=4)
+            json.dump(chat_data, file, ensure_ascii=False, indent=2)
 
         os.remove(filepath)
 
@@ -162,7 +162,7 @@ def update_user_data(path: str):
         conf = insert_after('_updated', 0, '_created', conf)
 
         with open(os.path.join(path, filename), 'w', encoding='utf-8') as file:
-            json.dump(conf, file, ensure_ascii=False, indent=4)
+            json.dump(conf, file, ensure_ascii=False, indent=2)
 
 
 def update_chat_data(path: str):
@@ -181,17 +181,18 @@ def update_chat_data(path: str):
         with open(os.path.join(path, filename), encoding='utf-8') as file:
             conf = json.load(file)
 
-        # 2.3.0
+        # Remove cl_notif_suggested
+        conf.pop('cl_notif_suggested', None)
+
         conf = insert_after('cl_notif_15m', False, 'group_id', conf)
         conf = insert_after('cl_notif_1m', False, 'cl_notif_15m', conf)
-        conf = insert_after('cl_notif_suggested', False, 'cl_notif_1m', conf)
-        conf = insert_after('_messages', [], 'cl_notif_suggested', conf)
+        conf = insert_after('seen_settings', True, 'cl_notif', conf)
         conf = insert_after('_accessible', True, 'cl_notif_suggested', conf)
         conf = insert_after('_created', 0, '_accessible', conf)
         conf = insert_after('_updated', 0, '_created', conf)
 
         with open(os.path.join(path, filename), 'w', encoding='utf-8') as file:
-            json.dump(conf, file, indent=4, ensure_ascii=False)
+            json.dump(conf, file, indent=2, ensure_ascii=False)
 
 
 def update_logs(path: str):

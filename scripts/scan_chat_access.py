@@ -41,7 +41,7 @@ def set_chat_accessibility(filepath: str, status: bool):
         data['_accessible'] = status
         file.seek(0)
         file.truncate(0)
-        json.dump(data, file, indent=4, ensure_ascii=False)
+        json.dump(data, file, indent=2, ensure_ascii=False)
 
 
 def scan(file: str, token: str) -> tuple[str, bool]:

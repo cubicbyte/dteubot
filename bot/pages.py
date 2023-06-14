@@ -618,8 +618,12 @@ def settings(ctx: ContextManager) -> dict:
     """Settings menu page"""
 
     lang = ctx.lang
-    cl_notif_15m_enabled = ctx.chat_data.get('cl_notif_15m')
-    cl_notif_1m_enabled = ctx.chat_data.get('cl_notif_1m')
+    cl_notif_15m = ctx.chat_data.get('cl_notif_15m')
+    cl_notif_1m = ctx.chat_data.get('cl_notif_1m')
+
+    # Mark settings as seen
+    if not ctx.chat_data.get('seen_settings'):
+        ctx.chat_data.set('seen_settings', True)
 
     # Get chat group name
     if ctx.chat_data.get('group_id') is not None:
@@ -641,11 +645,11 @@ def settings(ctx: ContextManager) -> dict:
     ], [
         InlineKeyboardButton(
             text=lang.get('button.settings.cl_notif_15m'),
-            callback_data=f'set.cl_notif_15m#state={int(not cl_notif_15m_enabled)}')
+            callback_data=f'set.cl_notif#time=15m&state={int(not cl_notif_15m)}')
     ], [
         InlineKeyboardButton(
             text=lang.get('button.settings.cl_notif_1m'),
-            callback_data=f'set.cl_notif_1m#state={int(not cl_notif_1m_enabled)}')
+            callback_data=f'set.cl_notif#time=1m&state={int(not cl_notif_1m)}')
     ], [
         InlineKeyboardButton(
             text=lang.get('button.back'),
@@ -657,8 +661,8 @@ def settings(ctx: ContextManager) -> dict:
 
     page_text = lang.get('page.settings').format(
         group_id=group,
-        cl_notif_15m=get_icon(cl_notif_15m_enabled),
-        cl_notif_1m=get_icon(cl_notif_1m_enabled)
+        cl_notif_15m=get_icon(cl_notif_15m),
+        cl_notif_1m=get_icon(cl_notif_1m)
     )
 
     return {

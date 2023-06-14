@@ -65,7 +65,7 @@ class DataManager(ABC):
         if not os.path.exists(filepath):
             data = cls._get_default_data()
             with open(filepath, 'w', encoding='utf-8') as file:
-                json.dump(data, file, indent=4, ensure_ascii=False)
+                json.dump(data, file, indent=2, ensure_ascii=False)
             cls._data_cache[filepath] = data
             return cls._data_cache[filepath]
 
@@ -87,7 +87,7 @@ class DataManager(ABC):
 
         # Save data to file
         with open(filepath, 'w', encoding='utf-8') as file:
-            json.dump(data, file, indent=4, ensure_ascii=False)
+            json.dump(data, file, indent=2, ensure_ascii=False)
 
     def get(self, field: str) -> any:
         """Get chat data field"""
@@ -115,11 +115,16 @@ class UserData(DataManager):
     def _get_default_data() -> dict[str, any]:
         cur_timestamp_s = int(time.time())
         return {
-            'admin': False,               # Is user admin
-            'ref': None,                  # Referral code
-            '_created': cur_timestamp_s,  # User data creation timestamp
-            '_updated': cur_timestamp_s,  # User data last update timestamp
+            'admin': False,
+            'ref': None,
+            '_created': cur_timestamp_s,
+            '_updated': cur_timestamp_s,
         }
+        # Fields description:
+        # admin: is user admin
+        # ref: referral code (to know where user came from)
+        # _created: user data creation timestamp
+        # _updated: user data latest update timestamp
 
     @staticmethod
     def get_all():
@@ -149,14 +154,25 @@ class ChatData(DataManager):
         return {
             'lang_code': os.getenv('DEFAULT_LANG'),
             'group_id': None,
-            'cl_notif_15m': False,        # Notification 15 minutes before class
-            'cl_notif_1m': False,         # Notification when classes starts
-            'cl_notif_suggested': False,  # Is classes notification suggested
-            '_messages': [],              # List of bot messages sent to chat
-            '_accessible': True,          # Is chat accessible (like user blocked bot)
-            '_created': cur_timestamp_s,  # Chat creation timestamp
-            '_updated': cur_timestamp_s,  # Chat latest update timestamp
+            'cl_notif_15m': False,
+            'cl_notif_1m': False,
+            'seen_settings': False,
+            '_messages': [],
+            '_accessible': True,
+            '_created': cur_timestamp_s,
+            '_updated': cur_timestamp_s,
         }
+        # Fields description:
+        # lang_code: chat language
+        # group_id: group id to get schedule from
+        # cl_notif_15m: is 15 minutes before class notification enabled
+        # cl_notif_1m: is 1 minute before class notification enabled
+        # seen_settings: is user opened settings menu.
+        #                If not, after some time bot will suggest classes notification
+        # _messages: list of bot messages sent to chat
+        # _accessible: is chat accessible (like user blocked bot)
+        # _created: chat data creation timestamp
+        # _updated: chat data latest update timestamp
 
     @staticmethod
     def get_all():
@@ -176,7 +192,7 @@ class ChatData(DataManager):
 
     @property
     def lang(self) -> Language:
-        """Get chat language"""
+        """Get chat language object"""
         return langs.get(self.get('lang_code')) or \
                langs.get(os.getenv('DEFAULT_LANG'))
 

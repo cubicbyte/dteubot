@@ -102,7 +102,7 @@ def _merge_data(main_path: str, other_path: List[str]):
 
     for filename, data in data_cache.items():
         with open(os.path.join(main_path, filename), 'w', encoding='utf-8') as file:
-            json.dump(data, file, indent=4, ensure_ascii=False)
+            json.dump(data, file, indent=2, ensure_ascii=False)
 
 
 def _merge_chat(file, cache):

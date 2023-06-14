@@ -3,6 +3,7 @@ This file contains all bot buttons handlers
 """
 
 import os
+import re
 from datetime import date, timedelta
 from telegram.ext import CallbackQueryHandler
 
@@ -309,54 +310,37 @@ async def select_group(ctx: ContextManager):
     ctx.chat_data.save_message('menu', msg)
 
 
-@register_button('^set.cl_notif_1m')
+@register_button('^set.cl_notif')
 async def select_cl_notif_1m(ctx: ContextManager):
     """Enable/disable 1m notifications"""
 
     args = utils.parse_callback_query(ctx.update.callback_query.data)['args']
 
-    state = args.get('state') == '1'
-    suggestion = args.get('suggestion') == '1'
-    ctx.chat_data.set('cl_notif_1m', state)
+    time = args.get('time')
+    state = args.get('state')
+    if time not in ('1m', '15m'):
+        time = '1m'
+        state = '0'
 
-    # Disable 15m notifications if needed
-    if state:
-        ctx.chat_data.set('cl_notif_15m', False)
+    # Disable other notification time if needed
+    if state == '1':
+        if time == '1m':
+            ctx.chat_data.set('cl_notif_15m', False)
+        else:
+            ctx.chat_data.set('cl_notif_1m', False)
 
-    # Show tooltip if needed
-    if suggestion:
-        await ctx.update.callback_query.answer(
-            ctx.lang.get('alert.cl_notif_enabled_tooltip')
-                .format(remaining='1'), show_alert=True)
-        await ctx.update.callback_query.delete_message()
-        ctx.chat_data.remove_message(ctx.update.callback_query.message.message_id)
-        return
-
-    # Send message
-    msg = await ctx.update.callback_query.edit_message_text(
-        **pages.settings(ctx))
-    ctx.chat_data.save_message('settings', msg)
-
-
-@register_button('^set.cl_notif_15m')
-async def select_cl_notif_15m(ctx: ContextManager):
-    """Enable/disable 15m notifications"""
-
-    args = utils.parse_callback_query(ctx.update.callback_query.data)['args']
-
-    state = args.get('state') == '1'
-    suggestion = args.get('suggestion') == '1'
-    ctx.chat_data.set('cl_notif_15m', state)
-
-    # Disable 1m notifications if needed
-    if state:
-        ctx.chat_data.set('cl_notif_1m', False)
+    # Set notification time
+    ctx.chat_data.set(f'cl_notif_{time}', state == '1')
 
     # Show tooltip if needed
-    if suggestion:
+    if args.get('suggestion') is not None:
+        # Get numberical remaining time
+        remaining = re.sub(r'\D', '', time)
+
         await ctx.update.callback_query.answer(
             ctx.lang.get('alert.cl_notif_enabled_tooltip')
-                .format(remaining='15'), show_alert=True)
+                .format(remaining=remaining), show_alert=True)
+
         await ctx.update.callback_query.delete_message()
         ctx.chat_data.remove_message(ctx.update.callback_query.message.message_id)
         return
