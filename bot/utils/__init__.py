@@ -26,7 +26,7 @@ def array_split(array: list, row_size: int) -> list:
     return [array[i:i + row_size] for i in range(0, len(array), row_size)]
 
 
-def check_int(string: any) -> bool:
+def isint(string: any) -> bool:
     """Check if a string is an integer"""
 
     if not isinstance(string, str):
@@ -37,6 +37,14 @@ def check_int(string: any) -> bool:
 
     return string.isdigit()
 
+def isfloat(string: any) -> bool:
+    """Check if a string is an float"""
+    try:
+        float(string)
+    except ValueError:
+        return False
+    else:
+        return True
 
 def parse_callback_query(query: str) -> dict:
     """Parses a callback query string
