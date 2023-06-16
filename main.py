@@ -14,15 +14,35 @@ from telegram.ext import MessageHandler, CallbackQueryHandler
 import settings
 from bot.utils import load_langs
 
-
 settings.langs = load_langs(os.getenv('LANGS_PATH'))
-logger = logging.getLogger()
+
+
+# Create required directories
+os.makedirs(os.getenv('LOGS_PATH'), exist_ok=True)
+os.makedirs(os.getenv('USER_DATA_PATH'), exist_ok=True)
+os.makedirs(os.getenv('CHAT_DATA_PATH'), exist_ok=True)
+
+
+# Init logger
+logger = logging.getLogger('bot')
 logger.info('Starting application')
 
+logging.basicConfig(
+    level=os.getenv('LOGGING_LEVEL'),
+    filename=os.path.join(os.getenv('LOGS_PATH'), 'debug.log'),
+    filemode='a',
+    format='%(asctime)s [%(levelname)s] %(name)s: %(message)s',
+    force=True
+)
 
-# pylint: disable=unused-import
-from bot import buttons
-from bot import commands
+# Disable httpx GET request logging
+logging.getLogger('httpx').setLevel(logging.WARNING)
+
+_logger = logging.getLogger(__name__)
+_logger.info('Running setup')
+
+from bot import buttons as _
+from bot import commands as _
 from bot.buttons import handlers as button_handlers, register_button
 from bot.commands import handlers as command_handlers
 from bot.notifier import scheduler
@@ -115,6 +135,8 @@ async def unsupported_btn_handler(ctx):
 tg_logger = TelegramLogger(os.path.join(os.getenv('LOGS_PATH'), 'telegram'))
 
 
+# Register telegram button & command handlers
+
 # Logging
 bot.add_handlers([
     CallbackQueryHandler(log_button),
@@ -134,11 +156,11 @@ bot.add_handlers([
     CallbackQueryHandler(suggest_cl_notif),
     MessageHandler(None, suggest_cl_notif)], 40)
 
-
+# Error handler
 bot.add_error_handler(errorhandler.handler)
 
 
-# Run notifications scheduler
+# Run classes notifications system
 scheduler.start()
 # Run bot
 bot.run_polling()

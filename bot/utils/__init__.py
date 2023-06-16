@@ -28,14 +28,13 @@ def array_split(array: list, row_size: int) -> list:
 
 def isint(string: any) -> bool:
     """Check if a string is an integer"""
-
-    if not isinstance(string, str):
+    try:
+        int(string)
+    except ValueError:
         return False
+    else:
+        return True
 
-    if string[0] == '-' or string[0] == '+':
-        return string[1:].isdigit()
-
-    return string.isdigit()
 
 def isfloat(string: any) -> bool:
     """Check if a string is an float"""
@@ -45,6 +44,7 @@ def isfloat(string: any) -> bool:
         return False
     else:
         return True
+
 
 def parse_callback_query(query: str) -> dict:
     """Parses a callback query string

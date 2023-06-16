@@ -12,7 +12,7 @@ from telegram.ext import CallbackContext
 
 from bot import pages, utils
 from bot.data import ContextManager
-from settings import api, langs, API_TYPE, API_TYPE_DEFAULT
+from settings import api, langs
 
 handlers = list[CallbackQueryHandler]()
 
@@ -52,7 +52,7 @@ def validate_admin(func):
 async def clear_expired_cache(ctx: ContextManager):
     """Clear expired cache"""
 
-    if API_TYPE == API_TYPE_DEFAULT and api.cache_enabled:
+    if api.cache_enabled:
         api.session.cache.delete(expired=True)
 
     await ctx.update.callback_query.answer(

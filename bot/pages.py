@@ -16,7 +16,7 @@ from lib.api.exceptions import HTTPApiException
 from bot.data import ContextManager, ChatData
 from bot.utils import array_split, clean_html, timeformatter, lessontime
 from bot.teacherfinder import find_teacher_safe
-from settings import api, langs, tg_logger, API_TYPE, API_TYPE_CACHED, TELEGRAM_SUPPORTED_HTML_TAGS
+from settings import api, langs, TELEGRAM_SUPPORTED_HTML_TAGS
 
 
 def access_denied(ctx: ContextManager) -> dict:
@@ -627,11 +627,7 @@ def settings(ctx: ContextManager) -> dict:
 
     # Get chat group name
     if ctx.chat_data.get('group_id') is not None:
-        if API_TYPE == API_TYPE_CACHED:
-            group = escape_markdown(api.cache.get_group(
-                ctx.chat_data.get('group_id'))[2], version=2)
-        else:
-            group = ctx.chat_data.get('group_id')
+        group = ctx.chat_data.get('group_id')
     else:
         group = lang.get('text.not_selected')
 
@@ -675,7 +671,7 @@ def settings(ctx: ContextManager) -> dict:
 def statistic(ctx: ContextManager) -> dict:
     """Statistic page"""
 
-    chat_dir = tg_logger.get_chat_log_dir(ctx.update.effective_chat.id)
+    chat_dir = os.path.join(os.getenv('LOGS_PATH'), 'telegram', 'chats', ctx.update.effective_chat.id)
 
     # Get first message date and message count
     with open(os.path.join(chat_dir, 'messages.txt'), encoding='utf-8') as file:
