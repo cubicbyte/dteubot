@@ -26,9 +26,10 @@ from bot import commands
 from bot.buttons import handlers as button_handlers, register_button
 from bot.commands import handlers as command_handlers
 from bot.notifier import scheduler
+from bot.logger import TelegramLogger
 from bot.data import ContextManager, ChatData
 from bot import errorhandler, pages
-from settings import bot, tg_logger, NOTIFICATIONS_SUGGESTION_DELAY_S
+from settings import bot, NOTIFICATIONS_SUGGESTION_DELAY_S
 
 
 async def set_chat_accessible(upd, ctx):
@@ -109,6 +110,9 @@ async def unsupported_btn_handler(ctx):
         ctx.lang.get('alert.callback_query_unsupported'), show_alert=True)
     msg = await ctx.update.callback_query.message.edit_text(**pages.menu(ctx))
     ctx.chat_data.save_message('menu', msg)
+
+
+tg_logger = TelegramLogger(os.path.join(os.getenv('LOGS_PATH'), 'telegram'))
 
 
 # Logging

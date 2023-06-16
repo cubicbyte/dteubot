@@ -10,6 +10,7 @@ from datetime import timedelta
 from dotenv import load_dotenv
 from telegram.ext import ApplicationBuilder
 
+from lib.api import Api
 from bot.utils import isint, isfloat
 
 
@@ -72,11 +73,6 @@ _logger = logging.getLogger(__name__)
 _logger.info('Running setup')
 
 
-# pylint: disable=wrong-import-position
-from bot.logger import TelegramLogger
-from lib.api import Api
-
-
 # Use CachedApi if possible
 _ApiClass = Api
 API_TYPE_CACHED = 'CachedApi'
@@ -91,8 +87,6 @@ else:
 
 
 bot = ApplicationBuilder().token(os.getenv('BOT_TOKEN')).build()
-tg_logger = TelegramLogger(os.path.join(os.getenv('LOGS_PATH'), 'telegram'))
-langs: dict = {}
 
 api = _ApiClass(
     url=os.getenv('API_URL'),
