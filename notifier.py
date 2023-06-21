@@ -100,7 +100,7 @@ def is_lesson_in_interval(group_id: int, interval: timedelta) -> bool:
     for call in calls:
         if call['number'] == first_lesson_number:
             call_time = datetime.strptime(call['timeStart'], '%H:%M').time()
-            if cur_time < call_time < with_interval:
+            if cur_time <= call_time <= with_interval:
                 return True
 
     return False
