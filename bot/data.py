@@ -105,7 +105,7 @@ class UserData(DataManager):
     """User data manager"""
 
     def __init__(self, user_id: int | str) -> None:
-        self.user_id = str(user_id)
+        self.user_id = int(user_id)
 
     def _get_file(self) -> str:
         """Get user data file path"""
@@ -146,7 +146,7 @@ class ChatData(DataManager):
     "Saved messages limit"
 
     def __init__(self, chat_id: int | str) -> None:
-        self.chat_id = str(chat_id)
+        self.chat_id = int(chat_id)
 
     @staticmethod
     def _get_default_data() -> dict[str, any]:

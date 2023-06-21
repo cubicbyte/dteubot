@@ -45,11 +45,11 @@ from bot import buttons as _
 from bot import commands as _
 from bot.buttons import handlers as button_handlers, register_button
 from bot.commands import handlers as command_handlers
-from bot.notifier import scheduler
 from bot.logger import TelegramLogger
 from bot.data import ContextManager, ChatData
 from bot import errorhandler, pages
 from settings import bot, NOTIFICATIONS_SUGGESTION_DELAY_S
+from notifier import scheduler
 
 
 async def set_chat_accessible(upd, ctx):

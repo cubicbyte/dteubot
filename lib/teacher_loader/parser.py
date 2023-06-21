@@ -125,7 +125,7 @@ def get_teachers(chair_page_url: str) -> list[Teacher]:
 
             teacher = Teacher(
                 name=name,
-                description=description,    
+                description=description,
                 photo_link=urljoin(PAGE_URL, img_el['src']),
                 page_link=urljoin(PAGE_URL, link_el['href'])
             )
