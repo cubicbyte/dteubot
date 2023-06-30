@@ -232,7 +232,7 @@ class ChatData(DataManager):
         if len(messages_raw) > self.MESSAGES_LIMIT:
             messages_raw.pop(0)
 
-        self._update_data(self._get_file())
+        self.set('_messages', messages_raw)
 
     def save_message(
             self,
