@@ -26,7 +26,7 @@ class ContextManager:
     Provides access to user and chat data.
     """
 
-    def __init__(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    def __init__(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         self.update = update
         self.context = context
         self.chat_data = ChatData(update.effective_chat.id)
@@ -38,81 +38,90 @@ class ContextManager:
         return self.chat_data.lang
 
 
-class DataManager(ABC):
-    """Abstract data manager class"""
+class BaseDataManager(ABC):
+    """Abstract data manager base class"""
+
+    _cache: dict[str, dict[str, any]] = {}
+
+    def __init__(self, id: str):
+        self._id = id
 
     @staticmethod
     @abstractmethod
-    def _get_default_data() -> dict[str, any]:
-        pass
+    def get_default() -> dict[str, any]:
+        """Get default data"""
+        ...
 
     @abstractmethod
-    def _get_file(self) -> str:
-        pass
+    def _load(self) -> dict[str, any]:
+        """Load data from database"""
+        ...
 
-    _data_cache: dict[str, dict[str, any]] = {}
+    @abstractmethod
+    def _save(self):
+        """Flush data from cache to database"""
+        ...
 
-    @classmethod
-    def _get_data(cls, filepath: str) -> dict[str, any]:
-        """Load data from file or cache"""
+    def _get_data(self) -> dict[str, any]:
+        """Get data from cache or database"""
 
         # If data is in cache, return it
-        data = cls._data_cache.get(filepath)
+        data = self._cache.get(self._id)
         if data:
             return data
 
-        # If file doesn't exist, create it and return default data
-        if not os.path.exists(filepath):
-            data = cls._get_default_data()
-            with open(filepath, 'w', encoding='utf-8') as file:
-                json.dump(data, file, indent=2, ensure_ascii=False)
-            cls._data_cache[filepath] = data
-            return cls._data_cache[filepath]
-
-        # Load data from file and return it
-        with open(filepath, encoding='utf-8') as file:
-            data = json.load(file)
-        cls._data_cache[filepath] = data
+        # Load data from database and return it
+        data = self._load()
+        self._cache[self._id] = data
         return data
 
-    @classmethod
-    def _update_data(cls, filepath: str, no_update: bool = False):
-        """Flush data from cache to file"""
+    def get(self, key: str, default: any = None) -> any:
+        """Get data field"""
+        return self._get_data().get(key, default)
 
-        data = cls._data_cache.get(filepath) or cls._get_default_data()
+    def set(self, key: str, value: any):
+        """Set data field"""
+        self._get_data()[key] = value
 
-        # Set latest data update timestamp
-        if not no_update:
-            data['_updated'] = int(time.time())
+
+class FileDataManager(BaseDataManager):
+    # TODO: cool description
+
+    def __init__(self, filepath: str):
+        super().__init__(filepath)
+        self._filepath = filepath
+
+    def _load(self) -> dict[str, any]:
+        # If file doesn't exist, create it and return default data
+        if not os.path.exists(self._filepath):
+            data = self.get_default()
+            with open(self._filepath, 'w', encoding='utf-8') as file:
+                json.dump(data, file, indent=2, ensure_ascii=False)
+            return data
+
+        # Load data from file and return it
+        with open(self._filepath, encoding='utf-8') as file:
+            data = json.load(file)
+
+        return data
+
+    def _save(self):
+        data = self._cache.get(self._filepath) or self.get_default()
 
         # Save data to file
-        with open(filepath, 'w', encoding='utf-8') as file:
+        with open(self._filepath, 'w', encoding='utf-8') as file:
             json.dump(data, file, indent=2, ensure_ascii=False)
 
-    def get(self, field: str) -> any:
-        """Get chat data field"""
-        return self._get_data(self._get_file())[field]
 
-    def set(self, field: str, value: any, no_update: bool = False):
-        """Set chat data field"""
-
-        data = self._get_data(self._get_file())
-        data[field] = value
-        self._update_data(self._get_file(), no_update=no_update)
-
-
-class UserData(DataManager):
+class UserData(FileDataManager):
     """User data manager"""
 
     def __init__(self, user_id: int | str) -> None:
+        super().__init__(os.path.join(os.getenv('USER_DATA_PATH'), f'{user_id}.json'))
         self.user_id = int(user_id)
 
-    def _get_file(self) -> str:
-        """Get user data file path"""
-        return os.path.join(os.getenv('USER_DATA_PATH'), f'{self.user_id}.json')
-
     @staticmethod
-    def _get_default_data() -> dict[str, any]:
+    def get_default() -> dict[str, any]:
         cur_timestamp_s = int(time.time())
         return {
             'admin': False,
@@ -138,18 +147,24 @@ class UserData(DataManager):
         filepath = os.path.join(os.getenv('USER_DATA_PATH'), f'{chat_id}.json')
         return os.path.exists(filepath)
 
+    def set(self, field: str, value: any):
+        super().set('_updated', int(time.time()))
+        super().set(field, value)
+        self._save()
 
-class ChatData(DataManager):
+
+class ChatData(FileDataManager):
     """Chat data manager"""
 
     MESSAGES_LIMIT = 16
     "Saved messages limit"
 
     def __init__(self, chat_id: int | str) -> None:
+        super().__init__(os.path.join(os.getenv('CHAT_DATA_PATH'), f'{chat_id}.json'))
         self.chat_id = int(chat_id)
 
     @staticmethod
-    def _get_default_data() -> dict[str, any]:
+    def get_default() -> dict[str, any]:
         cur_timestamp_s = int(time.time())
         return {
             'lang_code': os.getenv('DEFAULT_LANG'),
@@ -186,15 +201,16 @@ class ChatData(DataManager):
         filepath = os.path.join(os.getenv('CHAT_DATA_PATH'), f'{chat_id}.json')
         return os.path.exists(filepath)
 
-    def _get_file(self) -> str:
-        """Get chat data file path"""
-        return os.path.join(os.getenv('CHAT_DATA_PATH'), f'{self.chat_id}.json')
-
     @property
     def lang(self) -> Language:
         """Get chat language object"""
         return langs.get(self.get('lang_code')) or \
                langs.get(os.getenv('DEFAULT_LANG'))
+
+    def set(self, field: str, value: any):
+        super().set('_updated', int(time.time()))
+        super().set(field, value)
+        self._save()
 
     def get_messages(self, page_name: str = None) -> list[StoredMessage]:
         """Get all saved messages from database"""
@@ -260,4 +276,4 @@ class ChatData(DataManager):
                 messages_raw.pop(i)
                 break
 
-        self._update_data(self._get_file())
+        self._save(self._get_file())
