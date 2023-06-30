@@ -14,7 +14,7 @@ from telegram import Update, Bot
 from telegram.error import BadRequest, NetworkError, Forbidden, TimedOut
 from telegram.ext import CallbackContext
 
-from bot.data import ChatData, ContextManager
+from bot.data import ChatDataManager, ContextManager
 from bot.pages import error as error_page
 from bot.utils import smart_split
 
@@ -26,7 +26,7 @@ async def handler(update: Update, context: CallbackContext):
     """Handle errors raised by the bot."""
 
     if hasattr(context, 'effective_chat'):
-        chat_data = ChatData(update.effective_chat.id)
+        chat_data = ChatDataManager(update.effective_chat.id)
 
     if isinstance(context.error, BadRequest):
         _logger.warning(context.error)

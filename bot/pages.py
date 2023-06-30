@@ -13,7 +13,7 @@ from telegram.helpers import escape_markdown
 from requests.exceptions import RequestException, HTTPError
 
 from lib.api.exceptions import HTTPApiException
-from bot.data import ContextManager, ChatData
+from bot.data import ContextManager, ChatDataManager
 from bot.utils import array_split, clean_html, timeformatter, lessontime
 from bot.teacherfinder import find_teacher_safe
 from settings import api, langs, TELEGRAM_SUPPORTED_HTML_TAGS
@@ -94,7 +94,7 @@ def calls(ctx: ContextManager) -> dict:
     }
 
 
-def classes_notification(chat_data: ChatData, day: dict, remaining: str) -> dict:
+def classes_notification(chat_data: ChatDataManager, day: dict, remaining: str) -> dict:
     """Classes notification page"""
 
     buttons = [[

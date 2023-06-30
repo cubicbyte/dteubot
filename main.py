@@ -46,7 +46,7 @@ from bot import commands as _
 from bot.buttons import handlers as button_handlers, register_button
 from bot.commands import handlers as command_handlers
 from bot.logger import TelegramLogger
-from bot.data import ContextManager, ChatData
+from bot.data import ContextManager, ChatDataManager
 from bot import errorhandler, pages
 from settings import bot, NOTIFICATIONS_SUGGESTION_DELAY_S
 from notifier import scheduler
@@ -56,7 +56,7 @@ async def set_chat_accessible(upd, ctx):
     # pylint: disable=unused-argument
     """Set chat accessibility"""
 
-    chat_data = ChatData(upd.effective_chat.id)
+    chat_data = ChatDataManager(upd.effective_chat.id)
 
     if not chat_data.get('_accessible'):
         chat_data.set('_accessible', True)

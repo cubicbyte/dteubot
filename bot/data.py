@@ -6,6 +6,7 @@ import os
 import time
 import json
 import logging
+import sqlite3
 from abc import ABC, abstractmethod
 from pathlib import Path
 from datetime import datetime
@@ -29,8 +30,8 @@ class ContextManager:
     def __init__(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         self.update = update
         self.context = context
-        self.chat_data = ChatData(update.effective_chat.id)
-        self.user_data = UserData(update.effective_user.id)
+        self.chat_data = ChatDataManager(update.effective_chat.id)
+        self.user_data = UserDataManager(update.effective_user.id)
 
     @property
     def lang(self) -> Language:
@@ -113,7 +114,7 @@ class FileDataManager(BaseDataManager):
             json.dump(data, file, indent=2, ensure_ascii=False)
 
 
-class UserData(FileDataManager):
+class UserDataManager(FileDataManager):
     """User data manager"""
 
     def __init__(self, user_id: int | str) -> None:
@@ -139,7 +140,7 @@ class UserData(FileDataManager):
     def get_all():
         """Iterate over all user data"""
         for file in os.listdir(os.getenv('USER_DATA_PATH')):
-            yield ChatData(Path(file).stem)
+            yield ChatDataManager(Path(file).stem)
 
     @staticmethod
     def exists(chat_id: int | str) -> bool:
@@ -153,7 +154,7 @@ class UserData(FileDataManager):
         self._save()
 
 
-class ChatData(FileDataManager):
+class ChatDataManager(FileDataManager):
     """Chat data manager"""
 
     MESSAGES_LIMIT = 16
@@ -193,7 +194,7 @@ class ChatData(FileDataManager):
     def get_all():
         """Iterate over all chat data"""
         for file in os.listdir(os.getenv('CHAT_DATA_PATH')):
-            yield ChatData(Path(file).stem)
+            yield ChatDataManager(Path(file).stem)
 
     @staticmethod
     def exists(chat_id: int | str) -> bool:

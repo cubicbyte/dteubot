@@ -19,7 +19,7 @@ from functools import partial
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 from settings import bot, api
-from bot.data import ChatData
+from bot.data import ChatDataManager
 from bot.pages import classes_notification
 from lib.api.exceptions import HTTPApiException
 
@@ -27,7 +27,7 @@ _logger = logging.getLogger(__name__)
 API_RETRIES_LIMIT = 5
 
 
-async def send_notification(chat_data: ChatData, time_m: int):
+async def send_notification(chat_data: ChatDataManager, time_m: int):
     """Send notification to user if they have classes in X minutes."""
 
     schedule = api.timetable_group(chat_data.get('group_id'), date.today())
@@ -46,7 +46,7 @@ async def send_notifications(lesson_number: int, time_m: int):
     """Send notifications to all users that have classes in X minutes."""
 
     api_retries = 0
-    for chat_data in ChatData.get_all():
+    for chat_data in ChatDataManager.get_all():
         # Check if notification should be sent
         if not chat_data.get(f'cl_notif_{time_m}m') or \
                 not chat_data.get('_accessible') or \
