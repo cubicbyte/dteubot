@@ -14,7 +14,7 @@ sys.path.append(_root_dir)
 
 import csv
 
-import progressbar
+from progress.bar import Bar
 
 from lib.teacher_loader import get_faculties, get_teachers
 from lib.teacher_loader.schemas import Teacher
@@ -28,14 +28,23 @@ def load_teachers_to_file(filepath: str):
 def _load_teachers() -> list[Teacher]:
     """Get teachers list from site"""
 
-    teachers = []
+    print('Loading faculties... ', end='', flush=True)
     faculties = get_faculties()
-    print(f'Faculties: {len(faculties)}')
+    print(f'{len(faculties)} faculties loaded')
 
+    # Setup progress bar
+    total_chairs = sum(len(faculty.chairs) for faculty in faculties)
+    bar = Bar('Loading teachers...', max=total_chairs, suffix='%(index)d/%(max)d [ETA: %(eta)ds]')
+    bar.start()
+
+    teachers = []
     for faculty in faculties:
-        bar = progressbar.ProgressBar(max_value=len(faculty.chairs))
-        for chair in bar(faculty.chairs):
+        for chair in faculty.chairs:
             teachers.extend(get_teachers(chair.page_link))
+            bar.next()
+
+    bar.finish()
+    print('Done!')
 
     return teachers
 
