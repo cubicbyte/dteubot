@@ -1,12 +1,16 @@
-# pylint: disable=wrong-import-position
-
 """
 Script for loading teachers to csv file.
+
+Usage:
+    python load_teachers.py [filepath?]
 """
 
 import os
 import sys
-sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+
+# Needed to import top-level teacher_loader module
+_root_dir = os.path.dirname(os.path.dirname(__file__))
+sys.path.append(_root_dir)
 
 import csv
 
@@ -22,7 +26,7 @@ def load_teachers_to_file(filepath: str):
 
 
 def _load_teachers() -> list[Teacher]:
-    """Load teachers from site"""
+    """Get teachers list from site"""
 
     teachers = []
     faculties = get_faculties()
@@ -46,13 +50,10 @@ def _load_teachers_to_file(filepath: str, teachers: list[Teacher]):
                              teacher.photo_link, teacher.page_link])
 
 
-def main():
-    """Main function"""
-
-    os.environ.setdefault('CACHE_PATH', 'cache')
-    filepath = os.path.join(os.getenv('CACHE_PATH'), 'teachers.csv')
-    load_teachers_to_file(filepath)
-
-
 if __name__ == '__main__':
-    main()
+    if len(sys.argv) > 1:
+        _filepath = sys.argv[1]
+    else:
+        _filepath = 'cache/teachers.csv'
+
+    load_teachers_to_file(_filepath)
