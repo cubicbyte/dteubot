@@ -8,7 +8,7 @@ from urllib.parse import urljoin
 import requests
 from bs4 import BeautifulSoup, Tag
 
-from .schemas import Faculty, Chair, Teacher, FullTeacher
+from .schemas import Faculty, Chair, Teacher
 from .utils import format_string
 
 
