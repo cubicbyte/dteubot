@@ -29,24 +29,3 @@ class Teacher:
     description: str
     photo_link: str
     page_link: str
-
-
-@dataclass
-class FullTeacher:
-    # pylint: disable=too-many-instance-attributes
-    """Full teacher info"""
-
-    name: setattr
-    label: str
-    description: str
-    photo_link: str
-    email: str
-    social_links: list[str]
-    research_interests: list[str]
-    disciplines: list[str]
-    academic_qualifications: list[str]
-    work_experience: list[str]
-    awards_and_honors: list[str]
-    advanced_training: list[str]
-    additional_activities: list[str]
-    hobbies: list[str]

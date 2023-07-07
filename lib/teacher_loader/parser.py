@@ -136,8 +136,3 @@ def get_teachers(chair_page_url: str) -> list[Teacher]:
             teachers.append(teacher)
 
     return teachers
-
-
-def get_teacher(teacher_page_url: str) -> FullTeacher:
-    """Get full teacher info from teacher page"""
-    raise NotImplementedError()
