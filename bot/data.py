@@ -6,7 +6,6 @@ import os
 import time
 import json
 import logging
-import sqlite3
 from abc import ABC, abstractmethod
 from pathlib import Path
 from datetime import datetime
