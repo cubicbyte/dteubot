@@ -29,6 +29,8 @@ def find_teacher_safe(name: str) -> Teacher | None:
     if not cache_exists:
         return None
 
+    name = name.lower()
+
     for teacher in teachers:
         ratio = SequenceMatcher(a=teacher.name, b=name).ratio()
         if ratio >= 0.78:
@@ -43,6 +45,8 @@ def find_teacher_fast(name: str) -> Teacher | None:
 
     if not cache_exists:
         return None
+
+    name = name.lower()
 
     for teacher in teachers:
         if teacher.name == name:
