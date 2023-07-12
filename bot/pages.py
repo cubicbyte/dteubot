@@ -15,8 +15,7 @@ from requests.exceptions import RequestException, HTTPError
 from lib.api.exceptions import HTTPApiException
 from bot.data import ContextManager, ChatDataManager
 from bot.utils import array_split, clean_html, timeformatter, lessontime
-from bot.teacherfinder import find_teacher_safe
-from settings import api, langs, TELEGRAM_SUPPORTED_HTML_TAGS
+from settings import api, langs, teacher_finder, TELEGRAM_SUPPORTED_HTML_TAGS
 
 
 def access_denied(ctx: ContextManager) -> dict:
@@ -896,7 +895,10 @@ def _create_schedule_section(ctx: ContextManager, day: dict) -> str:
                 name = name.split(', ')[0]
 
             name = escape_markdown(name, version=2)
-            teacher = find_teacher_safe(name)
+            if teacher_finder is not None:
+                teacher = teacher_finder.find_safe(name)
+            else:
+                teacher = None
 
             # Escape ONLY USED api result not to break telegram markdown
             # DO NOT DELETE COMMENTS

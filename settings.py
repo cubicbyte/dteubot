@@ -4,12 +4,14 @@ Bot settings
 
 import os
 import sys
+import logging
 from datetime import timedelta
 
 from dotenv import load_dotenv
 from telegram.ext import ApplicationBuilder
 
 from lib.api import Api
+from lib.teacher_loader.finder import TeacherFinder
 from bot.utils import isint, isfloat
 
 
@@ -60,6 +62,30 @@ if float(os.getenv('API_REQUEST_TIMEOUT')) <= 0:
     API_REQUEST_TIMEOUT = None
 else:
     API_REQUEST_TIMEOUT = float(os.getenv('API_REQUEST_TIMEOUT'))
+
+
+TEACHERS_FILEPATH = os.path.join(os.getenv('CACHE_PATH'), 'teachers.csv')
+LOGS_PATH = os.path.join(os.getenv('LOGS_PATH'), 'debug.log')
+
+
+logging.basicConfig(
+    level=os.getenv('LOGGING_LEVEL'),
+    filename=os.path.join(os.getenv('LOGS_PATH'), 'debug.log'),
+    filemode='a',
+    format='%(asctime)s [%(levelname)s] %(name)s: %(message)s',
+    force=True
+)
+
+_logger = logging.getLogger(__name__)
+_logger.info('Initializing bot settings')
+
+
+if os.path.exists(TEACHERS_FILEPATH):
+    _logger.info('Loading teachers list from %s', TEACHERS_FILEPATH)
+    teacher_finder = TeacherFinder(TEACHERS_FILEPATH)
+else:
+    _logger.warning('Teachers list is not loaded. Run scripts/load_teachers.py to load it.')
+    teacher_finder = None
 
 
 bot = ApplicationBuilder().token(os.getenv('BOT_TOKEN')).build()

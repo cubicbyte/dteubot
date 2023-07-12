@@ -5,6 +5,8 @@ Usage:
     python load_teachers.py [filepath?]
 """
 
+# TODO: move most of the code to teacher_loader library
+
 import os
 import sys
 

@@ -27,13 +27,6 @@ os.makedirs(os.getenv('CHAT_DATA_PATH'), exist_ok=True)
 logger = logging.getLogger('bot')
 logger.info('Starting application')
 
-logging.basicConfig(
-    level=os.getenv('LOGGING_LEVEL'),
-    filename=os.path.join(os.getenv('LOGS_PATH'), 'debug.log'),
-    filemode='a',
-    format='%(asctime)s [%(levelname)s] %(name)s: %(message)s',
-    force=True
-)
 
 # Disable httpx GET request logging
 logging.getLogger('httpx').setLevel(logging.WARNING)
