@@ -95,23 +95,17 @@ async def menu(ctx: ContextManager):
 async def select(ctx: ContextManager):
     """Select a group"""
 
-    # /select
-    if len(ctx.context.args) == 0:
+    # /select or /select <invalid id>
+    if len(ctx.context.args) == 0 or not ctx.context.args[0].isnumeric():
         msg = await ctx.update.message.chat.send_message(
             **pages.structure_list(ctx))
         ctx.chat_data.save_message('structure_list', msg)
         return
 
-    # /select <group_id>
-    group_id = ctx.context.args[0]
+    # Group id from command /select <group_id>
+    group_id = int(ctx.context.args[0])
 
-    # Check if group_id is number
-    if group_id.isnumeric():
-        group_id = int(group_id)
-        ctx.chat_data.set('group_id', group_id)
-    else:
-        # TODO: send error message
-        pass
+    ctx.chat_data.set('group_id', group_id)
 
     msg = await ctx.update.message.chat.send_message(
         **pages.menu(ctx))

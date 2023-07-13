@@ -85,7 +85,7 @@ class BaseDataManager(ABC):
 
 
 class FileDataManager(BaseDataManager):
-    # TODO: cool description
+    """Data manager that uses files as database"""
 
     def __init__(self, filepath: str):
         super().__init__(filepath)
@@ -129,7 +129,7 @@ class UserDataManager(FileDataManager):
             '_created': cur_timestamp_s,
             '_updated': cur_timestamp_s,
         }
-        # Fields description:
+        # Fields description
         # admin: is user admin
         # ref: referral code (to know where user came from)
         # _created: user data creation timestamp
@@ -177,7 +177,7 @@ class ChatDataManager(FileDataManager):
             '_created': cur_timestamp_s,
             '_updated': cur_timestamp_s,
         }
-        # Fields description:
+        # Fields description
         # lang_code: chat language
         # group_id: group id to get schedule from
         # cl_notif_15m: is 15 minutes before class notification enabled
