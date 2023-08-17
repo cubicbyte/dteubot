@@ -68,6 +68,7 @@ TEACHERS_FILEPATH = os.path.join(os.getenv('CACHE_PATH'), 'teachers.csv')
 LOGS_PATH = os.path.join(os.getenv('LOGS_PATH'), 'debug.log')
 
 
+# Configure logging
 logging.basicConfig(
     level=os.getenv('LOGGING_LEVEL'),
     filename=os.path.join(os.getenv('LOGS_PATH'), 'debug.log'),
@@ -75,11 +76,15 @@ logging.basicConfig(
     format='%(asctime)s [%(levelname)s] %(name)s: %(message)s',
     force=True
 )
+if os.getenv('LOGGING_LEVEL') == 'INFO':
+    # Disable every http request logging
+    logging.getLogger('httpx').setLevel('WARNING')
 
 _logger = logging.getLogger(__name__)
 _logger.info('Initializing bot settings')
 
 
+# Init teacher finder (allows users to click teacher's name in schedule)
 if os.path.exists(TEACHERS_FILEPATH):
     _logger.info('Loading teachers list from %s', TEACHERS_FILEPATH)
     teacher_finder = TeacherFinder(TEACHERS_FILEPATH)
