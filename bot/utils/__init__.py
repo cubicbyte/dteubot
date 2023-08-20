@@ -14,6 +14,11 @@ from bot.schemas import Language
 MAX_MESSAGE_LENGTH = 4096
 
 
+def validate_bot_token(token: str) -> bool:
+    """Validate bot token"""
+    return re.fullmatch(r'\d+:[\w-]+', token) is not None
+
+
 def array_split(array: list, row_size: int) -> list:
     """
     Split an array into rows

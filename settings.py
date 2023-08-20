@@ -12,7 +12,7 @@ from telegram.ext import ApplicationBuilder
 
 from lib.api import Api
 from lib.teacher_loader.finder import TeacherFinder
-from bot.utils import isint, isfloat
+from bot import utils
 
 
 # Constants
@@ -41,18 +41,18 @@ os.environ.setdefault('LANGS_PATH', os.path.join(sys.path[0], 'langs'))
 
 
 # Validate environment variables
-assert str(os.getenv('BOT_TOKEN')).strip() != '', \
+assert utils.validate_bot_token(os.getenv('BOT_TOKEN', '')), \
     'The BOT_TOKEN environment variable is not set'
 
 assert os.getenv('LOGGING_LEVEL') in ('NOTSET', 'DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'), \
     'The LOGGING_LEVEL environment variable has an invalid value. ' \
     + f'Received: {os.getenv("LOGGING_LEVEL")}'
 
-assert isfloat(os.getenv('API_REQUEST_TIMEOUT')), \
+assert utils.isfloat(os.getenv('API_REQUEST_TIMEOUT')), \
     'The API_REQUEST_TIMEOUT environment variable must be an float. ' \
     + f'Received: {os.getenv("API_REQUEST_TIMEOUT")}'
 
-assert isint(os.getenv('API_CACHE_EXPIRES')), \
+assert utils.isint(os.getenv('API_CACHE_EXPIRES')), \
     'The API_CACHE_EXPIRES environment variable must be an integer. ' \
     + f'Received: {os.getenv("API_CACHE_EXPIRES")}'
 
