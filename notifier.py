@@ -21,6 +21,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from settings import bot, api
 from bot.data import ChatDataManager
 from bot.pages import classes_notification
+from bot.errorhandler import send_error_to_telegram
 from lib.api.exceptions import HTTPApiException
 
 _logger = logging.getLogger(__name__)
@@ -65,6 +66,10 @@ async def send_notifications(lesson_number: int, time_m: int):
             if api_retries >= API_RETRIES_LIMIT:
                 break
             continue
+
+        except Exception as e:
+            _logger.exception('Unexpected error occurred while sending notifications.')
+            await send_error_to_telegram(e)
 
     for call in calls:
         if call['number'] == lesson_number:
