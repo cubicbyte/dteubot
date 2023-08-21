@@ -33,9 +33,6 @@ async def send_notification(chat_data: ChatDataManager, time_m: int):
 
     schedule = api.timetable_group(chat_data.get('group_id'), date.today())
 
-    if not schedule:
-        return
-
     msg = await bot.bot.send_message(
         chat_id=chat_data.chat_id,
         **classes_notification(chat_data, day=schedule[0], remaining=str(time_m)))
@@ -97,7 +94,7 @@ def is_lesson_in_interval(group_id: int, interval: timedelta) -> bool:
     with_interval = (cur_dt + interval).time()
     schedule = api.timetable_group(group_id, cur_dt.date())
 
-    if len(schedule) == 0:
+    if len(schedule[0]['lessons']) == 0:
         return False
 
     first_lesson_number = schedule[0]['lessons'][0]['number']
