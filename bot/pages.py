@@ -683,7 +683,7 @@ def settings(ctx: ContextManager) -> dict:
 def statistic(ctx: ContextManager) -> dict:
     """Statistic page"""
 
-    chat_dir = os.path.join(os.getenv('LOGS_PATH'), 'telegram', 'chats', ctx.update.effective_chat.id)
+    chat_dir = os.path.join(os.getenv('LOGS_PATH'), 'telegram', 'chats', str(ctx.update.effective_chat.id))
 
     # Get first message date and message count
     with open(os.path.join(chat_dir, 'messages.txt'), encoding='utf-8') as file:
