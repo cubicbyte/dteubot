@@ -13,6 +13,7 @@ from telegram.ext import ApplicationBuilder
 from lib.api import Api
 from lib.teacher_loader.finder import TeacherFinder
 from bot import utils
+from bot.utils.lang import load_langs
 
 
 # Constants
@@ -93,6 +94,7 @@ else:
     teacher_finder = None
 
 
+langs = load_langs(os.getenv('LANGS_PATH'))
 bot = ApplicationBuilder().token(os.getenv('BOT_TOKEN')).build()
 
 api = Api(

@@ -12,10 +12,7 @@ import logging
 
 from telegram.ext import MessageHandler, CallbackQueryHandler
 
-import settings
-from bot.utils import load_langs
-
-settings.langs = load_langs(os.getenv('LANGS_PATH'))
+from settings import *
 
 
 # Create required directories
