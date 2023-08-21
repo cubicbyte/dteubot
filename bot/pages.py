@@ -306,13 +306,13 @@ def left(ctx: ContextManager) -> dict:
 
     try:
         schedule = api.timetable_group(ctx.chat_data.get('group_id'), _date.today())
-        if len(schedule) != 0:
+        if len(schedule[0]['lessons']) != 0:
             rem_time = lessontime.get_calls_status(schedule[0]['lessons'])
     except HTTPApiException:
         return api_unavaliable(ctx)
 
     # If there is no classes
-    if len(schedule) == 0 or rem_time is None or rem_time['status'] == 'ended':
+    if len(schedule[0]['lessons']) == 0 or rem_time is None or rem_time['status'] == 'ended':
         return {
             'text': ctx.lang.get('page.left.no_more'),
             'reply_markup': InlineKeyboardMarkup([[
