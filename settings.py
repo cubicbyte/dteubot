@@ -100,7 +100,8 @@ bot = ApplicationBuilder().token(os.getenv('BOT_TOKEN')).build()
 api = CachedApi(
     url=os.getenv('API_URL'),
     timeout=API_REQUEST_TIMEOUT,
-    expire_after=timedelta(seconds=int(os.getenv('API_CACHE_EXPIRES'))),
+    cache_expires=int(os.getenv('API_CACHE_EXPIRES')),
+    cache_path=os.path.join(os.getenv('CACHE_PATH'), 'api-caches.sqlite'),
     cache_name=os.path.join(os.getenv('CACHE_PATH'), 'http-cache')
 )
 

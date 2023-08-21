@@ -7,14 +7,18 @@ API module for mkr.org.ua
 API docs can be found at https://mkr.org.ua/portal-api-docs.html
 """
 
+import json
+import sqlite3
 import logging
 from typing import List
-from datetime import datetime, date as _date
+from datetime import datetime, timedelta, date as _date
 from urllib.parse import urljoin
 
 import pytz
 import requests
 from requests_cache import CachedSession
+
+from . import utils
 
 logger = logging.getLogger(__name__)
 logger.info('Initializing api module')
@@ -363,13 +367,154 @@ class Api:
 class CachedApi(Api):
     """API wrapper for mkr.org.ua with caching enabled"""
 
-    def __init__(self, url: str, timeout: int = None, **cache_kwargs):
+    SCHEDULE_CACHE_DAYS_RANGE = 14
+
+    def __init__(
+            self, url: str, timeout: int = None, cache_path: str = 'api-cache.sqlite',
+            cache_expires: int | timedelta | None = None, **cache_kwargs):
+        """Creates an instance of the API wrapper with caching enabled
+        
+        :param url: URL of the API (see https://mkr.org.ua/api/v2/university/list)
+        :param timeout: Timeout for requests (in seconds)
+        :param cache_path: Path to the cache database
+        :param cache_expires: Cache expiration time (in seconds or timedelta)
+        :param cache_kwargs: Additional kwargs for requests_cache.CachedSession
+        """
         super().__init__(url=url, timeout=timeout)
+
+        if cache_expires is None:
+            self.cache_expires = None
+        elif isinstance(cache_expires, timedelta):
+            if cache_expires.total_seconds() <= 0:
+                self.cache_expires = None
+            else:
+                self.cache_expires = cache_expires
+        elif isinstance(cache_expires, int):
+            if cache_expires <= 0:
+                self.cache_expires = None
+            else:
+                self.cache_expires = timedelta(seconds=cache_expires)
+        else:
+            raise TypeError('cache_expires must be int, timedelta or None')
 
         self.session = CachedSession(
             cache_control=True,
             allowable_methods=['GET', 'POST'],
             match_headers=True,
             stale_if_error=True,
+            expire_after=cache_expires,
             **cache_kwargs
         )
+
+        self.cache_path = cache_path
+        self._conn = sqlite3.connect(cache_path)
+        self._cursor = self._conn.cursor()
+        utils.setup_db(self._conn)
+
+    def timetable_group(
+            self, group_id: int, date_start: _date | str,
+            date_end: _date | str | None = None,
+            *req_args, **req_kwargs) -> List[dict]:
+        """Returns the schedule for the group"""
+
+        if isinstance(date_start, _date):
+            date_start_str = date_start.isoformat()
+        else:
+            date_start_str = date_start
+            date_start = _date.fromisoformat(date_start)
+
+        if date_end is None:
+            date_end = date_start
+            date_end_str = date_start_str
+        elif isinstance(date_end, _date):
+            date_end_str = date_end.isoformat()
+        else:
+            date_end_str = date_end
+            date_end = _date.fromisoformat(date_end)
+
+        cached = self._cursor.execute(
+            'SELECT * FROM group_schedule WHERE group_id = ? AND date BETWEEN ? AND ? AND language = ?',
+            (group_id, date_start_str, date_end_str, req_kwargs.get('language', self.DEFAULT_LANGUAGE))
+        ).fetchall()
+
+        # Check if we need to update cache
+        if len(cached) < (date_end - date_start).days + 1:
+            # If we are missing some dates in cache, we need to update it
+            cache_update_needed = True
+        elif self.cache_expires is not None:
+            # Check if we need to update some dates in cache
+            cur_time = datetime.now()
+            for row in cached:
+                if (cur_time - datetime.fromisoformat(row[4])) >= self.cache_expires:
+                    cache_update_needed = True
+                    break
+            else:
+                cache_update_needed = False
+        else:
+            cache_update_needed = False
+
+        if cache_update_needed:
+            logger.debug('Updating cache for group %s for %s to %s', group_id, date_start_str, date_end_str)
+
+            # Get dates range
+            date_range_start, date_range_end = utils.get_date_range(date_start, self.SCHEDULE_CACHE_DAYS_RANGE)
+            if date_end_str != date_start_str:
+                _, date_range_end = utils.get_date_range(date_end, self.SCHEDULE_CACHE_DAYS_RANGE)
+
+            schedule = super().timetable_group(
+                group_id=group_id,
+                date_start=date_range_start,
+                date_end=date_range_end,
+                *req_args, **req_kwargs
+            )
+
+            # Update cache
+            inserted = 0
+            schedule_i = 0
+            updated_time = datetime.now().isoformat(sep=' ', timespec='seconds')
+            while inserted < (date_range_end - date_range_start).days + 1:
+                if schedule_i < len(schedule):
+                    cur_day = schedule[schedule_i]
+                    cur_day_date = _date.fromisoformat(cur_day['date'])
+
+                expected_date = date_range_start + timedelta(days=inserted)
+                if schedule_i >= len(schedule) or cur_day_date != expected_date:
+                    # Looks like we have some missing dates in schedule
+                    # We need to fill it with empty days
+                    cur_day = {
+                        'date': expected_date.isoformat(),
+                        'lessons': []
+                    }
+                else:
+                    schedule_i += 1
+
+                self._cursor.execute(
+                    'INSERT OR REPLACE INTO group_schedule VALUES (?, ?, ?, ?, ?)', (
+                        group_id,
+                        cur_day['date'],
+                        req_kwargs.get('language', self.DEFAULT_LANGUAGE),
+                        json.dumps(cur_day['lessons'], ensure_ascii=False),
+                        updated_time
+                    )
+                )
+
+                inserted += 1
+            self._conn.commit()
+
+            # Return only needed dates
+            result = []
+            for day in schedule:
+                if date_start <= _date.fromisoformat(day['date']) <= date_end:
+                    result.append(day)
+            return result
+        
+        # Convert cached data to needed format and return it
+        result = []
+        for row in cached:
+            if row[3] == '[]':
+                continue
+            result.append({
+                'date': row[1],
+                'lessons': json.loads(row[3])
+            })
+        return result
