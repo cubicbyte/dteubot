@@ -251,7 +251,8 @@ def info(ctx: ContextManager) -> dict:
     return {
         'text': message_text,
         'reply_markup': InlineKeyboardMarkup(buttons),
-        'parse_mode': 'MarkdownV2'
+        'parse_mode': 'MarkdownV2',
+        'disable_web_page_preview': True
     }
 
 
