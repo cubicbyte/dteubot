@@ -143,9 +143,10 @@ bot.add_handlers([
     CallbackQueryHandler(set_chat_accessible),
     MessageHandler(None, set_chat_accessible)], 30)
 # Notifications suggestion
-bot.add_handlers([
-    CallbackQueryHandler(suggest_cl_notif),
-    MessageHandler(None, suggest_cl_notif)], 40)
+# TODO: enable this when notifications will be ready
+# bot.add_handlers([
+#     CallbackQueryHandler(suggest_cl_notif),
+#     MessageHandler(None, suggest_cl_notif)], 40)
 
 # Error handler
 bot.add_error_handler(errorhandler.handler)
