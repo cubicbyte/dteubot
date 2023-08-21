@@ -2,14 +2,10 @@
 Utility functions for the bot
 """
 
-import os
 import re
 import time
-import json
 from typing import Callable, List
-from pathlib import Path
 from urllib.parse import parse_qsl
-from bot.schemas import Language
 
 MAX_MESSAGE_LENGTH = 4096
 
@@ -76,30 +72,6 @@ def parse_callback_query(query: str) -> dict:
         'query': split[0],
         'args': args
     }
-
-
-def load_langs(dirpath: str) -> dict[str, Language]:
-    """Load .json language files from directory"""
-
-    langs = {}
-
-    for file in os.listdir(dirpath):
-        filepath = os.path.join(dirpath, file)
-        lang = load_lang_file(filepath)
-        langs[lang.name] = lang
-
-    return langs
-
-
-def load_lang_file(filepath: str) -> Language:
-    """Load .json language file"""
-
-    lang_name = Path(filepath).stem
-
-    with open(filepath, 'r', encoding='utf-8') as file:
-        lang = json.load(file)
-
-    return Language(lang, lang_name)
 
 
 def clean_html(raw_html: str, tags_whitelist: list[str] | None = None) -> str:
