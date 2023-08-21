@@ -24,11 +24,12 @@ class Api:
     """API wrapper for mkr.org.ua"""
 
     VERSION = '1.6.1'
+    DEFAULT_LANGUAGE = 'uk'
 
     def __init__(self, url: str, timeout: int = None) -> None:
         """Creates an instance of the API wrapper
         
-        :param url: URL of the API (https://mkr.org.ua/api/v2/university/list)
+        :param url: URL of the API (see https://mkr.org.ua/api/v2/university/list)
         :param timeout: Timeout for requests (in seconds)
         """
         logger.info('Creating Api instance with url %s', url)
@@ -42,7 +43,7 @@ class Api:
 
         self.session.headers.update({
             'Content-Type': 'application/json; charset=utf-8',
-            'Accept-Language': req_kwargs.pop('language', 'uk')
+            'Accept-Language': req_kwargs.pop('language', self.DEFAULT_LANGUAGE),
         })
 
         res = self.session.request(
