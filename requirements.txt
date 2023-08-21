@@ -1,7 +1,7 @@
-python-telegram-bot >=20.0 <=20.4
-python-dotenv >=0.16.0 <=1.0.0
-babel >=2.7.0 <=2.12.1
-apscheduler >=3.6.3 <=3.10.1
+python-telegram-bot >=20.0, <=20.4
+python-dotenv >=0.16.0, <=1.0.0
+babel >=2.7.0, <=2.12.1
+apscheduler >=3.6.3, <=3.10.1
 requests==2.31.1
 progress==1.6
 
