@@ -10,7 +10,7 @@ from datetime import timedelta
 from dotenv import load_dotenv
 from telegram.ext import ApplicationBuilder
 
-from lib.api import Api
+from lib.api import CachedApi
 from lib.teacher_loader.finder import TeacherFinder
 from bot import utils
 from bot.utils.lang import load_langs
@@ -97,11 +97,9 @@ else:
 langs = load_langs(os.getenv('LANGS_PATH'))
 bot = ApplicationBuilder().token(os.getenv('BOT_TOKEN')).build()
 
-api = Api(
+api = CachedApi(
     url=os.getenv('API_URL'),
-    enable_cache=True,
     timeout=API_REQUEST_TIMEOUT,
-    raw_result=True,
     expire_after=timedelta(seconds=int(os.getenv('API_CACHE_EXPIRES'))),
     cache_name=os.path.join(os.getenv('CACHE_PATH'), 'http-cache')
 )

@@ -25,39 +25,34 @@ class Api:
 
     VERSION = '1.6.1'
 
-    def __init__(self, url: str, enable_cache: bool = False,
-                 timeout: int = None, raw_result: bool = False,
-                 **cache_kwargs) -> None:
+    def __init__(self, url: str, timeout: int = None) -> None:
+        """Creates an instance of the API wrapper
+        
+        :param url: URL of the API (https://mkr.org.ua/api/v2/university/list)
+        :param timeout: Timeout for requests (in seconds)
+        """
         logger.info('Creating Api instance with url %s', url)
 
         self.url = url
         self.timeout = timeout
-        self.raw_result = raw_result
-        self.cache_enabled = enable_cache
-
-        if enable_cache:
-            self.session = self._requests = CachedSession(
-                cache_control=True,
-                allowable_methods=['GET', 'POST'],
-                match_headers=True,
-                stale_if_error=True,
-                **cache_kwargs
-            )
-        else:
-            self._requests = requests
+        self.session = requests.Session()
 
     def _make_request(self, path: str, method: str = 'GET',
                       json: dict = None, *req_args, **req_kwargs) -> requests.Response:
-        headers = {
-            'Accept-Language': req_kwargs.get('language', 'uk'),
-            'Content-Type': 'application/json; charset=utf-8'
-        }
 
-        req_kwargs.pop('language', None)
-        url = urljoin(self.url, path)
-        res = self._requests.request(
-            method, url, headers=headers, json=json,
-            timeout=self.timeout, *req_args, **req_kwargs)
+        self.session.headers.update({
+            'Content-Type': 'application/json; charset=utf-8',
+            'Accept-Language': req_kwargs.pop('language', 'uk')
+        })
+
+        res = self.session.request(
+            method=method,
+            url=urljoin(self.url, path),
+            json=json,
+            timeout=self.timeout,
+            *req_args, **req_kwargs
+        )
+
         res.raise_for_status()
         return res
 
@@ -362,3 +357,18 @@ class Api:
 
     def exam_set_marks(self, sheet_id: int, marks: List[dict], *req_args, **req_kwargs) -> None:
         raise NotImplementedError
+
+
+class CachedApi(Api):
+    """API wrapper for mkr.org.ua with caching enabled"""
+
+    def __init__(self, url: str, timeout: int = None, **cache_kwargs):
+        super().__init__(url=url, timeout=timeout)
+
+        self.session = CachedSession(
+            cache_control=True,
+            allowable_methods=['GET', 'POST'],
+            match_headers=True,
+            stale_if_error=True,
+            **cache_kwargs
+        )
