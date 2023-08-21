@@ -1,5 +1,5 @@
 import sqlite3
-from datetime import date as date_, timedelta
+from datetime import date as date_, datetime as datetime_, timedelta
 
 SETUP_SQL = """
 CREATE TABLE IF NOT EXISTS group_schedule (
@@ -59,3 +59,39 @@ def get_day_of_year(date: date_) -> int:
 
 def get_date_from_day_of_year(year: int, day_of_year: int) -> date_:
     return date_(year, 1, 1) + timedelta(days=day_of_year - 1)
+
+
+def fill_empty_dates(schedule: list[dict], from_date: date_, to_date: date_) -> list[dict]:
+    """Fill empty dates in schedule
+    
+    For example, we have schedule for 2023-08-21 and 2023-08-23.
+    If there is no lessons for 2023-08-22, API will return schedule only for 2023-08-21 and 2023-08-23.
+    This function will fill empty dates with empty lessons list.
+    """
+
+    i = 0
+    expected_date = from_date
+    while expected_date <= to_date:
+        if i >= len(schedule) or schedule[i]['date'] != expected_date.isoformat():
+            schedule.insert(i, {
+                'date': expected_date.isoformat(),
+                'lessons': []
+            })
+        i += 1
+        expected_date = expected_date + timedelta(days=1)
+
+    return schedule
+
+
+def convert_date(date: date_ | str) -> tuple[date_, str]:
+    """Split date to datetime.date and str formats"""
+    if isinstance(date, date_):
+        return date, date.isoformat()
+    return date_.fromisoformat(date), date
+
+
+def convert_datetime(datetime: datetime_ | str) -> tuple[datetime_, str]:
+    """Split datetime to datetime.datetime and str formats"""
+    if isinstance(datetime, datetime_):
+        return datetime, datetime.isoformat()
+    return datetime_.fromisoformat(datetime), datetime

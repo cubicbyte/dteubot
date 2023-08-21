@@ -67,18 +67,20 @@ class Api:
                         *req_args, **req_kwargs) -> List[dict]:
         """Returns the schedule for the group"""
 
-        if isinstance(date_start, _date):
-            date_start = date_start.isoformat()
+        date_start, date_start_str = utils.convert_date(date_start)
         if date_end is None:
             date_end = date_start
-        elif isinstance(date_end, _date):
-            date_end = date_end.isoformat()
+            date_end_str = date_start_str
+        else:
+            date_end, date_end_str = utils.convert_date(date_end)
 
-        return self._make_request('/time-table/group', 'POST', json={
+        schedule = self._make_request('/time-table/group', 'POST', json={
             'groupId': group_id,
-            'dateStart': date_start,
-            'dateEnd': date_end
+            'dateStart': date_start_str,
+            'dateEnd': date_end_str
         }, *req_args, **req_kwargs).json()
+
+        return utils.fill_empty_dates(schedule, date_start, date_end)
 
     def timetable_student(self, student_id: int, date_start: _date | str,
                           date_end: _date | str | None = None,
@@ -469,36 +471,17 @@ class CachedApi(Api):
             )
 
             # Update cache
-            inserted = 0
-            schedule_i = 0
             updated_time = datetime.now().isoformat(sep=' ', timespec='seconds')
-            while inserted < (date_range_end - date_range_start).days + 1:
-                if schedule_i < len(schedule):
-                    cur_day = schedule[schedule_i]
-                    cur_day_date = _date.fromisoformat(cur_day['date'])
-
-                expected_date = date_range_start + timedelta(days=inserted)
-                if schedule_i >= len(schedule) or cur_day_date != expected_date:
-                    # Looks like we have some missing dates in schedule
-                    # We need to fill it with empty days
-                    cur_day = {
-                        'date': expected_date.isoformat(),
-                        'lessons': []
-                    }
-                else:
-                    schedule_i += 1
-
+            for day in schedule:
                 self._cursor.execute(
                     'INSERT OR REPLACE INTO group_schedule VALUES (?, ?, ?, ?, ?)', (
                         group_id,
-                        cur_day['date'],
+                        day['date'],
                         req_kwargs.get('language', self.DEFAULT_LANGUAGE),
-                        json.dumps(cur_day['lessons'], ensure_ascii=False),
+                        json.dumps(day['lessons'], ensure_ascii=False),
                         updated_time
                     )
                 )
-
-                inserted += 1
             self._conn.commit()
 
             # Return only needed dates
@@ -511,8 +494,6 @@ class CachedApi(Api):
         # Convert cached data to needed format and return it
         result = []
         for row in cached:
-            if row[3] == '[]':
-                continue
             result.append({
                 'date': row[1],
                 'lessons': json.loads(row[3])

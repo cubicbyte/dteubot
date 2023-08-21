@@ -12,6 +12,7 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.helpers import escape_markdown
 from requests.exceptions import RequestException, HTTPError
 
+from lib.api import utils as api_utils
 from lib.api.exceptions import HTTPApiException
 from bot.data import ContextManager, ChatDataManager
 from bot.utils import array_split, clean_html, timeformatter, lessontime
@@ -407,11 +408,10 @@ def schedule(ctx: ContextManager, date: _date | str) -> dict:
         date = _date.fromisoformat(date_str)
 
     # Get schedule
-    date_start = date - timedelta(days=date.weekday() + 7)
-    date_end = date_start + timedelta(days=20)
     try:
-        schedule = api.timetable_group(ctx.chat_data.get('group_id'), date_start, date_end,
-                                    language=ctx.chat_data.get('lang_code'))
+        schedule = api.timetable_group(
+                ctx.chat_data.get('group_id'), date,
+                language=ctx.chat_data.get('lang_code'))
 
     except HTTPError as err:
         if err.response.status_code == 422:
@@ -421,7 +421,6 @@ def schedule(ctx: ContextManager, date: _date | str) -> dict:
     except HTTPApiException:
         return api_unavaliable(ctx)
 
-
     # Find schedule of current day
     cur_day_schedule = None
     for day in schedule:
@@ -429,12 +428,12 @@ def schedule(ctx: ContextManager, date: _date | str) -> dict:
             cur_day_schedule = day
             break
 
-    if cur_day_schedule is not None:
+    if cur_day_schedule is not None and len(cur_day_schedule['lessons']) != 0:
         # Schedule page
         return day_schedule(ctx, date, cur_day_schedule)
 
     # "no lessons" page
-    return empty_schedule(ctx, schedule, date, date_start, date_end)
+    return empty_schedule(ctx, date)
 
 
 def day_schedule(ctx: ContextManager, date: _date, day: dict) -> dict:
@@ -490,22 +489,33 @@ def day_schedule(ctx: ContextManager, date: _date, day: dict) -> dict:
     }
 
 
-def empty_schedule(ctx: ContextManager, schedule: list[dict],
-                   date: _date, from_date: _date, to_date: _date) -> dict:
+def empty_schedule(ctx: ContextManager, date: _date, schedule: list[dict] | None = None) -> dict:
     """Empty schedule page"""
 
-    # TODO remove from_date and to_date. Now, if we call timetable_group(today, today+5),
-    # we will get an array with size 0-6, but it should be fixed 6.
-
     lang = ctx.lang
+
+    if schedule is None:
+        date_start, date_end = api_utils.get_date_range(date)
+        try:
+            schedule = api.timetable_group(
+                    ctx.chat_data.get('group_id'), date_start, date_end,
+                    language=ctx.chat_data.get('lang_code'))
+
+        except HTTPError as err:
+            if err.response.status_code == 422:
+                return invalid_group(ctx)
+            return api_unavaliable(ctx)
+
+        except HTTPApiException:
+            return api_unavaliable(ctx)
 
     # Number of days you need to skip to reach a day with lessons
     skip_left = _count_no_lesson_days(schedule, date, direction_right=False)
     skip_right = _count_no_lesson_days(schedule, date, direction_right=True)
     if skip_right is None:
-        skip_right = (to_date - date).days
+        skip_right = (_date.fromisoformat(schedule[-1]['date']) - date).days + 1
     if skip_left is None:
-        skip_left = (date - from_date).days
+        skip_left = (date - _date.fromisoformat(schedule[0]['date'])).days + 1
 
     # Decide whether to show the "today" button, and also
     # decide the "next" and "previous" buttons skip values
@@ -528,7 +538,6 @@ def empty_schedule(ctx: ContextManager, schedule: list[dict],
     else:
         # If no lessons for only one day
         msg_text = lang.get('page.schedule.empty').format(date=_get_localized_date(ctx, date))
-
 
     # Create buttons
     buttons = [
@@ -836,11 +845,11 @@ def _count_no_lesson_days(
     for day in schedule:
         day_date = _date.fromisoformat(day['date'])
         if direction_right:
-            if day_date > date:
+            if day_date > date and len(day['lessons']) != 0:
                 days_timedelta = day_date - date
                 break
         else:
-            if day_date < date:
+            if day_date < date and len(day['lessons']) != 0:
                 days_timedelta = date - day_date
                 break
     else:
