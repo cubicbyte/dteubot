@@ -105,3 +105,12 @@ api = Api(
     expire_after=timedelta(seconds=int(os.getenv('API_CACHE_EXPIRES'))),
     cache_name=os.path.join(os.getenv('CACHE_PATH'), 'http-cache')
 )
+
+# Sort languages (1. Ukrainian, 2. English, 3+ - Other)
+langs_ = {}
+if 'uk' in langs:
+    langs_['uk'] = langs.pop('uk')
+if 'en' in langs:
+    langs_['en'] = langs.pop('en')
+langs_.update(langs)
+langs = langs_
