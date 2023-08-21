@@ -5,6 +5,7 @@ This module contains all bot pages.
 """
 
 import os
+import random
 from datetime import date as _date, timedelta
 
 from babel.dates import format_date
@@ -459,7 +460,8 @@ def day_schedule(ctx: ContextManager, date: _date, day: dict) -> dict:
                              + (date - timedelta(days=7)).isoformat()),
         InlineKeyboardButton(text=lang.get('button.navigation.week_next'),
                              callback_data='open.schedule.day#week&date='
-                             + (date + timedelta(days=7)).isoformat()),
+                             + (date + timedelta(days=7)).isoformat()
+                             + f'&rnd={random.random()}'),  # Needed to prevent "Message is not modified" error
         InlineKeyboardButton(text=lang.get('button.menu'), callback_data='open.menu')
     ]
 
@@ -552,7 +554,8 @@ def empty_schedule(ctx: ContextManager, date: _date, schedule: list[dict] | None
                              + prev_week_date.isoformat()),
         InlineKeyboardButton(text=lang.get('button.navigation.week_next'),
                              callback_data='open.schedule.day#week&date='
-                             + next_week_date.isoformat()),
+                             + next_week_date.isoformat()
+                             + f'&rnd={random.random()}'),  # Needed to prevent "Message is not modified" error
         InlineKeyboardButton(text=lang.get('button.menu'), callback_data='open.menu')
     ]
 
