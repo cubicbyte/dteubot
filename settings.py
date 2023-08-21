@@ -68,6 +68,13 @@ else:
 TEACHERS_FILEPATH = os.path.join(os.getenv('CACHE_PATH'), 'teachers.csv')
 LOGS_PATH = os.path.join(os.getenv('LOGS_PATH'), 'debug.log')
 
+# Create directories
+os.makedirs(os.getenv('CACHE_PATH'), exist_ok=True)
+os.makedirs(os.getenv('LOGS_PATH'), exist_ok=True)
+os.makedirs(os.getenv('LANGS_PATH'), exist_ok=True)
+os.makedirs(os.getenv('USER_DATA_PATH'), exist_ok=True)
+os.makedirs(os.getenv('CHAT_DATA_PATH'), exist_ok=True)
+
 
 # Configure logging
 logging.basicConfig(
