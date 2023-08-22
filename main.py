@@ -11,6 +11,7 @@ import asyncio
 import logging
 
 from telegram.ext import MessageHandler, CallbackQueryHandler
+from telegram.ext import filters
 
 from settings import *
 
@@ -131,13 +132,13 @@ tg_logger = TelegramLogger(os.path.join(os.getenv('LOGS_PATH'), 'telegram'))
 # Logging
 bot.add_handlers([
     CallbackQueryHandler(log_button),
-    MessageHandler(None, log_message)], 0)
+    MessageHandler(filters.COMMAND, log_message)], 0)
 # Main handlers
 bot.add_handlers(button_handlers + command_handlers, 10)
 # Statistics
 bot.add_handlers([
     CallbackQueryHandler(button_statistic_logger),
-    MessageHandler(None, message_statistic_logger)], 20)
+    MessageHandler(filters.COMMAND, message_statistic_logger)], 20)
 # Update chat accessibility
 bot.add_handlers([
     CallbackQueryHandler(set_chat_accessible),
