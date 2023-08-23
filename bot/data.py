@@ -13,7 +13,7 @@ from datetime import datetime
 from telegram import Update, Message as TgMessage
 from telegram.ext import ContextTypes
 
-from settings import langs
+from settings import langs, api
 from bot.schemas import StoredMessage, Language
 
 logger = logging.getLogger(__name__)
@@ -277,3 +277,98 @@ class ChatDataManager(FileDataManager):
                 break
 
         self._save(self._get_file())
+
+
+class GroupsCache:
+    def __init__(self, filepath: str, expires: int | None) -> None:
+        """Init groups cache
+
+        :param filepath: path to json file with groups
+        :param expires: cache expiration time in seconds
+        """
+        self.filepath = filepath
+        self.expires = expires
+
+        if self.expires <= 0:
+            self.expires = None
+
+        if not os.path.exists(self.filepath):
+            with open(self.filepath, 'w', encoding='utf-8') as file:
+                file.write('{}')
+        
+        self._file = open(self.filepath, 'r+', encoding='utf-8')
+        self.cache = json.load(self._file)
+
+    def add_groups_to_cache(self, groups: list[dict[str, any]], faculty_id: int, course: int) -> None:
+        """Add groups to cache"""
+        for group in groups:
+            self.cache[str(group['id'])] = {
+                'name': group['name'],
+                'faculty_id': faculty_id,
+                'course': course,
+                'updated': int(time.time())
+            }
+        self.update_group_cache()
+
+    def add_group_to_cache(self, group_id: int, faculty_id: int, course: int, group_name: str) -> None:
+        """Add group to cache"""
+        self.cache[str(group_id)] = {
+            'name': group_name,
+            'faculty_id': faculty_id,
+            'course': course,
+            'updated': int(time.time())
+        }
+        self.update_group_cache()
+
+    def update_group_cache(self) -> None:
+        """Flush cache to file"""
+        self._file.seek(0)
+        json.dump(self.cache, self._file, indent=2, ensure_ascii=False)
+        self._file.truncate()
+
+    def get_group_from_api(self, group_id: int, faculty_id: int, course: int) -> dict[str, any] | None:
+        """Get group from API"""
+
+        groups = api.list_groups(faculty_id=faculty_id, course=course)
+
+        for group in groups:
+            if group['id'] == group_id:
+                return group
+
+        # If group not found, try to find it in next courses
+        courses = [course_['course']
+                        for course_ in api.list_courses(faculty_id)
+                        if course_['course'] > course]
+
+        for course in courses:
+            groups = api.list_groups(faculty_id=faculty_id, course=course['course'])
+
+            for group in groups:
+                if group['id'] == group_id:
+                    return group
+
+        return None
+
+    def get_group(self, group_id: int) -> dict[str, any] | None:
+        """Get group name from cache or API"""
+
+        group = self.cache.get(str(group_id))
+        if group is None:
+            return None
+
+        if self.expires is not None and int(time.time()) - int(group['updated']) > self.expires:
+            group = self.get_group_from_api(group_id, group['faculty_id'], group['course'])
+            if group is None:
+                return None
+            self.add_group_to_cache(group_id, group['faculty_id'], group['course'], group['name'])
+
+        return group
+
+    def __del__(self):
+        self._file.close()
+
+
+groups_cache = GroupsCache(
+    filepath=os.path.join(os.getenv('CACHE_PATH'), 'groups.json'),
+    expires=int(os.getenv('API_CACHE_EXPIRES'))
+)

@@ -15,7 +15,7 @@ from requests.exceptions import RequestException, HTTPError
 
 from lib.api import utils as api_utils
 from lib.api.exceptions import HTTPApiException
-from bot.data import ContextManager, ChatDataManager
+from bot.data import ContextManager, ChatDataManager, groups_cache
 from bot.utils import array_split, clean_html, timeformatter, lessontime
 from settings import api, langs, teacher_finder, TELEGRAM_SUPPORTED_HTML_TAGS
 
@@ -201,6 +201,9 @@ def group_list(ctx: ContextManager, structure_id: int, faculty_id: int, course: 
         groups = api.list_groups(faculty_id, course, language=ctx.chat_data.get('lang_code'))
     except HTTPApiException:
         return api_unavaliable(ctx)
+    
+    # Save groups to cache
+    groups_cache.add_groups_to_cache(groups, faculty_id, course)
 
     buttons = [[
         InlineKeyboardButton(
@@ -639,7 +642,11 @@ def settings(ctx: ContextManager) -> dict:
 
     # Get chat group name
     if ctx.chat_data.get('group_id') is not None:
-        group = ctx.chat_data.get('group_id')
+        res = groups_cache.get_group(group_id=ctx.chat_data.get('group_id'))
+        if res is None:
+            group = lang.get('text.unknown')
+        else:
+            group = escape_markdown(res['name'], version=2)
     else:
         group = lang.get('text.not_selected')
 
