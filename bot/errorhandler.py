@@ -7,11 +7,11 @@ Module for handling bot errors.
 import os
 import logging
 import traceback
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import telegram.error
 from telegram import Update, Bot
-from telegram.error import BadRequest, NetworkError, Forbidden, TimedOut
+from telegram.error import BadRequest, NetworkError, Forbidden, TimedOut, Conflict
 from telegram.ext import CallbackContext
 
 from bot.data import ChatDataManager, ContextManager
@@ -19,6 +19,7 @@ from bot.pages import error as error_page
 from bot.utils import smart_split
 
 _logger = logging.getLogger(__name__)
+_last_conflict_time = datetime(1970, 1, 1)
 log_chat_id: int | str = os.getenv('LOG_CHAT_ID')
 
 
@@ -53,14 +54,27 @@ async def handler(update: Update, context: CallbackContext):
         # telegram.ext._updater already logs this error
         return
 
+    if isinstance(context.error, Conflict):
+        # Multiple instances of the bot are running
+        global _last_conflict_time
+        if datetime.now() - _last_conflict_time < timedelta(days=1):  # Prevent random conflict error
+            _logger.exception(context.error)
+            await send_error_to_telegram(context.bot, context.error)
+        else:
+            _logger.warning(context.error)
+
+        _last_conflict_time = datetime.now()
+        return
+
     print(traceback.format_exc())
     _logger.exception(context.error)
 
-    await send_error_to_telegram(context.bot, context.error)
-    await send_error_response(update, context)
+    await send_error_to_telegram(context.bot)
+    if hasattr(update, 'effective_chat'):
+        await send_error_response_to_user(update, context)
 
 
-async def send_error_response(update: Update, context: CallbackContext):
+async def send_error_response_to_user(update: Update, context: CallbackContext):
     """Send an error page to the user as an error response."""
 
     ctx = ContextManager(update, context)
@@ -76,12 +90,14 @@ async def send_error_response(update: Update, context: CallbackContext):
     ctx.chat_data.save_message('error', msg)
 
 
-async def send_error_to_telegram(bot: Bot, err: Exception):
+async def send_error_to_telegram(bot: Bot, err: Exception | str | None = None):
     """Send an error message to the log chat."""
 
     if log_chat_id is not None:
+        error = traceback.format_exc() if err is None else str(err)
         err_time = datetime.now().isoformat(sep=" ", timespec="seconds")
-        for err_text in smart_split(f'[{err_time}] {traceback.format_exc()}'):
+
+        for err_text in smart_split(f'[{err_time}] {error}'):
             try:
                 await bot.send_message(chat_id=log_chat_id, text=err_text)
             except telegram.error.TelegramError:
