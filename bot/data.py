@@ -357,9 +357,15 @@ class GroupsCache:
             return None
 
         if self.expires is not None and int(time.time()) - int(group['updated']) > self.expires:
-            group = self.get_group_from_api(group_id, group['faculty_id'], group['course'])
-            if group is None:
+            res = self.get_group_from_api(group_id, group['faculty_id'], group['course'])
+            if res is None:
                 return None
+            group = {
+                'name': res['name'],
+                'faculty_id': group['faculty_id'],
+                'course': res['course'],
+                'updated': int(time.time())
+            }
             self.add_group_to_cache(group_id, group['faculty_id'], group['course'], group['name'])
 
         return group
