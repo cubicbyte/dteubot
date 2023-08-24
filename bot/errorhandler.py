@@ -50,10 +50,15 @@ async def handler(update: Update, context: CallbackContext):
                 await update.callback_query.answer(text=chat_data.lang.get('alert.message_too_old'))
 
     except Forbidden:
-        # Bot was blocked by the user
-        _logger.warning(context.error)
-        context.data.set('_accessible', False)
-        return
+        # Bot most likely was blocked by the user
+        if context.error.message.startswith('Forbidden: bot was blocked by the user'):
+            chat_data = ChatDataManager(update.effective_chat.id)
+            chat_data.set('_accessible', False)
+            _logger.warning(context.error)
+        else:
+            # Unknown error
+            _logger.exception(context.error)
+            await send_error_to_telegram(context.bot)
 
     except TimedOut:
         # Problem with my server network
