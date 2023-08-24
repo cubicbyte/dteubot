@@ -416,7 +416,7 @@ class CachedApi(Api):
     def timetable_group(
             self, group_id: int, date_start: _date | str,
             date_end: _date | str | None = None,
-            *req_args, **req_kwargs) -> List[dict]:
+            *req_args, **req_kwargs) -> List['CachedResult']:
         """Returns the schedule for the group"""
 
         if isinstance(date_start, _date):
@@ -488,14 +488,39 @@ class CachedApi(Api):
             result = []
             for day in schedule:
                 if date_start <= _date.fromisoformat(day['date']) <= date_end:
-                    result.append(day)
+                    result.append(CachedResult(
+                        data=day,
+                        updated=datetime.fromisoformat(updated_time),
+                        expires_in=self.cache_expires
+                    ))
             return result
         
         # Convert cached data to needed format and return it
         result = []
         for row in cached:
-            result.append({
+            result.append(CachedResult(
+            data={
                 'date': row[1],
                 'lessons': json.loads(row[3])
-            })
+            },
+            updated=datetime.fromisoformat(row[4]),
+            expires_in=self.cache_expires))
+
         return result
+
+
+class CachedResult(dict):
+    """Dict wrapper for cached result of the API request"""
+
+    def __init__(self, data: dict, updated: datetime, expires_in: timedelta):
+        super().__init__(data)
+        self.updated = updated
+        self.expires_in = expires_in
+
+    @property
+    def expires(self) -> datetime:
+        return self.updated + self.expires_in
+
+    @property
+    def expired(self) -> bool:
+        return datetime.now() >= self.expires
