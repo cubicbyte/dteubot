@@ -26,35 +26,48 @@ log_chat_id: int | str = os.getenv('LOG_CHAT_ID')
 async def handler(update: Update, context: CallbackContext):
     """Handle errors raised by the bot."""
 
-    if hasattr(context, 'effective_chat'):
-        chat_data = ChatDataManager(update.effective_chat.id)
+    try:
+        raise context.error
 
-    if isinstance(context.error, BadRequest):
+    except BadRequest:
         _logger.warning(context.error)
+
+        if hasattr(update, 'effective_chat'):
+            chat_data = ChatDataManager(update.effective_chat.id)
+
         if context.error.message.startswith('Message is not modified'):
-            return
-        if context.error.message.startswith('Chat not found') or \
+            # User was clicking buttons too fast
+            pass
+
+        elif context.error.message.startswith('Chat not found') or \
                 context.error.message.startswith('Peer_id_invalid'):
+            # Chat was deleted most likely
             chat_data.set('_accessible', False)
-            return
-        if context.error.message.startswith('Message can\'t be deleted for everyone'):
+
+        elif context.error.message.startswith('Message can\'t be deleted for everyone'):
+            # Mostly occurs when the message is older than 48 hours
             if isinstance(context, CallbackContext):
                 await update.callback_query.answer(text=chat_data.lang.get('alert.message_too_old'))
-            return
 
-    if isinstance(context.error, Forbidden):
+    except Forbidden:
         # Bot was blocked by the user
         _logger.warning(context.error)
         context.data.set('_accessible', False)
         return
 
-    if isinstance(context.error, TimedOut) or \
-            isinstance(context.error, NetworkError) \
-            and context.error.message.startswith('httpx'):
-        # telegram.ext._updater already logs this error
-        return
+    except TimedOut:
+        # Problem with my server network
+        pass
 
-    if isinstance(context.error, Conflict):
+    except NetworkError:
+        if context.error.message.startswith('httpx'):
+            # telegram.ext._updater already logs this error
+            pass
+        else:
+            _logger.exception(context.error)
+            await send_error_to_telegram(context.bot, context.error)
+
+    except Conflict:
         # Multiple instances of the bot are running
         global _last_conflict_time
         if datetime.now() - _last_conflict_time < timedelta(days=1):  # Prevent random conflict error
@@ -64,18 +77,21 @@ async def handler(update: Update, context: CallbackContext):
             _logger.warning(context.error)
 
         _last_conflict_time = datetime.now()
-        return
 
-    print(traceback.format_exc())
-    _logger.exception(context.error)
+    except:
+        # Unknown error
+        print(traceback.format_exc())
+        _logger.exception(context.error)
 
-    await send_error_to_telegram(context.bot)
-    if hasattr(update, 'effective_chat'):
+        await send_error_to_telegram(context.bot)
         await send_error_response_to_user(update, context)
 
 
 async def send_error_response_to_user(update: Update, context: CallbackContext):
     """Send an error page to the user as an error response."""
+
+    if not hasattr(update, 'effective_chat'):
+        return
 
     ctx = ContextManager(update, context)
     page = error_page(ctx)
