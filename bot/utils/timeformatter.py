@@ -32,7 +32,7 @@ def format_time(
             result += ' '
         cur_depth += 1
         result += str(time.seconds // 3600)
-        result += langs[lang_code]['text.time.short.hours']
+        result += ' ' + langs[lang_code]['text.time.short.hours']
 
     # Add {minutes}m.
     if cur_depth < depth and time >= timedelta(minutes=1):
@@ -40,13 +40,13 @@ def format_time(
             result += ' '
         cur_depth += 1
         result += str(time.seconds // 60 % 60)
-        result += langs[lang_code]['text.time.short.minutes']
+        result += ' ' + langs[lang_code]['text.time.short.minutes']
 
     # Add {seconds}s.
     if cur_depth < depth:
         if cur_depth != 0:
             result += ' '
         result += str(time.seconds % 60)
-        result += langs[lang_code]['text.time.short.seconds']
+        result += ' ' + langs[lang_code]['text.time.short.seconds']
 
     return result
