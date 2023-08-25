@@ -920,12 +920,19 @@ def _create_schedule_section(ctx: ContextManager, day: dict) -> str:
             else:
                 teacher = None
 
+            if not period['disciplineShortName']:
+                period['disciplineShortName'] = 'Unknown discipline'
+            if not period['typeStr']:
+                period['typeStr'] = '?'
+            if not period['timeStart']:
+                period['timeStart'] = '??:??'
+            if not period['timeEnd']:
+                period['timeEnd'] = '??:??'
+
             # Escape ONLY USED api result not to break telegram markdown
             # DO NOT DELETE COMMENTS
-            # period['disciplineFullName'] \
-            #     = escape_markdown(period['disciplineFullName'], version=2)
-            period['disciplineShortName'] \
-                = escape_markdown(period['disciplineShortName'], version=2)
+            # period['disciplineFullName'] = escape_markdown(period['disciplineFullName'], version=2)
+            period['disciplineShortName'] = escape_markdown(period['disciplineShortName'], version=2)
             period['typeStr'] = escape_markdown(period['typeStr'], version=2)
             period['classroom'] = escape_markdown(period['classroom'], version=2)
             period['timeStart'] = escape_markdown(period['timeStart'], version=2)
