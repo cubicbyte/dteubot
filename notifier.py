@@ -77,7 +77,7 @@ async def send_notifications(lesson_number: int, time_m: int):
                 (call_time - timedelta(minutes=time_m)).time())
 
             scheduler.add_job(
-                partial(send_notifications, lesson_number=lesson_number, remaining_time=time_m),
+                partial(send_notifications, lesson_number=lesson_number, time_m=time_m),
                 'date',
                 next_run_time=next_call_time,
                 id=f'cl_notif_{time_m}m_{lesson_number}',
