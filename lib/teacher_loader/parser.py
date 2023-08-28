@@ -110,10 +110,17 @@ def get_teachers(chair_page_url: str) -> list[Teacher]:
             if len(p_els) < 2 or link_el is None or img_el is None:
                 continue
 
-            # get full name
-            name = teacher_cell.find('a').parent.getText()
-            # remove extra spaces and newlines
-            name = format_string(name)
+            # Find teacher's name
+            for a in teacher_cell.find_all('a'):
+                name = a.parent.getText()
+                name = format_string(name)  # remove extra spaces and newlines
+
+                if name.count(' ') == 2:
+                    # Name found
+                    break
+            else:
+                continue
+
             # capitalize each word (IGOR IVANOV -> Igor Ivanov)
             name = ' '.join([s.capitalize() for s in name.split(' ')])
 
@@ -121,8 +128,12 @@ def get_teachers(chair_page_url: str) -> list[Teacher]:
             description = ' '.join([p.getText() for p in p_els[1:]])
             # Remove extra spaces and newlines
             description = format_string(description)
+            # Remove teacher's name from description
+            if description.lower().startswith(name.lower()):
+                description = description[len(name) + 1:] if len(name) + 1 < len(description) else ''
             # Capitalize first letter
             description = description.capitalize()
+
 
             teacher = Teacher(
                 name=name,
@@ -130,9 +141,6 @@ def get_teachers(chair_page_url: str) -> list[Teacher]:
                 photo_link=urljoin(PAGE_URL, img_el['src']),
                 page_link=urljoin(PAGE_URL, link_el['href'])
             )
-
-            if teacher.name.count(' ') != 2 or not teacher.description:
-                continue
 
             teachers.append(teacher)
 
