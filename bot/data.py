@@ -280,6 +280,8 @@ class ChatDataManager(FileDataManager):
 
 
 class GroupsCache:
+    """Groups cache to find group name by id"""
+
     def __init__(self, filepath: str, expires: int | None) -> None:
         """Init groups cache
 

@@ -5,7 +5,6 @@ Bot settings
 import os
 import sys
 import logging
-from datetime import timedelta
 
 from dotenv import load_dotenv
 from telegram.ext import ApplicationBuilder
