@@ -81,7 +81,8 @@ logging.basicConfig(
     filename=os.path.join(os.getenv('LOGS_PATH'), 'debug.log'),
     filemode='a',
     format='%(asctime)s [%(levelname)s] %(name)s: %(message)s',
-    force=True
+    force=True,
+    encoding='utf-8'
 )
 if os.getenv('LOGGING_LEVEL') == 'INFO':
     # Disable every http request logging

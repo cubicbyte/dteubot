@@ -918,7 +918,7 @@ def _create_schedule_section(ctx: ContextManager, day: dict) -> str:
                 name = name.split(', ')[0]
 
             name = escape_markdown(name, version=2)
-            if teacher_finder is not None:
+            if teacher_finder is not None and name != '':
                 teacher = teacher_finder.find_safe(name)
             else:
                 teacher = None
