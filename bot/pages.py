@@ -6,6 +6,7 @@ This module contains all bot pages.
 
 import os
 import random
+import logging
 from datetime import date as _date, timedelta
 
 from babel.dates import format_date
@@ -18,6 +19,8 @@ from lib.api.exceptions import HTTPApiException
 from bot.data import ContextManager, ChatDataManager, groups_cache
 from bot.utils import array_split, clean_html, timeformatter, lessontime
 from settings import api, langs, teacher_finder, TELEGRAM_SUPPORTED_HTML_TAGS
+
+logger = logging.getLogger(__name__)
 
 
 def access_denied(ctx: ContextManager) -> dict:
@@ -947,6 +950,8 @@ def _create_schedule_section(ctx: ContextManager, day: dict) -> str:
 
             if teacher:
                 name = f'[{name}]({teacher.page_link})'
+            else:
+                logger.warning(f'Could not find teacher "{name}"')
 
             if multiple_teachers:
                 count = str(period['teachersNameFull'].count(','))
