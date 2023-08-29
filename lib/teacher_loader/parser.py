@@ -107,13 +107,16 @@ def get_teachers(chair_page_url: str) -> list[Teacher]:
             p_els = teacher_cell.find_all('p')
             img_el = teacher_cell.find('img')
 
-            if len(p_els) < 2 or link_el is None or img_el is None:
+            if len(p_els) == 0 or link_el is None or img_el is None:
                 continue
 
             # Find teacher's name
             for a in teacher_cell.find_all('a'):
-                name = a.parent.getText()
+                name = a.getText()
                 name = format_string(name)  # remove extra spaces and newlines
+                if name.count(' ') != 2:
+                    name = a.parent.getText()
+                    name = format_string(name)
 
                 if name.count(' ') == 2:
                     # Name found
@@ -125,7 +128,7 @@ def get_teachers(chair_page_url: str) -> list[Teacher]:
             name = ' '.join([s.capitalize() for s in name.split(' ')])
 
             # Merge all paragraphs into one string
-            description = ' '.join([p.getText() for p in p_els[1:]])
+            description = ' '.join([p.getText() for p in p_els])
             # Remove extra spaces and newlines
             description = format_string(description)
             # Remove teacher's name from description
