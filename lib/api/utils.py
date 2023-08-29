@@ -72,11 +72,21 @@ def fill_empty_dates(schedule: list[dict], from_date: date_, to_date: date_) -> 
     i = 0
     expected_date = from_date
     while expected_date <= to_date:
-        if i >= len(schedule) or schedule[i]['date'] != expected_date.isoformat():
+        if i < len(schedule):
+            date = date_.fromisoformat(schedule[i]['date'])
+
+            if date < expected_date:
+                # This shouldn't really happen, but there have been a few cases where
+                # for some reason api returned schedule for days I didn't even request.
+                i += 1
+                continue
+
+        if i >= len(schedule) or date > expected_date:
             schedule.insert(i, {
                 'date': expected_date.isoformat(),
                 'lessons': []
             })
+
         i += 1
         expected_date = expected_date + timedelta(days=1)
 
