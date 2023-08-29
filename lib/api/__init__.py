@@ -18,7 +18,7 @@ import pytz
 import requests
 from requests_cache import CachedSession
 
-from . import utils
+from . import utils, exceptions
 
 logger = logging.getLogger(__name__)
 logger.info('Initializing api module')
@@ -384,6 +384,7 @@ class CachedApi(Api):
         """
         super().__init__(url=url, timeout=timeout)
 
+        # Convert cache_expires to timedelta or None
         if cache_expires is None:
             self.cache_expires = None
         elif isinstance(cache_expires, timedelta):
@@ -463,37 +464,42 @@ class CachedApi(Api):
             if date_end_str != date_start_str:
                 _, date_range_end = utils.get_date_range(date_end, self.SCHEDULE_CACHE_DAYS_RANGE)
 
-            schedule = super().timetable_group(
-                group_id=group_id,
-                date_start=date_range_start,
-                date_end=date_range_end,
-                *req_args, **req_kwargs
-            )
-
-            # Update cache
-            updated_time = datetime.now().isoformat(sep=' ', timespec='seconds')
-            for day in schedule:
-                self._cursor.execute(
-                    'INSERT OR REPLACE INTO group_schedule VALUES (?, ?, ?, ?, ?)', (
-                        group_id,
-                        day['date'],
-                        req_kwargs.get('language', self.DEFAULT_LANGUAGE),
-                        json.dumps(day['lessons'], ensure_ascii=False),
-                        updated_time
-                    )
+            try:
+                schedule = super().timetable_group(
+                    group_id=group_id,
+                    date_start=date_range_start,
+                    date_end=date_range_end,
+                    *req_args, **req_kwargs
                 )
-            self._conn.commit()
+            except exceptions.HTTPApiException as e:
+                if len(cached) < (date_end - date_start).days + 1:
+                    # If we are missing some dates in cache, we need to raise an exception
+                    raise e
+            else:
+                # Update cache
+                updated_time = datetime.now().isoformat(sep=' ', timespec='seconds')
+                for day in schedule:
+                    self._cursor.execute(
+                        'INSERT OR REPLACE INTO group_schedule VALUES (?, ?, ?, ?, ?)', (
+                            group_id,
+                            day['date'],
+                            req_kwargs.get('language', self.DEFAULT_LANGUAGE),
+                            json.dumps(day['lessons'], ensure_ascii=False),
+                            updated_time
+                        )
+                    )
+                self._conn.commit()
 
-            # Return only needed dates
-            result = []
-            for day in schedule:
-                if date_start <= _date.fromisoformat(day['date']) <= date_end:
-                    result.append(CachedResult(
-                        data=day,
-                        updated=datetime.fromisoformat(updated_time),
-                        expires_in=self.cache_expires
-                    ))
-            return result
+                # Return only needed dates
+                result = []
+                for day in schedule:
+                    if date_start <= _date.fromisoformat(day['date']) <= date_end:
+                        result.append(CachedResult(
+                            data=day,
+                            updated=datetime.fromisoformat(updated_time),
+                            expires_in=self.cache_expires
+                        ))
+                return result
         
         # Convert cached data to needed format and return it
         result = []
