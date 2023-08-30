@@ -611,15 +611,23 @@ def schedule_extra(ctx: ContextManager, date: _date | str) -> dict:
 
     page_text = ''
 
-    for lesson in cur_day_schedule['lessons']:
-        for period in lesson['periods']:
-            if period['extraText']:
-                extra_text = api.timetable_ad(
-                    period['r1'], date_str,
-                    language=ctx.chat_data.get('lang_code'))['html']
-                extra_text = clean_html(extra_text, tags_whitelist=TELEGRAM_SUPPORTED_HTML_TAGS)
-                extra_text = extra_text.strip()
-                page_text += f'\n\n<pre>{lesson["number"]})</pre> {extra_text}'
+    try:
+        for lesson in cur_day_schedule['lessons']:
+            for period in lesson['periods']:
+                if period['extraText']:
+                    extra_text = api.timetable_ad(
+                        period['r1'], date_str,
+                        language=ctx.chat_data.get('lang_code'))['html']
+                    extra_text = clean_html(extra_text, tags_whitelist=TELEGRAM_SUPPORTED_HTML_TAGS)
+                    extra_text = extra_text.strip()
+                    page_text += f'\n\n<pre>{lesson["number"]})</pre> {extra_text}'
+
+    except HTTPError as err:
+        if err.response.status_code == 403:
+            return forbidden(ctx)
+        return api_unavaliable(ctx)
+    except HTTPApiException:
+        return api_unavaliable(ctx)
 
     return {
         'text': ctx.lang.get('page.schedule.extra').format(page_text[2:]),
@@ -786,6 +794,16 @@ def notification_feature_suggestion(ctx: ContextManager) -> dict:
     }
 
 
+def forbidden(ctx: ContextManager) -> dict:
+    """Forbidden page"""
+
+    return {
+        'text': ctx.lang.get('page.forbidden'),
+        'reply_markup': InlineKeyboardMarkup([[
+            InlineKeyboardButton(text=ctx.lang.get('button.menu'), callback_data='open.menu')
+        ]]),
+        'parse_mode': 'MarkdownV2'
+    }
 
 
 
