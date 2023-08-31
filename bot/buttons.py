@@ -154,6 +154,8 @@ async def open_schedule(ctx: ContextManager):
 async def open_schedule_extra(ctx: ContextManager):
     """Open schedule extra info page"""
 
+    # TODO: message can be longer than 4096 characters
+
     _date = utils.parse_callback_query(ctx.update.callback_query.data)['args']['date']
     msg = await ctx.update.callback_query.edit_message_text(
         **pages.schedule_extra(ctx, date=_date))

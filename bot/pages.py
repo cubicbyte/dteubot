@@ -625,6 +625,8 @@ def schedule_extra(ctx: ContextManager, date: _date | str) -> dict:
     except HTTPError as err:
         if err.response.status_code == 403:
             return forbidden(ctx)
+        if err.response.status_code == 404:
+            return not_found(ctx, back_btn='open.schedule.day#date=' + date_str)
         return api_unavaliable(ctx)
     except HTTPApiException:
         return api_unavaliable(ctx)
@@ -806,7 +808,25 @@ def forbidden(ctx: ContextManager) -> dict:
     }
 
 
+def not_found(ctx: ContextManager, back_btn: str | None = None) -> dict:
+    """Page when something is not found"""
 
+    buttons = []
+
+    if back_btn is None:
+        buttons.append([
+            InlineKeyboardButton(text=ctx.lang.get('button.menu'), callback_data='open.menu')
+        ])
+    else:
+        buttons.append([
+            InlineKeyboardButton(text=ctx.lang.get('button.back'), callback_data=back_btn)
+        ])
+
+    return {
+        'text': ctx.lang.get('page.not_found'),
+        'reply_markup': InlineKeyboardMarkup(buttons),
+        'parse_mode': 'MarkdownV2'
+    }
 
 
 
