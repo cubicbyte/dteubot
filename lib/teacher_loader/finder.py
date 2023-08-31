@@ -41,7 +41,7 @@ class TeacherFinder:
 
         for teacher in self._teachers:
             ratio = SequenceMatcher(a=name, b=teacher.name).ratio()
-            if ratio >= 0.84:
+            if ratio >= 0.92:
                 return teacher
 
         return None
