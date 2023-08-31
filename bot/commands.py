@@ -54,14 +54,14 @@ async def lang(ctx: ContextManager):
     """Change language"""
 
     # /lang
-    if len(ctx.args) == 0:
+    if len(ctx.context.args) == 0:
         msg = await ctx.update.message.chat.send_message(
             **pages.lang_selection(ctx))
         ctx.chat_data.save_message('lang_selection', msg)
         return
 
     # /lang <lang_code>
-    lang_code = ctx.args[0].lower()
+    lang_code = ctx.context.args[0].lower()
 
     if lang_code not in langs:
         lang_code = os.getenv('DEFAULT_LANG')
