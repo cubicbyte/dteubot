@@ -620,7 +620,7 @@ def schedule_extra(ctx: ContextManager, date: _date | str) -> dict:
                         language=ctx.chat_data.get('lang_code'))['html']
                     extra_text = clean_html(extra_text, tags_whitelist=TELEGRAM_SUPPORTED_HTML_TAGS)
                     extra_text = extra_text.strip()
-                    page_text += f'\n\n<pre>{lesson["number"]})</pre> {extra_text}'
+                    page_text += f'\n\n<b>{lesson["number"]})</b> {extra_text}'
 
     except HTTPError as err:
         if err.response.status_code == 403:
