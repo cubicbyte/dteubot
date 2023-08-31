@@ -624,7 +624,7 @@ def schedule_extra(ctx: ContextManager, date: _date | str) -> dict:
 
     except HTTPError as err:
         if err.response.status_code == 403:
-            return forbidden(ctx)
+            return forbidden(ctx, back_btn='open.schedule.day#date=' + date_str)
         if err.response.status_code == 404:
             return not_found(ctx, back_btn='open.schedule.day#date=' + date_str)
         return api_unavaliable(ctx)
@@ -796,14 +796,23 @@ def notification_feature_suggestion(ctx: ContextManager) -> dict:
     }
 
 
-def forbidden(ctx: ContextManager) -> dict:
+def forbidden(ctx: ContextManager, back_btn: str | None = None) -> dict:
     """Forbidden page"""
+
+    buttons = []
+
+    if back_btn is None:
+        buttons.append([
+            InlineKeyboardButton(text=ctx.lang.get('button.menu'), callback_data='open.menu')
+        ])
+    else:
+        buttons.append([
+            InlineKeyboardButton(text=ctx.lang.get('button.back'), callback_data=back_btn)
+        ])
 
     return {
         'text': ctx.lang.get('page.forbidden'),
-        'reply_markup': InlineKeyboardMarkup([[
-            InlineKeyboardButton(text=ctx.lang.get('button.menu'), callback_data='open.menu')
-        ]]),
+        'reply_markup': InlineKeyboardMarkup(buttons),
         'parse_mode': 'MarkdownV2'
     }
 
