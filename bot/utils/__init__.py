@@ -77,6 +77,9 @@ def parse_callback_query(query: str) -> dict:
 def clean_html(raw_html: str, tags_whitelist: list[str] | None = None) -> str:
     """Remove html tags from string"""
 
+    # Save line breaks
+    raw_html = raw_html.replace('<br>', '\n').replace('<br />', '\n')
+
     if tags_whitelist:
         tags = '|'.join(tags_whitelist)
         cleanr = re.compile(fr'<(?!\/?({tags})\b)[^>]*>', re.IGNORECASE)
