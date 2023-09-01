@@ -10,6 +10,7 @@ from difflib import SequenceMatcher
 from functools import cache
 
 from .schemas import Teacher
+from .utils import convert_latin_to_cyrillic
 
 csv.field_size_limit(0xfffffff)
 
@@ -38,9 +39,12 @@ class TeacherFinder:
         """Find teacher in the database by percentage of similarity"""
 
         name = name.lower()
+        # Some teachers have latin characters in their names instead of cyrillic
+        name = convert_latin_to_cyrillic(name)
 
         for teacher in self._teachers:
-            ratio = SequenceMatcher(a=name, b=teacher.name).ratio()
+            teacher_name = convert_latin_to_cyrillic(teacher.name)
+            ratio = SequenceMatcher(a=name, b=teacher_name).ratio()
             if ratio >= 0.92:
                 return teacher
 
