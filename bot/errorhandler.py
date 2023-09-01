@@ -11,7 +11,7 @@ from datetime import datetime, timedelta
 
 import telegram.error
 from telegram import Update, Bot
-from telegram.error import BadRequest, NetworkError, Forbidden, TimedOut, Conflict
+from telegram.error import BadRequest, NetworkError, Forbidden, TimedOut, Conflict, RetryAfter
 from telegram.ext import CallbackContext
 
 from bot.data import ChatDataManager, ContextManager
@@ -48,6 +48,14 @@ async def handler(update: Update, context: CallbackContext):
             # Mostly occurs when the message is older than 48 hours
             if isinstance(context, CallbackContext):
                 await update.callback_query.answer(text=chat_data.lang.get('alert.message_too_old'))
+
+    except RetryAfter:
+        # Flood control
+        _logger.warning(context.error)
+
+        if isinstance(context, CallbackContext):
+            chat_data = ChatDataManager(update.effective_chat.id)
+            await update.callback_query.answer(text=chat_data.lang.get('alert.flood_control').format(context.error.retry_after))
 
     except Forbidden:
         # Bot most likely was blocked by the user

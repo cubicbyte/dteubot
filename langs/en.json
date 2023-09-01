@@ -85,6 +85,7 @@
     "alert.callback_query_unsupported": "❗️ Failed: The button is outdated.\n\nPlease try again.",
     "alert.cl_notif_enabled_tooltip": "Now you will receive a notification {remaining} min. before the start of classes.\n\nYou can change the time or turn off notifications in the settings.",
     "alert.message_too_old": "Message is outdated, please, delete it manually.",
+    "alert.flood_control": "You are pressing buttons too often.\nTry again in {0} seconds.",
 
 
 
