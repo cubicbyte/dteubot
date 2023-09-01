@@ -436,12 +436,14 @@ def schedule(ctx: ContextManager, date: _date | str) -> dict:
             cur_day_schedule = day
             break
 
-    if cur_day_schedule is not None and len(cur_day_schedule['lessons']) != 0:
-        # Schedule page
-        return day_schedule(ctx, date, cur_day_schedule)
-
     # "no lessons" page
-    return empty_schedule(ctx, date)
+    if cur_day_schedule is None \
+            or len(cur_day_schedule['lessons']) == 0 \
+            or _is_day_empty(cur_day_schedule):
+        return empty_schedule(ctx, date)
+
+    # Schedule page
+    return day_schedule(ctx, date, cur_day_schedule)
 
 
 def day_schedule(ctx: ContextManager, date: _date, day: dict) -> dict:
@@ -906,17 +908,31 @@ def _count_no_lesson_days(
     for day in schedule:
         day_date = _date.fromisoformat(day['date'])
         if direction_right:
-            if day_date > date and len(day['lessons']) != 0:
+            if day_date > date and not _is_day_empty(day):
                 days_timedelta = day_date - date
                 break
         else:
-            if day_date < date and len(day['lessons']) != 0:
+            if day_date < date and not _is_day_empty(day):
                 days_timedelta = date - day_date
                 break
     else:
         return None
 
     return days_timedelta.days
+
+
+def _is_day_empty(day: dict[str, any]) -> bool:
+    """Check if the day schedule is empty (no lessons or all lessons are hidden)"""
+
+    if len(day['lessons']) == 0:
+        return True
+
+    for lesson in day['lessons']:
+        for period in lesson['periods']:
+            if 'приховано' in period['disciplineShortName'].lower():
+                return True
+
+    return False
 
 
 def _get_localized_date(ctx: ContextManager, date: _date) -> str:
