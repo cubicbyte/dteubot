@@ -97,10 +97,21 @@ def is_lesson_in_interval(group_id: int, interval: timedelta) -> bool:
     if len(schedule[0]['lessons']) == 0:
         return False
 
-    first_lesson_number = schedule[0]['lessons'][0]['number']
+    # Get first lesson
+    for lesson in schedule[0]['lessons']:
+        for period in lesson['periods']:
+            if 'приховано' in period['disciplineShortName'].lower():
+                continue
+            first_lesson = lesson
+            break
+        else:
+            continue
+        break
+    else:
+        return False
 
     for call in calls:
-        if call['number'] == first_lesson_number:
+        if call['number'] == first_lesson['number']:
             call_time = datetime.strptime(call['timeStart'], '%H:%M').time()
             if cur_time <= call_time <= with_interval:
                 return True
