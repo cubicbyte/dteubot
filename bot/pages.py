@@ -1013,7 +1013,7 @@ def _create_schedule_section(ctx: ContextManager, day: dict) -> str:
 
             if teacher:
                 name = f'[{name}]({teacher.page_link})'
-            elif name != '':
+            elif teacher_finder is not None and name != '':
                 logger.warning(f'Could not find teacher "{name}"')
 
             if multiple_teachers:
