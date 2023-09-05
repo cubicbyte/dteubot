@@ -102,6 +102,9 @@ async def suggest_cl_notif(upd, ctx):
         cur_timestamp = int(time.time())
         created = _ctx.chat_data.get('_created') or 0
 
+        if _ctx.chat_data.get('group_id') is None:
+            return
+
         if cur_timestamp - created < NOTIFICATIONS_SUGGESTION_DELAY_S:
             return
 
@@ -144,10 +147,9 @@ bot.add_handlers([
     CallbackQueryHandler(set_chat_accessible),
     MessageHandler(None, set_chat_accessible)], 30)
 # Notifications suggestion
-# TODO: enable this when notifications will be ready
-# bot.add_handlers([
-#     CallbackQueryHandler(suggest_cl_notif),
-#     MessageHandler(None, suggest_cl_notif)], 40)
+bot.add_handlers([
+    CallbackQueryHandler(suggest_cl_notif),
+    MessageHandler(None, suggest_cl_notif)], 40)
 
 # Error handler
 bot.add_error_handler(errorhandler.handler)

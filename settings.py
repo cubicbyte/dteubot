@@ -16,7 +16,7 @@ from bot.utils.lang import load_langs
 
 
 # Constants
-NOTIFICATIONS_SUGGESTION_DELAY_S = 60 * 60 * 24 * 3  # 3 days, 259,200 seconds
+NOTIFICATIONS_SUGGESTION_DELAY_S = 60  # 1 minute
 TELEGRAM_SUPPORTED_HTML_TAGS = [
     'a', 's', 'i', 'b', 'u', 'em', 'pre',
     'ins', 'del', 'span', 'code', 'strong',
