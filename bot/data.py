@@ -276,7 +276,7 @@ class ChatDataManager(FileDataManager):
                 messages_raw.pop(i)
                 break
 
-        self._save(self._get_file())
+        self._save()
 
 
 class GroupsCache:
