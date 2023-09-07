@@ -10,6 +10,7 @@ import logging
 from datetime import datetime
 
 from telegram import Update
+from telegram.ext import filters
 
 logger = logging.getLogger(__name__)
 
@@ -76,6 +77,10 @@ class TelegramLogger:
 
     async def message_handler(self, ctx):
         """Telegram message handler"""
+
+        # Ignore non-command messages
+        if not filters.COMMAND.filter(ctx.update.effective_message):
+            return
 
         if not self._chat_log_initialized(ctx.update.effective_chat.id):
             self._init_chat_log(ctx.update.effective_chat.id)

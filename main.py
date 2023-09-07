@@ -141,7 +141,7 @@ bot.add_handlers(button_handlers + command_handlers, 10)
 # Statistics
 bot.add_handlers([
     CallbackQueryHandler(button_statistic_logger),
-    MessageHandler(filters.COMMAND, message_statistic_logger)], 20)
+    MessageHandler(None, message_statistic_logger)], 20)
 # Update chat accessibility
 bot.add_handlers([
     CallbackQueryHandler(set_chat_accessible),
