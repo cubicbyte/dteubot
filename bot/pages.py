@@ -345,7 +345,7 @@ def left(ctx: ContextManager) -> dict:
 
     buttons = [[
         InlineKeyboardButton(text=ctx.lang.get('button.menu'), callback_data='open.menu'),
-        InlineKeyboardButton(text=ctx.lang.get('button.refresh'), callback_data='open.left')
+        InlineKeyboardButton(text=ctx.lang.get('button.refresh'), callback_data=f'open.left#rnd={random.random()}')
     ]]
 
     return {
