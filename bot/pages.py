@@ -135,7 +135,7 @@ def course_list(ctx: ContextManager, structure_id: int, faculty_id: int) -> dict
         buttons.append([
             InlineKeyboardButton(
                 text=str(course['course']),
-                callback_data=f'select.schedule.course#'
+                callback_data='select.schedule.course#'
                     + f'structureId={structure_id}&'
                     + f'facultyId={faculty_id}&'
                     + f'course={course["course"]}')
@@ -176,7 +176,7 @@ def faculty_list(ctx: ContextManager, structure_id: int) -> dict:
         buttons.append([
             InlineKeyboardButton(
                 text=faculty['fullName'],
-                callback_data=f'select.schedule.faculty#'
+                callback_data='select.schedule.faculty#'
                     + f'structureId={structure_id}&'
                     + f'facultyId={faculty["id"]}')
         ])
@@ -211,7 +211,7 @@ def group_list(ctx: ContextManager, structure_id: int, faculty_id: int, course: 
     buttons = [[
         InlineKeyboardButton(
             text=ctx.lang.get('button.back'),
-            callback_data=f'select.schedule.faculty#'
+            callback_data='select.schedule.faculty#'
                 + f'structureId={structure_id}&'
                 + f'facultyId={faculty_id}')
     ]]
@@ -486,7 +486,7 @@ def day_schedule(ctx: ContextManager, date: _date, day: dict) -> dict:
 
     # "Additional info" button
     if _check_extra_text(day):
-        buttons.append([InlineKeyboardButton(
+        buttons.insert(0, [InlineKeyboardButton(
             text=lang.get('button.schedule.extra'),
             callback_data='open.schedule.extra#date=' + date.isoformat()
         )])
