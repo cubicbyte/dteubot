@@ -8,6 +8,7 @@ import os
 import random
 import logging
 from datetime import date as _date, timedelta
+from functools import lru_cache
 
 from babel.dates import format_date
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
@@ -16,6 +17,7 @@ from requests.exceptions import RequestException, HTTPError
 
 from lib.api import utils as api_utils
 from lib.api.exceptions import HTTPApiException
+from lib.teacher_loader.schemas import Teacher
 from bot.data import ContextManager, ChatDataManager, groups_cache
 from bot.utils import array_split, clean_html, timeformatter, lessontime
 from settings import api, langs, teacher_finder, TELEGRAM_SUPPORTED_HTML_TAGS
@@ -974,18 +976,7 @@ def _create_schedule_section(ctx: ContextManager, day: dict) -> str:
 
     for lesson in day['lessons']:
         for period in lesson['periods']:
-            name = period['teachersNameFull']
-            multiple_teachers = ', ' in name
-
-            if multiple_teachers:
-                name = name.split(', ')[0]
-
-            name = escape_markdown(name, version=2)
-            if teacher_finder is not None and name != '':
-                teacher = teacher_finder.find_safe(name)
-            else:
-                teacher = None
-
+            # Prevent page break on unexpected behavior
             if not period['disciplineShortName']:
                 period['disciplineShortName'] = 'Unknown discipline'
             if not period['typeStr']:
@@ -1009,18 +1000,24 @@ def _create_schedule_section(ctx: ContextManager, day: dict) -> str:
             # period['dateUpdated'] = escape_markdown(period['dateUpdated'], version=2)
             # period['groups'] = escape_markdown(period['groups'], version=2)
 
-            # If there are multiple teachers, display the first one and add +n to the end
+            # Get teacher name
+            teacher_name = period['teachersNameFull']
+            multiple_teachers = ', ' in teacher_name
+            if multiple_teachers:
+                teacher_name = teacher_name.split(', ')[0]
+            teacher_name = escape_markdown(teacher_name, version=2)
 
+            # Add teacher page link if teacher page is found
+            teacher = _find_teacher(teacher_name)
             if teacher:
-                name = f'[{name}]({teacher.page_link})'
-            elif teacher_finder is not None and name != '':
-                logger.warning(f'Could not find teacher "{name}"')
+                teacher_name = f'[{teacher_name}]({teacher.page_link})'
 
+            # If there are multiple teachers, display the first one and add +n to the end
             if multiple_teachers:
                 count = str(period['teachersNameFull'].count(','))
-                name += ' \\+' + count
+                teacher_name += ' \\+' + count
 
-            period['teachersNameFull'] = name
+            period['teachersNameFull'] = teacher_name
 
             schedule_section += ctx.lang.get('text.schedule.period').format(
                 **period,
@@ -1040,3 +1037,18 @@ def _check_extra_text(day: dict) -> bool:
                 return True
 
     return False
+
+
+@lru_cache(maxsize=1024)
+def _find_teacher(name: str) -> Teacher | None:
+    """Find teacher by name and log if not found"""
+
+    if teacher_finder is None:
+        return None
+
+    teacher = teacher_finder.find_safe(name)
+
+    if teacher is None:
+        logger.warning(f'Could not find teacher "{name}"')
+
+    return teacher
