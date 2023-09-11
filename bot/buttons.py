@@ -47,7 +47,7 @@ def validate_admin(func):
     return wrapper
 
 
-@register_button('^admin.clear_expired_cache$')
+@register_button('^admin.clear_expired_cache')
 @validate_admin
 async def clear_expired_cache(ctx: ContextManager):
     """Clear expired cache"""
@@ -61,7 +61,7 @@ async def clear_expired_cache(ctx: ContextManager):
     )
 
 
-@register_button('^admin.clear_logs$')
+@register_button('^admin.clear_logs')
 @validate_admin
 async def clear_logs(ctx: ContextManager):
     """Clear bot logs"""
@@ -75,7 +75,7 @@ async def clear_logs(ctx: ContextManager):
     )
 
 
-@register_button('^admin.get_logs$')
+@register_button('^admin.get_logs')
 @validate_admin
 async def get_logs(ctx: ContextManager):
     """Send bot logs to user"""
@@ -90,7 +90,7 @@ async def get_logs(ctx: ContextManager):
         await ctx.context.bot.send_document(ctx.update.callback_query.message.chat.id, file)
 
 
-@register_button('^admin.open_panel$')
+@register_button('^admin.open_panel')
 @validate_admin
 async def open_admin_panel(ctx: ContextManager):
     """Open admin panel"""
@@ -105,14 +105,14 @@ async def close_page(ctx: ContextManager):
     ctx.chat_data.remove_message(ctx.update.callback_query.message.message_id)
 
 
-@register_button('^open.calls$')
+@register_button('^open.calls')
 async def open_calls(ctx: ContextManager):
     """Open calls schedule"""
     msg = await ctx.update.callback_query.edit_message_text(**pages.calls(ctx))
     ctx.chat_data.save_message('calls', msg)
 
 
-@register_button('^open.info$')
+@register_button('^open.info')
 async def open_info(ctx: ContextManager):
     """Open info page"""
     msg = await ctx.update.callback_query.edit_message_text(**pages.info(ctx))
@@ -126,14 +126,14 @@ async def open_left(ctx: ContextManager):
     ctx.chat_data.save_message('left', msg)
 
 
-@register_button('^open.menu$')
+@register_button('^open.menu')
 async def open_menu(ctx: ContextManager):
     """Open menu page"""
     msg = await ctx.update.callback_query.edit_message_text(**pages.menu(ctx))
     ctx.chat_data.save_message('menu', msg)
 
 
-@register_button('^open.more$')
+@register_button('^open.more')
 async def open_more(ctx: ContextManager):
     """Open more page"""
     msg = await ctx.update.callback_query.edit_message_text(**pages.more(ctx))
@@ -162,7 +162,7 @@ async def open_schedule_extra(ctx: ContextManager):
     ctx.chat_data.save_message('schedule_extra', msg)
 
 
-@register_button('^open.schedule.today$')
+@register_button('^open.schedule.today')
 async def open_today(ctx: ContextManager):
     """Open schedule page for today"""
 
@@ -176,7 +176,7 @@ async def open_today(ctx: ContextManager):
     ctx.chat_data.save_message('schedule', msg, data)
 
 
-@register_button('^open.schedule.tomorrow$')
+@register_button('^open.schedule.tomorrow')
 async def open_tomorrow(ctx: ContextManager):
     """Open schedule page for tomorrow"""
 
@@ -190,7 +190,7 @@ async def open_tomorrow(ctx: ContextManager):
     ctx.chat_data.save_message('schedule', msg, data)
 
 
-@register_button('^open.select_group$')
+@register_button('^open.select_group')
 async def open_group_selection(ctx: ContextManager):
     """Open group selection menu"""
 
@@ -199,7 +199,7 @@ async def open_group_selection(ctx: ContextManager):
     ctx.chat_data.save_message('structure_list', msg)
 
 
-@register_button('^open.select_lang$')
+@register_button('^open.select_lang')
 async def open_lang_selection(ctx: ContextManager):
     """Open language selection menu"""
 
@@ -208,7 +208,7 @@ async def open_lang_selection(ctx: ContextManager):
     ctx.chat_data.save_message('lang_selection', msg)
 
 
-@register_button('^open.settings$')
+@register_button('^open.settings')
 async def open_settings(ctx: ContextManager):
     """Open settings menu"""
 
