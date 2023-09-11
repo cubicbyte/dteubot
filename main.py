@@ -86,7 +86,7 @@ async def button_statistic_logger(upd, ctx):
 
 async def message_statistic_logger(upd, ctx):
     """Save messages into statistics"""
-    if not hasattr(upd, 'effective_user'):
+    if not upd.effective_user:
         # Private message, most likely at channel
         # Ignore messages from channels
         return
