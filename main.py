@@ -86,6 +86,11 @@ async def button_statistic_logger(upd, ctx):
 
 async def message_statistic_logger(upd, ctx):
     """Save messages into statistics"""
+    if not upd.effectove_user:
+        # Private message, most likely at channel
+        # Ignore messages from channels
+        return
+
     manager = ContextManager(upd, ctx)
     await tg_logger.message_handler(manager)
 
@@ -141,15 +146,15 @@ bot.add_handlers(button_handlers + command_handlers, 10)
 # Statistics
 bot.add_handlers([
     CallbackQueryHandler(button_statistic_logger),
-    MessageHandler(None, message_statistic_logger)], 20)
+    MessageHandler(filters.TEXT, message_statistic_logger)], 20)
 # Update chat accessibility
 bot.add_handlers([
     CallbackQueryHandler(set_chat_accessible),
-    MessageHandler(None, set_chat_accessible)], 30)
+    MessageHandler(filters.COMMAND, set_chat_accessible)], 30)
 # Notifications suggestion
 bot.add_handlers([
     CallbackQueryHandler(suggest_cl_notif),
-    MessageHandler(None, suggest_cl_notif)], 40)
+    MessageHandler(filters.COMMAND, suggest_cl_notif)], 40)
 
 # Error handler
 bot.add_error_handler(errorhandler.handler)
