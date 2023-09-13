@@ -81,7 +81,10 @@ async def log_message(upd, ctx):
 async def button_statistic_logger(upd, ctx):
     """Save button clicks into statistics"""
     manager = ContextManager(upd, ctx)
-    await tg_logger.callback_query_handler(manager)
+    try:
+        await tg_logger.callback_query_handler(manager)
+    except Exception as e:
+        logger.exception('Failed to log callback query: %s', e)
 
 
 async def message_statistic_logger(upd, ctx):
@@ -92,7 +95,10 @@ async def message_statistic_logger(upd, ctx):
         return
 
     manager = ContextManager(upd, ctx)
-    await tg_logger.message_handler(manager)
+    try:
+        await tg_logger.message_handler(manager)
+    except Exception as e:
+        logger.exception('Failed to log message: %s', e)
 
 
 async def suggest_cl_notif(upd, ctx):
