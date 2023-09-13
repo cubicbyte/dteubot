@@ -16,7 +16,7 @@ from urllib.parse import urljoin
 
 import pytz
 import requests
-from requests_cache import CachedSession
+from requests_cache import CachedSession, CachedResponse
 
 from . import utils, exceptions
 
@@ -413,6 +413,18 @@ class CachedApi(Api):
         self._conn = sqlite3.connect(cache_path)
         self._cursor = self._conn.cursor()
         utils.setup_db(self._conn)
+
+    # Apply dynamic cache expiration
+    def _make_request(self, *args, **kwargs) -> CachedResponse:
+        resp = super()._make_request(*args, **kwargs)
+
+        # Check if we need to update cache
+        if resp.from_cache and resp.is_older_than(self.cache_expires):
+            logger.debug('Cache for is expired, updating')
+            self.session.cache.delete(requests=[resp.request])
+            resp = super()._make_request(*args, **kwargs)
+
+        return resp
 
     def timetable_group(
             self, group_id: int, date_start: _date | str,
