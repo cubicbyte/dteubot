@@ -16,11 +16,11 @@ from bot.utils.lang import load_langs
 
 
 # Constants
-NOTIFICATIONS_SUGGESTION_DELAY_S = 60  # 1 minute
+NOTIFICATIONS_SUGGESTION_DELAY_S = 60 * 60  # 1 hour, 3600 secs
 TELEGRAM_SUPPORTED_HTML_TAGS = [
     'a', 's', 'i', 'b', 'u', 'em', 'pre',
-    'ins', 'del', 'span', 'code', 'strong',
-    'strike', 'tg-spoiler', 'tg-emoji']
+    'ins', 'del', 'code', 'strong',
+    'strike', 'tg-emoji']
 
 
 # Load environment variable files (.env)
