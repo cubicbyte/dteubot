@@ -16,7 +16,6 @@ from bot.utils.lang import load_langs
 
 
 # Constants
-NOTIFICATIONS_SUGGESTION_DELAY_S = 60 * 60  # 1 hour, 3600 secs
 TELEGRAM_SUPPORTED_HTML_TAGS = [
     'a', 's', 'i', 'b', 'u', 'em', 'pre',
     'ins', 'del', 'code', 'strong',
@@ -30,8 +29,9 @@ load_dotenv()        # Load .env file in bot dir
 
 # Set environment variable default values
 os.environ.setdefault('DEFAULT_LANG', 'uk')
-os.environ.setdefault('API_REQUEST_TIMEOUT', '-1')
-os.environ.setdefault('API_CACHE_EXPIRES', '-1')
+os.environ.setdefault('API_REQUEST_TIMEOUT', '2')
+os.environ.setdefault('API_CACHE_EXPIRES', '3600')
+os.environ.setdefault('NOTIFICATIONS_SUGGESTION_DELAY', '60')
 os.environ.setdefault('LOGGING_LEVEL', 'INFO')
 os.environ.setdefault('USER_DATA_PATH', 'user-data')
 os.environ.setdefault('CHAT_DATA_PATH', 'chat-data')
@@ -56,12 +56,22 @@ assert utils.isint(os.getenv('API_CACHE_EXPIRES')), \
     'The API_CACHE_EXPIRES environment variable must be an integer. ' \
     + f'Received: {os.getenv("API_CACHE_EXPIRES")}'
 
+assert utils.isint(os.getenv('NOTIFICATIONS_SUGGESTION_DELAY')), \
+    'The NOTIFICATIONS_SUGGESTION_DELAY environment variable must be an integer. ' \
+    + f'Received: {os.getenv("NOTIFICATIONS_SUGGESTION_DELAY")}'
+
 
 if float(os.getenv('API_REQUEST_TIMEOUT')) <= 0:
     os.environ.pop('API_REQUEST_TIMEOUT', None)
     API_REQUEST_TIMEOUT = None
 else:
     API_REQUEST_TIMEOUT = float(os.getenv('API_REQUEST_TIMEOUT'))
+
+if int(os.getenv('NOTIFICATIONS_SUGGESTION_DELAY')) <= 0:
+    os.environ.pop('NOTIFICATIONS_SUGGESTION_DELAY', None)
+    NOTIFICATIONS_SUGGESTION_DELAY = None
+else:
+    NOTIFICATIONS_SUGGESTION_DELAY = int(os.getenv('NOTIFICATIONS_SUGGESTION_DELAY'))
 
 
 TEACHERS_FILEPATH = os.path.join(os.getenv('CACHE_PATH'), 'teachers.csv')

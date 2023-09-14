@@ -40,7 +40,6 @@ from bot.commands import handlers as command_handlers
 from bot.logger import TelegramLogger
 from bot.data import ContextManager, ChatDataManager
 from bot import errorhandler, pages
-from settings import bot, NOTIFICATIONS_SUGGESTION_DELAY_S
 from notifier import scheduler
 
 
@@ -116,7 +115,7 @@ async def suggest_cl_notif(upd, ctx):
         if _ctx.chat_data.get('group_id') is None:
             return
 
-        if cur_timestamp - created < NOTIFICATIONS_SUGGESTION_DELAY_S:
+        if cur_timestamp - created < NOTIFICATIONS_SUGGESTION_DELAY:
             return
 
         # After 1 second, send new message with notification suggestion
@@ -158,9 +157,10 @@ bot.add_handlers([
     CallbackQueryHandler(set_chat_accessible),
     MessageHandler(filters.COMMAND, set_chat_accessible)], 30)
 # Notifications suggestion
-bot.add_handlers([
-    CallbackQueryHandler(suggest_cl_notif),
-    MessageHandler(filters.COMMAND, suggest_cl_notif)], 40)
+if NOTIFICATIONS_SUGGESTION_DELAY:
+    bot.add_handlers([
+        CallbackQueryHandler(suggest_cl_notif),
+        MessageHandler(filters.COMMAND, suggest_cl_notif)], 40)
 
 # Error handler
 bot.add_error_handler(errorhandler.handler)
