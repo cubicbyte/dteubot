@@ -16,6 +16,7 @@ import logging
 from datetime import date, datetime, timedelta
 from functools import partial
 
+from telegram.error import Forbidden
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 from settings import bot, api
@@ -63,6 +64,10 @@ async def send_notifications(lesson_number: int, time_m: int):
             if api_retries >= API_RETRIES_LIMIT:
                 break
             continue
+
+        except Forbidden:
+            _logger.warning('Bot was blocked by the user. Chat ID: %s', chat_data.chat_id)
+            chat_data.set('_accessible', False)
 
         except Exception as e:
             _logger.exception('Unexpected error occurred while sending notifications.')
