@@ -78,7 +78,7 @@ async def left(ctx: ContextManager):
     """Show time to the start/end of the lesson"""
 
     msg = await ctx.update.message.chat.send_message(
-        **pages.left(ctx))
+        **pages.left(ctx, back_btn='open.menu'))
     ctx.chat_data.save_message('left', msg)
 
 

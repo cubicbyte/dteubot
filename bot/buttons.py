@@ -122,7 +122,8 @@ async def open_info(ctx: ContextManager):
 @register_button('^open.left')
 async def open_left(ctx: ContextManager):
     """Open page with time left to the start/end of the lesson"""
-    msg = await ctx.update.callback_query.edit_message_text(**pages.left(ctx))
+    msg = await ctx.update.callback_query.edit_message_text(
+        **pages.left(ctx, back_btn='open.more'))
     ctx.chat_data.save_message('left', msg)
 
 

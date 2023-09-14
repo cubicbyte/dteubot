@@ -307,7 +307,7 @@ def lang_selection(ctx: ContextManager) -> dict:
     }
 
 
-def left(ctx: ContextManager) -> dict:
+def left(ctx: ContextManager, back_btn: str = 'open.menu') -> dict:
     """Left page"""
 
     if ctx.chat_data.get('group_id') is None:
@@ -315,40 +315,36 @@ def left(ctx: ContextManager) -> dict:
 
     try:
         schedule = api.timetable_group(ctx.chat_data.get('group_id'), _date.today())
-        if len(schedule[0]['lessons']) != 0:
-            rem_time = lessontime.get_calls_status(schedule[0]['lessons'])
+        rem_time = lessontime.get_calls_status(schedule[0]['lessons'])
     except HTTPApiException:
         return api_unavaliable(ctx)
 
-    # If there is no classes
-    if len(schedule[0]['lessons']) == 0 or rem_time is None or rem_time['status'] == 'ended':
-        return {
-            'text': ctx.lang.get('page.left.no_more'),
-            'reply_markup': InlineKeyboardMarkup([[
-                InlineKeyboardButton(text=ctx.lang.get('button.back'), callback_data='open.more'),
-                InlineKeyboardButton(text=ctx.lang.get('button.menu'), callback_data='open.menu'),
-            ]]),
-            'parse_mode': 'MarkdownV2'
-        }
-
-    time_formatted = timeformatter.format_time(
-        lang_code=ctx.chat_data.get('lang_code'),
-        time=rem_time['time'], depth=2)
-
-    # Lesson is going
-    if rem_time['status'] == 'going':
-        page_text = ctx.lang.get('page.left.to_end').format(
-            left=escape_markdown(time_formatted, version=2))
-
-    # Classes is not started yet or it's break
-    else:
-        page_text = ctx.lang.get('page.left.to_start').format(
-            left=escape_markdown(time_formatted, version=2))
-
     buttons = [[
-        InlineKeyboardButton(text=ctx.lang.get('button.menu'), callback_data='open.menu'),
+        InlineKeyboardButton(text=ctx.lang.get('button.back'), callback_data=back_btn),
         InlineKeyboardButton(text=ctx.lang.get('button.refresh'), callback_data=f'open.left#rnd={random.random()}')
     ]]
+
+    # If there is no classes
+    if rem_time is None or rem_time['status'] == 'ended':
+        page_text = ctx.lang.get('page.left.no_more')
+
+    else:
+        time_formatted = timeformatter.format_time(
+            lang_code=ctx.chat_data.get('lang_code'),
+            time=rem_time['time'], depth=2
+        )
+
+        # Lesson is going
+        if rem_time['status'] == 'going':
+            page_text = ctx.lang.get('page.left.to_end').format(
+                left=escape_markdown(time_formatted, version=2)
+            )
+
+        # Classes is not started yet or it's break
+        else:
+            page_text = ctx.lang.get('page.left.to_start').format(
+                left=escape_markdown(time_formatted, version=2)
+            )
 
     return {
         'text': page_text,

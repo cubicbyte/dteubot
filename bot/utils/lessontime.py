@@ -38,6 +38,8 @@ def get_calls_status(
     - time_end: end time of the call
     """
 
+    if not lessons:
+        return None
     if calls is None:
         calls = api.timetable_call_schedule()
     if timestamp is None:
@@ -45,14 +47,11 @@ def get_calls_status(
 
     date = timestamp.date()
 
-    # Filter calls
-    if lessons:
-        lesson_numbers = [lesson['number'] for lesson in lessons]
-        filtered_calls = [call for call in calls if call['number'] in lesson_numbers]
-    else:
-        filtered_calls = calls
+    # Filter only calls, which are in lessons
+    lesson_numbers = [lesson['number'] for lesson in lessons]
+    filtered_calls = [call for call in calls if call['number'] in lesson_numbers]
 
-    # Parse calls time
+    # Parse calls time from string to datetime
     calls_time = []
     for call in filtered_calls:
         call_time_start = datetime.strptime(call['timeStart'], '%H:%M').time()
