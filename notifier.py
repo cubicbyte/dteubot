@@ -66,7 +66,7 @@ async def send_notifications(lesson_number: int, time_m: int):
 
         except Exception as e:
             _logger.exception('Unexpected error occurred while sending notifications.')
-            await send_error_to_telegram(e)
+            await send_error_to_telegram(bot=bot.bot, err=e)
 
     for call in calls:
         if call['number'] == lesson_number:
