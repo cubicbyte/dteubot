@@ -291,7 +291,7 @@ class GroupsCache:
         self.filepath = filepath
         self.expires = expires
 
-        if self.expires <= 0:
+        if self.expires is not None and self.expires <= 0:
             self.expires = None
 
         if not os.path.exists(self.filepath):
