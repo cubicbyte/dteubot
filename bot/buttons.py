@@ -322,15 +322,15 @@ async def select_cl_notif_1m(ctx: ContextManager):
     time = args.get('time')
     state = args.get('state')
     if time not in ('1m', '15m'):
-        time = '1m'
+        time = '15m'
         state = '0'
 
     # Disable other notification time if needed
-    if state == '1':
-        if time == '1m':
-            ctx.chat_data.set('cl_notif_15m', False)
-        else:
-            ctx.chat_data.set('cl_notif_1m', False)
+    # if state == '1':
+    #     if time == '1m':
+    #         ctx.chat_data.set('cl_notif_15m', False)
+    #     else:
+    #         ctx.chat_data.set('cl_notif_1m', False)
 
     # Set notification time
     ctx.chat_data.set(f'cl_notif_{time}', state == '1')
