@@ -136,7 +136,7 @@ async def start(ctx: ContextManager):
         ctx.user_data.set('ref', ref)
 
     # Send greeting message
-    msg = await ctx.update.message.chat.send_message(
+    msg = await ctx.update.effective_chat.send_message(
         **pages.greeting(ctx))
     ctx.chat_data.save_message('greeting', msg)
 
