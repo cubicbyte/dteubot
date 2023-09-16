@@ -70,10 +70,10 @@ async def log_message(upd, ctx):
     """Log messages"""
 
     logger.info('[chat/%s user/%s msg/%s] message: %s',
-        upd.message.chat.id,
-        upd.message.from_user.id,
-        upd.message.id,
-        upd.message.text
+        upd.effective_chat.id,
+        upd.effective_user.id,
+        upd.effective_message.id,
+        upd.effective_message.text
     )
 
 

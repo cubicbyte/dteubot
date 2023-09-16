@@ -141,7 +141,7 @@ async def start(ctx: ContextManager):
     ctx.chat_data.save_message('greeting', msg)
 
     # Send main message
-    msg = await ctx.update.message.chat.send_message(
+    msg = await ctx.update.effective_chat.send_message(
         **pages.structure_list(ctx))
     ctx.chat_data.save_message('structure_list', msg)
 

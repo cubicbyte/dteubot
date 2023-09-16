@@ -116,11 +116,13 @@ async def send_error_response_to_user(update: Update, context: CallbackContext):
     if update.callback_query is not None:
         # If the error happened when clicking a button
         msg = await update.callback_query.edit_message_text(**page)
+        ctx.chat_data.remove_message(msg.id)
     else:
         # If the error happened when sending a command
-        msg = await update.message.reply_text(**page)
+        if update.effective_message is None:
+            return
+        msg = await update.effective_message.reply_text(**page)
 
-    ctx.chat_data.remove_message(msg.id)
     ctx.chat_data.save_message('error', msg)
 
 
