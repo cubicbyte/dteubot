@@ -130,7 +130,8 @@ def check_next_lesson_start(group_id: int) -> bool:
     # Parse call time
     next_call_time_end = datetime.strptime(next_call['timeEnd'], '%H:%M').time()
     if prev_call is None:
-        prev_call_time_end = cur_time - timedelta(minutes=1)
+        prev_call_time_end = datetime.combine(cur_dt.date(), cur_time) - timedelta(minutes=1)
+        prev_call_time_end = prev_call_time_end.time()
     else:
         prev_call_time_end = datetime.strptime(prev_call['timeEnd'], '%H:%M').time()
 
