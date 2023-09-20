@@ -32,6 +32,7 @@ API_RETRIES_LIMIT = 5
 async def send_notification(chat_data: ChatDataManager, time_m: int):
     """Send notification to user if they have classes in X minutes."""
 
+    _logger.debug('Sending notification to user %s', chat_data.chat_id)
     schedule = api.timetable_group(chat_data.get('group_id'), date.today())
 
     msg = await bot.bot.send_message(
@@ -44,6 +45,8 @@ async def send_notification(chat_data: ChatDataManager, time_m: int):
 async def send_notifications(lesson_number: int, time_m: int):
     """Send notifications to all users that have classes in X minutes."""
 
+    _logger.info('Sending notifications. Lesson number: %s, time: %s', lesson_number, time_m)
+
     api_retries = 0
     for chat_data in ChatDataManager.get_all():
         # Check if notification should be sent
@@ -51,6 +54,8 @@ async def send_notifications(lesson_number: int, time_m: int):
                 not chat_data.get('_accessible') or \
                 chat_data.get('group_id') is None:
             continue
+
+        _logger.debug('Checking user %s', chat_data.chat_id)
 
         try:
             if not check_next_lesson_start(chat_data.get('group_id')):
