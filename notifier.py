@@ -53,7 +53,7 @@ async def send_notifications(lesson_number: int, time_m: int):
             continue
 
         try:
-            if not is_lesson_in_interval(chat_data.get('group_id'), timedelta(minutes=time_m + 1)):
+            if not check_next_lesson_start(chat_data.get('group_id')):
                 continue
             await send_notification(chat_data, time_m)
 
@@ -91,12 +91,11 @@ async def send_notifications(lesson_number: int, time_m: int):
             break
 
 
-def is_lesson_in_interval(group_id: int, interval: timedelta) -> bool:
-    """Check if there is a lesson in the given interval."""
+def check_next_lesson_start(group_id: int) -> bool:
+    """Check if next lesson starts for group."""
 
     cur_dt = datetime.now()
     cur_time = cur_dt.time()
-    with_interval = (cur_dt + interval).time()
     schedule = api.timetable_group(group_id, cur_dt.date())
 
     if len(schedule[0]['lessons']) == 0:
@@ -115,11 +114,29 @@ def is_lesson_in_interval(group_id: int, interval: timedelta) -> bool:
     else:
         return False
 
+    prev_call = None
+    next_call = None
     for call in calls:
         if call['number'] == first_lesson['number']:
-            call_time = datetime.strptime(call['timeStart'], '%H:%M').time()
-            if cur_time <= call_time <= with_interval:
-                return True
+            next_call = call
+            break
+        if call['number'] < first_lesson['number']:
+            prev_call = call
+
+    if next_call is None:
+        _logger.error('Next call not found. Call number: %s, calls: %s', first_lesson['number'], calls)
+        return False
+
+    # Parse call time
+    next_call_time_end = datetime.strptime(next_call['timeEnd'], '%H:%M').time()
+    if prev_call is None:
+        prev_call_time_end = cur_time - timedelta(minutes=1)
+    else:
+        prev_call_time_end = datetime.strptime(prev_call['timeEnd'], '%H:%M').time()
+
+    # Check if current time is between previous call and current call
+    if prev_call_time_end < cur_time <= next_call_time_end:
+        return True
 
     return False
 
