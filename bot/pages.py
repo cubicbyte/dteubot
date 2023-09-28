@@ -783,9 +783,9 @@ def error(ctx: ContextManager) -> dict:
 
 def notification_feature_suggestion(ctx: ContextManager) -> dict:
     buttons = [[
-        InlineKeyboardButton(text=ctx.lang.get('text.yes'),
+        InlineKeyboardButton(text=ctx.lang.get('text.try_it'),
                              callback_data='set.cl_notif#time=15m&state=1&suggestion'),
-        InlineKeyboardButton(text=ctx.lang.get('text.no'),
+        InlineKeyboardButton(text=ctx.lang.get('text.no_thanks'),
                              callback_data='close_page#page=notification_feature_suggestion')
     ]]
 

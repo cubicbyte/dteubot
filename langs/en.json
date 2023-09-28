@@ -1,10 +1,11 @@
 {
-    "lang_name": "🇬🇧 English",
+    "lang_name": "English",
 
 
 
     "text.yes": "Yes",
     "text.no": "No",
+    "text.try_it": "Try it",
     "text.no_thanks": "No, thanks",
     "text.not_selected": "❌ Not selected",
     "text.unknown": "Unknown",

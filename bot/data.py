@@ -352,7 +352,7 @@ class GroupsCache:
         return None
 
     def get_group(self, group_id: int) -> dict[str, any] | None:
-        """Get group name from cache or API"""
+        """Get group from cache or API"""
 
         group = self.cache.get(str(group_id))
         if group is None:
