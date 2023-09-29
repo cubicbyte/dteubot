@@ -526,6 +526,18 @@ class CachedApi(Api):
 
         return result
 
+    def clear_cache(self) -> None:
+        """Clears the cache"""
+        logger.debug('Clearing cache')
+
+        # Clear requests_cache cache
+        self.session.cache.clear()
+
+        # Clear database cache
+        cur = self._cursor.executescript('DELETE FROM group_schedule; VACUUM;')  # VACUUM actually clears deleted rows from the database
+        self._conn.commit()
+        logger.debug('Deleted %s rows from cache', cur.rowcount)
+
 
 class CachedResult(dict):
     """Dict wrapper for cached result of the API request"""

@@ -43,7 +43,7 @@
 
 
 
-    "button.admin.clear_expired_cache": "Очистить истекший кеш",
+    "button.admin.clear_cache": "Очистить кеш",
     "button.admin.get_logs": "Получить файл логов",
     "button.admin.clear_logs": "Очистить файл логов",
     "button.admin.panel": "🔒 Панель управления",

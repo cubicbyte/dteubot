@@ -43,7 +43,7 @@
 
 
 
-    "button.admin.clear_expired_cache": "Clear expired cache",
+    "button.admin.clear_cache": "Clear cache",
     "button.admin.get_logs": "Get logs file",
     "button.admin.clear_logs": "Clear logs file",
     "button.admin.panel": "🔒 Control panel",

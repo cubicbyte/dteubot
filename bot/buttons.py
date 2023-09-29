@@ -47,13 +47,12 @@ def validate_admin(func):
     return wrapper
 
 
-@register_button('^admin.clear_expired_cache')
+@register_button('^admin.clear_cache')
 @validate_admin
-async def clear_expired_cache(ctx: ContextManager):
-    """Clear expired cache"""
+async def clear_cache(ctx: ContextManager):
+    """Clear all the API cache"""
 
-    if api.cache_enabled:
-        api.session.cache.delete(expired=True)
+    api.clear_cache()
 
     await ctx.update.callback_query.answer(
         text=ctx.lang.get('alert.done'),
