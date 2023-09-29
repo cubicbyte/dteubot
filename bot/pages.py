@@ -78,7 +78,7 @@ def api_unavaliable(ctx: ContextManager) -> dict:
     }
 
 
-def calls(ctx: ContextManager) -> dict:
+def calls(ctx: ContextManager, back_btn: str = 'open.menu') -> dict:
     """Calls page"""
 
     try:
@@ -88,9 +88,7 @@ def calls(ctx: ContextManager) -> dict:
 
     buttons = [[
         InlineKeyboardButton(text=ctx.lang.get('button.back'),
-                             callback_data='open.more'),
-        InlineKeyboardButton(text=ctx.lang.get('button.menu'),
-                             callback_data='open.menu')
+                             callback_data=back_btn),
     ]]
 
     return {

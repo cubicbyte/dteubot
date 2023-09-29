@@ -36,7 +36,7 @@ async def calls(ctx: ContextManager):
     """Show calls"""
 
     msg = await ctx.update.message.chat.send_message(
-        **pages.calls(ctx))
+        **pages.calls(ctx, back_btn='open.menu'))
     ctx.chat_data.save_message('calls', msg)
 
 
