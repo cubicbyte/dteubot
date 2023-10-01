@@ -30,28 +30,35 @@ async def handler(update: Update, context: CallbackContext):
         raise context.error
 
     except BadRequest:
-        _logger.warning(context.error)
-
         if hasattr(update, 'effective_chat'):
             chat_data = ChatDataManager(update.effective_chat.id)
 
         if context.error.message.startswith('Message is not modified'):
             # User was clicking buttons too fast
+            _logger.warning(context.error)
             pass
 
         elif context.error.message.startswith('Chat not found') or \
                 context.error.message.startswith('Peer_id_invalid'):
             # Chat was deleted most likely
+            _logger.warning(context.error)
             chat_data.set('_accessible', False)
 
         elif context.error.message.startswith('Message can\'t be deleted for everyone'):
             # Mostly occurs when the message is older than 48 hours
             if isinstance(context, CallbackContext):
+                _logger.warning(context.error)
                 await update.callback_query.answer(text=chat_data.lang.get('alert.message_too_old'))
                 page = menu_page(ContextManager(update, context))
                 msg = await update.callback_query.edit_message_text(**page)
                 chat_data.remove_message(msg.id)
                 chat_data.save_message('menu', msg)
+
+        else:
+            # Unknown error
+            _logger.exception(context.error)
+            await send_error_to_telegram(context.bot, context.error)
+            await send_error_response_to_user(update, context)
 
     except RetryAfter:
         # Flood control
