@@ -387,6 +387,9 @@ def more(ctx: ContextManager) -> dict:
         InlineKeyboardButton(text=ctx.lang.get('button.left'),
                              callback_data='open.left')
     ], [
+        InlineKeyboardButton(text=ctx.lang.get('button.students_list'),
+                             callback_data='open.students_list')
+    ], [
         InlineKeyboardButton(text=ctx.lang.get('button.info'),
                              callback_data='open.info')
     ], [
@@ -835,6 +838,55 @@ def not_found(ctx: ContextManager, back_btn: str | None = None) -> dict:
         'parse_mode': 'MarkdownV2'
     }
 
+
+def students_list(ctx: ContextManager) -> dict:
+    """Students list page"""
+
+    # Get students
+    try:
+        students = api.list_students_by_group(
+            group_id=ctx.chat_data.get('group_id'),
+            language=ctx.chat_data.get('lang_code'),
+        )
+    except HTTPApiException as err:
+        if err.response.status_code == 422:
+            return invalid_group(ctx)
+        return api_unavaliable(ctx)
+
+    # Create page text
+    page_text = ''
+
+    for i, student in enumerate(students, start=1):
+        # 1) Full name\n
+        name = escape_markdown(student['lastName'], version=2)
+        name += ' ' + escape_markdown(student['firstName'], version=2)
+        name += ' ' + escape_markdown(student['secondName'], version=2)
+
+        page_text += f'*{i}\\)* {name}\n'
+
+    # Get group name
+    group = groups_cache.get_group(group_id=ctx.chat_data.get('group_id'))
+    if group is None:
+        group_name = ctx.lang.get('text.unknown')
+    else:
+        group_name = escape_markdown(group['name'], version=2)
+
+    page_text = ctx.lang.get('page.students_list').format(
+        group=group_name,
+        students=page_text,
+    )
+
+    # Prevent too long message error
+    if len(page_text) > 4096:
+        page_text = page_text[:4093] + '...'
+
+    return {
+        'text': page_text,
+        'reply_markup': InlineKeyboardMarkup([[
+            InlineKeyboardButton(text=ctx.lang.get('button.back'), callback_data='open.more')
+        ]]),
+        'parse_mode': 'MarkdownV2'
+    }
 
 
 

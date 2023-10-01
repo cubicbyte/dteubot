@@ -353,3 +353,12 @@ async def select_cl_notif_1m(ctx: ContextManager):
     msg = await ctx.update.callback_query.edit_message_text(
         **pages.settings(ctx))
     ctx.chat_data.save_message('settings', msg)
+
+
+@register_button('^open.students_list')
+async def open_students_list(ctx: ContextManager):
+    """Open students list"""
+
+    msg = await ctx.update.callback_query.edit_message_text(
+        **pages.students_list(ctx))
+    ctx.chat_data.save_message('students_list', msg)
