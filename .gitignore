@@ -1,9 +1,4 @@
-/user-data/
-/chat-data/
-/logs/
-/cache/
-
-__pycache__/
-
-.env
-*.code-workspace
+*.exe
+/cache
+/.idea
+/.env
