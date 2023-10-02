@@ -11,6 +11,7 @@ from datetime import date as _date, timedelta
 from functools import lru_cache
 
 from babel.dates import format_date
+from babel import Locale, UnknownLocaleError
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.helpers import escape_markdown
 from requests.exceptions import RequestException, HTTPError
@@ -992,8 +993,13 @@ def _get_localized_date(ctx: ContextManager, date: _date) -> str:
     📅 18 трав. 2023 р. [П'ятниця] 📅
     """
 
-    date_localized = escape_markdown(format_date(
-        date, locale=ctx.chat_data.get('lang_code')), version=2)
+    # Parse language locale
+    try:
+        locale = Locale.parse(ctx.chat_data.get('lang_code'))
+    except (UnknownLocaleError, ValueError):
+        locale = Locale.parse('en_US')
+
+    date_localized = escape_markdown(format_date(date, locale=locale), version=2)
     week_day_localized = ctx.lang.get('text.time.week_day.' + str(date.weekday()))
     full_date_localized = f"*{date_localized}* `[`*{week_day_localized}*`]`"
 
