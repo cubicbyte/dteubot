@@ -1,4 +1,3 @@
-// Package config contains functions for loading and validating environment variables
 package config
 
 import (
