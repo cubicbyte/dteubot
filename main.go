@@ -17,33 +17,32 @@ func main() {
 	err := config.LoadEnv()
 	if err != nil {
 		fmt.Printf("Error loading .env file: %s\n", err)
-		pause()
+		pauseAndExit(1)
 	}
 
 	err = config.ValidateEnv()
 	if err != nil {
 		fmt.Printf("Error validating .env file: %s\n", err)
-		pause()
+		pauseAndExit(1)
 	}
 
 	err = logging_.Init()
 	if err != nil {
 		fmt.Printf("Error initializing logging: %s\n", err)
-		pause()
+		pauseAndExit(1)
 	}
 
 	langs, err := i18n.LoadLangs()
 	if err != nil {
 		fmt.Printf("Error loading languages: %s\n", err)
-		pause()
+		pauseAndExit(1)
 	}
 
 	log.Infof("Loaded %d languages\n", len(langs))
 	lang, ok := langs["uk"]
 	if !ok {
 		log.Error("Language 'uk' not found")
-		pause()
-		os.Exit(1)
+		pauseAndExit(1)
 	}
 	log.Infof("lang.Page.LeftNoMore: '%s'\n", lang.Page.LeftNoMore)
 
@@ -54,8 +53,7 @@ func main() {
 		if errors.Is(err, &api.ApiError{}) {
 			log.Errorf("HTTP status code: %d\n", err.(*api.ApiError).Code)
 		}
-		pause()
-		os.Exit(1)
+		pauseAndExit(1)
 	}
 
 	log.Infof("Loaded %d calls\n", len(calls))
@@ -63,11 +61,13 @@ func main() {
 		log.Infof("%s - %s\n", call.TimeStart, call.TimeEnd)
 	}
 
-	pause()
-	os.Exit(0)
+	pauseAndExit(0)
 }
 
-func pause() {
+func pauseAndExit(code int) {
 	fmt.Println("Press Enter Key to continue...")
-	fmt.Scanln()
+	if _, err := fmt.Scanln(); err != nil {
+		return
+	}
+	os.Exit(code)
 }
