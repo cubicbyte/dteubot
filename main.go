@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/cubicbyte/dteubot/internal/config"
+	"github.com/cubicbyte/dteubot/internal/i18n"
 	logging_ "github.com/cubicbyte/dteubot/internal/logging"
 	"github.com/op/go-logging"
 	"os"
@@ -29,12 +30,26 @@ func main() {
 		pause()
 	}
 
-	log.Error("Test error! Press Enter Key to exit")
-	fmt.Scanln()
+	langs, err := i18n.LoadLangs()
+	if err != nil {
+		fmt.Printf("Error loading languages: %s\n", err)
+		pause()
+	}
+
+	log.Infof("Loaded %d languages\n", len(langs))
+	lang, ok := langs["uk"]
+	if !ok {
+		log.Error("Language 'uk' not found")
+		pause()
+		os.Exit(1)
+	}
+	log.Infof("lang.Page.LeftNoMore: '%s'\n", lang.Page.LeftNoMore)
+
+	pause()
+	os.Exit(0)
 }
 
 func pause() {
-	fmt.Println("Press Enter Key to exit...")
+	fmt.Println("Press Enter Key to continue...")
 	fmt.Scanln()
-	os.Exit(1)
 }
