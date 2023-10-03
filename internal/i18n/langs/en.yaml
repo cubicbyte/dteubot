@@ -94,8 +94,8 @@ page:
     *Bot Creator*\n
     FIT 3\\-8 group student\n
     [Bohdan Marukhnenko](tg://resolve?domain=cubicbyte)\n\n
-    ⚙️ *API Version*: {api_ver}\n⚙️ *Supported Version*: {api_ver_supported}\n
-    🌐 *Source Code* \\- [github\\.com/cubicbyte/dteubot](https://github.com/cubicbyte/dteubot)\n\n
+    🌐 *Source Code* \\- [github\\.com/cubicbyte/dteubot](https://github.com/cubicbyte/dteubot)\n
+    _Written on Go programming language_\n\n
     Use the @dteubot bot as a tool for getting your class schedule for each day\\.
   api_unavailable: >
     It seems that the class schedule website is currently not working/unresponsive\\.\n\n

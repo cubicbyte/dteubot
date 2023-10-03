@@ -1,10 +1,12 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"github.com/cubicbyte/dteubot/internal/config"
 	"github.com/cubicbyte/dteubot/internal/i18n"
 	logging_ "github.com/cubicbyte/dteubot/internal/logging"
+	"github.com/cubicbyte/dteubot/pkg/api"
 	"github.com/op/go-logging"
 	"os"
 )
@@ -44,6 +46,22 @@ func main() {
 		os.Exit(1)
 	}
 	log.Infof("lang.Page.LeftNoMore: '%s'\n", lang.Page.LeftNoMore)
+
+	myApi := api.Api{"https://mia.mobil.knute.edu.ua"}
+	calls, err := myApi.GetCallSchedule()
+	if err != nil {
+		log.Errorf("Error getting calls schedule: %s\n", err)
+		if errors.Is(err, &api.ApiError{}) {
+			log.Errorf("HTTP status code: %d\n", err.(*api.ApiError).Code)
+		}
+		pause()
+		os.Exit(1)
+	}
+
+	log.Infof("Loaded %d calls\n", len(calls))
+	for _, call := range calls {
+		log.Infof("%s - %s\n", call.TimeStart, call.TimeEnd)
+	}
 
 	pause()
 	os.Exit(0)
