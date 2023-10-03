@@ -235,8 +235,7 @@ def _load_teachers_to_file(filepath: str, teachers: list[Teacher]):
         writer.writerow(['name', 'page_link'])
 
         for teacher in teachers:
-            writer.writerow([teacher.name.lower(), teacher.description,
-                             teacher.photo_link, teacher.page_link])
+            writer.writerow([teacher.name.lower(), teacher.page_link])
 
 
 if __name__ == '__main__':
