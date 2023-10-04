@@ -5,10 +5,12 @@ import (
 	"time"
 )
 
+// UserDataManager makes it easier to work with user data.
 type UserDataManager struct {
 	UserId int64
 }
 
+// UserData is a struct that contains all the data about a user.
 type UserData struct {
 	UserId    int64     `db:"user_id"`
 	FirstName string    `db:"first_name"`
@@ -18,6 +20,7 @@ type UserData struct {
 	Created   time.Time `db:"created"`
 }
 
+// GetUserData returns user data for the user.
 func (m *UserDataManager) GetUserData() (*UserData, error) {
 	log.Debugf("Getting user data for user %d\n", m.UserId)
 
@@ -30,6 +33,7 @@ func (m *UserDataManager) GetUserData() (*UserData, error) {
 	return userData, nil
 }
 
+// UpdateUserData updates user data for the user.
 func (m *UserDataManager) UpdateUserData(userData *UserData) error {
 	log.Debugf("Updating user data for user %d\n", userData.UserId)
 
@@ -41,6 +45,7 @@ func (m *UserDataManager) UpdateUserData(userData *UserData) error {
 	return nil
 }
 
+// CreateUserData creates user data for the user.
 func (m *UserDataManager) CreateUserData(firstName string, username *string, referral *string) error {
 	log.Debugf("Creating user data for user %d\n", m.UserId)
 
@@ -52,6 +57,7 @@ func (m *UserDataManager) CreateUserData(firstName string, username *string, ref
 	return nil
 }
 
+// IsUserExists checks if the user exists in the database.
 func (m *UserDataManager) IsUserExists() (bool, error) {
 	log.Debugf("Checking if user %d exists\n", m.UserId)
 

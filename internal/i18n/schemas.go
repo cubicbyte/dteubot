@@ -1,5 +1,7 @@
 package i18n
 
+// LanguageNotFoundError is an error that is returned when
+// a language with a specific language code is not found.
 type LanguageNotFoundError struct {
 	LangCode string
 }
@@ -8,6 +10,8 @@ func (e *LanguageNotFoundError) Error() string {
 	return "Language not found: " + e.LangCode
 }
 
+// Language is a struct that contains all the localization
+// strings for a specific language needed for the bot.
 type Language struct {
 	LangName string `yaml:"lang_name"`
 	Text     struct {

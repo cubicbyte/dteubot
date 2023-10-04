@@ -14,7 +14,8 @@ var (
 	log       = logging.MustGetLogger("bot")
 )
 
-func Run() {
+// Setup sets up all the bot components.
+func Setup() {
 	log.Info("Setting up bot")
 
 	// Load localization files
@@ -41,4 +42,9 @@ func Run() {
 		log.Fatalf("Error connecting to database: %s\n", err)
 	}
 	log.Info("Connected to database")
+}
+
+// Run starts the bot.
+func Run() {
+
 }

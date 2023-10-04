@@ -30,6 +30,7 @@ var (
 	UpdateUserQuery string
 )
 
+// Database is a PostgreSQL database connection manager.
 type Database struct {
 	Host     string
 	Port     int
@@ -41,6 +42,7 @@ type Database struct {
 	Db  *sqlx.DB
 }
 
+// Connect connects to the database.
 func (db *Database) Connect() error {
 	log.Info("Connecting to database")
 
@@ -67,6 +69,7 @@ func (db *Database) Connect() error {
 	return nil
 }
 
+// Close closes the database connection.
 func (db *Database) Close() error {
 	log.Info("Closing database connection")
 

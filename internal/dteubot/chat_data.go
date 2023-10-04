@@ -7,10 +7,12 @@ import (
 	"time"
 )
 
+// ChatDataManager makes it easier to work with chat data.
 type ChatDataManager struct {
 	ChatId int64
 }
 
+// ChatData is a struct that contains all the data about a chat.
 type ChatData struct {
 	ChatId                 int64     `db:"chat_id"`
 	GroupId                int       `db:"group_id"`
@@ -22,6 +24,7 @@ type ChatData struct {
 	Created                time.Time `db:"created"`
 }
 
+// GetChatData returns chat data for the chat.
 func (m *ChatDataManager) GetChatData() (*ChatData, error) {
 	log.Debugf("Getting chat data for chat %d\n", m.ChatId)
 
@@ -34,6 +37,7 @@ func (m *ChatDataManager) GetChatData() (*ChatData, error) {
 	return chatData, nil
 }
 
+// UpdateChatData updates chat data for the chat.
 func (m *ChatDataManager) UpdateChatData(chatData *ChatData) error {
 	log.Debugf("Updating chat data for chat %d\n", chatData.ChatId)
 
@@ -45,6 +49,7 @@ func (m *ChatDataManager) UpdateChatData(chatData *ChatData) error {
 	return nil
 }
 
+// CreateChatData creates chat data record in database for the chat.
 func (m *ChatDataManager) CreateChatData() error {
 	log.Debugf("Creating chat data for chat %d\n", m.ChatId)
 
@@ -56,6 +61,7 @@ func (m *ChatDataManager) CreateChatData() error {
 	return nil
 }
 
+// IsChatExists checks if the chat exists in the database.
 func (m *ChatDataManager) IsChatExists() (bool, error) {
 	log.Debugf("Checking if chat %d exists\n", m.ChatId)
 
@@ -68,6 +74,7 @@ func (m *ChatDataManager) IsChatExists() (bool, error) {
 	return exists, nil
 }
 
+// GetLanguage returns the language of the chat.
 func (m *ChatDataManager) GetLanguage() (*i18n.Language, error) {
 	// Get chat data
 	chatData, err := m.GetChatData()

@@ -2,15 +2,20 @@ package i18n
 
 import (
 	"embed"
+	"github.com/op/go-logging"
 	"gopkg.in/yaml.v3"
 )
 
 //go:embed langs/*.yaml
 var langsFS embed.FS
 
+var log = logging.MustGetLogger("i18n")
+
 // LoadLangs loads all languages from given path.
 // All language files should have .yaml extension and be in langs/ directory
 func LoadLangs() (map[string]Language, error) {
+	log.Info("Loading languages")
+
 	obj := make(map[string]Language)
 
 	// Get all lang files

@@ -10,7 +10,7 @@ var fileFormat = logging.MustStringFormatter(
 )
 
 var cmdFormat = logging.MustStringFormatter(
-	`%{color}%{time:15:04:05.000} %{module} ▶ %{level}%{color:reset} %{message}`,
+	`%{color}%{time:15:04:05.000} %{module} %{level} ▶%{color:reset} %{message}`,
 )
 
 const LogFilePath = "debug.log"
