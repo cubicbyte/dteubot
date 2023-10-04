@@ -3,7 +3,6 @@ package api
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"github.com/op/go-logging"
 	"io"
@@ -11,16 +10,6 @@ import (
 )
 
 var log = logging.MustGetLogger("api")
-
-// ApiError is an error returned by the API when status code is not 200
-type ApiError struct {
-	Code int
-	Body string
-}
-
-func (e *ApiError) Error() string {
-	return errors.New("api error").Error()
-}
 
 // Api is a wrapper for mkr.org.ua API requests.
 // Documentation can be found here: https://mkr.org.ua
@@ -65,10 +54,29 @@ func (api *Api) makeRequest(method string, path string, body string, result any)
 		return err
 	}
 
+	// Handle non-200 status codes
 	if res.StatusCode != http.StatusOK {
-		return &ApiError{
-			Code: res.StatusCode,
-			Body: string(resBody),
+		switch res.StatusCode {
+		case http.StatusUnauthorized:
+			var e UnauthorizedError
+			if err := json.Unmarshal(resBody, &e); err != nil {
+				return err
+			}
+			return &e
+		case http.StatusForbidden:
+			var e ForbiddenError
+			if err := json.Unmarshal(resBody, &e); err != nil {
+				return err
+			}
+			return &e
+		case http.StatusUnprocessableEntity:
+			var e ValidationError
+			if err := json.Unmarshal(resBody, &e.Fields); err != nil {
+				return err
+			}
+			return &e
+		default:
+			return &HTTPApiError{res.StatusCode, string(resBody)}
 		}
 	}
 
@@ -157,16 +165,16 @@ func (api *Api) GetCallSchedule() ([]CallSchedule, error) {
 
 // GetGroupSchedule returns a schedule for a group
 // from dateStart to dateEnd (inclusive)
-func (api *Api) GetGroupSchedule(groupId int, dateStart string, dateEnd string) ([]TimeTablePeriod, error) {
-	var timeTablePeriod []TimeTablePeriod
+func (api *Api) GetGroupSchedule(groupId int, dateStart string, dateEnd string) ([]TimeTableDate, error) {
+	var timeTableDate []TimeTableDate
 	body := fmt.Sprintf(`{"groupId":%d,"dateStart":"%s","dateEnd":"%s"}`, groupId, dateStart, dateEnd)
 
-	err := api.makeRequest("POST", "/time-table/group-schedule", body, &timeTablePeriod)
+	err := api.makeRequest("POST", "/time-table/group", body, &timeTableDate)
 	if err != nil {
 		return nil, err
 	}
 
-	return timeTablePeriod, nil
+	return timeTableDate, nil
 }
 
 // GetScheduleExtraInfo returns a extra info for a schedule,

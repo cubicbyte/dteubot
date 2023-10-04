@@ -53,10 +53,14 @@ type TimeTablePeriod struct {
 	TeachersName          string `json:"teachersName"`
 	TeachersNameFull      string `json:"teachersNameFull"`
 	Type                  int    `json:"type"`
+	TypeStr               string `json:"typeStr"`
 	DateUpdated           string `json:"dateUpdated"`
 	NonstandardTime       bool   `json:"nonstandardTime"`
 	Groups                string `json:"groups"`
+	ChairName             string `json:"chairName"`
 	ExtraText             bool   `json:"extraText"`
+	LessonYear            int    `json:"lessonYear"`
+	Semester              int    `json:"semester"`
 }
 
 type TimeTableLesson struct {

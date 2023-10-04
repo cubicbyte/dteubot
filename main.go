@@ -46,6 +46,7 @@ func main() {
 	}
 	log.Infof("lang.Page.LeftNoMore: '%s'\n", lang.Page.LeftNoMore)
 
+	myApi := api.Api{Url: "https://mia.mobil.knute.edu.ua"}
 	myApi := api.Api{"https://mia.mobil.knute.edu.ua"}
 	calls, err := myApi.GetCallSchedule()
 	if err != nil {
