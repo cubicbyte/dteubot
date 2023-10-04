@@ -1,7 +1,6 @@
-package dteubot
+package data
 
 import (
-	"github.com/cubicbyte/dteubot/internal/db"
 	"time"
 )
 
@@ -25,7 +24,7 @@ func (m *UserDataManager) GetUserData() (*UserData, error) {
 	log.Debugf("Getting user data for user %d\n", m.UserId)
 
 	userData := new(UserData)
-	err := Database.Db.Get(userData, db.GetUserQuery, m.UserId)
+	err := DbInstance.Db.Get(userData, GetUserQuery, m.UserId)
 	if err != nil {
 		return nil, err
 	}
@@ -37,7 +36,7 @@ func (m *UserDataManager) GetUserData() (*UserData, error) {
 func (m *UserDataManager) UpdateUserData(userData *UserData) error {
 	log.Debugf("Updating user data for user %d\n", userData.UserId)
 
-	_, err := Database.Db.NamedExec(db.UpdateUserQuery, userData)
+	_, err := DbInstance.Db.NamedExec(UpdateUserQuery, userData)
 	if err != nil {
 		return err
 	}
@@ -46,15 +45,16 @@ func (m *UserDataManager) UpdateUserData(userData *UserData) error {
 }
 
 // CreateUserData creates user data for the user.
-func (m *UserDataManager) CreateUserData(firstName string, username *string, referral *string) error {
+func (m *UserDataManager) CreateUserData() (*UserData, error) {
 	log.Debugf("Creating user data for user %d\n", m.UserId)
 
-	_, err := Database.Db.Exec(db.CreateUserQuery, m.UserId, firstName, username, referral)
+	userData := new(UserData)
+	err := DbInstance.Db.Get(userData, CreateUserQuery, m.UserId)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return userData, nil
 }
 
 // IsUserExists checks if the user exists in the database.
@@ -62,10 +62,36 @@ func (m *UserDataManager) IsUserExists() (bool, error) {
 	log.Debugf("Checking if user %d exists\n", m.UserId)
 
 	var exists bool
-	err := Database.Db.Get(&exists, db.IsUserExistsQuery, m.UserId)
+	err := DbInstance.Db.Get(&exists, IsUserExistsQuery, m.UserId)
 	if err != nil {
 		return false, err
 	}
 
 	return exists, nil
+}
+
+// GetOrCreateUserData returns user data for the user or creates it if it doesn't exist.
+func (m *UserDataManager) GetOrCreateUserData() (*UserData, error) {
+	// Check if user data exists
+	exists, err := m.IsUserExists()
+	if err != nil {
+		return nil, err
+	}
+
+	// If user data doesn't exist, create it
+	if !exists {
+		userData, err := m.CreateUserData()
+		if err != nil {
+			return nil, err
+		}
+		return userData, nil
+	}
+
+	// Get user data
+	userData, err := m.GetUserData()
+	if err != nil {
+		return nil, err
+	}
+
+	return userData, nil
 }

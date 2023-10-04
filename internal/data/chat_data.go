@@ -1,7 +1,7 @@
-package dteubot
+package data
 
 import (
-	"github.com/cubicbyte/dteubot/internal/db"
+	"github.com/cubicbyte/dteubot/internal/dteubot/settings"
 	"github.com/cubicbyte/dteubot/internal/i18n"
 	"os"
 	"time"
@@ -29,7 +29,7 @@ func (m *ChatDataManager) GetChatData() (*ChatData, error) {
 	log.Debugf("Getting chat data for chat %d\n", m.ChatId)
 
 	chatData := new(ChatData)
-	err := Database.Db.Get(chatData, db.GetChatQuery, m.ChatId)
+	err := DbInstance.Db.Get(chatData, GetChatQuery, m.ChatId)
 	if err != nil {
 		return nil, err
 	}
@@ -41,7 +41,7 @@ func (m *ChatDataManager) GetChatData() (*ChatData, error) {
 func (m *ChatDataManager) UpdateChatData(chatData *ChatData) error {
 	log.Debugf("Updating chat data for chat %d\n", chatData.ChatId)
 
-	_, err := Database.Db.NamedExec(db.UpdateChatQuery, chatData)
+	_, err := DbInstance.Db.NamedExec(UpdateChatQuery, chatData)
 	if err != nil {
 		return err
 	}
@@ -50,15 +50,16 @@ func (m *ChatDataManager) UpdateChatData(chatData *ChatData) error {
 }
 
 // CreateChatData creates chat data record in database for the chat.
-func (m *ChatDataManager) CreateChatData() error {
+func (m *ChatDataManager) CreateChatData() (*ChatData, error) {
 	log.Debugf("Creating chat data for chat %d\n", m.ChatId)
 
-	_, err := Database.Db.Exec(db.CreateChatQuery, m.ChatId, os.Getenv("DEFAULT_LANG"))
+	chatData := new(ChatData)
+	err := DbInstance.Db.Get(chatData, CreateChatQuery, m.ChatId, os.Getenv("DEFAULT_LANG"))
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return chatData, nil
 }
 
 // IsChatExists checks if the chat exists in the database.
@@ -66,12 +67,38 @@ func (m *ChatDataManager) IsChatExists() (bool, error) {
 	log.Debugf("Checking if chat %d exists\n", m.ChatId)
 
 	var exists bool
-	err := Database.Db.Get(&exists, db.IsChatExistsQuery, m.ChatId)
+	err := DbInstance.Db.Get(&exists, IsChatExistsQuery, m.ChatId)
 	if err != nil {
 		return false, err
 	}
 
 	return exists, nil
+}
+
+// GetOrCreateChatData returns chat data for the chat or creates it if it doesn't exist.
+func (m *ChatDataManager) GetOrCreateChatData() (*ChatData, error) {
+	// Check if chat data exists
+	exists, err := m.IsChatExists()
+	if err != nil {
+		return nil, err
+	}
+
+	// Create chat data if it doesn't exist
+	if !exists {
+		chatData, err := m.CreateChatData()
+		if err != nil {
+			return nil, err
+		}
+		return chatData, nil
+	}
+
+	// Get chat data
+	chatData, err := m.GetChatData()
+	if err != nil {
+		return nil, err
+	}
+
+	return chatData, nil
 }
 
 // GetLanguage returns the language of the chat.
@@ -91,7 +118,7 @@ func (m *ChatDataManager) GetLanguage() (*i18n.Language, error) {
 	}
 
 	// Get language
-	lang, ok := Languages[langCode]
+	lang, ok := settings.Languages[langCode]
 	if !ok {
 		return nil, &i18n.LanguageNotFoundError{LangCode: langCode}
 	}

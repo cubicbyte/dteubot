@@ -60,6 +60,9 @@ func Init() error {
 	case "ERROR":
 		fsBackendLeveled.SetLevel(logging.ERROR, "")
 		cmdBackendLeveled.SetLevel(logging.ERROR, "")
+	case "CRITICAL":
+		fsBackendLeveled.SetLevel(logging.CRITICAL, "")
+		cmdBackendLeveled.SetLevel(logging.CRITICAL, "")
 	}
 
 	logging.SetBackend(fsBackendLeveled, cmdBackendLeveled)

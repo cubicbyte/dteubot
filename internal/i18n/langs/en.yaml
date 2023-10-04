@@ -1,132 +1,134 @@
-lang_name: English
+lang_name: "English"
 
 text:
-  yes: Yes
-  no: No
-  try_it: Try it
-  no_thanks: No, thanks
-  not_selected: ❌ Not selected
-  unknown: Unknown
-  week_day.1: Monday
-  week_day.3: Wednesday
-  week_day.4: Thursday
-  week_day.5: Friday
-  week_day.6: Saturday
-  week_day.7: Sunday
-  week_day.unknown: Unknown day
-  short_week_day.1: Mon
-  short_week_day.2: Tue
-  short_week_day.3: Wed
-  short_week_day.4: Thu
-  short_week_day.5: Fri
-  short_week_day.6: Sat
-  short_week_day.7: Sun
+  yes: "Yes"
+  no: "No"
+  try_it: "Try it"
+  no_thanks: "No, thanks"
+  not_selected: "❌ Not selected"
+  unknown: "Unknown"
+  week_day.1: "Monday"
+  week_day.3: "Wednesday"
+  week_day.4: "Thursday"
+  week_day.5: "Friday"
+  week_day.6: "Saturday"
+  week_day.7: "Sunday"
+  week_day.unknown: "Unknown day"
+  short_week_day.1: "Mon"
+  short_week_day.2: "Tue"
+  short_week_day.3: "Wed"
+  short_week_day.4: "Thu"
+  short_week_day.5: "Fri"
+  short_week_day.6: "Sat"
+  short_week_day.7: "Sun"
   short_week_day.unknown: "?"
-  time_ago: ago
-  time.seconds: seconds
-  time.minutes: minutes
-  time.hours: hours
-  time.days: days
-  short_time.seconds: sec.
-  short_time.minutes: min.
-  short_time.hours: hr.
-  short_time.days: days
+  time_ago: "ago"
+  time.seconds: "seconds"
+  time.minutes: "minutes"
+  time.hours: "hours"
+  time.days: "days"
+  short_time.seconds: "sec."
+  short_time.minutes: "min."
+  short_time.hours: "hr."
+  short_time.days: "days"
 
 button:
-  clear_cache: Clear Cache
-  get_logs: Get Logs
-  clear_logs: Clear Logs
-  admin_panel: 🔒 Admin Panel
-  calls_schedule: 🕓 Calls Schedule
-  time_left: 🕓 Time Left
-  write_me: ✉️ Write to Me
-  close_page: ✖️ Close
-  menu: 🏠 Menu
-  back: ⬅️ Back
-  more: 🗂 More
-  info: ℹ️ Info
-  refresh: 🔄 Refresh
-  select_group: 🔎 Select Group
-  select_lang: 🌐 Change Language
-  open_schedule: 📋 Open Schedule
-  students_list: 📋 Students List
-  settings: ⚙️ Settings
-  setting.cl_notif_15m: Reminders 15 min before classes
-  setting.cl_notif_1m: Reminders 1 min before classes
-  schedule: 📋 Class Schedule
-  schedule.today: 📋 Classes Today
-  schedule.tomorrow: 📋 Classes Tomorrow
-  schedule.week: 📅 Current Week
-  schedule.next_week: 📆 Next Week
-  schedule.extra: ℹ️ Additional Information
-  schedule_navigation.today: 📋 Today
-  schedule_navigation.next_day: ▶️ Next
-  schedule_navigation.next_week: ⏩ Week
-  schedule_navigation.previous_day: ⬅️ Previous
-  schedule_navigation.previous_week: ⏪ Week
+  clear_cache: "Clear Cache"
+  get_logs: "Get Logs"
+  clear_logs: "Clear Logs"
+  admin_panel: "🔒 Admin Panel"
+  calls_schedule: "🕓 Calls Schedule"
+  time_left: "🕓 Time Left"
+  write_me: "✉️ Write to Me"
+  close_page: "✖️ Close"
+  menu: "🏠 Menu"
+  back: "⬅️ Back"
+  more: "🗂 More"
+  info: "ℹ️ Info"
+  refresh: "🔄 Refresh"
+  select_group: "🔎 Select Group"
+  select_lang: "🌐 Change Language"
+  open_schedule: "📋 Open Schedule"
+  students_list: "📋 Students List"
+  settings: "⚙️ Settings"
+  setting.cl_notif_15m: "Reminders 15 min before classes"
+  setting.cl_notif_1m: "Reminders 1 min before classes"
+  schedule: "📋 Class Schedule"
+  schedule.today: "📋 Classes Today"
+  schedule.tomorrow: "📋 Classes Tomorrow"
+  schedule.week: "📅 Current Week"
+  schedule.next_week: "📆 Next Week"
+  schedule.extra: "ℹ️ Additional Information"
+  schedule_navigation.today: "📋 Today"
+  schedule_navigation.next_day: "▶️ Next"
+  schedule_navigation.next_week: "⏩ Week"
+  schedule_navigation.previous_day: "⬅️ Previous"
+  schedule_navigation.previous_week: "⏪ Week"
 
 alert:
-  done: ✅ Done
-  no_permissions: ❗️ You do not have enough permissions to perform this command.
+  done: "✅ Done"
+  no_permissions: "❗️ You do not have enough permissions to perform this command."
   callback_query_unsupported: "❗️ Failed to execute: the button is outdated.\n\nPlease try again."
-  cl_notif_enabled_tooltip: >
-    You will now receive notifications {remaining} minutes before the start of classes.\n\nYou can change the time or turn off notifications in the settings.
-  message_too_old: The message is outdated, please try deleting it manually.
-  flood_control: You are pressing buttons too frequently.\nTry again in {0} seconds.
+  cl_notif_enabled_tooltip:
+    "You will now receive notifications {remaining} minutes before the start
+    of classes.\n\nYou can change the time or turn off notifications in the settings."
+  message_too_old: "The message is outdated, please try deleting it manually."
+  flood_control: "You are pressing buttons too frequently.\nTry again in {0} seconds."
 
 page:
-  greeting: >
-    👋 *Hello\\!*\n\nThis is a bot for viewing class schedules at Ukrainian State Trade and Economic University \\(SUTE\\)\\.
+  greeting:
+    "👋 *Hello\\!*\n\nThis is a bot for viewing class schedules
+    at Ukrainian State Trade and Economic University \\(SUTE\\)\\."
   structure_selection: "*Select Structure*"
   faculty_selection: "*Select Faculty*"
   course_selection: "*Select Course*"
   group_selection: "*Select Group*"
-  invalid_group: ❌ *It seems you haven't selected a group\\.*\n\nPlease select a group and try again\\.
-  menu: 🏠 *Menu*\n\nThis bot was created for quick and convenient viewing of class schedules at SUTE\\.
-  settings: >
-    ⚙️ *Settings*\n\n*Your Group:* {group_id}\n\n*Your Settings*\n
+  invalid_group: "❌ *It seems you haven't selected a group\\.*\n\nPlease select a group and try again\\."
+  menu: "🏠 *Menu*\n\nThis bot was created for quick and convenient viewing of class schedules at SUTE\\."
+  settings:
+    "⚙️ *Settings*\n\n*Your Group:* {group_id}\n\n*Your Settings*\n
     {cl_notif_15m} Reminders 15 min before classes\n
-    {cl_notif_1m} Reminders 1 min before classes
+    {cl_notif_1m} Reminders 1 min before classes"
   lang_selection: "🌐 *Change Language*\n\n*Your Current Language*: {lang}"
-  more: 🗂 *More*
-  info: >
-    ℹ️ *Information*\n\n
+  more: "🗂 *More*"
+  info:
+    "ℹ️ *Information*\n\n
     *Bot Creator*\n
     FIT 3\\-8 group student\n
     [Bohdan Marukhnenko](tg://resolve?domain=cubicbyte)\n\n
     🌐 *Source Code* \\- [github\\.com/cubicbyte/dteubot](https://github.com/cubicbyte/dteubot)\n
     _Written on Go programming language_\n\n
-    Use the @dteubot bot as a tool for getting your class schedule for each day\\.
-  api_unavailable: >
-    It seems that the class schedule website is currently not working/unresponsive\\.\n\n
-    Please try again later\\.
-  calls_schedule: 🕓 *Calls Schedule*\n\n{schedule}
-  admin_panel: 🛠 *Admin Panel*
+    Use the @dteubot bot as a tool for getting your class schedule for each day\\."
+  api_unavailable:
+    "It seems that the class schedule website is currently not working/unresponsive\\.\n\n
+    Please try again later\\."
+  calls_schedule: "🕓 *Calls Schedule*\n\n{schedule}"
+  admin_panel: "🛠 *Admin Panel*"
   left.to_start: "📋 *Time Left to Class*: {left}"
   left.to_end: "📋 *Time Left to End of Class*: {left}"
-  left.no_more: 📋 *No more classes for today*
-  students_list: 📋 *Students List of Group {group}*\n\n{students}
-  schedule.extra_info: ℹ️ <b>Additional Information</b>\n\n{0}
-  schedule.empty_day: >
-    📅  {date}\n\n
+  left.no_more: "📋 *No more classes for today*"
+  students_list: "📋 *Students List of Group {group}*\n\n{students}"
+  schedule.extra_info: "ℹ️ <b>Additional Information</b>\n\n{0}"
+  schedule.empty_day:
+    "📅  {date}\n\n
     `—————————————————————————`\n\n
     `       No lessons`\n\n
-    `—————————————————————————`
-  schedule.multiple_empty_days: >
-    `From`  📅 {dateStart}\n
+    `—————————————————————————`"
+  schedule.multiple_empty_days:
+    "`From`  📅 {dateStart}\n
     `To `  📅 {dateEnd}\n\n
     `—————————————————————————`\n\n
     `       No lessons`\n\n
-    `—————————————————————————`
-  notification_feature_suggestion: >
-    Did you know that the bot can remind you when classes are about to start\\?\n(Available in settings)\n\n
-    Would you like to enable reminders for the start of classes\\?
+    `—————————————————————————`"
+  notification_feature_suggestion:
+    "Did you know that the bot can remind you when classes are about to start\\?\n(Available in settings)\n\n
+    Would you like to enable reminders for the start of classes\\?"
   classes_notification: "*Reminder:* classes will start in *{remaining}* min\\!\n\n{schedule}"
-  error: >
-    ❗️ *An error occurred\\!*\n\n
+  error:
+    "❗️ *An error occurred\\!*\n\n
     Something went wrong while processing your request\\.\n
-    The error has been reported to the developer in Telegram\\.
-  forbidden: >
-    ❗️ *Access Denied*\n\nAccess to this information is only available to authorized users\\.\n\n
-    Please log in to the mia1\\.knute\\.edu\\.ua website and perform this action manually\\.
-  not_found: ❗️ *Not Found*\n\nIt seems that the requested information does not exist\\.
+    The error has been reported to the developer in Telegram\\."
+  forbidden:
+    "❗️ *Access Denied*\n\nAccess to this information is only available to authorized users\\.\n\n
+    Please log in to the mia1\\.knute\\.edu\\.ua website and perform this action manually\\."
+  not_found: "❗️ *Not Found*\n\nIt seems that the requested information does not exist\\."

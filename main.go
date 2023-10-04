@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/cubicbyte/dteubot/internal/config"
 	"github.com/cubicbyte/dteubot/internal/dteubot"
+	"github.com/cubicbyte/dteubot/internal/dteubot/settings"
 	logging_ "github.com/cubicbyte/dteubot/internal/logging"
 	"github.com/cubicbyte/dteubot/pkg/api"
 	"github.com/op/go-logging"
@@ -31,9 +32,10 @@ func main() {
 		pauseAndExit(1)
 	}
 
+	dteubot.Setup()
 	dteubot.Run()
 
-	lang, ok := dteubot.Languages["uk"]
+	lang, ok := settings.Languages["uk"]
 	if !ok {
 		log.Error("Language 'uk' not found")
 		pauseAndExit(1)

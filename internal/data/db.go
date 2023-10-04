@@ -1,4 +1,4 @@
-package db
+package data
 
 import (
 	_ "embed"
@@ -29,6 +29,8 @@ var (
 	//go:embed sql/update_user.sql
 	UpdateUserQuery string
 )
+
+var DbInstance *Database
 
 // Database is a PostgreSQL database connection manager.
 type Database struct {

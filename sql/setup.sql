@@ -12,7 +12,7 @@ CREATE TABLE chats (
 
 CREATE TABLE users (
                        user_id BIGINT NOT NULL,
-                       first_name VARCHAR(64) NOT NULL,
+                       first_name VARCHAR(64) NOT NULL DEFAULT '',
                        username VARCHAR(32) NOT NULL DEFAULT '',
                        is_admin BOOL NOT NULL DEFAULT FALSE,
                        referral VARCHAR(64) NOT NULL DEFAULT '',

@@ -83,7 +83,7 @@ func ValidateEnv() error {
 	}
 
 	switch os.Getenv("LOG_LEVEL") {
-	case "DEBUG", "INFO", "WARNING", "ERROR", "DISABLED", "":
+	case "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL", "DISABLED", "":
 	default:
 		return &IncorrectEnvVariableError{"LOG_LEVEL"}
 	}
