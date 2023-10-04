@@ -1,10 +1,9 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"github.com/cubicbyte/dteubot/internal/config"
-	"github.com/cubicbyte/dteubot/internal/i18n"
+	"github.com/cubicbyte/dteubot/internal/dteubot"
 	logging_ "github.com/cubicbyte/dteubot/internal/logging"
 	"github.com/cubicbyte/dteubot/pkg/api"
 	"github.com/op/go-logging"
@@ -32,14 +31,9 @@ func main() {
 		pauseAndExit(1)
 	}
 
-	langs, err := i18n.LoadLangs()
-	if err != nil {
-		fmt.Printf("Error loading languages: %s\n", err)
-		pauseAndExit(1)
-	}
+	dteubot.Run()
 
-	log.Infof("Loaded %d languages\n", len(langs))
-	lang, ok := langs["uk"]
+	lang, ok := dteubot.Languages["uk"]
 	if !ok {
 		log.Error("Language 'uk' not found")
 		pauseAndExit(1)
@@ -47,13 +41,9 @@ func main() {
 	log.Infof("lang.Page.LeftNoMore: '%s'\n", lang.Page.LeftNoMore)
 
 	myApi := api.Api{Url: "https://mia.mobil.knute.edu.ua"}
-	myApi := api.Api{"https://mia.mobil.knute.edu.ua"}
 	calls, err := myApi.GetCallSchedule()
 	if err != nil {
 		log.Errorf("Error getting calls schedule: %s\n", err)
-		if errors.Is(err, &api.ApiError{}) {
-			log.Errorf("HTTP status code: %d\n", err.(*api.ApiError).Code)
-		}
 		pauseAndExit(1)
 	}
 

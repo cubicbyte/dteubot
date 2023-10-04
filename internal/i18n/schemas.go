@@ -1,5 +1,13 @@
 package i18n
 
+type LanguageNotFoundError struct {
+	LangCode string
+}
+
+func (e *LanguageNotFoundError) Error() string {
+	return "Language not found: " + e.LangCode
+}
+
 type Language struct {
 	LangName string `yaml:"lang_name"`
 	Text     struct {
