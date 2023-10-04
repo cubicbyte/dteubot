@@ -102,7 +102,7 @@ page:
   api_unavailable:
     "It seems that the class schedule website is currently not working/unresponsive\\.\n\n
     Please try again later\\."
-  calls_schedule: "🕓 *Calls Schedule*\n\n{schedule}"
+  call_schedule: "🕓 *Call Schedule*\n\n%s"
   admin_panel: "🛠 *Admin Panel*"
   left.to_start: "📋 *Time Left to Class*: {left}"
   left.to_end: "📋 *Time Left to End of Class*: {left}"

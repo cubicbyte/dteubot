@@ -6,6 +6,7 @@ import (
 	"github.com/cubicbyte/dteubot/internal/dteubot/settings"
 	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
 	"github.com/cubicbyte/dteubot/internal/i18n"
+	"github.com/cubicbyte/dteubot/pkg/api"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/op/go-logging"
 	"os"
@@ -46,10 +47,15 @@ func Setup() {
 	log.Info("Connecting to Telegram API")
 	settings.Bot, err = tgbotapi.NewBotAPI(os.Getenv("BOT_TOKEN"))
 	if err != nil {
-		log.Fatalf("Error connecting to Telegram API: %s\n", err)
+		log.Fatal("Error connecting to Telegram API: %s\n", err)
+		log.Info("Most likely the bot token is invalid or network is unreachable")
+		os.Exit(1)
 	}
 
 	log.Infof("Connected to Telegram API as %s\n", settings.Bot.Self.UserName)
+
+	// Setup the API
+	settings.Api = &api.Api{Url: os.Getenv("API_URL")}
 }
 
 // Run starts the Bot.

@@ -97,11 +97,16 @@ type Language struct {
 		InvalidGroup                  string `yaml:"invalid_group"`
 		Menu                          string `yaml:"menu"`
 		Settings                      string `yaml:"settings"`
+		LangSelection                 string `yaml:"lang_selection"`
 		More                          string `yaml:"more"`
 		Info                          string `yaml:"info"`
+		ApiUnavailable                string `yaml:"api_unavailable"`
+		CallSchedule                  string `yaml:"call_schedule"`
+		AdminPanel                    string `yaml:"admin_panel"`
 		LeftToStart                   string `yaml:"left.to_start"`
 		LeftToEnd                     string `yaml:"left.to_end"`
 		LeftNoMore                    string `yaml:"left.no_more"`
+		StudentsList                  string `yaml:"students_list"`
 		ScheduleExtraInfo             string `yaml:"schedule.extra_info"`
 		ScheduleEmptyDay              string `yaml:"schedule.empty_day"`
 		ScheduleMultipleEmptyDays     string `yaml:"schedule.multiple_empty_days"`
