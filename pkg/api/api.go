@@ -174,6 +174,11 @@ func (api *Api) GetGroupSchedule(groupId int, dateStart string, dateEnd string) 
 		return nil, err
 	}
 
+	err = FillEmptyDates(&timeTableDate, dateStart, dateEnd)
+	if err != nil {
+		return nil, err
+	}
+
 	return timeTableDate, nil
 }
 
