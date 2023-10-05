@@ -20,7 +20,7 @@ func CreateStructuresListPage(cm *data.ChatDataManager) (*Page, error) {
 
 	buttons := make([][]tgbotapi.InlineKeyboardButton, len(structures)+1)
 	buttons[0] = tgbotapi.NewInlineKeyboardRow(
-		tgbotapi.NewInlineKeyboardButtonData(lang.Button.Back, "open.menu"),
+		tgbotapi.NewInlineKeyboardButtonData(lang.Button.Back, "open.menu#from=group_select"),
 	)
 
 	for i, structure := range structures {

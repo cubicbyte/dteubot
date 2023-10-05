@@ -26,6 +26,7 @@ func LoadLangs() (map[string]Language, error) {
 
 	// Load all lang files
 	for _, langFile := range langFiles {
+		log.Debugf("Loading language %s", langFile.Name())
 		lang, err := loadLang("langs/" + langFile.Name())
 		if err != nil {
 			return nil, err

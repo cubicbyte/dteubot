@@ -30,6 +30,18 @@ type Language struct {
 		WeekDay6            string `yaml:"week_day.6"`
 		WeekDay7            string `yaml:"week_day.7"`
 		WeekDayUnknown      string `yaml:"week_day.unknown"`
+		ShortMonth1         string `yaml:"short_month.1"`
+		ShortMonth2         string `yaml:"short_month.2"`
+		ShortMonth3         string `yaml:"short_month.3"`
+		ShortMonth4         string `yaml:"short_month.4"`
+		ShortMonth5         string `yaml:"short_month.5"`
+		ShortMonth6         string `yaml:"short_month.6"`
+		ShortMonth7         string `yaml:"short_month.7"`
+		ShortMonth8         string `yaml:"short_month.8"`
+		ShortMonth9         string `yaml:"short_month.9"`
+		ShortMonth10        string `yaml:"short_month.10"`
+		ShortMonth11        string `yaml:"short_month.11"`
+		ShortMonth12        string `yaml:"short_month.12"`
 		ShortWeekDay1       string `yaml:"short_week_day.1"`
 		ShortWeekDay2       string `yaml:"short_week_day.2"`
 		ShortWeekDay3       string `yaml:"short_week_day.3"`
@@ -47,6 +59,7 @@ type Language struct {
 		ShortTimeMinutes    string `yaml:"short_time.minutes"`
 		ShortTimeHours      string `yaml:"short_time.hours"`
 		ShortTimeDays       string `yaml:"short_time.days"`
+		ScheduleDateFormat  string `yaml:"schedule_date_format"`
 	} `yaml:"text"`
 	Button struct {
 		ClearCache                     string `yaml:"clear_cache"`

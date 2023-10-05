@@ -16,11 +16,12 @@ func CreateLanguageSelectionPage(cm *data.ChatDataManager, backButton string) (*
 	langsCount := len(settings.Languages)
 
 	buttons := make([][]tgbotapi.InlineKeyboardButton, langsCount+1)
-	buttons[0] = tgbotapi.NewInlineKeyboardRow(
+	buttons[langsCount] = tgbotapi.NewInlineKeyboardRow(
 		tgbotapi.NewInlineKeyboardButtonData(lang.Button.Back, backButton),
+		tgbotapi.NewInlineKeyboardButtonData(lang.Button.Menu, "open.menu#from=language"),
 	)
 
-	i := 1
+	i := 0
 	for code, lang := range settings.Languages {
 		query := "select.lang#lang=" + code
 		buttons[i] = tgbotapi.NewInlineKeyboardRow(

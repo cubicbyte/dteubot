@@ -12,19 +12,41 @@ func HandleCommand(update tgbotapi.Update) error {
 
 	switch update.Message.Command() {
 	case "start":
-	case "today":
-	case "tomorrow":
-	case "left":
-	case "menu":
-		if err := handleMenuCommand(&update); err != nil {
+		if err := handleStartCommand(&update); err != nil {
 			return err
 		}
-	case "calls":
+	case "today", "t":
+		if err := handleTodayCommand(&update); err != nil {
+			return err
+		}
+	case "tomorrow":
+		if err := handleTomorrowCommand(&update); err != nil {
+			return err
+		}
+	case "left", "l":
+		if err := handleLeftCommand(&update); err != nil {
+			return err
+		}
+	case "calls", "c":
+		if err := handleCallsCommand(&update); err != nil {
+			return err
+		}
 	case "settings":
-	case "lang":
-	case "select":
+		if err := handleSettingsCommand(&update); err != nil {
+			return err
+		}
+	case "lang", "language":
+		if err := handleLanguageCommand(&update); err != nil {
+			return nil
+		}
+	case "group", "g", "select":
+		if err := handleGroupCommand(&update); err != nil {
+			return err
+		}
 	case "":
+		// Not a command
 	default:
+		// Not our command
 	}
 
 	return nil

@@ -27,7 +27,7 @@ func CreateFacultiesListPage(cm *data.ChatDataManager, structureId int) (*Page, 
 	var backButton tgbotapi.InlineKeyboardButton
 	if len(structures) <= 1 {
 		// Back button = menu
-		backButton = tgbotapi.NewInlineKeyboardButtonData(lang.Button.Back, "open.menu")
+		backButton = tgbotapi.NewInlineKeyboardButtonData(lang.Button.Back, "open.menu#from=group_select")
 	} else {
 		// Back button = structures list
 		backButton = tgbotapi.NewInlineKeyboardButtonData(lang.Button.Back, "open.select_group")
