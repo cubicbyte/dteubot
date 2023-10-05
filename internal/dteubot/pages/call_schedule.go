@@ -1,10 +1,10 @@
 package pages
 
 import (
-	"fmt"
 	"github.com/cubicbyte/dteubot/internal/data"
 	"github.com/cubicbyte/dteubot/internal/dteubot/settings"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/sirkon/go-format/v2"
 )
 
 func CreateCallSchedulePage(cm *data.ChatDataManager, backButton string) (*Page, error) {
@@ -20,11 +20,11 @@ func CreateCallSchedulePage(cm *data.ChatDataManager, backButton string) (*Page,
 
 	callsText := ""
 	for _, call := range calls {
-		callsText += fmt.Sprintf("`%d)` *%s* `-` *%s*\n", call.Number, call.TimeStart, call.TimeEnd)
+		callsText += format.Formatp("`$)` *$* `-` *$*\n", call.Number, call.TimeStart, call.TimeEnd)
 	}
 
 	page := Page{
-		Text: fmt.Sprintf(lang.Page.CallSchedule, callsText),
+		Text: format.Formatp(lang.Page.CallSchedule, callsText),
 		InlineKeyboard: tgbotapi.NewInlineKeyboardMarkup(
 			tgbotapi.NewInlineKeyboardRow(
 				tgbotapi.NewInlineKeyboardButtonData(lang.Button.Back, backButton),

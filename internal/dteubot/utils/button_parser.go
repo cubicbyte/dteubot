@@ -1,4 +1,4 @@
-package buttons
+package utils
 
 import "strings"
 
@@ -23,7 +23,11 @@ func ParseButtonData(callbackQuery string) *ButtonData {
 	data := make(map[string]string)
 
 	for _, v := range strings.Split(parsed[1], "&") {
-		p := strings.Split(v, "=")
+		if !strings.Contains(v, "=") {
+			data[v] = ""
+			continue
+		}
+		p := strings.SplitN(v, "=", 2)
 		data[p[0]] = p[1]
 	}
 

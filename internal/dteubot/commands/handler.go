@@ -23,7 +23,6 @@ func HandleCommand(update tgbotapi.Update) error {
 	case "settings":
 	case "lang":
 	case "select":
-	case "empty_1", "empty_2":
 	case "":
 	default:
 	}

@@ -4,9 +4,32 @@ import (
 	"github.com/cubicbyte/dteubot/internal/data"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/op/go-logging"
+	"strings"
 )
 
 var log = logging.MustGetLogger("bot")
+
+// Telegram markdownV2 characters to escape
+var escapeCharsMarkdownV2 = []string{
+	"_", "\\_",
+	"*", "\\*",
+	"[", "\\[",
+	"]", "\\]",
+	"(", "\\(",
+	")", "\\)",
+	"~", "\\~",
+	"`", "\\`",
+	">", "\\>",
+	"#", "\\#",
+	"+", "\\+",
+	"-", "\\-",
+	"=", "\\=",
+	"|", "\\|",
+	"{", "\\{",
+	"}", "\\}",
+	".", "\\.",
+	"!", "\\!",
+}
 
 // InitDatabaseRecords initializes the database records
 // for user and chat from given update.
@@ -44,4 +67,18 @@ func InitDatabaseRecords(upd *tgbotapi.Update) error {
 	}
 
 	return nil
+}
+
+// GetSettingIcon returns the icon for the setting: ✅ or ❌
+func GetSettingIcon(enabled bool) string {
+	if enabled {
+		return "✅"
+	}
+	return "❌"
+}
+
+// EscapeTelegramMarkdownV2 escapes the Telegram markdownV2 characters
+func EscapeTelegramMarkdownV2(str string) string {
+	replacer := strings.NewReplacer(escapeCharsMarkdownV2...)
+	return replacer.Replace(str)
 }

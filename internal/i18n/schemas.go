@@ -21,6 +21,7 @@ type Language struct {
 		NoThanks            string `yaml:"no_thanks"`
 		NotSelected         string `yaml:"not_selected"`
 		Unknown             string `yaml:"unknown"`
+		UnknownGroupName    string `yaml:"unknown_group_name"`
 		WeekDay1            string `yaml:"week_day.1"`
 		WeekDay2            string `yaml:"week_day.2"`
 		WeekDay3            string `yaml:"week_day.3"`

@@ -7,6 +7,7 @@ text:
   no_thanks: "No, thanks"
   not_selected: "❌ Not selected"
   unknown: "Unknown"
+  unknown_group_name: "Unknown name \\(ID: $\\)"
   week_day.1: "Monday"
   week_day.3: "Wednesday"
   week_day.4: "Thursday"
@@ -70,10 +71,10 @@ alert:
   no_permissions: "❗️ You do not have enough permissions to perform this command."
   callback_query_unsupported: "❗️ Failed to execute: the button is outdated.\n\nPlease try again."
   cl_notif_enabled_tooltip:
-    "You will now receive notifications {remaining} minutes before the start
+    "You will now receive notifications $remaining minutes before the start
     of classes.\n\nYou can change the time or turn off notifications in the settings."
   message_too_old: "The message is outdated, please try deleting it manually."
-  flood_control: "You are pressing buttons too frequently.\nTry again in {0} seconds."
+  flood_control: "You are pressing buttons too frequently.\nTry again in $ seconds."
 
 page:
   greeting:
@@ -86,49 +87,37 @@ page:
   invalid_group: "❌ *It seems you haven't selected a group\\.*\n\nPlease select a group and try again\\."
   menu: "🏠 *Menu*\n\nThis bot was created for quick and convenient viewing of class schedules at SUTE\\."
   settings:
-    "⚙️ *Settings*\n\n*Your Group:* {group_id}\n\n*Your Settings*\n
-    {cl_notif_15m} Reminders 15 min before classes\n
-    {cl_notif_1m} Reminders 1 min before classes"
-  lang_selection: "🌐 *Change Language*\n\n*Your Current Language*: {lang}"
+    "⚙️ *Settings*\n\n*Your Group:* $group\n\n*Your Settings*\n$notif15m
+    Reminders 15 min before classes\n$notif1m
+    Reminders 1 min before classes"
+  lang_selection: "🌐 *Change Language*\n\n*Your Current Language*: $"
   more: "🗂 *More*"
-  info:
-    "ℹ️ *Information*\n\n
-    *Bot Creator*\n
-    FIT 3\\-8 group student\n
-    [Bohdan Marukhnenko](tg://resolve?domain=cubicbyte)\n\n
-    🌐 *Source Code* \\- [github\\.com/cubicbyte/dteubot](https://github.com/cubicbyte/dteubot)\n
-    _Written on Go programming language_\n\n
-    Use the @dteubot bot as a tool for getting your class schedule for each day\\."
+  info: "ℹ️ *Information*\n\n*Bot Creator*\nFIT 3\\-8 group
+    student\n[Bohdan Marukhnenko](tg://resolve?domain=cubicbyte)\n\n🌐 *Source
+    Code* \\- [github\\.com/cubicbyte/dteubot](https://github.com/cubicbyte/dteubot)\n_Written
+    on Go programming language_\n\nUse the @dteubot bot as a tool for getting your class schedule for each day\\."
   api_unavailable:
     "It seems that the class schedule website is currently not working/unresponsive\\.\n\n
     Please try again later\\."
-  call_schedule: "🕓 *Call Schedule*\n\n%s"
+  call_schedule: "🕓 *Call Schedule*\n\n$"
   admin_panel: "🛠 *Admin Panel*"
-  left.to_start: "📋 *Time Left to Class*: {left}"
-  left.to_end: "📋 *Time Left to End of Class*: {left}"
+  left.to_start: "📋 *Time Left to Class*: $"
+  left.to_end: "📋 *Time Left to End of Class*: $"
   left.no_more: "📋 *No more classes for today*"
-  students_list: "📋 *Students List of Group {group}*\n\n{students}"
-  schedule.extra_info: "ℹ️ <b>Additional Information</b>\n\n{0}"
+  students_list: "📋 *Students List of Group $group*\n\n$students"
+  schedule.extra_info: "ℹ️ <b>Additional Information</b>\n\n$"
   schedule.empty_day:
-    "📅  {date}\n\n
-    `—————————————————————————`\n\n
-    `       No lessons`\n\n
-    `—————————————————————————`"
+    "📅  $\n\n`—————————————————————————`\n\n`       No lessons`\n\n`—————————————————————————`"
   schedule.multiple_empty_days:
-    "`From`  📅 {dateStart}\n
-    `To `  📅 {dateEnd}\n\n
-    `—————————————————————————`\n\n
-    `       No lessons`\n\n
-    `—————————————————————————`"
+    "`From`  📅 $dateStart\n`To `  📅 $dateEnd\n\n`—————————————————————————`\n\n`       No lessons`\n\n`—————————————————————————`"
   notification_feature_suggestion:
-    "Did you know that the bot can remind you when classes are about to start\\?\n(Available in settings)\n\n
-    Would you like to enable reminders for the start of classes\\?"
-  classes_notification: "*Reminder:* classes will start in *{remaining}* min\\!\n\n{schedule}"
+    "Did you know that the bot can remind you when classes are about to start\\?
+    \\(Available in settings\\)\n\nWould you like to enable reminders for the start of classes\\?"
+  classes_notification: "*Reminder:* classes will start in *$remaining* min\\!\n\n$schedule"
   error:
-    "❗️ *An error occurred\\!*\n\n
-    Something went wrong while processing your request\\.\n
-    The error has been reported to the developer in Telegram\\."
+    "❗️ *An error occurred\\!*\n\nSomething went wrong while processing your
+    request\\.\nThe error has been reported to the developer in Telegram\\."
   forbidden:
-    "❗️ *Access Denied*\n\nAccess to this information is only available to authorized users\\.\n\n
-    Please log in to the mia1\\.knute\\.edu\\.ua website and perform this action manually\\."
+    "❗️ *Access Denied*\n\nAccess to this information is only available to authorized
+    users\\.\n\nPlease log in to the mia1\\.knute\\.edu\\.ua website and perform this action manually\\."
   not_found: "❗️ *Not Found*\n\nIt seems that the requested information does not exist\\."
