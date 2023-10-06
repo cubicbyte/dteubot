@@ -197,3 +197,23 @@ func (api *Api) GetScheduleExtraInfo(classCode int, date string) ([]ScheduleExtr
 
 	return scheduleExtraInfo, nil
 }
+
+// GetGroupScheduleDay returns a schedule for a group for a day
+//
+// Alias for GetGroupSchedule(groupId, date, date)[0]
+func (api *Api) GetGroupScheduleDay(groupId int, date string) (*TimeTableDate, error) {
+	schedule, err := api.GetGroupSchedule(groupId, date, date)
+	if err != nil {
+		return nil, err
+	}
+
+	// We are not using schedule[0] because api sometimes can return
+	// more than one day although we requested only one
+	for _, day := range schedule {
+		if day.Date == date {
+			return &day, nil
+		}
+	}
+
+	return nil, nil
+}
