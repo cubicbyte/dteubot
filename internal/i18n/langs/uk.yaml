@@ -40,10 +40,10 @@ text:
   time.minutes: "хвилин"
   time.hours: "годин"
   time.days: "днів"
-  short_time.seconds: "с."
-  short_time.minutes: "хв."
-  short_time.hours: "год."
-  short_time.days: "дн."
+  short_time.seconds: "с\\."
+  short_time.minutes: "хв\\."
+  short_time.hours: "год\\."
+  short_time.days: "дн\\."
   schedule_date_format: "📅  *$day $month $year р\\.* `[`*$weekday*`]`"
 
 button:
@@ -116,9 +116,10 @@ page:
     ласка, спробуйте пізніше\\."
   call_schedule: "🕓 *Розклад дзвінків*\n\n$"
   admin_panel: "🛠 *Панель управління*"
-  left.to_start: "📋 *До пари залишилося*: $"
-  left.to_end: "📋 *До кінця пари залишилося*: $"
-  left.no_more: "📋 *Пари на сьогодні закінчилися*"
+  left.to_classes_start: "📋 *До початку пар залишилося*: $"
+  left.to_lesson_start: "📋 *До пари залишилося*: $"
+  left.to_lesson_end: "📋 *До кінця пари залишилося*: $"
+  left.unknown: "📋 *Пар на найблжижчі $ днів не знайдено*"
   students_list: "📋 *Список студентів групи $group*\n\n$students"
   schedule.extra_info: "ℹ️ <b>Додаткова інформація</b>\n\n$"
   schedule.empty_day:

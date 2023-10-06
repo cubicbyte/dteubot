@@ -117,9 +117,10 @@ type Language struct {
 		ApiUnavailable                string `yaml:"api_unavailable"`
 		CallSchedule                  string `yaml:"call_schedule"`
 		AdminPanel                    string `yaml:"admin_panel"`
-		LeftToStart                   string `yaml:"left.to_start"`
-		LeftToEnd                     string `yaml:"left.to_end"`
-		LeftNoMore                    string `yaml:"left.no_more"`
+		LeftToClassesStart            string `yaml:"left.to_classes_start"`
+		LeftToLessonStart             string `yaml:"left.to_lesson_start"`
+		LeftToLessonEnd               string `yaml:"left.to_lesson_end"`
+		LeftUnknown                   string `yaml:"left.unknown"`
 		StudentsList                  string `yaml:"students_list"`
 		ScheduleExtraInfo             string `yaml:"schedule.extra_info"`
 		ScheduleEmptyDay              string `yaml:"schedule.empty_day"`
