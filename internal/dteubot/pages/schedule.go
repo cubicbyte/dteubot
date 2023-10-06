@@ -30,50 +30,50 @@ func CreateSchedulePage(cm *data.ChatDataManager, date time.Time) (*Page, error)
 }
 
 func getLocalizedDate(lang *i18n.Language, date time.Time) string {
-	// No better way to do this if it is not a map
+	// No better way to do this if lang is a struct
 	var month string
 	switch date.Month() {
-	case 1:
+	case time.January:
 		month = lang.Text.ShortMonth1
-	case 2:
+	case time.February:
 		month = lang.Text.ShortMonth2
-	case 3:
+	case time.March:
 		month = lang.Text.ShortMonth3
-	case 4:
+	case time.April:
 		month = lang.Text.ShortMonth4
-	case 5:
+	case time.May:
 		month = lang.Text.ShortMonth5
-	case 6:
+	case time.June:
 		month = lang.Text.ShortMonth6
-	case 7:
+	case time.July:
 		month = lang.Text.ShortMonth7
-	case 8:
+	case time.August:
 		month = lang.Text.ShortMonth8
-	case 9:
+	case time.September:
 		month = lang.Text.ShortMonth9
-	case 10:
+	case time.October:
 		month = lang.Text.ShortMonth10
-	case 11:
+	case time.November:
 		month = lang.Text.ShortMonth11
-	case 12:
+	case time.December:
 		month = lang.Text.ShortMonth12
 	}
 
 	var weekday string
 	switch date.Weekday() {
-	case 1:
+	case time.Monday:
 		weekday = lang.Text.WeekDay1
-	case 2:
+	case time.Tuesday:
 		weekday = lang.Text.WeekDay2
-	case 3:
+	case time.Wednesday:
 		weekday = lang.Text.WeekDay3
-	case 4:
+	case time.Thursday:
 		weekday = lang.Text.WeekDay4
-	case 5:
+	case time.Friday:
 		weekday = lang.Text.WeekDay5
-	case 6:
+	case time.Saturday:
 		weekday = lang.Text.WeekDay6
-	case 7:
+	case time.Sunday:
 		weekday = lang.Text.WeekDay7
 	}
 

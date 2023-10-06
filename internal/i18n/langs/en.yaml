@@ -9,6 +9,7 @@ text:
   unknown: "Unknown"
   unknown_group_name: "Unknown name \\(ID: $\\)"
   week_day.1: "Monday"
+  week_day.2: "Tuesday"
   week_day.3: "Wednesday"
   week_day.4: "Thursday"
   week_day.5: "Friday"
@@ -121,9 +122,9 @@ page:
   students_list: "📋 *Students List of Group $group*\n\n$students"
   schedule.extra_info: "ℹ️ <b>Additional Information</b>\n\n$"
   schedule.empty_day:
-    "📅  $\n\n`—————————————————————————`\n\n`       No lessons`\n\n`—————————————————————————`"
+    "$\n\n`—————————————————————————`\n\n`       No lessons`\n\n`—————————————————————————`"
   schedule.multiple_empty_days:
-    "`From`  📅 $dateStart\n`To `  📅 $dateEnd\n\n`—————————————————————————`\n\n`       No lessons`\n\n`—————————————————————————`"
+    "`From`  $dateStart\n`To `  $dateEnd\n\n`—————————————————————————`\n\n`       No lessons`\n\n`—————————————————————————`"
   notification_feature_suggestion:
     "Did you know that the bot can remind you when classes are about to start\\?
     \\(Available in settings\\)\n\nWould you like to enable reminders for the start of classes\\?"

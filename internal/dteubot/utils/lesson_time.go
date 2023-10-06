@@ -25,7 +25,7 @@ type CallsStatus struct {
 }
 
 // DaysScanLimit - limit of days to scan for the start of the next lesson in /left command
-var DaysScanLimit = 7
+const DaysScanLimit = 7
 
 // GetCallsStatus returns the time relative to the current lesson
 func GetCallsStatus(groupId int, time_ time.Time) (*CallsStatus, error) {

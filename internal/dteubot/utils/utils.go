@@ -81,6 +81,7 @@ func GetSettingIcon(enabled bool) string {
 
 // EscapeTelegramMarkdownV2 escapes the Telegram markdownV2 characters
 func EscapeTelegramMarkdownV2(str string) string {
+	// TODO: Replace this with tgbotapi.EscapeText
 	replacer := strings.NewReplacer(escapeCharsMarkdownV2...)
 	return replacer.Replace(str)
 }
