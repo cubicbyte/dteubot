@@ -54,18 +54,22 @@ func FillEmptyDates(days *[]TimeTableDate, dateStart string, dateEnd string) err
 	return nil
 }
 
-// ParseISODate parses ISO date string
-func ParseISODate(date string) (time.Time, error) {
+func getLocation() *time.Location {
 	loc, err := time.LoadLocation(Location)
 	if err != nil {
-		return time.Time{}, err
+		return time.UTC
 	}
-	return time.ParseInLocation("2006-01-02", date, loc)
+	return loc
+}
+
+// ParseISODate parses ISO date string
+func ParseISODate(date string) (time.Time, error) {
+	return time.ParseInLocation("2006-01-02", date, getLocation())
 }
 
 // GetDateFromDayOfYear returns date from given year and day of year
 func GetDateFromDayOfYear(year int, dayOfYear int) time.Time {
-	return time.Date(year, 1, 1, 0, 0, 0, 0, time.UTC).AddDate(0, 0, dayOfYear-1)
+	return time.Date(year, 1, 1, 0, 0, 0, 0, getLocation()).AddDate(0, 0, dayOfYear-1)
 }
 
 // GetDateRange returns date range from given date and range

@@ -40,6 +40,8 @@ func HandleButton(u *tgbotapi.Update) error {
 		if err := HandleScheduleTodayButton(u); err != nil {
 			return err
 		}
+	//case "open.schedule.extra":
+	//TODO: Handle extra schedule
 	case "open.info":
 		if err := HandleInfoButton(u); err != nil {
 			return err
