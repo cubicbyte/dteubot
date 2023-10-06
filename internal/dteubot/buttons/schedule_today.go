@@ -11,7 +11,7 @@ import (
 func HandleScheduleTodayButton(u *tgbotapi.Update) error {
 	cManager := data.ChatDataManager{ChatId: u.CallbackQuery.Message.Chat.ID}
 
-	page, err := pages.CreateSchedulePage(&cManager, time.Now())
+	page, err := pages.CreateSchedulePage(&cManager, time.Now().In(settings.Location))
 	if err != nil {
 		return err
 	}

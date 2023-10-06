@@ -12,6 +12,7 @@ import (
 	"github.com/op/go-logging"
 	"os"
 	"strconv"
+	"time"
 )
 
 var log = logging.MustGetLogger("Bot")
@@ -20,8 +21,14 @@ var log = logging.MustGetLogger("Bot")
 func Setup() {
 	log.Info("Setting up Bot")
 
-	// Load localization files
+	// Set up the time zone
 	var err error
+	settings.Location, err = time.LoadLocation("Europe/Kiev")
+	if err != nil {
+		log.Fatalf("Error loading time zone: %s\n", err)
+	}
+
+	// Load localization files
 	settings.Languages, err = i18n.LoadLangs()
 	if err != nil {
 		log.Fatalf("Error loading languages: %s\n", err)

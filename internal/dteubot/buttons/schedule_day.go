@@ -7,7 +7,6 @@ import (
 	"github.com/cubicbyte/dteubot/internal/dteubot/settings"
 	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"time"
 )
 
 func HandleScheduleDayButton(u *tgbotapi.Update) error {
@@ -20,7 +19,7 @@ func HandleScheduleDayButton(u *tgbotapi.Update) error {
 		return errors.New("no date in button data")
 	}
 
-	date_, err := time.Parse("2006-01-02", date)
+	date_, err := utils.ParseTime("2006-01-02", date)
 	if err != nil {
 		return err
 	}

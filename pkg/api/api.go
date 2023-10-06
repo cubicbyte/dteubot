@@ -11,6 +11,8 @@ import (
 
 var log = logging.MustGetLogger("api")
 
+const Location = "Europe/Kiev"
+
 // Api is a wrapper for mkr.org.ua API requests.
 // Documentation can be found here: https://mkr.org.ua
 type Api struct {

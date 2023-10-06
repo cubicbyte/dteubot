@@ -1,6 +1,8 @@
 package api
 
-import "time"
+import (
+	"time"
+)
 
 // FillEmptyDates fills empty dates in given days slice
 //
@@ -54,7 +56,11 @@ func FillEmptyDates(days *[]TimeTableDate, dateStart string, dateEnd string) err
 
 // ParseISODate parses ISO date string
 func ParseISODate(date string) (time.Time, error) {
-	return time.Parse("2006-01-02", date)
+	loc, err := time.LoadLocation(Location)
+	if err != nil {
+		return time.Time{}, err
+	}
+	return time.ParseInLocation("2006-01-02", date, loc)
 }
 
 // GetDateFromDayOfYear returns date from given year and day of year

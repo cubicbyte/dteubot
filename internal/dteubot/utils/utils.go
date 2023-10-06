@@ -2,9 +2,11 @@ package utils
 
 import (
 	"github.com/cubicbyte/dteubot/internal/data"
+	"github.com/cubicbyte/dteubot/internal/dteubot/settings"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/op/go-logging"
 	"strings"
+	"time"
 )
 
 var log = logging.MustGetLogger("bot")
@@ -81,4 +83,9 @@ func GetSettingIcon(enabled bool) string {
 func EscapeTelegramMarkdownV2(str string) string {
 	replacer := strings.NewReplacer(escapeCharsMarkdownV2...)
 	return replacer.Replace(str)
+}
+
+// ParseTime parses time in given layout with local timezone
+func ParseTime(layout string, value string) (time.Time, error) {
+	return time.ParseInLocation(layout, value, settings.Location)
 }
