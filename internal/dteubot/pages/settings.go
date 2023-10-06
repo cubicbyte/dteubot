@@ -67,13 +67,13 @@ func CreateSettingsPage(cm *data.ChatDataManager) (*Page, error) {
 			tgbotapi.NewInlineKeyboardRow(
 				tgbotapi.NewInlineKeyboardButtonData(
 					lang.Button.SettingClNotif15m,
-					"set.cl_notif_15m#time=15m&state="+notif15mNextState,
+					"set.cl_notif#time=15m&state="+notif15mNextState,
 				),
 			),
 			tgbotapi.NewInlineKeyboardRow(
 				tgbotapi.NewInlineKeyboardButtonData(
 					lang.Button.SettingClNotif1m,
-					"set.cl_notif_1m#time=1m&state="+notif1mNextState,
+					"set.cl_notif#time=1m&state="+notif1mNextState,
 				),
 			),
 			tgbotapi.NewInlineKeyboardRow(

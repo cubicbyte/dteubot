@@ -19,7 +19,8 @@ func CreateInfoPage(cm *data.ChatDataManager) (*Page, error) {
 				tgbotapi.NewInlineKeyboardButtonData(lang.Button.Menu, "open.menu"),
 			),
 		),
-		ParseMode: "MarkdownV2",
+		ParseMode:             "MarkdownV2",
+		DisableWebPagePreview: true,
 	}
 
 	return &page, nil

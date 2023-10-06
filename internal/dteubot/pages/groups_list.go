@@ -20,6 +20,9 @@ func CreateGroupsListPage(cm *data.ChatDataManager, facultyId int, course int, s
 		return nil, err
 	}
 
+	// TODO: Save all groups to cache to display their names
+	// TODO: Move row generation logic to utils
+
 	// Create back button
 	rowsCount := len(groups)/rowSize + 1
 	if len(groups)%rowSize != 0 {
@@ -27,7 +30,7 @@ func CreateGroupsListPage(cm *data.ChatDataManager, facultyId int, course int, s
 	}
 	buttons := make([][]tgbotapi.InlineKeyboardButton, rowsCount)
 	backBtnQuery := "open.select_faculty#facultyId=" + strconv.Itoa(facultyId) +
-		"#structureId=" + strconv.Itoa(structureId)
+		"&structureId=" + strconv.Itoa(structureId)
 	buttons[0] = tgbotapi.NewInlineKeyboardRow(
 		tgbotapi.NewInlineKeyboardButtonData(lang.Button.Back, backBtnQuery),
 	)

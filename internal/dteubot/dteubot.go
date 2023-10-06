@@ -2,7 +2,8 @@ package dteubot
 
 import (
 	"github.com/cubicbyte/dteubot/internal/data"
-	dteubot "github.com/cubicbyte/dteubot/internal/dteubot/commands"
+	"github.com/cubicbyte/dteubot/internal/dteubot/buttons"
+	"github.com/cubicbyte/dteubot/internal/dteubot/commands"
 	"github.com/cubicbyte/dteubot/internal/dteubot/settings"
 	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
 	"github.com/cubicbyte/dteubot/internal/i18n"
@@ -68,6 +69,10 @@ func Run() {
 	updates := settings.Bot.GetUpdatesChan(u)
 
 	for update := range updates {
+		if update.Message == nil && update.CallbackQuery == nil {
+			continue
+		}
+
 		if err := utils.InitDatabaseRecords(&update); err != nil {
 			log.Errorf("Error initializing database records: %s\n", err)
 			// TODO: Handle error
@@ -75,8 +80,15 @@ func Run() {
 		}
 
 		if update.Message != nil {
-			if err := dteubot.HandleCommand(update); err != nil {
+			if err := commands.HandleCommand(update); err != nil {
 				log.Errorf("Error handling command: %s\n", err)
+				// TODO: Handle error
+			}
+		}
+
+		if update.CallbackQuery != nil {
+			if err := buttons.HandleButton(&update); err != nil {
+				log.Errorf("Error handling button: %s\n", err)
 				// TODO: Handle error
 			}
 		}

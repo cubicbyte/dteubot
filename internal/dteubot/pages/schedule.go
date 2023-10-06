@@ -8,13 +8,8 @@ import (
 	"time"
 )
 
-func CreateSchedulePage(cm *data.ChatDataManager, date string) (*Page, error) {
+func CreateSchedulePage(cm *data.ChatDataManager, date time.Time) (*Page, error) {
 	lang, err := cm.GetLanguage()
-	if err != nil {
-		return nil, err
-	}
-
-	date_, err := time.Parse("2006-01-02", date)
 	if err != nil {
 		return nil, err
 	}
@@ -22,7 +17,7 @@ func CreateSchedulePage(cm *data.ChatDataManager, date string) (*Page, error) {
 	// TODO: Finish this
 
 	page := Page{
-		Text: getLocalizedDate(lang, date_),
+		Text: getLocalizedDate(lang, date),
 		InlineKeyboard: tgbotapi.NewInlineKeyboardMarkup(
 			tgbotapi.NewInlineKeyboardRow(
 				tgbotapi.NewInlineKeyboardButtonData(lang.Button.Back, "open.menu"),

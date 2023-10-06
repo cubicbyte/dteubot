@@ -1,4 +1,4 @@
-package commands
+package buttons
 
 import (
 	"github.com/cubicbyte/dteubot/internal/data"
@@ -7,15 +7,15 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
-func handleSettingsCommand(u *tgbotapi.Update) error {
-	cManager := data.ChatDataManager{ChatId: u.FromChat().ID}
+func HandleMoreButton(u *tgbotapi.Update) error {
+	cManager := data.ChatDataManager{ChatId: u.CallbackQuery.Message.Chat.ID}
 
-	page, err := pages.CreateSettingsPage(&cManager)
+	page, err := pages.CreateMorePage(&cManager)
 	if err != nil {
 		return err
 	}
 
-	_, err = settings.Bot.Send(page.CreateMessage(cManager.ChatId))
+	_, err = settings.Bot.Send(editMessageReq(page, u.CallbackQuery))
 	if err != nil {
 		return err
 	}

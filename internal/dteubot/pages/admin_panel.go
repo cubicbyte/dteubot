@@ -12,7 +12,7 @@ func CreateAdminPanelPage(cm *data.ChatDataManager) (*Page, error) {
 	}
 
 	page := Page{
-		Text: lang.Page.Info,
+		Text: lang.Page.AdminPanel,
 		InlineKeyboard: tgbotapi.NewInlineKeyboardMarkup(
 			tgbotapi.NewInlineKeyboardRow(
 				tgbotapi.NewInlineKeyboardButtonData(lang.Button.ClearCache, "admin.clear_cache"),

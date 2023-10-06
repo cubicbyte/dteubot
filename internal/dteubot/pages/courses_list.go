@@ -26,8 +26,8 @@ func CreateCoursesListPage(cm *data.ChatDataManager, facultyId int, structureId 
 
 	for i, course := range courses {
 		query := "select.schedule.course#course=" + strconv.Itoa(course.Course) +
-			"#facultyId=" + strconv.Itoa(facultyId) +
-			"#structureId=" + strconv.Itoa(structureId)
+			"&facultyId=" + strconv.Itoa(facultyId) +
+			"&structureId=" + strconv.Itoa(structureId)
 		buttons[i+1] = tgbotapi.NewInlineKeyboardRow(
 			tgbotapi.NewInlineKeyboardButtonData(strconv.Itoa(course.Course), query),
 		)

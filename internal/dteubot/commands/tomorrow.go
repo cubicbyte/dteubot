@@ -1,4 +1,4 @@
-package dteubot
+package commands
 
 import (
 	"github.com/cubicbyte/dteubot/internal/data"
@@ -11,7 +11,7 @@ import (
 func handleTomorrowCommand(u *tgbotapi.Update) error {
 	cManager := data.ChatDataManager{ChatId: u.FromChat().ID}
 
-	tomorrow := time.Now().AddDate(0, 0, 1).Format("2006-01-02")
+	tomorrow := time.Now().AddDate(0, 0, 1)
 	page, err := pages.CreateSchedulePage(&cManager, tomorrow)
 	if err != nil {
 		return err

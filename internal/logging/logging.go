@@ -15,6 +15,8 @@ var cmdFormat = logging.MustStringFormatter(
 
 const LogFilePath = "debug.log"
 
+var LogFile *os.File
+
 // Init initializes logging system
 func Init() error {
 	logLevel := os.Getenv("LOG_LEVEL")
@@ -31,14 +33,15 @@ func Init() error {
 		return nil
 	}
 
-	// Create log file if it doesn't exist
-	f, err := os.OpenFile(LogFilePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	// Open log file
+	var err error
+	LogFile, err = os.OpenFile(LogFilePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		return err
 	}
 
 	// Create file and cmd loggers
-	fsBackend := logging.NewLogBackend(f, "", 0)
+	fsBackend := logging.NewLogBackend(LogFile, "", 0)
 	fsBackendFormatter := logging.NewBackendFormatter(fsBackend, fileFormat)
 	fsBackendLeveled := logging.AddModuleLevel(fsBackendFormatter)
 

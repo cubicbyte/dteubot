@@ -1,4 +1,4 @@
-package dteubot
+package commands
 
 import (
 	"github.com/cubicbyte/dteubot/internal/data"

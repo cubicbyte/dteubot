@@ -15,18 +15,18 @@ text:
   week_day.6: "Суббота"
   week_day.7: "Воскресенье"
   week_day.unknown: "Неизвестный день"
-  short_month.1: "Янв\\."
-  short_month.2: "Февр\\."
-  short_month.3: "Мар\\."
-  short_month.4: "Апр\\."
-  short_month.5: "Мая\\"
-  short_month.6: "Июня\\"
-  short_month.7: "Июля\\"
-  short_month.8: "Авг\\."
-  short_month.9: "Сент\\."
-  short_month.10: "Окт\\."
-  short_month.11: "Нояб\\."
-  short_month.12: "Дек\\."
+  short_month.1: "янв\\."
+  short_month.2: "февр\\."
+  short_month.3: "мар\\."
+  short_month.4: "апр\\."
+  short_month.5: "мая\\"
+  short_month.6: "июня\\"
+  short_month.7: "июля\\"
+  short_month.8: "авг\\."
+  short_month.9: "сент\\."
+  short_month.10: "окт\\."
+  short_month.11: "нояб\\."
+  short_month.12: "дек\\."
   short_week_day.1: "Пн"
   short_week_day.2: "Вт"
   short_week_day.3: "Ср"
@@ -108,7 +108,7 @@ page:
   info:
     "ℹ️ *Информация*\n\n*Создатель бота*\nСтудент 3 курса 8 группы
     ФИТ\n[Богдан Марухненко](tg://resolve?domain=cubicbyte)\n\n🌐 *Исходный
-    код* \\- [github.com/cubicbyte/dteubot](https://github.com/cubicbyte/dteubot)\n_Написано
+    код* \\- [github\\.com/cubicbyte/dteubot](https://github.com/cubicbyte/dteubot)\n_Написано
     на языке программирования Go_\n\nИспользуйте бота @dteubot как
     инструмент для получения расписания пар на каждый день\\."
   api_unavailable:

@@ -3,33 +3,38 @@ package utils
 import "strings"
 
 type ButtonData struct {
-	query string
-	data  map[string]string
+	Action string
+	Params map[string]string
 }
 
-// ParseButtonData parses the telegram button callback query string.
+// ParseButtonData parses the telegram button callback Action string.
 //
-// Query example: "open.schedule.day#date=2023-10-04&day=1"
+// Params example: "open.schedule.day#date=2023-10-04&day=1"
 //
-// Returns ButtonData: query = "open.schedule.day",
-// data = {"date": "2023-10-04", "day": "1"}
-func ParseButtonData(callbackQuery string) *ButtonData {
-	if !strings.Contains(callbackQuery, "#") {
-		return &ButtonData{query: callbackQuery}
+// Returns ButtonData: Action = "open.schedule.day",
+// Params = {"date": "2023-10-04", "day": "1"}
+func ParseButtonData(buttonData string) *ButtonData {
+	if !strings.Contains(buttonData, "#") {
+		return &ButtonData{Action: buttonData}
 	}
 
-	parsed := strings.Split(callbackQuery, "#")
-	query := parsed[0]
-	data := make(map[string]string)
+	parsed := strings.Split(buttonData, "#")
+	action := parsed[0]
+
+	if len(parsed) == 1 {
+		return &ButtonData{Action: action}
+	}
+
+	params := make(map[string]string)
 
 	for _, v := range strings.Split(parsed[1], "&") {
 		if !strings.Contains(v, "=") {
-			data[v] = ""
+			params[v] = ""
 			continue
 		}
 		p := strings.SplitN(v, "=", 2)
-		data[p[0]] = p[1]
+		params[p[0]] = p[1]
 	}
 
-	return &ButtonData{query: query, data: data}
+	return &ButtonData{Action: action, Params: params}
 }

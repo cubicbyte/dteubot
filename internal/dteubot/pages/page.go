@@ -23,3 +23,11 @@ func (p *Page) CreateMessage(chatId int64) tgbotapi.MessageConfig {
 	msg.DisableWebPagePreview = p.DisableWebPagePreview
 	return msg
 }
+
+// CreateEditMessage creates a telegram edit message request from the page
+func (p *Page) CreateEditMessage(chatId int64, messageId int) tgbotapi.EditMessageTextConfig {
+	msg := tgbotapi.NewEditMessageTextAndMarkup(chatId, messageId, p.Text, p.InlineKeyboard)
+	msg.ParseMode = p.ParseMode
+	msg.DisableWebPagePreview = p.DisableWebPagePreview
+	return msg
+}

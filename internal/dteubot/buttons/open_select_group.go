@@ -1,4 +1,4 @@
-package commands
+package buttons
 
 import (
 	"github.com/cubicbyte/dteubot/internal/data"
@@ -7,10 +7,8 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
-func handleGroupCommand(u *tgbotapi.Update) error {
-	cManager := data.ChatDataManager{ChatId: u.FromChat().ID}
-
-	// TODO: Handle command arguments: /g <groupId/groupName>
+func HandleOpenSelectGroupButton(u *tgbotapi.Update) error {
+	cManager := data.ChatDataManager{ChatId: u.CallbackQuery.Message.Chat.ID}
 
 	structures, err := settings.Api.GetStructures()
 	if err != nil {
@@ -27,7 +25,7 @@ func handleGroupCommand(u *tgbotapi.Update) error {
 		return err
 	}
 
-	_, err = settings.Bot.Send(page.CreateMessage(cManager.ChatId))
+	_, err = settings.Bot.Send(editMessageReq(page, u.CallbackQuery))
 	if err != nil {
 		return err
 	}
