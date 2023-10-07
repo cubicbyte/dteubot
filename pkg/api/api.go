@@ -188,8 +188,8 @@ func (api *Api) GetGroupSchedule(groupId int, dateStart string, dateEnd string) 
 // that can be added by a teacher or university administration.
 //
 // classCode is a "R1" field from TimeTablePeriod
-func (api *Api) GetScheduleExtraInfo(classCode int, date string) ([]ScheduleExtraInfo, error) {
-	var scheduleExtraInfo []ScheduleExtraInfo
+func (api *Api) GetScheduleExtraInfo(classCode int, date string) (*ScheduleExtraInfo, error) {
+	var scheduleExtraInfo ScheduleExtraInfo
 	body := fmt.Sprintf(`{"r1":%d,"r2":"%s"}`, classCode, date)
 
 	err := api.makeRequest("POST", "/time-table/schedule-ad", body, &scheduleExtraInfo)
@@ -197,7 +197,7 @@ func (api *Api) GetScheduleExtraInfo(classCode int, date string) ([]ScheduleExtr
 		return nil, err
 	}
 
-	return scheduleExtraInfo, nil
+	return &scheduleExtraInfo, nil
 }
 
 // GetGroupScheduleDay returns a schedule for a group for a day
