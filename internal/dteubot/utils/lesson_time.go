@@ -34,11 +34,19 @@ func GetCallsStatus(groupId int, time_ time.Time) (*CallsStatus, error) {
 		return nil, err
 	}
 
+	dateStart := time_.Format("2006-01-02")
+	dateEnd := time_.AddDate(0, 0, DaysScanLimit).Format("2006-01-02")
+	schedule, err := settings.Api.GetGroupSchedule(groupId, dateStart, dateEnd)
+	if err != nil {
+		return nil, err
+	}
+
 	date := time_
 	for i := 0; i < DaysScanLimit; i++ {
-		day, err := settings.Api.GetGroupScheduleDay(groupId, date.Format("2006-01-02"))
-		if err != nil {
-			return nil, err
+		day := getDaySchedule(&schedule, date.Format("2006-01-02"))
+		if day == nil {
+			date = date.AddDate(0, 0, 1)
+			continue
 		}
 
 		status, err := getCallsStatus(*day, calls, time_)
@@ -54,6 +62,15 @@ func GetCallsStatus(groupId int, time_ time.Time) (*CallsStatus, error) {
 	}
 
 	return nil, nil
+}
+
+func getDaySchedule(days *[]api.TimeTableDate, date string) *api.TimeTableDate {
+	for _, day := range *days {
+		if day.Date == date {
+			return &day
+		}
+	}
+	return nil
 }
 
 // getCallsStatus returns GetCallsStatus for a specific day
