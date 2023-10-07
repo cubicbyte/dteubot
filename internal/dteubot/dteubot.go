@@ -4,6 +4,7 @@ import (
 	"github.com/cubicbyte/dteubot/internal/data"
 	"github.com/cubicbyte/dteubot/internal/dteubot/buttons"
 	"github.com/cubicbyte/dteubot/internal/dteubot/commands"
+	"github.com/cubicbyte/dteubot/internal/dteubot/groupscache"
 	"github.com/cubicbyte/dteubot/internal/dteubot/settings"
 	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
 	"github.com/cubicbyte/dteubot/internal/i18n"
@@ -20,6 +21,11 @@ var log = logging.MustGetLogger("Bot")
 // Setup sets up all the Bot components.
 func Setup() {
 	log.Info("Setting up Bot")
+
+	// Create required directories
+	if err := os.Mkdir("cache", 0755); err != nil && !os.IsExist(err) {
+		log.Fatalf("Error creating cache directory: %s\n", err)
+	}
 
 	// Set up the time zone
 	var err error
@@ -49,6 +55,14 @@ func Setup() {
 	err = data.DbInstance.Connect()
 	if err != nil {
 		log.Fatalf("Error connecting to database: %s\n", err)
+	}
+
+	// Load the groups cache
+	groupscache.CacheInstance = &groupscache.Cache{File: "cache/groups.csv"}
+	groupscache.CacheInstance.Init()
+	err = groupscache.CacheInstance.Load()
+	if err != nil {
+		log.Fatalf("Error loading groups cache: %s\n", err)
 	}
 
 	// Connect to the Telegram API

@@ -2,9 +2,11 @@ package pages
 
 import (
 	"github.com/cubicbyte/dteubot/internal/data"
+	"github.com/cubicbyte/dteubot/internal/dteubot/groupscache"
 	"github.com/cubicbyte/dteubot/internal/dteubot/settings"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"strconv"
+	"time"
 )
 
 const rowSize = 3
@@ -20,7 +22,24 @@ func CreateGroupsListPage(cm *data.ChatDataManager, facultyId int, course int, s
 		return nil, err
 	}
 
-	// TODO: Save all groups to cache to display their names
+	// Save groups to cache
+	groups_ := make([]groupscache.Group, len(groups))
+	now := time.Now().Unix()
+	for i, group := range groups {
+		groups_[i] = groupscache.Group{
+			Id:        group.Id,
+			Name:      group.Name,
+			Course:    group.Course,
+			FacultyId: facultyId,
+			Updated:   now,
+		}
+	}
+
+	err = groupscache.CacheInstance.AddGroups(groups_)
+	if err != nil {
+		return nil, err
+	}
+
 	// TODO: Move row generation logic to utils
 
 	// Create back button
@@ -29,7 +48,7 @@ func CreateGroupsListPage(cm *data.ChatDataManager, facultyId int, course int, s
 		rowsCount++
 	}
 	buttons := make([][]tgbotapi.InlineKeyboardButton, rowsCount)
-	backBtnQuery := "open.select_faculty#facultyId=" + strconv.Itoa(facultyId) +
+	backBtnQuery := "select.schedule.faculty#facultyId=" + strconv.Itoa(facultyId) +
 		"&structureId=" + strconv.Itoa(structureId)
 	buttons[0] = tgbotapi.NewInlineKeyboardRow(
 		tgbotapi.NewInlineKeyboardButtonData(lang.Button.Back, backBtnQuery),

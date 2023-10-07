@@ -2,6 +2,7 @@ package pages
 
 import (
 	"github.com/cubicbyte/dteubot/internal/data"
+	"github.com/cubicbyte/dteubot/internal/dteubot/groupscache"
 	"github.com/cubicbyte/dteubot/internal/dteubot/settings"
 	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -27,8 +28,15 @@ func CreateStudentsListPage(cm *data.ChatDataManager) (*Page, error) {
 
 	// Get group name
 	var groupName string
-	// TODO: get group name
-	groupName = format.Formatp(lang.Text.UnknownGroupName, chatData.GroupId)
+	group, err := groupscache.CacheInstance.GetGroup(chatData.GroupId)
+	if err != nil {
+		return nil, err
+	}
+	if group == nil {
+		groupName = format.Formatp(lang.Text.UnknownGroupName, chatData.GroupId)
+	} else {
+		groupName = utils.EscapeTelegramMarkdownV2(group.Name)
+	}
 
 	pageText := ""
 	for i, student := range students {
