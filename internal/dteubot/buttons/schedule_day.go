@@ -19,12 +19,7 @@ func HandleScheduleDayButton(u *tgbotapi.Update) error {
 		return errors.New("no date in button data")
 	}
 
-	date_, err := utils.ParseTime("2006-01-02", date)
-	if err != nil {
-		return err
-	}
-
-	page, err := pages.CreateSchedulePage(&cManager, date_)
+	page, err := pages.CreateSchedulePage(&cManager, date)
 	if err != nil {
 		return err
 	}

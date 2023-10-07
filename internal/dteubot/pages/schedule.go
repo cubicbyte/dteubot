@@ -14,7 +14,12 @@ import (
 
 const ScheduleDateRange = 14
 
-func CreateSchedulePage(cm *data.ChatDataManager, date time.Time) (*Page, error) {
+func CreateSchedulePage(cm *data.ChatDataManager, date string) (*Page, error) {
+	date_, err := api.ParseISODate(date)
+	if err != nil {
+		return nil, err
+	}
+
 	lang, err := cm.GetLanguage()
 	if err != nil {
 		return nil, err
@@ -25,7 +30,7 @@ func CreateSchedulePage(cm *data.ChatDataManager, date time.Time) (*Page, error)
 		return nil, err
 	}
 
-	schedule, err := settings.Api.GetGroupScheduleDay(chatData.GroupId, date.Format("2006-01-02"))
+	schedule, err := settings.Api.GetGroupScheduleDay(chatData.GroupId, date)
 	if err != nil {
 		return nil, err
 	}
@@ -35,7 +40,7 @@ func CreateSchedulePage(cm *data.ChatDataManager, date time.Time) (*Page, error)
 
 	if len(schedule.Lessons) == 0 {
 		// Create empty schedule page
-		skipLeft, skipRight, err := scanEmptyDays(chatData.GroupId, date)
+		skipLeft, skipRight, err := scanEmptyDays(chatData.GroupId, date_)
 		if err != nil {
 			return nil, err
 		}
@@ -47,10 +52,10 @@ func CreateSchedulePage(cm *data.ChatDataManager, date time.Time) (*Page, error)
 			skipRight = 1
 		}
 
-		nextDayDate := date.AddDate(0, 0, skipRight)
-		prevDayDate := date.AddDate(0, 0, -skipLeft)
-		nextWeekDate := date.AddDate(0, 0, 7)
-		prevWeekDate := date.AddDate(0, 0, -7)
+		nextDayDate := date_.AddDate(0, 0, skipRight)
+		prevDayDate := date_.AddDate(0, 0, -skipLeft)
+		nextWeekDate := date_.AddDate(0, 0, 7)
+		prevWeekDate := date_.AddDate(0, 0, -7)
 
 		now := time.Now().In(settings.Location)
 		enableTodayButton := !(nextDayDate.After(now) && now.After(prevDayDate))
@@ -63,7 +68,7 @@ func CreateSchedulePage(cm *data.ChatDataManager, date time.Time) (*Page, error)
 			})
 		} else {
 			// Create single day empty schedule page
-			pageText = format.Formatp(lang.Page.ScheduleEmptyDay, getLocalizedDate(lang, date))
+			pageText = format.Formatp(lang.Page.ScheduleEmptyDay, getLocalizedDate(lang, date_))
 		}
 
 		buttons = tgbotapi.NewInlineKeyboardMarkup(
@@ -97,13 +102,13 @@ func CreateSchedulePage(cm *data.ChatDataManager, date time.Time) (*Page, error)
 				buttons.InlineKeyboard[len(buttons.InlineKeyboard)-1],
 				tgbotapi.NewInlineKeyboardButtonData(
 					lang.Button.ScheduleNavigationToday,
-					"open.schedule.day#date="+now.Format("2006-01-02"),
+					"open.schedule.today",
 				),
 			)
 		}
 	} else {
 		// Create schedule page
-		pageText = getLocalizedDate(lang, date) + "\n\n"
+		pageText = getLocalizedDate(lang, date_) + "\n\n"
 
 		for _, lesson := range schedule.Lessons {
 			for _, period := range lesson.Periods {
@@ -121,10 +126,10 @@ func CreateSchedulePage(cm *data.ChatDataManager, date time.Time) (*Page, error)
 			}
 		}
 
-		prevDayDate := date.AddDate(0, 0, -1)
-		nextDayDate := date.AddDate(0, 0, 1)
-		prevWeekDate := date.AddDate(0, 0, -7)
-		nextWeekDate := date.AddDate(0, 0, 7)
+		prevDayDate := date_.AddDate(0, 0, -1)
+		nextDayDate := date_.AddDate(0, 0, 1)
+		prevWeekDate := date_.AddDate(0, 0, -7)
+		nextWeekDate := date_.AddDate(0, 0, 7)
 
 		buttons = tgbotapi.NewInlineKeyboardMarkup(
 			tgbotapi.NewInlineKeyboardRow(
@@ -153,13 +158,12 @@ func CreateSchedulePage(cm *data.ChatDataManager, date time.Time) (*Page, error)
 		)
 
 		// Add today button if needed
-		today := time.Now().In(settings.Location).Format("2006-01-02")
-		if date.Format("2006-01-02") != today {
+		if date != time.Now().In(settings.Location).Format("2006-01-02") {
 			buttons.InlineKeyboard[len(buttons.InlineKeyboard)-1] = append(
 				buttons.InlineKeyboard[len(buttons.InlineKeyboard)-1],
 				tgbotapi.NewInlineKeyboardButtonData(
 					lang.Button.ScheduleNavigationToday,
-					"open.schedule.day#date="+today,
+					"open.schedule.today",
 				),
 			)
 		}
@@ -172,7 +176,7 @@ func CreateSchedulePage(cm *data.ChatDataManager, date time.Time) (*Page, error)
 					tgbotapi.NewInlineKeyboardRow(
 						tgbotapi.NewInlineKeyboardButtonData(
 							lang.Button.ScheduleExtra,
-							"open.schedule.extra#date="+date.Format("2006-01-02"),
+							"open.schedule.extra#date="+date,
 						),
 					),
 				).InlineKeyboard,

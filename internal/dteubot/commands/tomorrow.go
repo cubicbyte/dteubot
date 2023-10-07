@@ -11,7 +11,7 @@ import (
 func handleTomorrowCommand(u *tgbotapi.Update) error {
 	cManager := data.ChatDataManager{ChatId: u.FromChat().ID}
 
-	tomorrow := time.Now().AddDate(0, 0, 1)
+	tomorrow := time.Now().In(settings.Location).AddDate(0, 0, 1).Format("2006-01-02")
 	page, err := pages.CreateSchedulePage(&cManager, tomorrow)
 	if err != nil {
 		return err
