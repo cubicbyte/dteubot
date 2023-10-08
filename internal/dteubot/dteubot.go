@@ -45,6 +45,7 @@ func Setup() {
 
 	// Connect to the database
 	port, _ := strconv.Atoi(os.Getenv("POSTGRES_PORT"))
+	data.SetupCache()
 	data.DbInstance = &data.Database{
 		Host:     os.Getenv("POSTGRES_HOST"),
 		Port:     port,
@@ -53,7 +54,6 @@ func Setup() {
 		Database: os.Getenv("POSTGRES_DB"),
 		Ssl:      os.Getenv("POSTGRES_SSL") == "true",
 	}
-
 	if err := data.DbInstance.Connect(); err != nil {
 		log.Fatalf("Error connecting to database: %s\n", err)
 	}

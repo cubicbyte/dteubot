@@ -3,7 +3,9 @@ package data
 import (
 	"github.com/cubicbyte/dteubot/internal/dteubot/settings"
 	"github.com/cubicbyte/dteubot/internal/i18n"
+	"github.com/patrickmn/go-cache"
 	"os"
+	"strconv"
 	"time"
 )
 
@@ -28,8 +30,21 @@ type ChatData struct {
 func (m *ChatDataManager) GetChatData() (*ChatData, error) {
 	log.Debugf("Getting chat data for chat %d\n", m.ChatId)
 
+	// Get from cache
+	cachedData, ok := chatCache.Get(strconv.FormatInt(m.ChatId, 10))
+	if ok {
+		return cachedData.(*ChatData), nil
+	}
+
+	// Get from database
 	chatData := new(ChatData)
 	err := DbInstance.Db.Get(chatData, GetChatQuery, m.ChatId)
+	if err != nil {
+		return nil, err
+	}
+
+	// Add to cache
+	err = chatCache.Add(strconv.FormatInt(m.ChatId, 10), chatData, cache.DefaultExpiration)
 	if err != nil {
 		return nil, err
 	}
@@ -66,6 +81,13 @@ func (m *ChatDataManager) CreateChatData() (*ChatData, error) {
 func (m *ChatDataManager) IsChatExists() (bool, error) {
 	log.Debugf("Checking if chat %d exists\n", m.ChatId)
 
+	// Check from cache
+	_, ok := chatCache.Get(strconv.FormatInt(m.ChatId, 10))
+	if ok {
+		return true, nil
+	}
+
+	// Check from database
 	var exists bool
 	err := DbInstance.Db.Get(&exists, IsChatExistsQuery, m.ChatId)
 	if err != nil {

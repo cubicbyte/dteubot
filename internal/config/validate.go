@@ -61,14 +61,14 @@ func ValidateEnv() error {
 		}
 	}
 
-	if os.Getenv("API_REQUEST_RETRIES") != "" {
+	if os.Getenv("API_CACHE_EXPIRES") != "" {
 		_, err := strconv.ParseInt(os.Getenv("API_CACHE_EXPIRES"), 10, 64)
 		if err != nil {
 			return &IncorrectEnvVariableError{"API_CACHE_EXPIRES"}
 		}
 	}
 
-	if os.Getenv("API_CACHE_EXPIRES") != "" {
+	if os.Getenv("NOTIFICATIONS_SUGGESTION_DELAY") != "" {
 		_, err = strconv.ParseInt(os.Getenv("NOTIFICATIONS_SUGGESTION_DELAY"), 10, 64)
 		if err != nil {
 			return &IncorrectEnvVariableError{"NOTIFICATIONS_SUGGESTION_DELAY"}

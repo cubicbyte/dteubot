@@ -1,6 +1,8 @@
 package data
 
 import (
+	"github.com/patrickmn/go-cache"
+	"strconv"
 	"time"
 )
 
@@ -23,8 +25,21 @@ type UserData struct {
 func (m *UserDataManager) GetUserData() (*UserData, error) {
 	log.Debugf("Getting user data for user %d\n", m.UserId)
 
+	// Get from cache
+	cachedData, ok := userCache.Get(strconv.FormatInt(m.UserId, 10))
+	if ok {
+		return cachedData.(*UserData), nil
+	}
+
+	// Get from database
 	userData := new(UserData)
 	err := DbInstance.Db.Get(userData, GetUserQuery, m.UserId)
+	if err != nil {
+		return nil, err
+	}
+
+	// Add to cache
+	err = userCache.Add(strconv.FormatInt(m.UserId, 10), userData, cache.DefaultExpiration)
 	if err != nil {
 		return nil, err
 	}
@@ -61,6 +76,13 @@ func (m *UserDataManager) CreateUserData() (*UserData, error) {
 func (m *UserDataManager) IsUserExists() (bool, error) {
 	log.Debugf("Checking if user %d exists\n", m.UserId)
 
+	// Check from cache
+	_, ok := userCache.Get(strconv.FormatInt(m.UserId, 10))
+	if ok {
+		return true, nil
+	}
+
+	// Check from database
 	var exists bool
 	err := DbInstance.Db.Get(&exists, IsUserExistsQuery, m.UserId)
 	if err != nil {
