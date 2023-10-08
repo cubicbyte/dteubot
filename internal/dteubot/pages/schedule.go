@@ -7,10 +7,18 @@ import (
 	"github.com/cubicbyte/dteubot/internal/i18n"
 	"github.com/cubicbyte/dteubot/pkg/api"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/op/go-logging"
 	"github.com/sirkon/go-format/v2"
 	"strconv"
+	"strings"
 	"time"
 )
+
+// List of teachers that are not found in the teachers list.
+// Needed to prevent spamming the log with the same warnings.
+var teacherPagesNotFound = make(map[string]bool)
+
+var log = logging.MustGetLogger("Bot")
 
 const ScheduleDateRange = 14
 
@@ -121,7 +129,7 @@ func CreateSchedulePage(cm *data.ChatDataManager, date string) (*Page, error) {
 					"typeStr":             utils.EscapeTelegramMarkdownV2(period.TypeStr),
 					"lessonNumber":        utils.EscapeTelegramMarkdownV2(lessonNumber),
 					"classroom":           utils.EscapeTelegramMarkdownV2(period.Classroom),
-					"teachersNameFull":    utils.EscapeTelegramMarkdownV2(period.TeachersNameFull),
+					"teachersNameFull":    getTeacher(period.TeachersNameFull),
 				})
 			}
 		}
@@ -188,12 +196,45 @@ func CreateSchedulePage(cm *data.ChatDataManager, date string) (*Page, error) {
 	}
 
 	page := Page{
-		Text:           pageText,
-		InlineKeyboard: buttons,
-		ParseMode:      "MarkdownV2",
+		Text:                  pageText,
+		InlineKeyboard:        buttons,
+		ParseMode:             "MarkdownV2",
+		DisableWebPagePreview: true,
 	}
 
 	return &page, nil
+}
+
+func getTeacher(teachersNameFull string) string {
+	var teacher string
+
+	// Get first teacher
+	teachers := strings.Split(teachersNameFull, ", ")
+	firstTeacher := teachers[0]
+
+	// If there is multiple teachers, return only the first one and add " +n" to the end
+	if len(teachers) > 1 {
+		teacher = firstTeacher + " +" + strconv.Itoa(len(teachers)-1)
+	} else {
+		teacher = firstTeacher
+	}
+
+	// Escape markdown
+	teacher = utils.EscapeTelegramMarkdownV2(teacher)
+
+	// Get teacher profile link
+	profileLink, ok := settings.TeachersList.GetLink(firstTeacher)
+	if ok {
+		teacher = "[" + teacher + "](" + profileLink + ")"
+	} else {
+		// Log warning if teacher page not found
+		if _, ok := teacherPagesNotFound[firstTeacher]; !ok {
+			log.Warningf("Teacher page not found: %s\n", firstTeacher)
+			teacherPagesNotFound[firstTeacher] = true
+		}
+	}
+
+	return teacher
 }
 
 func checkExtraText(day *api.TimeTableDate) bool {

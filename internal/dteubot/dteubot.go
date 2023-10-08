@@ -1,11 +1,13 @@
 package dteubot
 
 import (
+	"errors"
 	"github.com/cubicbyte/dteubot/internal/data"
 	"github.com/cubicbyte/dteubot/internal/dteubot/buttons"
 	"github.com/cubicbyte/dteubot/internal/dteubot/commands"
 	"github.com/cubicbyte/dteubot/internal/dteubot/groupscache"
 	"github.com/cubicbyte/dteubot/internal/dteubot/settings"
+	"github.com/cubicbyte/dteubot/internal/dteubot/teachers"
 	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
 	"github.com/cubicbyte/dteubot/internal/i18n"
 	"github.com/cubicbyte/dteubot/pkg/api"
@@ -63,6 +65,16 @@ func Setup() {
 	err = groupscache.CacheInstance.Load()
 	if err != nil {
 		log.Fatalf("Error loading groups cache: %s\n", err)
+	}
+
+	// Load the teachers list
+	settings.TeachersList = &teachers.TeachersList{File: "teachers.csv"}
+	err = settings.TeachersList.Load()
+	if errors.Is(err, os.ErrNotExist) {
+		log.Warning("TeachersList list file not found. TeachersList links will not be available.")
+		log.Warning("Please create a file teachers.csv using scripts/loadteachers.py script.")
+	} else if err != nil {
+		log.Fatalf("Error loading teachers list: %s\n", err)
 	}
 
 	// Connect to the Telegram API
