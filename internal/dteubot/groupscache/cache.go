@@ -8,7 +8,7 @@ package groupscache
 
 import (
 	"encoding/csv"
-	"github.com/cubicbyte/dteubot/internal/dteubot/settings"
+	"github.com/cubicbyte/dteubot/pkg/api"
 	"github.com/op/go-logging"
 	"io"
 	"os"
@@ -17,9 +17,8 @@ import (
 )
 
 var log = logging.MustGetLogger("GroupsCache")
-var CacheInstance *Cache
 
-const UpdateInterval = 60 * 60 * 24 // 1 day
+const TTL = 60 * 60 * 24 // 1 day
 
 type Group struct {
 	Id        int
@@ -31,23 +30,29 @@ type Group struct {
 
 type Cache struct {
 	File   string
-	Groups map[int]Group
+	groups map[int]Group
+	api    *api.Api
 }
 
-func (c *Cache) Init() {
-	c.Groups = make(map[int]Group)
+// New creates new cache instance
+func New(file string, apiInstance *api.Api) *Cache {
+	return &Cache{
+		File:   file,
+		groups: make(map[int]Group),
+		api:    apiInstance,
+	}
 }
 
 func (c *Cache) AddGroups(groups []Group) error {
 	for _, group := range groups {
-		c.Groups[group.Id] = group
+		c.groups[group.Id] = group
 	}
 
 	return c.Save()
 }
 
 func (c *Cache) AddGroup(group Group) error {
-	c.Groups[group.Id] = group
+	c.groups[group.Id] = group
 
 	return c.Save()
 }
@@ -55,14 +60,14 @@ func (c *Cache) AddGroup(group Group) error {
 func (c *Cache) GetGroup(id int) (*Group, error) {
 	log.Debugf("Getting group %d\n", id)
 
-	group, ok := c.Groups[id]
+	group, ok := c.groups[id]
 	if !ok {
 		return nil, nil
 	}
 
 	// Check if group is outdated
 	timestamp := time.Now().Unix()
-	if timestamp-group.Updated > UpdateInterval {
+	if timestamp-group.Updated > TTL {
 		// Update group
 		group, err := c.updateGroup(group)
 		if err != nil {
@@ -79,7 +84,7 @@ func (c *Cache) updateGroup(group Group) (*Group, error) {
 	log.Debugf("Updating group %d\n", group.Id)
 
 	// Get group from api at current course
-	groups, err := settings.Api.GetGroups(group.FacultyId, group.Course)
+	groups, err := c.api.GetGroups(group.FacultyId, group.Course)
 	if err != nil {
 		return nil, err
 	}
@@ -101,7 +106,7 @@ func (c *Cache) updateGroup(group Group) (*Group, error) {
 	}
 
 	// Group not found. Try to find group at next courses
-	courses, err := settings.Api.GetCourses(group.FacultyId)
+	courses, err := c.api.GetCourses(group.FacultyId)
 	if err != nil {
 		return nil, err
 	}
@@ -111,7 +116,7 @@ func (c *Cache) updateGroup(group Group) (*Group, error) {
 			continue
 		}
 
-		groups, err := settings.Api.GetGroups(group.FacultyId, course.Course)
+		groups, err := c.api.GetGroups(group.FacultyId, course.Course)
 		if err != nil {
 			return nil, err
 		}
@@ -195,7 +200,7 @@ func (c *Cache) Load() error {
 			Updated:   updated,
 		}
 
-		c.Groups[id] = group
+		c.groups[id] = group
 	}
 
 	return f.Close()
@@ -216,7 +221,7 @@ func (c *Cache) Save() error {
 	writer.Comma = ';'
 
 	// Write all groups
-	for _, group := range c.Groups {
+	for _, group := range c.groups {
 		err := writer.Write([]string{
 			strconv.Itoa(group.Id),
 			group.Name,

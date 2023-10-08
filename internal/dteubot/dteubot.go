@@ -54,16 +54,13 @@ func Setup() {
 		Ssl:      os.Getenv("POSTGRES_SSL") == "true",
 	}
 
-	err = data.DbInstance.Connect()
-	if err != nil {
+	if err := data.DbInstance.Connect(); err != nil {
 		log.Fatalf("Error connecting to database: %s\n", err)
 	}
 
 	// Load the groups cache
-	groupscache.CacheInstance = &groupscache.Cache{File: "cache/groups.csv"}
-	groupscache.CacheInstance.Init()
-	err = groupscache.CacheInstance.Load()
-	if err != nil {
+	settings.GroupsCache = groupscache.New("cache/groups.csv", settings.Api)
+	if err = settings.GroupsCache.Load(); err != nil {
 		log.Fatalf("Error loading groups cache: %s\n", err)
 	}
 

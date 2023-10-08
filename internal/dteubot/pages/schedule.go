@@ -211,13 +211,7 @@ func getTeacher(teachersNameFull string) string {
 	// Get first teacher
 	teachers := strings.Split(teachersNameFull, ", ")
 	firstTeacher := teachers[0]
-
-	// If there is multiple teachers, return only the first one and add " +n" to the end
-	if len(teachers) > 1 {
-		teacher = firstTeacher + " +" + strconv.Itoa(len(teachers)-1)
-	} else {
-		teacher = firstTeacher
-	}
+	teacher = firstTeacher
 
 	// Escape markdown
 	teacher = utils.EscapeTelegramMarkdownV2(teacher)
@@ -232,6 +226,11 @@ func getTeacher(teachersNameFull string) string {
 			log.Warningf("Teacher page not found: %s\n", firstTeacher)
 			teacherPagesNotFound[firstTeacher] = true
 		}
+	}
+
+	// If there is multiple teachers, return only the first one and add " +n" to the end
+	if len(teachers) > 1 {
+		teacher += " \\+" + strconv.Itoa(len(teachers)-1)
 	}
 
 	return teacher

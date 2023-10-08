@@ -1,6 +1,7 @@
 package settings
 
 import (
+	"github.com/cubicbyte/dteubot/internal/dteubot/groupscache"
 	"github.com/cubicbyte/dteubot/internal/dteubot/teachers"
 	"github.com/cubicbyte/dteubot/internal/i18n"
 	"github.com/cubicbyte/dteubot/pkg/api"
@@ -12,6 +13,7 @@ var (
 	Bot          *tgbotapi.BotAPI
 	Api          *api.Api
 	Languages    map[string]i18n.Language
+	GroupsCache  *groupscache.Cache
 	TeachersList *teachers.TeachersList
 	Location     *time.Location
 )

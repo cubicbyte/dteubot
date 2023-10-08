@@ -35,7 +35,7 @@ func CreateGroupsListPage(cm *data.ChatDataManager, facultyId int, course int, s
 		}
 	}
 
-	err = groupscache.CacheInstance.AddGroups(groups_)
+	err = settings.GroupsCache.AddGroups(groups_)
 	if err != nil {
 		return nil, err
 	}

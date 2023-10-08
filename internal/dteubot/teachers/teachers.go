@@ -46,7 +46,7 @@ func (t *TeachersList) Load() error {
 		t.teachers[name] = record[1]
 	}
 
-	return nil
+	return f.Close()
 }
 
 // GetLink returns teacher profile link by name

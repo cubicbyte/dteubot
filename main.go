@@ -9,20 +9,20 @@ import (
 )
 
 func main() {
-	err := config.LoadEnv()
-	if err != nil {
+	// Load .env file
+	if err := config.LoadEnv(); err != nil {
 		fmt.Printf("Error loading .env file: %s\n", err)
 		os.Exit(1)
 	}
 
-	err = config.ValidateEnv()
-	if err != nil {
+	// Validate environment variables (config)
+	if err := config.ValidateEnv(); err != nil {
 		fmt.Printf("Error validating .env file: %s\n", err)
 		os.Exit(1)
 	}
 
-	err = logging_.Init()
-	if err != nil {
+	// Initialize logging
+	if err := logging_.Init(); err != nil {
 		fmt.Printf("Error initializing logging: %s\n", err)
 		os.Exit(1)
 	}
