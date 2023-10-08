@@ -657,7 +657,11 @@ def settings(ctx: ContextManager) -> dict:
 
     # Get chat group name
     if ctx.chat_data.get('group_id') is not None:
-        res = groups_cache.get_group(group_id=ctx.chat_data.get('group_id'))
+        try:
+            res = groups_cache.get_group(group_id=ctx.chat_data.get('group_id'))
+        except HTTPApiException:
+            res = None
+
         if res is None:
             group = lang.get('text.unknown')
         else:
@@ -850,7 +854,7 @@ def students_list(ctx: ContextManager) -> dict:
             language=ctx.chat_data.get('lang_code'),
         )
     except HTTPApiException as err:
-        if err.response.status_code == 422:
+        if err.response and err.response.status_code == 422:
             return invalid_group(ctx)
         return api_unavaliable(ctx)
 
