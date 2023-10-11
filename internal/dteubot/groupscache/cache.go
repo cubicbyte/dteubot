@@ -8,7 +8,7 @@ package groupscache
 
 import (
 	"encoding/csv"
-	"github.com/cubicbyte/dteubot/pkg/api"
+	"github.com/cubicbyte/dteubot/pkg/api/cachedapi"
 	"github.com/op/go-logging"
 	"io"
 	"os"
@@ -31,11 +31,11 @@ type Group struct {
 type Cache struct {
 	File   string
 	groups map[int]Group
-	api    *api.Api
+	api    *cachedapi.CachedApi
 }
 
 // New creates new cache instance
-func New(file string, apiInstance *api.Api) *Cache {
+func New(file string, apiInstance *cachedapi.CachedApi) *Cache {
 	return &Cache{
 		File:   file,
 		groups: make(map[int]Group),

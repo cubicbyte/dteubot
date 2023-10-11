@@ -10,13 +10,19 @@ import (
 	"github.com/cubicbyte/dteubot/internal/dteubot/teachers"
 	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
 	"github.com/cubicbyte/dteubot/internal/i18n"
-	"github.com/cubicbyte/dteubot/pkg/api"
+	"github.com/cubicbyte/dteubot/pkg/api/cachedapi"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/op/go-logging"
 	"os"
 	"strconv"
 	"time"
 )
+
+const CachePath = "cache"
+const ApiLevelDBPath = CachePath + "/api"
+const ApiCachePath = CachePath + "/api.sqlite"
+const GroupsCachePath = CachePath + "/groups.csv"
+const TeachersListPath = "teachers.csv"
 
 var log = logging.MustGetLogger("Bot")
 
@@ -25,7 +31,7 @@ func Setup() {
 	log.Info("Setting up Bot")
 
 	// Create required directories
-	if err := os.Mkdir("cache", 0755); err != nil && !os.IsExist(err) {
+	if err := os.Mkdir(CachePath, 0755); err != nil && !os.IsExist(err) {
 		log.Fatalf("Error creating cache directory: %s\n", err)
 	}
 
@@ -34,6 +40,22 @@ func Setup() {
 	settings.Location, err = time.LoadLocation("Europe/Kiev")
 	if err != nil {
 		log.Fatalf("Error loading time zone: %s\n", err)
+	}
+
+	// Setup the API
+	// Get expiration time
+	expires, err := strconv.Atoi(os.Getenv("API_CACHE_EXPIRES"))
+	if err != nil {
+		log.Fatalf("Error parsing API_CACHE_EXPIRES: %s\n", err)
+	}
+	settings.Api, err = cachedapi.New(
+		os.Getenv("API_URL"),
+		ApiLevelDBPath,
+		ApiCachePath,
+		time.Duration(expires)*time.Second,
+	)
+	if err != nil {
+		log.Fatalf("Error setting up API: %s\n", err)
 	}
 
 	// Load localization files
@@ -59,13 +81,13 @@ func Setup() {
 	}
 
 	// Load the groups cache
-	settings.GroupsCache = groupscache.New("cache/groups.csv", settings.Api)
+	settings.GroupsCache = groupscache.New(GroupsCachePath, settings.Api)
 	if err = settings.GroupsCache.Load(); err != nil {
 		log.Fatalf("Error loading groups cache: %s\n", err)
 	}
 
 	// Load the teachers list
-	settings.TeachersList = &teachers.TeachersList{File: "teachers.csv"}
+	settings.TeachersList = &teachers.TeachersList{File: TeachersListPath}
 	err = settings.TeachersList.Load()
 	if errors.Is(err, os.ErrNotExist) {
 		log.Warning("TeachersList list file not found. TeachersList links will not be available.")
@@ -84,9 +106,6 @@ func Setup() {
 	}
 
 	log.Infof("Connected to Telegram API as %s\n", settings.Bot.Self.UserName)
-
-	// Setup the API
-	settings.Api = &api.Api{Url: os.Getenv("API_URL")}
 }
 
 // Run starts the Bot.

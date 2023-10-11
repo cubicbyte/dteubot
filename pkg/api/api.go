@@ -19,6 +19,18 @@ type Api struct {
 	Url string
 }
 
+type IApi interface {
+	GetStructures() ([]Structure, error)
+	GetFaculties(structureId int) ([]Faculty, error)
+	GetCourses(facultyId int) ([]Course, error)
+	GetGroups(facultyId int, course int) ([]Group, error)
+	GetGroupStudents(groupId int) ([]Student, error)
+	GetCallSchedule() ([]CallSchedule, error)
+	GetGroupSchedule(groupId int, dateStart string, dateEnd string) ([]TimeTableDate, error)
+	GetScheduleExtraInfo(classCode int, date string) (*ScheduleExtraInfo, error)
+	GetGroupScheduleDay(groupId int, date string) (*TimeTableDate, error)
+}
+
 // makeRequest makes a request to the API.
 // Needed to avoid code duplication
 func (api *Api) makeRequest(method string, path string, body string, result any) error {
