@@ -33,6 +33,7 @@ var updateScheduleSql string
 type CachedApi struct {
 	Url             string
 	Expires         time.Duration
+	Timeout         time.Duration
 	cache           *leveldbcache.Cache
 	db              *sql.DB
 	conn            *sql.Conn
@@ -47,7 +48,7 @@ type CachedDate struct {
 	Updated int64  `db:"updated"`
 }
 
-func New(url string, leveldbPath string, cachePath string, expires time.Duration) (*CachedApi, error) {
+func New(url string, leveldbPath string, cachePath string, expires time.Duration, timeout time.Duration) (*CachedApi, error) {
 	cache, err := leveldbcache.New(leveldbPath)
 	if err != nil {
 		return nil, err
@@ -75,12 +76,16 @@ func New(url string, leveldbPath string, cachePath string, expires time.Duration
 	}
 
 	return &CachedApi{
-		Url:             url,
-		Expires:         expires,
-		cache:           cache,
-		db:              db,
-		conn:            conn,
-		api:             &api2.Api{Url: url},
+		Url:     url,
+		Expires: expires,
+		Timeout: timeout,
+		cache:   cache,
+		db:      db,
+		conn:    conn,
+		api: &api2.Api{
+			Url:     url,
+			Timeout: timeout,
+		},
 		getScheduleStmt: stmt,
 	}, nil
 }
@@ -134,12 +139,15 @@ func (api *CachedApi) makeRequest(method string, path string, body string, resul
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("Accept-Language", "uk")
-	client := &http.Client{}
+	client := &http.Client{
+		Timeout: api.Timeout,
+	}
 
 	resp, err := client.Do(req)
 	if err != nil {
 		if respOk {
 			// Return cached response if request failed
+			log.Warningf("Error making request, using cached result: %s", err)
 			if err := json.Unmarshal(respBody, &result); err != nil {
 				return err
 			}
@@ -295,15 +303,7 @@ func (api *CachedApi) GetGroupSchedule(groupId int, dateStart string, dateEnd st
 		return nil, err
 	}
 
-	defer func(rows *sql.Rows) {
-		err2 := rows.Close()
-		if err2 != nil {
-			err = err2
-		}
-	}(rows)
-	if err != nil {
-		return nil, err
-	}
+	defer rows.Close()
 
 	// Check if we need to update the schedule
 	var updateNeeded bool
@@ -322,7 +322,6 @@ func (api *CachedApi) GetGroupSchedule(groupId int, dateStart string, dateEnd st
 		// Check if schedule is outdated
 		if curTime-day.Updated > expires {
 			updateNeeded = true
-			break
 		}
 
 		// Add day to schedule
@@ -351,8 +350,13 @@ func (api *CachedApi) GetGroupSchedule(groupId int, dateStart string, dateEnd st
 	// Update schedule
 	log.Debug("Updating schedule")
 
-	schedule, err = api.api.GetGroupSchedule(groupId, dateStart, dateEnd)
+	newSchedule, err := api.api.GetGroupSchedule(groupId, dateStart, dateEnd)
 	if err != nil {
+		if count == datesRange {
+			// Return cached schedule if request failed
+			log.Warningf("Error updating schedule: %s", err)
+			return schedule, nil
+		}
 		return nil, err
 	}
 
@@ -367,7 +371,7 @@ func (api *CachedApi) GetGroupSchedule(groupId int, dateStart string, dateEnd st
 	}
 
 	// Save schedule to cache
-	for _, day := range schedule {
+	for _, day := range newSchedule {
 		// Convert lessons to JSON string
 		lessons, err := json.Marshal(day.Lessons)
 		if err != nil {
@@ -384,7 +388,7 @@ func (api *CachedApi) GetGroupSchedule(groupId int, dateStart string, dateEnd st
 		return nil, err
 	}
 
-	return schedule, nil
+	return newSchedule, nil
 }
 
 // GetScheduleExtraInfo returns a extra info for a schedule,

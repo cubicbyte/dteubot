@@ -7,6 +7,7 @@ import (
 	"github.com/op/go-logging"
 	"io"
 	"net/http"
+	"time"
 )
 
 var log = logging.MustGetLogger("api")
@@ -16,7 +17,8 @@ const Location = "Europe/Kiev"
 // Api is a wrapper for mkr.org.ua API requests.
 // Documentation can be found here: https://mkr.org.ua
 type Api struct {
-	Url string
+	Url     string
+	Timeout time.Duration
 }
 
 type IApi interface {
@@ -52,7 +54,9 @@ func (api *Api) makeRequest(method string, path string, body string, result any)
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("Accept-Language", "uk")
-	client := &http.Client{}
+	client := &http.Client{
+		Timeout: api.Timeout,
+	}
 
 	res, err := client.Do(req)
 	if err != nil {

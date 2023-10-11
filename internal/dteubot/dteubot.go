@@ -48,11 +48,16 @@ func Setup() {
 	if err != nil {
 		log.Fatalf("Error parsing API_CACHE_EXPIRES: %s\n", err)
 	}
+	timeout, err := strconv.Atoi(os.Getenv("API_REQUEST_TIMEOUT"))
+	if err != nil {
+		log.Fatalf("Error parsing API_REQUEST_TIMEOUT: %s\n", err)
+	}
 	settings.Api, err = cachedapi.New(
 		os.Getenv("API_URL"),
 		ApiLevelDBPath,
 		ApiCachePath,
 		time.Duration(expires)*time.Second,
+		time.Duration(timeout)*time.Millisecond,
 	)
 	if err != nil {
 		log.Fatalf("Error setting up API: %s\n", err)
