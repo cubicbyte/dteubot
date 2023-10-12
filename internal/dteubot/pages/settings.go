@@ -70,8 +70,6 @@ func CreateSettingsPage(cm *data.ChatDataManager) (*Page, error) {
 		"notif1m":  utils.GetSettingIcon(chatData.ClassesNotification1m),
 	})
 
-	println(pageText)
-
 	page := Page{
 		Text: pageText,
 		InlineKeyboard: tgbotapi.NewInlineKeyboardMarkup(
