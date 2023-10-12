@@ -62,14 +62,14 @@ func HandleError(err error, update tgbotapi.Update) {
 			break
 		}
 
-		log.Warningf("Api %d error: %s", err.(*api.HTTPApiError).Code, err.(*api.HTTPApiError).Body)
+		log.Warningf("Api %d error: %s", httpApiError.Code, httpApiError.Body)
 
 		cm := utils.GetChatDataManager(chat.ID)
 
 		var page *pages.Page
 		var pageErr error
 
-		switch err.(*api.HTTPApiError).Code {
+		switch httpApiError.Code {
 		case http.StatusUnauthorized:
 			page, pageErr = pages.CreateForbiddenPage(cm, "open.menu#from=unauthorized")
 
@@ -79,9 +79,12 @@ func HandleError(err error, update tgbotapi.Update) {
 		case http.StatusForbidden:
 			page, pageErr = pages.CreateForbiddenPage(cm, "open.menu#from=forbidden")
 
+		case http.StatusNotFound:
+			page, pageErr = pages.CreateNotFoundPage(cm, "open.menu#from=not_found")
+
 		case http.StatusUnprocessableEntity:
 			// Request body is invalid: incorrect group id, etc
-			for _, field := range err.(*api.HTTPApiError).Err.(*api.ValidationError).Fields {
+			for _, field := range httpApiError.Err.(*api.ValidationError).Fields {
 				switch field.Field {
 				case "groupId":
 					page, pageErr = pages.CreateInvalidGroupPage(cm)
@@ -103,7 +106,7 @@ func HandleError(err error, update tgbotapi.Update) {
 			// Unknown error
 			page, pageErr = pages.CreateErrorPage(cm)
 
-			log.Errorf("Unknown API http status code %d: %s", err.(*api.HTTPApiError).Code, err.(*api.HTTPApiError).Body)
+			log.Errorf("Unknown API http status code %d: %s", httpApiError.Code, httpApiError.Body)
 			SendErrorToTelegram(err)
 		}
 

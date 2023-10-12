@@ -17,7 +17,6 @@ var telegramSupportedHTMLTags = [...]string{
 }
 
 func CreateScheduleExtraInfoPage(cm *data.ChatDataManager, date string) (*Page, error) {
-
 	chatData, err := cm.GetChatData()
 	if err != nil {
 		return nil, err
