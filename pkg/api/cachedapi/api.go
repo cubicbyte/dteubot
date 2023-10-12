@@ -167,28 +167,38 @@ func (api *CachedApi) makeRequest(method string, path string, body string, resul
 
 	// Handle non-200 status codes
 	if resp.StatusCode != http.StatusOK {
+		err := &api2.HTTPApiError{Code: resp.StatusCode, Body: string(resBody)}
+
 		switch resp.StatusCode {
 		case http.StatusUnauthorized:
 			var e api2.UnauthorizedError
 			if err := json.Unmarshal(resBody, &e); err != nil {
 				return err
 			}
-			return &e
+			err.Err = &e
 		case http.StatusForbidden:
 			var e api2.ForbiddenError
 			if err := json.Unmarshal(resBody, &e); err != nil {
 				return err
 			}
-			return &e
+			err.Err = &e
 		case http.StatusUnprocessableEntity:
 			var e api2.ValidationError
 			if err := json.Unmarshal(resBody, &e.Fields); err != nil {
 				return err
 			}
-			return &e
+			err.Err = &e
+		case http.StatusInternalServerError:
+			var e api2.InternalServerError
+			if err := json.Unmarshal(resBody, &e); err != nil {
+				return err
+			}
+			err.Err = &e
 		default:
-			return &api2.HTTPApiError{Code: resp.StatusCode, Body: string(resBody)}
+			return err
 		}
+
+		return err
 	}
 
 	// Save response to cache

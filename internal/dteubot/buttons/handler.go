@@ -114,7 +114,7 @@ func HandleButton(u *tgbotapi.Update) error {
 	return nil
 }
 
-func editMessageReq(page *pages.Page, cb *tgbotapi.CallbackQuery) tgbotapi.EditMessageTextConfig {
+func EditMessageRequest(page *pages.Page, cb *tgbotapi.CallbackQuery) tgbotapi.EditMessageTextConfig {
 	return page.CreateEditMessage(cb.Message.Chat.ID, cb.Message.MessageID)
 }
 

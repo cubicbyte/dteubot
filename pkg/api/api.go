@@ -74,28 +74,38 @@ func (api *Api) makeRequest(method string, path string, body string, result any)
 
 	// Handle non-200 status codes
 	if res.StatusCode != http.StatusOK {
+		err := &HTTPApiError{Code: res.StatusCode, Body: string(resBody)}
+
 		switch res.StatusCode {
 		case http.StatusUnauthorized:
 			var e UnauthorizedError
 			if err := json.Unmarshal(resBody, &e); err != nil {
 				return err
 			}
-			return &e
+			err.Err = &e
 		case http.StatusForbidden:
 			var e ForbiddenError
 			if err := json.Unmarshal(resBody, &e); err != nil {
 				return err
 			}
-			return &e
+			err.Err = &e
 		case http.StatusUnprocessableEntity:
 			var e ValidationError
 			if err := json.Unmarshal(resBody, &e.Fields); err != nil {
 				return err
 			}
-			return &e
+			err.Err = &e
+		case http.StatusInternalServerError:
+			var e InternalServerError
+			if err := json.Unmarshal(resBody, &e); err != nil {
+				return err
+			}
+			err.Err = &e
 		default:
-			return &HTTPApiError{res.StatusCode, string(resBody)}
+			return err
 		}
+
+		return err
 	}
 
 	if err := json.Unmarshal(resBody, &result); err != nil {

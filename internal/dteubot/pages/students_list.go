@@ -27,14 +27,19 @@ func CreateStudentsListPage(cm *data.ChatDataManager) (*Page, error) {
 
 	// Get group name
 	var groupName string
-	group, err := settings.GroupsCache.GetGroup(chatData.GroupId)
-	if err != nil {
-		return nil, err
-	}
-	if group == nil {
-		groupName = format.Formatp(lang.Text.UnknownGroupName, chatData.GroupId)
+	if chatData.GroupId == -1 {
+		groupName = lang.Text.NotSelected
 	} else {
-		groupName = utils.EscapeTelegramMarkdownV2(group.Name)
+		group, err := settings.GroupsCache.GetGroup(chatData.GroupId)
+		if err != nil {
+			return nil, err
+		}
+		if group == nil {
+			groupId := utils.EscapeTelegramMarkdownV2(strconv.Itoa(chatData.GroupId))
+			groupName = format.Formatp(lang.Text.UnknownGroupName, groupId)
+		} else {
+			groupName = utils.EscapeTelegramMarkdownV2(group.Name)
+		}
 	}
 
 	pageText := ""

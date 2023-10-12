@@ -1,6 +1,6 @@
 CREATE TABLE chats (
                                 chat_id BIGINT NOT NULL,
-                                group_id INT NOT NULL DEFAULT 0,
+                                group_id INT NOT NULL DEFAULT -1,
                                 lang_code VARCHAR(10) NOT NULL,
                                 cl_notif_15m BOOL NOT NULL DEFAULT FALSE,
                                 cl_notif_1m BOOL NOT NULL DEFAULT FALSE,

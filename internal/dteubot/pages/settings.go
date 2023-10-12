@@ -6,6 +6,7 @@ import (
 	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/sirkon/go-format/v2"
+	"strconv"
 )
 
 func CreateSettingsPage(cm *data.ChatDataManager) (*Page, error) {
@@ -29,7 +30,7 @@ func CreateSettingsPage(cm *data.ChatDataManager) (*Page, error) {
 
 	// Get group name
 	var groupName string
-	if chatData.GroupId == 0 {
+	if chatData.GroupId == -1 {
 		groupName = lang.Text.NotSelected
 	} else {
 		group, err := settings.GroupsCache.GetGroup(chatData.GroupId)
@@ -37,7 +38,8 @@ func CreateSettingsPage(cm *data.ChatDataManager) (*Page, error) {
 			return nil, err
 		}
 		if group == nil {
-			groupName = format.Formatp(lang.Text.UnknownGroupName, chatData.GroupId)
+			groupId := utils.EscapeTelegramMarkdownV2(strconv.Itoa(chatData.GroupId))
+			groupName = format.Formatp(lang.Text.UnknownGroupName, groupId)
 		} else {
 			groupName = utils.EscapeTelegramMarkdownV2(group.Name)
 		}
@@ -64,6 +66,8 @@ func CreateSettingsPage(cm *data.ChatDataManager) (*Page, error) {
 		"notif15m": utils.GetSettingIcon(chatData.ClassesNotification15m),
 		"notif1m":  utils.GetSettingIcon(chatData.ClassesNotification1m),
 	})
+
+	println(pageText)
 
 	page := Page{
 		Text: pageText,

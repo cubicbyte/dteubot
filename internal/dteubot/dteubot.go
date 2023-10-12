@@ -5,6 +5,7 @@ import (
 	"github.com/cubicbyte/dteubot/internal/data"
 	"github.com/cubicbyte/dteubot/internal/dteubot/buttons"
 	"github.com/cubicbyte/dteubot/internal/dteubot/commands"
+	"github.com/cubicbyte/dteubot/internal/dteubot/errorhandler"
 	"github.com/cubicbyte/dteubot/internal/dteubot/groupscache"
 	"github.com/cubicbyte/dteubot/internal/dteubot/settings"
 	"github.com/cubicbyte/dteubot/internal/dteubot/teachers"
@@ -128,23 +129,25 @@ func Run() {
 		}
 
 		if err := utils.InitDatabaseRecords(&update); err != nil {
-			log.Errorf("Error initializing database records: %s\n", err)
-			// TODO: Handle error
+			log.Infof("Error initializing database records: %s\n", err)
+			errorhandler.HandleError(err, update)
 			continue
 		}
 
 		if update.Message != nil {
 			if err := commands.HandleCommand(update); err != nil {
-				log.Errorf("Error handling command: %s\n", err)
-				// TODO: Handle error
+				log.Infof("Error handling command: %s\n", err)
+				errorhandler.HandleError(err, update)
 			}
 		}
 
 		if update.CallbackQuery != nil {
 			if err := buttons.HandleButton(&update); err != nil {
-				log.Errorf("Error handling button: %s\n", err)
-				// TODO: Handle error
+				log.Infof("Error handling button: %s\n", err)
+				errorhandler.HandleError(err, update)
 			}
 		}
+
+		log.Debug("Update processed")
 	}
 }

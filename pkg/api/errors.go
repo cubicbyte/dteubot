@@ -6,6 +6,15 @@ import "errors"
 type HTTPApiError struct {
 	Code int
 	Body string
+	Err  error
+}
+
+// InternalServerError is an error returned by the API when status code is 500
+type InternalServerError struct {
+	Name    string `json:"name"`
+	Message string `json:"message"`
+	Code    int    `json:"code"`
+	Status  int    `json:"status"`
 }
 
 // UnauthorizedError is an error returned by the API when status code is 401
@@ -38,6 +47,10 @@ type ValidationErrorField struct {
 
 func (e *HTTPApiError) Error() string {
 	return errors.New("api error").Error()
+}
+
+func (e *InternalServerError) Error() string {
+	return errors.New("internal server error").Error()
 }
 
 func (e *UnauthorizedError) Error() string {

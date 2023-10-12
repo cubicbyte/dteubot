@@ -20,7 +20,7 @@ func HandleAdminPanelButton(u *tgbotapi.Update) error {
 		return err
 	}
 
-	_, err = settings.Bot.Send(editMessageReq(page, u.CallbackQuery))
+	_, err = settings.Bot.Send(EditMessageRequest(page, u.CallbackQuery))
 	if err != nil {
 		return err
 	}
