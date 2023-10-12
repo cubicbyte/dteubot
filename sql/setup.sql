@@ -10,6 +10,10 @@ CREATE TABLE chats (
                                 PRIMARY KEY (chat_id)
 );
 
+-- Notifications indexes
+CREATE INDEX cl_notif_15m_idx ON chats (cl_notif_15m);
+CREATE INDEX cl_notif_1m_idx ON chats (cl_notif_1m);
+
 CREATE TABLE users (
                        user_id BIGINT NOT NULL,
                        first_name VARCHAR(64) NOT NULL DEFAULT '',

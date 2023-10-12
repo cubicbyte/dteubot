@@ -69,12 +69,16 @@ func (c *Cache) GetGroup(id int) (*Group, error) {
 	timestamp := time.Now().Unix()
 	if timestamp-group.Updated > TTL {
 		// Update group
-		group, err := c.updateGroup(group)
+		newGroup, err := c.updateGroup(group)
 		if err != nil {
+			if ok {
+				// Return old group if update failed
+				return &group, err
+			}
 			return nil, err
 		}
 
-		return group, nil
+		return newGroup, nil
 	}
 
 	return &group, nil

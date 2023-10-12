@@ -8,6 +8,8 @@ import (
 	"github.com/op/go-logging"
 )
 
+// TODO: Use pgx
+
 var log = logging.MustGetLogger("database")
 
 // Load SQL queries from files

@@ -35,7 +35,10 @@ func CreateSettingsPage(cm *data.ChatDataManager) (*Page, error) {
 	} else {
 		group, err := settings.GroupsCache.GetGroup(chatData.GroupId)
 		if err != nil {
-			return nil, err
+			if group == nil {
+				return nil, err
+			}
+			log.Warningf("Error getting %d group name: %s", chatData.GroupId, err)
 		}
 		if group == nil {
 			groupId := utils.EscapeTelegramMarkdownV2(strconv.Itoa(chatData.GroupId))

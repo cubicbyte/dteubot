@@ -61,6 +61,7 @@ func New(url string, leveldbPath string, cachePath string, expires time.Duration
 	}
 
 	// Setup sqlite3 database
+	// TODO: Use sqlx
 	if _, err := db.Exec(setupSql); err != nil {
 		return nil, err
 	}
