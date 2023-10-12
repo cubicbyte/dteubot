@@ -1,16 +1,16 @@
 package buttons
 
 import (
-	"github.com/cubicbyte/dteubot/internal/data"
 	"github.com/cubicbyte/dteubot/internal/dteubot/pages"
 	"github.com/cubicbyte/dteubot/internal/dteubot/settings"
+	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
 func HandleOpenSelectLanguageButton(u *tgbotapi.Update) error {
-	cManager := data.ChatDataManager{ChatId: u.CallbackQuery.Message.Chat.ID}
+	cManager := utils.GetChatDataManager(u.FromChat().ID)
 
-	page, err := pages.CreateLanguageSelectionPage(&cManager, "open.settings#from=lang")
+	page, err := pages.CreateLanguageSelectionPage(cManager, "open.settings#from=lang")
 	if err != nil {
 		return err
 	}

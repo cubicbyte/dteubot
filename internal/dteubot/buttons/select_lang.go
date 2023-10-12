@@ -2,7 +2,6 @@ package buttons
 
 import (
 	"errors"
-	"github.com/cubicbyte/dteubot/internal/data"
 	"github.com/cubicbyte/dteubot/internal/dteubot/pages"
 	"github.com/cubicbyte/dteubot/internal/dteubot/settings"
 	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
@@ -19,7 +18,7 @@ func HandleSelectLanguageButton(u *tgbotapi.Update) error {
 	}
 
 	// Update chat language
-	cManager := data.ChatDataManager{ChatId: u.CallbackQuery.Message.Chat.ID}
+	cManager := utils.GetChatDataManager(u.FromChat().ID)
 
 	chatData, err := cManager.GetChatData()
 	if err != nil {
@@ -28,7 +27,7 @@ func HandleSelectLanguageButton(u *tgbotapi.Update) error {
 
 	// If language is already set, go to settings page
 	if chatData.LanguageCode == lang {
-		page, err := pages.CreateSettingsPage(&cManager)
+		page, err := pages.CreateSettingsPage(cManager)
 		if err != nil {
 			return err
 		}
@@ -48,7 +47,7 @@ func HandleSelectLanguageButton(u *tgbotapi.Update) error {
 	}
 
 	// Update page
-	page, err := pages.CreateLanguageSelectionPage(&cManager, "open.settings#from=lang")
+	page, err := pages.CreateLanguageSelectionPage(cManager, "open.settings#from=lang")
 	if err != nil {
 		return err
 	}

@@ -1,7 +1,6 @@
 package buttons
 
 import (
-	"github.com/cubicbyte/dteubot/internal/data"
 	"github.com/cubicbyte/dteubot/internal/dteubot/pages"
 	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -119,7 +118,7 @@ func EditMessageRequest(page *pages.Page, cb *tgbotapi.CallbackQuery) tgbotapi.E
 }
 
 func checkAdmin(u *tgbotapi.Update) (bool, error) {
-	manager := data.UserDataManager{UserId: u.CallbackQuery.From.ID}
+	manager := utils.GetUserDataManager(u.CallbackQuery.From.ID)
 
 	userData, err := manager.GetUserData()
 	if err != nil {

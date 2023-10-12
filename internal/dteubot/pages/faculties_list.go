@@ -3,12 +3,13 @@ package pages
 import (
 	"github.com/cubicbyte/dteubot/internal/data"
 	"github.com/cubicbyte/dteubot/internal/dteubot/settings"
+	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"strconv"
 )
 
 func CreateFacultiesListPage(cm *data.ChatDataManager, structureId int) (*Page, error) {
-	lang, err := cm.GetLanguage()
+	lang, err := utils.GetLang(cm)
 	if err != nil {
 		return nil, err
 	}

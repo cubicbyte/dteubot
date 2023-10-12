@@ -32,8 +32,6 @@ var (
 	UpdateUserQuery string
 )
 
-var DbInstance *Database
-
 // Database is a PostgreSQL database connection manager.
 type Database struct {
 	Host     string

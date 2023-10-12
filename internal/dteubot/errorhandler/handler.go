@@ -3,10 +3,10 @@ package errorhandler
 import (
 	"errors"
 	"fmt"
-	"github.com/cubicbyte/dteubot/internal/data"
 	"github.com/cubicbyte/dteubot/internal/dteubot/buttons"
 	"github.com/cubicbyte/dteubot/internal/dteubot/pages"
 	"github.com/cubicbyte/dteubot/internal/dteubot/settings"
+	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
 	"github.com/cubicbyte/dteubot/pkg/api"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/op/go-logging"
@@ -33,8 +33,8 @@ func HandleError(err error, update tgbotapi.Update) {
 			break
 		}
 
-		cm := data.ChatDataManager{ChatId: chat.ID}
-		page, err := pages.CreateApiUnavailablePage(&cm)
+		cm := utils.GetChatDataManager(chat.ID)
+		page, err := pages.CreateApiUnavailablePage(cm)
 		if err != nil {
 			log.Errorf("Error creating api unavailable page: %s", err)
 			SendErrorToTelegram(err)
@@ -64,44 +64,44 @@ func HandleError(err error, update tgbotapi.Update) {
 
 		log.Warningf("Api %d error: %s", err.(*api.HTTPApiError).Code, err.(*api.HTTPApiError).Body)
 
-		cm := data.ChatDataManager{ChatId: chat.ID}
+		cm := utils.GetChatDataManager(chat.ID)
 
 		var page *pages.Page
 		var pageErr error
 
 		switch err.(*api.HTTPApiError).Code {
 		case http.StatusUnauthorized:
-			page, pageErr = pages.CreateForbiddenPage(&cm, "open.menu#from=unauthorized")
+			page, pageErr = pages.CreateForbiddenPage(cm, "open.menu#from=unauthorized")
 
 		case http.StatusInternalServerError:
-			page, pageErr = pages.CreateApiUnavailablePage(&cm)
+			page, pageErr = pages.CreateApiUnavailablePage(cm)
 
 		case http.StatusForbidden:
-			page, pageErr = pages.CreateForbiddenPage(&cm, "open.menu#from=forbidden")
+			page, pageErr = pages.CreateForbiddenPage(cm, "open.menu#from=forbidden")
 
 		case http.StatusUnprocessableEntity:
 			// Request body is invalid: incorrect group id, etc
 			for _, field := range err.(*api.HTTPApiError).Err.(*api.ValidationError).Fields {
 				switch field.Field {
 				case "groupId":
-					page, pageErr = pages.CreateInvalidGroupPage(&cm)
+					page, pageErr = pages.CreateInvalidGroupPage(cm)
 				default:
 					// Unknown field
-					page, pageErr = pages.CreateErrorPage(&cm)
+					page, pageErr = pages.CreateErrorPage(cm)
 					log.Errorf("Unknown validation error field: %s", field.Field)
 					SendErrorToTelegram(err)
 				}
 			}
 			if page == nil {
 				// No fields in ValidationError
-				page, pageErr = pages.CreateErrorPage(&cm)
+				page, pageErr = pages.CreateErrorPage(cm)
 				log.Errorf("No fields in ValidationError: %s", err)
 				SendErrorToTelegram(err)
 			}
 
 		default:
 			// Unknown error
-			page, pageErr = pages.CreateErrorPage(&cm)
+			page, pageErr = pages.CreateErrorPage(cm)
 
 			log.Errorf("Unknown API http status code %d: %s", err.(*api.HTTPApiError).Code, err.(*api.HTTPApiError).Body)
 			SendErrorToTelegram(err)
@@ -136,8 +136,8 @@ func HandleError(err error, update tgbotapi.Update) {
 			break
 		}
 
-		cm := data.ChatDataManager{ChatId: chat.ID}
-		page, err := pages.CreateErrorPage(&cm)
+		cm := utils.GetChatDataManager(chat.ID)
+		page, err := pages.CreateErrorPage(cm)
 		if err != nil {
 			log.Errorf("Error creating error page: %s", err)
 			SendErrorToTelegram(err)

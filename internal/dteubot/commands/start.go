@@ -1,15 +1,15 @@
 package commands
 
 import (
-	"github.com/cubicbyte/dteubot/internal/data"
 	"github.com/cubicbyte/dteubot/internal/dteubot/pages"
 	"github.com/cubicbyte/dteubot/internal/dteubot/settings"
+	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
 func handleStartCommand(u *tgbotapi.Update) error {
-	cManager := data.ChatDataManager{ChatId: u.FromChat().ID}
-	uManager := data.UserDataManager{UserId: u.SentFrom().ID}
+	cManager := utils.GetChatDataManager(u.FromChat().ID)
+	uManager := utils.GetUserDataManager(u.SentFrom().ID)
 
 	userData, err := uManager.GetUserData()
 	if err != nil {
@@ -25,7 +25,7 @@ func handleStartCommand(u *tgbotapi.Update) error {
 	}
 
 	// Send greeting
-	greeting, err := pages.CreateGreetingPage(&cManager)
+	greeting, err := pages.CreateGreetingPage(cManager)
 	if err != nil {
 		return err
 	}
@@ -41,9 +41,9 @@ func handleStartCommand(u *tgbotapi.Update) error {
 	}
 	var groupSelection *pages.Page
 	if len(structures) == 1 {
-		groupSelection, err = pages.CreateFacultiesListPage(&cManager, structures[0].Id)
+		groupSelection, err = pages.CreateFacultiesListPage(cManager, structures[0].Id)
 	} else {
-		groupSelection, err = pages.CreateStructuresListPage(&cManager)
+		groupSelection, err = pages.CreateStructuresListPage(cManager)
 	}
 	if err != nil {
 		return err

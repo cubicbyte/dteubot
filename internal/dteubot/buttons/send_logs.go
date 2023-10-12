@@ -1,8 +1,8 @@
 package buttons
 
 import (
-	"github.com/cubicbyte/dteubot/internal/data"
 	"github.com/cubicbyte/dteubot/internal/dteubot/settings"
+	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
 	"github.com/cubicbyte/dteubot/internal/logging"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
@@ -28,9 +28,9 @@ func HandleSendLogsButton(u *tgbotapi.Update) error {
 	}
 
 	// Create "done" alert
-	cManager := data.ChatDataManager{ChatId: u.CallbackQuery.Message.Chat.ID}
+	cManager := utils.GetChatDataManager(u.FromChat().ID)
 
-	lang, err := cManager.GetLanguage()
+	lang, err := utils.GetLang(cManager)
 	if err != nil {
 		return err
 	}

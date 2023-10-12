@@ -2,7 +2,6 @@ package buttons
 
 import (
 	"errors"
-	"github.com/cubicbyte/dteubot/internal/data"
 	"github.com/cubicbyte/dteubot/internal/dteubot/pages"
 	"github.com/cubicbyte/dteubot/internal/dteubot/settings"
 	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
@@ -10,7 +9,7 @@ import (
 )
 
 func HandleScheduleDayButton(u *tgbotapi.Update) error {
-	cManager := data.ChatDataManager{ChatId: u.CallbackQuery.Message.Chat.ID}
+	cManager := utils.GetChatDataManager(u.FromChat().ID)
 
 	// Get date from button data
 	button := utils.ParseButtonData(u.CallbackQuery.Data)
@@ -19,7 +18,7 @@ func HandleScheduleDayButton(u *tgbotapi.Update) error {
 		return errors.New("no date in button data")
 	}
 
-	page, err := pages.CreateSchedulePage(&cManager, date)
+	page, err := pages.CreateSchedulePage(cManager, date)
 	if err != nil {
 		return err
 	}

@@ -1,8 +1,6 @@
 package data
 
 import (
-	"github.com/cubicbyte/dteubot/internal/dteubot/settings"
-	"github.com/cubicbyte/dteubot/internal/i18n"
 	"github.com/patrickmn/go-cache"
 	"os"
 	"strconv"
@@ -11,7 +9,8 @@ import (
 
 // ChatDataManager makes it easier to work with chat data.
 type ChatDataManager struct {
-	ChatId int64
+	ChatId   int64
+	Database *Database
 }
 
 // ChatData is a struct that contains all the data about a chat.
@@ -38,7 +37,7 @@ func (m *ChatDataManager) GetChatData() (*ChatData, error) {
 
 	// Get from database
 	chatData := new(ChatData)
-	err := DbInstance.Db.Get(chatData, GetChatQuery, m.ChatId)
+	err := m.Database.Db.Get(chatData, GetChatQuery, m.ChatId)
 	if err != nil {
 		return nil, err
 	}
@@ -56,7 +55,7 @@ func (m *ChatDataManager) GetChatData() (*ChatData, error) {
 func (m *ChatDataManager) UpdateChatData(chatData *ChatData) error {
 	log.Debugf("Updating chat data for chat %d\n", chatData.ChatId)
 
-	_, err := DbInstance.Db.NamedExec(UpdateChatQuery, chatData)
+	_, err := m.Database.Db.NamedExec(UpdateChatQuery, chatData)
 	if err != nil {
 		return err
 	}
@@ -69,7 +68,7 @@ func (m *ChatDataManager) CreateChatData() (*ChatData, error) {
 	log.Debugf("Creating chat data for chat %d\n", m.ChatId)
 
 	chatData := new(ChatData)
-	err := DbInstance.Db.Get(chatData, CreateChatQuery, m.ChatId, os.Getenv("DEFAULT_LANG"))
+	err := m.Database.Db.Get(chatData, CreateChatQuery, m.ChatId, os.Getenv("DEFAULT_LANG"))
 	if err != nil {
 		return nil, err
 	}
@@ -89,7 +88,7 @@ func (m *ChatDataManager) IsChatExists() (bool, error) {
 
 	// Check from database
 	var exists bool
-	err := DbInstance.Db.Get(&exists, IsChatExistsQuery, m.ChatId)
+	err := m.Database.Db.Get(&exists, IsChatExistsQuery, m.ChatId)
 	if err != nil {
 		return false, err
 	}
@@ -121,29 +120,4 @@ func (m *ChatDataManager) GetOrCreateChatData() (*ChatData, error) {
 	}
 
 	return chatData, nil
-}
-
-// GetLanguage returns the language of the chat.
-func (m *ChatDataManager) GetLanguage() (*i18n.Language, error) {
-	// Get chat data
-	chatData, err := m.GetChatData()
-	if err != nil {
-		return nil, err
-	}
-
-	// Use default language if chat language is not set
-	var langCode string
-	if chatData.LanguageCode == "" {
-		langCode = os.Getenv("DEFAULT_LANG")
-	} else {
-		langCode = chatData.LanguageCode
-	}
-
-	// Get language
-	lang, ok := settings.Languages[langCode]
-	if !ok {
-		return nil, &i18n.LanguageNotFoundError{LangCode: langCode}
-	}
-
-	return &lang, nil
 }

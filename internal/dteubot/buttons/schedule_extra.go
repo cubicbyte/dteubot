@@ -2,7 +2,6 @@ package buttons
 
 import (
 	"errors"
-	"github.com/cubicbyte/dteubot/internal/data"
 	"github.com/cubicbyte/dteubot/internal/dteubot/pages"
 	"github.com/cubicbyte/dteubot/internal/dteubot/settings"
 	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
@@ -18,8 +17,8 @@ func HandleScheduleExtraButton(u *tgbotapi.Update) error {
 	}
 
 	// Create page
-	cManager := data.ChatDataManager{ChatId: u.CallbackQuery.Message.Chat.ID}
-	page, err := pages.CreateScheduleExtraInfoPage(&cManager, date)
+	cManager := utils.GetChatDataManager(u.FromChat().ID)
+	page, err := pages.CreateScheduleExtraInfoPage(cManager, date)
 	if err != nil {
 		return err
 	}

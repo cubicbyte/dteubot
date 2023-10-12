@@ -3,6 +3,7 @@ package pages
 import (
 	"github.com/cubicbyte/dteubot/internal/data"
 	"github.com/cubicbyte/dteubot/internal/dteubot/settings"
+	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
 	"github.com/dlclark/regexp2"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/sirkon/go-format/v2"
@@ -16,12 +17,13 @@ var telegramSupportedHTMLTags = [...]string{
 }
 
 func CreateScheduleExtraInfoPage(cm *data.ChatDataManager, date string) (*Page, error) {
-	lang, err := cm.GetLanguage()
+
+	chatData, err := cm.GetChatData()
 	if err != nil {
 		return nil, err
 	}
 
-	chatData, err := cm.GetChatData()
+	lang, err := utils.GetChatLang(chatData)
 	if err != nil {
 		return nil, err
 	}

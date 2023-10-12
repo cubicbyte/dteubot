@@ -2,7 +2,6 @@ package buttons
 
 import (
 	"errors"
-	"github.com/cubicbyte/dteubot/internal/data"
 	"github.com/cubicbyte/dteubot/internal/dteubot/pages"
 	"github.com/cubicbyte/dteubot/internal/dteubot/settings"
 	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
@@ -23,8 +22,8 @@ func HandleSelectGroupButton(u *tgbotapi.Update) error {
 	}
 
 	// Update chat group id
-	uManager := data.UserDataManager{UserId: u.CallbackQuery.From.ID}
-	cManager := data.ChatDataManager{ChatId: u.CallbackQuery.Message.Chat.ID}
+	uManager := utils.GetUserDataManager(u.SentFrom().ID)
+	cManager := utils.GetChatDataManager(u.FromChat().ID)
 
 	chatData, err := cManager.GetChatData()
 	if err != nil {
@@ -38,7 +37,7 @@ func HandleSelectGroupButton(u *tgbotapi.Update) error {
 	}
 
 	// Create page
-	page, err := pages.CreateMenuPage(&cManager, &uManager)
+	page, err := pages.CreateMenuPage(cManager, uManager)
 	if err != nil {
 		return err
 	}

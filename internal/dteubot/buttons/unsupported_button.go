@@ -1,16 +1,16 @@
 package buttons
 
 import (
-	"github.com/cubicbyte/dteubot/internal/data"
 	"github.com/cubicbyte/dteubot/internal/dteubot/pages"
 	"github.com/cubicbyte/dteubot/internal/dteubot/settings"
+	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
 func HandleUnsupportedButton(u *tgbotapi.Update) error {
-	cManager := data.ChatDataManager{ChatId: u.CallbackQuery.Message.Chat.ID}
+	cManager := utils.GetChatDataManager(u.FromChat().ID)
 
-	lang, err := cManager.GetLanguage()
+	lang, err := utils.GetLang(cManager)
 	if err != nil {
 		return err
 	}
@@ -24,8 +24,8 @@ func HandleUnsupportedButton(u *tgbotapi.Update) error {
 	}
 
 	// Move to menu page
-	uManager := data.UserDataManager{UserId: u.CallbackQuery.From.ID}
-	page, err := pages.CreateMenuPage(&cManager, &uManager)
+	uManager := utils.GetUserDataManager(u.SentFrom().ID)
+	page, err := pages.CreateMenuPage(cManager, uManager)
 	if err != nil {
 		return err
 	}

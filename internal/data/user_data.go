@@ -8,7 +8,8 @@ import (
 
 // UserDataManager makes it easier to work with user data.
 type UserDataManager struct {
-	UserId int64
+	UserId   int64
+	Database *Database
 }
 
 // UserData is a struct that contains all the data about a user.
@@ -33,7 +34,7 @@ func (m *UserDataManager) GetUserData() (*UserData, error) {
 
 	// Get from database
 	userData := new(UserData)
-	err := DbInstance.Db.Get(userData, GetUserQuery, m.UserId)
+	err := m.Database.Db.Get(userData, GetUserQuery, m.UserId)
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +52,7 @@ func (m *UserDataManager) GetUserData() (*UserData, error) {
 func (m *UserDataManager) UpdateUserData(userData *UserData) error {
 	log.Debugf("Updating user data for user %d\n", userData.UserId)
 
-	_, err := DbInstance.Db.NamedExec(UpdateUserQuery, userData)
+	_, err := m.Database.Db.NamedExec(UpdateUserQuery, userData)
 	if err != nil {
 		return err
 	}
@@ -64,7 +65,7 @@ func (m *UserDataManager) CreateUserData() (*UserData, error) {
 	log.Debugf("Creating user data for user %d\n", m.UserId)
 
 	userData := new(UserData)
-	err := DbInstance.Db.Get(userData, CreateUserQuery, m.UserId)
+	err := m.Database.Db.Get(userData, CreateUserQuery, m.UserId)
 	if err != nil {
 		return nil, err
 	}
@@ -84,7 +85,7 @@ func (m *UserDataManager) IsUserExists() (bool, error) {
 
 	// Check from database
 	var exists bool
-	err := DbInstance.Db.Get(&exists, IsUserExistsQuery, m.UserId)
+	err := m.Database.Db.Get(&exists, IsUserExistsQuery, m.UserId)
 	if err != nil {
 		return false, err
 	}

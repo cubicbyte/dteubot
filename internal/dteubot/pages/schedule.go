@@ -28,12 +28,12 @@ func CreateSchedulePage(cm *data.ChatDataManager, date string) (*Page, error) {
 		return nil, err
 	}
 
-	lang, err := cm.GetLanguage()
+	chatData, err := cm.GetChatData()
 	if err != nil {
 		return nil, err
 	}
 
-	chatData, err := cm.GetChatData()
+	lang, err := utils.GetChatLang(chatData)
 	if err != nil {
 		return nil, err
 	}

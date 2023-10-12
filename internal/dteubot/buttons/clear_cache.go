@@ -1,8 +1,8 @@
 package buttons
 
 import (
-	"github.com/cubicbyte/dteubot/internal/data"
 	"github.com/cubicbyte/dteubot/internal/dteubot/settings"
+	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
@@ -14,9 +14,9 @@ func HandleClearCacheButton(u *tgbotapi.Update) error {
 
 	// TODO: Clear cache
 
-	cManager := data.ChatDataManager{ChatId: u.CallbackQuery.Message.Chat.ID}
+	cManager := utils.GetChatDataManager(u.FromChat().ID)
 
-	lang, err := cManager.GetLanguage()
+	lang, err := utils.GetLang(cManager)
 	if err != nil {
 		return err
 	}

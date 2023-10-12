@@ -2,7 +2,6 @@ package buttons
 
 import (
 	"errors"
-	"github.com/cubicbyte/dteubot/internal/data"
 	"github.com/cubicbyte/dteubot/internal/dteubot/pages"
 	"github.com/cubicbyte/dteubot/internal/dteubot/settings"
 	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
@@ -23,7 +22,7 @@ func HandleSetClassesNotificationsButton(u *tgbotapi.Update) error {
 	}
 
 	// Update chat classes notifications settings
-	cManager := data.ChatDataManager{ChatId: u.CallbackQuery.Message.Chat.ID}
+	cManager := utils.GetChatDataManager(u.FromChat().ID)
 
 	chatData, err := cManager.GetChatData()
 	if err != nil {
@@ -45,7 +44,7 @@ func HandleSetClassesNotificationsButton(u *tgbotapi.Update) error {
 	}
 
 	// Update page
-	page, err := pages.CreateSettingsPage(&cManager)
+	page, err := pages.CreateSettingsPage(cManager)
 	if err != nil {
 		return err
 	}

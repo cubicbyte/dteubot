@@ -1,14 +1,14 @@
 package commands
 
 import (
-	"github.com/cubicbyte/dteubot/internal/data"
 	"github.com/cubicbyte/dteubot/internal/dteubot/pages"
 	"github.com/cubicbyte/dteubot/internal/dteubot/settings"
+	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
 func handleGroupCommand(u *tgbotapi.Update) error {
-	cManager := data.ChatDataManager{ChatId: u.FromChat().ID}
+	cManager := utils.GetChatDataManager(u.FromChat().ID)
 
 	// TODO: Handle command arguments: /g <groupId/groupName>
 
@@ -19,9 +19,9 @@ func handleGroupCommand(u *tgbotapi.Update) error {
 
 	var page *pages.Page
 	if len(structures) == 1 {
-		page, err = pages.CreateFacultiesListPage(&cManager, structures[0].Id)
+		page, err = pages.CreateFacultiesListPage(cManager, structures[0].Id)
 	} else {
-		page, err = pages.CreateStructuresListPage(&cManager)
+		page, err = pages.CreateStructuresListPage(cManager)
 	}
 	if err != nil {
 		return err

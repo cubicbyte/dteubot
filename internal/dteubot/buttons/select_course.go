@@ -2,7 +2,6 @@ package buttons
 
 import (
 	"errors"
-	"github.com/cubicbyte/dteubot/internal/data"
 	"github.com/cubicbyte/dteubot/internal/dteubot/pages"
 	"github.com/cubicbyte/dteubot/internal/dteubot/settings"
 	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
@@ -41,8 +40,8 @@ func HandleSelectCourseButton(u *tgbotapi.Update) error {
 	}
 
 	// Create page
-	cManager := data.ChatDataManager{ChatId: u.CallbackQuery.Message.Chat.ID}
-	page, err := pages.CreateGroupsListPage(&cManager, facId, course_, structId)
+	cManager := utils.GetChatDataManager(u.FromChat().ID)
+	page, err := pages.CreateGroupsListPage(cManager, facId, course_, structId)
 	if err != nil {
 		return err
 	}
