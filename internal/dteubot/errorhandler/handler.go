@@ -38,6 +38,7 @@ func HandleError(err error, update tgbotapi.Update) {
 		if err != nil {
 			log.Errorf("Error creating api unavailable page: %s", err)
 			SendErrorToTelegram(err)
+			break
 		}
 
 		if update.CallbackQuery != nil {
@@ -109,6 +110,7 @@ func HandleError(err error, update tgbotapi.Update) {
 		if pageErr != nil {
 			log.Errorf("Error creating HTTPApiError page: %s", pageErr)
 			SendErrorToTelegram(pageErr)
+			break
 		}
 
 		if update.CallbackQuery != nil {
@@ -124,6 +126,7 @@ func HandleError(err error, update tgbotapi.Update) {
 
 	default:
 		// Unknown error
+		log.Errorf("Unknown error: %s", err)
 		chat := update.FromChat()
 
 		if chat == nil {
@@ -138,6 +141,7 @@ func HandleError(err error, update tgbotapi.Update) {
 		if err != nil {
 			log.Errorf("Error creating error page: %s", err)
 			SendErrorToTelegram(err)
+			break
 		}
 
 		if update.CallbackQuery != nil {
@@ -149,10 +153,9 @@ func HandleError(err error, update tgbotapi.Update) {
 		if err != nil {
 			log.Errorf("Error sending error page: %s", err)
 			SendErrorToTelegram(err)
+			break
 		}
 
-		// Send error to Telegram
-		log.Errorf("Unknown error: %s", err)
 		SendErrorToTelegram(err)
 	}
 }
