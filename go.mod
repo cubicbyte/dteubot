@@ -5,27 +5,30 @@ go 1.21.1
 require (
 	github.com/dlclark/regexp2 v1.10.0
 	github.com/go-telegram-bot-api/telegram-bot-api/v5 v5.5.1
+	github.com/gregjones/httpcache v0.0.0-20190611155906-901d90724c79
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/joho/godotenv v1.5.1
 	github.com/lib/pq v1.10.9
 	github.com/op/go-logging v0.0.0-20160315200505-970db520ece7
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/sirkon/go-format/v2 v2.0.2
+	github.com/go-co-op/gocron v1.35.2
 	gopkg.in/yaml.v3 v3.0.1
 	modernc.org/sqlite v1.26.0
-	github.com/gregjones/httpcache v0.0.0-20190611155906-901d90724c79
 )
 
 require (
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/golang/snappy v0.0.0-20180518054509-2e65f85255db // indirect
-	github.com/google/uuid v1.3.0 // indirect
+	github.com/google/uuid v1.3.1 // indirect
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
 	github.com/lestrrat/go-strftime v0.0.0-20180220042222-ba3bf9c1d042 // indirect
 	github.com/mattn/go-isatty v0.0.16 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
+	github.com/robfig/cron/v3 v3.0.1 // indirect
 	github.com/syndtr/goleveldb v1.0.0 // indirect
+	go.uber.org/atomic v1.9.0 // indirect
 	golang.org/x/mod v0.3.0 // indirect
 	golang.org/x/sys v0.0.0-20220811171246-fbc7d0a398ab // indirect
 	golang.org/x/tools v0.0.0-20201124115921-2c860bdd6e78 // indirect

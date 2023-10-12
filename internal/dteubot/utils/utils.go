@@ -65,7 +65,16 @@ func InitDatabaseRecords(upd *tgbotapi.Update) error {
 		return err
 	}
 	if !exists {
-		if _, err := um.CreateUserData(); err != nil {
+		userData, err := um.CreateUserData()
+		if err != nil {
+			return err
+		}
+
+		// Update user data
+		userData.FirstName = upd.SentFrom().FirstName
+		userData.Username = upd.SentFrom().UserName
+		err = um.UpdateUserData(userData)
+		if err != nil {
 			return err
 		}
 	}

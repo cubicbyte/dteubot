@@ -11,6 +11,7 @@ import (
 	"github.com/cubicbyte/dteubot/internal/dteubot/teachers"
 	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
 	"github.com/cubicbyte/dteubot/internal/i18n"
+	"github.com/cubicbyte/dteubot/internal/notifier"
 	"github.com/cubicbyte/dteubot/pkg/api/cachedapi"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/op/go-logging"
@@ -112,15 +113,24 @@ func Setup() {
 	}
 
 	log.Infof("Connected to Telegram API as %s\n", settings.Bot.Self.UserName)
+
+	// Set up notifier
+	err = notifier.Setup(settings.Db, settings.Api, settings.Bot, settings.Languages)
+	if err != nil {
+		log.Fatalf("Error setting up notifier: %s\n", err)
+	}
 }
 
 // Run starts the Bot.
 func Run() {
 	log.Info("Starting Bot")
 
+	// Start notifier
+	notifier.Scheduler.StartAsync()
+
+	// Start updates loop
 	u := tgbotapi.NewUpdate(0)
 	u.Timeout = -1
-
 	updates := settings.Bot.GetUpdatesChan(u)
 
 	for update := range updates {

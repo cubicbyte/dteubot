@@ -128,6 +128,7 @@ func HandleError(err error, update tgbotapi.Update) {
 		}
 
 	default:
+		// TODO: Handle User blocked bot error
 		// Unknown error
 		log.Errorf("Unknown error: %s", err)
 		chat := update.FromChat()
