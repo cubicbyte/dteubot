@@ -470,7 +470,7 @@ def day_schedule(ctx: ContextManager, date: _date, day: dict) -> dict:
         InlineKeyboardButton(text=lang.get('button.navigation.week_next'),
                              callback_data='open.schedule.day#week&date='
                              + (date + timedelta(days=7)).isoformat()
-                             + f'&rnd={random.random()}'),  # Needed to prevent "Message is not modified" error
+                             + f'&rnd={random.random() :.5f}'),  # Needed to prevent "Message is not modified" error
         InlineKeyboardButton(text=lang.get('button.menu'), callback_data='open.menu')
     ]
 
@@ -564,7 +564,7 @@ def empty_schedule(ctx: ContextManager, date: _date, schedule: list[dict] | None
         InlineKeyboardButton(text=lang.get('button.navigation.week_next'),
                              callback_data='open.schedule.day#week&date='
                              + next_week_date.isoformat()
-                             + f'&rnd={random.random()}'),  # Needed to prevent "Message is not modified" error
+                             + f'&rnd={random.random() :.5f}'),  # Needed to prevent "Message is not modified" error
         InlineKeyboardButton(text=lang.get('button.menu'), callback_data='open.menu')
     ]
 
