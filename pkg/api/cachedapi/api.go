@@ -196,6 +196,16 @@ func (api *CachedApi) makeRequest(method string, path string, body string, resul
 			}
 			err.Err = &e
 		default:
+			if resp.StatusCode/100 == 5 {
+				if respOk {
+					// Return cached response if status code is 5xx
+					log.Warningf("%d status code, using cached result", resp.StatusCode)
+					if err := json.Unmarshal(respBody, &result); err != nil {
+						return err
+					}
+					return nil
+				}
+			}
 			return err
 		}
 
