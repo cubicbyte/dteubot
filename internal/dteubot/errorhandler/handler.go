@@ -106,10 +106,12 @@ func HandleError(err error, update tgbotapi.Update) {
 
 		default:
 			// Unknown error
-			page, pageErr = pages.CreateErrorPage(cm)
+			page, pageErr = pages.CreateApiUnavailablePage(cm)
 
-			log.Errorf("Unknown API http status code %d: %s", httpApiError.Code, httpApiError.Body)
-			SendErrorToTelegram(err)
+			if httpApiError.Code%100 != 5 {
+				log.Errorf("Unknown API http status code %d: %s", httpApiError.Code, httpApiError.Body)
+				SendErrorToTelegram(err)
+			}
 		}
 
 		if pageErr != nil {

@@ -361,6 +361,7 @@ func (api *CachedApi) GetGroupSchedule(groupId int, dateStart string, dateEnd st
 	// Update schedule
 	log.Debug("Updating schedule")
 
+	// TODO: Use wide range of dates to reduce number of requests
 	newSchedule, err := api.api.GetGroupSchedule(groupId, dateStart, dateEnd)
 	if err != nil {
 		if count == datesRange {
