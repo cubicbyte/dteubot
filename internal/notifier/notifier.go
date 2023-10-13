@@ -169,8 +169,8 @@ func SendNotification(chatId int64, langCode string, schedule *api2.TimeTableDat
 		for _, period := range lesson.Periods {
 			section += format.Formatm(strFormat, format.Values{
 				"lesson": lesson.Number,
-				"name":   period.DisciplineShortName,
-				"type":   period.TypeStr,
+				"name":   tgbotapi.EscapeText(tgbotapi.ModeMarkdownV2, period.DisciplineShortName),
+				"type":   tgbotapi.EscapeText(tgbotapi.ModeMarkdownV2, period.TypeStr),
 			})
 		}
 	}
