@@ -88,11 +88,11 @@ func Setup(db2 *data.Database, api3 *cachedapi.CachedApi, bot2 *tgbotapi.BotAPI,
 	// Add cron jobs
 	_, err = Scheduler.Every(1).Day().At(cronTime15m).Do(SendNotifications, "15m")
 	if err != nil {
-		panic(err)
+		return err
 	}
 	_, err = Scheduler.Every(1).Day().At(cronTime1m).Do(SendNotifications, "1m")
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	return nil
@@ -100,11 +100,14 @@ func Setup(db2 *data.Database, api3 *cachedapi.CachedApi, bot2 *tgbotapi.BotAPI,
 
 // SendNotifications sends notifications to chats that subscribed to notifications
 func SendNotifications(time2 string) error {
+	log.Infof("Sending notifications %s", time2)
+
 	// Get chats with notifications enabled
 	chats, err := GetSubscribedChats("15m")
 	if err != nil {
 		return err
 	}
+	log.Debugf("Got %d chats with notifications enabled", len(chats))
 
 	// Get current time
 	curTime := time.Now().In(location)
@@ -140,6 +143,8 @@ func SendNotifications(time2 string) error {
 
 // SendNotification sends notification to chat
 func SendNotification(chatId int64, langCode string, schedule *api2.TimeTableDate, time string) error {
+	log.Debugf("Sending %s notification to chat %d", time, chatId)
+
 	// Get chat language
 	lang, ok := langs[langCode]
 	if !ok {
