@@ -232,12 +232,14 @@ func IsGroupHaveClasses(schedule *api2.TimeTableDate, time2 time.Time) (bool, er
 	// Get first lesson call and previous call
 	var currentCall *api2.CallSchedule
 	var previousCall *api2.CallSchedule
-	for _, call := range calls {
+	for i, call := range calls {
 		if call.Number == firstLesson.Number {
 			currentCall = &call
+			if i != 0 {
+				previousCall = &calls[i-1]
+			}
 			break
 		}
-		previousCall = &call
 	}
 
 	if currentCall == nil {
