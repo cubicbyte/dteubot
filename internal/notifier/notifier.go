@@ -177,7 +177,7 @@ func SendNotification(chatId int64, langCode string, schedule *api2.TimeTableDat
 
 	// Create page text
 	pageText := format.Formatm(lang.Page.ClassesNotification, format.Values{
-		"remaining": time,
+		"remaining": time[:len(time)-1], // Remove last letter: 15m -> 15
 		"schedule":  section,
 	})
 
