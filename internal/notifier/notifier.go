@@ -2,6 +2,7 @@ package notifier
 
 import (
 	_ "embed"
+	"errors"
 	"github.com/cubicbyte/dteubot/internal/data"
 	"github.com/cubicbyte/dteubot/internal/i18n"
 	api2 "github.com/cubicbyte/dteubot/pkg/api"
@@ -117,6 +118,16 @@ func SendNotifications(time2 string) error {
 		// Get group schedule
 		schedule, err := api.GetGroupScheduleDay(chat.GroupId, curTime.Format("2006-01-02"))
 		if err != nil {
+			var tgError *tgbotapi.Error
+			if errors.As(err, &tgError) && tgError.Code == 403 {
+				// User blocked bot
+				log.Infof("Bot blocked in chat %d", chat.ChatId)
+				if err = MakeChatUnavailable(chat.ChatId); err != nil {
+					log.Errorf("Error making chat %d unavailable: %s", chat.ChatId, err)
+				}
+				continue
+			}
+
 			log.Warningf("Error getting group schedule day for chat %d: %s", chat.ChatId, err)
 			continue
 		}
@@ -273,4 +284,22 @@ func IsGroupHaveClasses(schedule *api2.TimeTableDate, time2 time.Time) (bool, er
 	}
 
 	return false, nil
+}
+
+// MakeChatUnavailable makes chat unavailable if user blocked bot.
+// It is needed to prevent sending notifications to blocked users.
+func MakeChatUnavailable(chatId int64) error {
+	cm := data.ChatDataManager{ChatId: chatId, Database: db}
+	chatData, err := cm.GetChatData()
+	if err != nil {
+		return err
+	}
+
+	chatData.Accessible = false
+	err = cm.UpdateChatData(chatData)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
