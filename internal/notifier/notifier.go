@@ -225,14 +225,19 @@ func IsGroupHaveClasses(schedule *api2.TimeTableDate, time2 time.Time) (bool, er
 	}
 
 	// Get first lesson call and previous call
-	var currentCall api2.CallSchedule
-	var previousCall api2.CallSchedule
+	var currentCall *api2.CallSchedule
+	var previousCall *api2.CallSchedule
 	for _, call := range calls {
 		if call.Number == firstLesson.Number {
-			currentCall = call
+			currentCall = &call
 			break
 		}
-		previousCall = call
+		previousCall = &call
+	}
+
+	if currentCall == nil {
+		log.Errorf("Error getting current call for lesson %d", firstLesson.Number)
+		return false, nil
 	}
 
 	// Get current call end time and previous call end time
@@ -242,15 +247,16 @@ func IsGroupHaveClasses(schedule *api2.TimeTableDate, time2 time.Time) (bool, er
 	}
 	currentCallEndTime = time.Date(time2.Year(), time2.Month(), time2.Day(), currentCallEndTime.Hour(), currentCallEndTime.Minute(), 0, 0, location)
 
-	previousCallEndTime, err := time.Parse("15:04", previousCall.TimeEnd)
-	if err != nil {
-		return false, err
-	}
-	previousCallEndTime = time.Date(time2.Year(), time2.Month(), time2.Day(), previousCallEndTime.Hour(), previousCallEndTime.Minute(), 0, 0, location)
-
-	// Without this it will not work if first lesson is first lesson of the schedule
-	if previousCallEndTime.Equal(currentCallEndTime) {
+	var previousCallEndTime time.Time
+	if previousCall == nil {
+		// If there is no previous call, happens only on first call of the day
 		previousCallEndTime = time2.Add(-1 * time.Minute)
+	} else {
+		previousCallEndTime, err = time.Parse("15:04", previousCall.TimeEnd)
+		if err != nil {
+			return false, err
+		}
+		previousCallEndTime = time.Date(time2.Year(), time2.Month(), time2.Day(), previousCallEndTime.Hour(), previousCallEndTime.Minute(), 0, 0, location)
 	}
 
 	// So, to check if group have classes we need to check
