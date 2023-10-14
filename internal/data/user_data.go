@@ -14,12 +14,14 @@ type UserDataManager struct {
 
 // UserData is a struct that contains all the data about a user.
 type UserData struct {
-	UserId    int64     `db:"user_id"`
-	FirstName string    `db:"first_name"`
-	Username  string    `db:"username"`
-	IsAdmin   bool      `db:"is_admin"`
-	Referral  string    `db:"referral"`
-	Created   time.Time `db:"created"`
+	UserId       int64     `db:"user_id"`
+	FirstName    string    `db:"first_name"`
+	LastName     string    `db:"last_name"`
+	Username     string    `db:"username"`
+	LanguageCode string    `db:"lang_code"`
+	IsAdmin      bool      `db:"is_admin"`
+	Referral     string    `db:"referral"`
+	Created      time.Time `db:"created"`
 }
 
 // GetUserData returns user data for the user.

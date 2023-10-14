@@ -18,7 +18,9 @@ CREATE INDEX cl_notif_1m_idx ON chats (cl_notif_1m);
 CREATE TABLE users (
     user_id BIGINT NOT NULL,
     first_name VARCHAR(64) NOT NULL DEFAULT '',
+    last_name VARCHAR(64) NOT NULL DEFAULT '',
     username VARCHAR(32) NOT NULL DEFAULT '',
+    lang_code VARCHAR(10) NOT NULL DEFAULT '',
     is_admin BOOL NOT NULL DEFAULT FALSE,
     referral VARCHAR(64) NOT NULL DEFAULT '',
     created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
