@@ -39,28 +39,30 @@ type CallSchedule struct {
 }
 
 type TimeTablePeriod struct {
-	R1                    int    `json:"r1"`
-	Rz14                  int    `json:"rz14"`
-	Rz15                  int    `json:"rz15"`
-	R5                    int    `json:"r5"`
-	DisciplineId          int    `json:"disciplineId"`
-	EducationDisciplineId int    `json:"educationDisciplineId"`
-	DisciplineFullName    string `json:"disciplineFullName"`
-	DisciplineShortName   string `json:"disciplineShortName"`
-	Classroom             string `json:"classroom"`
-	TimeStart             string `json:"timeStart"`
-	TimeEnd               string `json:"timeEnd"`
-	TeachersName          string `json:"teachersName"`
-	TeachersNameFull      string `json:"teachersNameFull"`
-	Type                  int    `json:"type"`
-	TypeStr               string `json:"typeStr"`
-	DateUpdated           string `json:"dateUpdated"`
-	NonstandardTime       bool   `json:"nonstandardTime"`
-	Groups                string `json:"groups"`
-	ChairName             string `json:"chairName"`
-	ExtraText             bool   `json:"extraText"`
-	LessonYear            int    `json:"lessonYear"`
-	Semester              int    `json:"semester"`
+	R1           int `json:"r1"`
+	Rz14         int `json:"rz14"`
+	Rz15         int `json:"rz15"`
+	R5           int `json:"r5"`
+	DisciplineId int `json:"disciplineId"`
+	// Disabled because it can sometimes be bool instead of int,
+	// which causes errors. University's fault.
+	//EducationDisciplineId int    `json:"educationDisciplineId"`
+	DisciplineFullName  string `json:"disciplineFullName"`
+	DisciplineShortName string `json:"disciplineShortName"`
+	Classroom           string `json:"classroom"`
+	TimeStart           string `json:"timeStart"`
+	TimeEnd             string `json:"timeEnd"`
+	TeachersName        string `json:"teachersName"`
+	TeachersNameFull    string `json:"teachersNameFull"`
+	Type                int    `json:"type"`
+	TypeStr             string `json:"typeStr"`
+	DateUpdated         string `json:"dateUpdated"`
+	NonstandardTime     bool   `json:"nonstandardTime"`
+	Groups              string `json:"groups"`
+	ChairName           string `json:"chairName"`
+	ExtraText           bool   `json:"extraText"`
+	LessonYear          int    `json:"lessonYear"`
+	Semester            int    `json:"semester"`
 }
 
 type TimeTableLesson struct {

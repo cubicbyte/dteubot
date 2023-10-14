@@ -46,7 +46,7 @@ func CreateSchedulePage(cm *data.ChatDataManager, date string) (*Page, error) {
 	var buttons tgbotapi.InlineKeyboardMarkup
 	var pageText string
 
-	if len(schedule.Lessons) == 0 {
+	if isNoLessons(schedule) {
 		// Create empty schedule page
 		skipLeft, skipRight, err := scanEmptyDays(chatData.GroupId, date_)
 		if err != nil {
@@ -205,6 +205,20 @@ func CreateSchedulePage(cm *data.ChatDataManager, date string) (*Page, error) {
 	return &page, nil
 }
 
+// isNoLessons checks if there are no lessons in the given day
+func isNoLessons(day *api.TimeTableDate) bool {
+	for _, lesson := range day.Lessons {
+		for _, period := range lesson.Periods {
+			name := strings.ToLower(period.DisciplineShortName)
+			if !strings.Contains(name, "приховано") {
+				return false
+			}
+		}
+	}
+
+	return true
+}
+
 func getTeacher(teachersNameFull string) string {
 	var teacher string
 
@@ -281,7 +295,7 @@ func countNoLessonsDays(days *[]api.TimeTableDate, date time.Time, directionRigh
 			if date_.Before(date) {
 				continue
 			}
-			if len(day.Lessons) == 0 {
+			if isNoLessons(&day) {
 				count++
 			} else {
 				break
