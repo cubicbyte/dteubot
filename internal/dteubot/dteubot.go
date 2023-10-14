@@ -8,6 +8,7 @@ import (
 	"github.com/cubicbyte/dteubot/internal/dteubot/errorhandler"
 	"github.com/cubicbyte/dteubot/internal/dteubot/groupscache"
 	"github.com/cubicbyte/dteubot/internal/dteubot/settings"
+	"github.com/cubicbyte/dteubot/internal/dteubot/statistic"
 	"github.com/cubicbyte/dteubot/internal/dteubot/teachers"
 	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
 	"github.com/cubicbyte/dteubot/internal/i18n"
@@ -145,15 +146,40 @@ func Run() {
 		}
 
 		if update.Message != nil {
-			if err := commands.HandleCommand(update); err != nil {
-				log.Infof("Error handling command: %s\n", err)
+			// Handle command
+			result, err := commands.HandleCommand(update)
+			if err != nil {
 				errorhandler.HandleError(err, update)
+			}
+
+			// Save command to statistics
+			if result {
+				err = statistic.LogCommand(
+					update.Message.Chat.ID,
+					update.Message.From.ID,
+					update.Message.MessageID,
+					update.Message.Command(),
+				)
+				if err != nil {
+					errorhandler.HandleError(err, update)
+				}
 			}
 		}
 
 		if update.CallbackQuery != nil {
+			// Handle button
 			if err := buttons.HandleButton(&update); err != nil {
-				log.Infof("Error handling button: %s\n", err)
+				errorhandler.HandleError(err, update)
+			}
+
+			// Save button click to statistics
+			err := statistic.LogButtonClick(
+				update.CallbackQuery.Message.Chat.ID,
+				update.CallbackQuery.From.ID,
+				update.CallbackQuery.Message.MessageID,
+				update.CallbackQuery.Data,
+			)
+			if err != nil {
 				errorhandler.HandleError(err, update)
 			}
 		}

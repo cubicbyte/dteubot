@@ -114,10 +114,12 @@ func SendNotifications(time2 string) error {
 	curTime := time.Now().In(location)
 
 	// Send notifications
+	sentCount := 0
 	for _, chat := range chats {
 		// Get group schedule
 		schedule, err := api.GetGroupScheduleDay(chat.GroupId, curTime.Format("2006-01-02"))
 		if err != nil {
+			// Check if user blocked bot
 			var tgError *tgbotapi.Error
 			if errors.As(err, &tgError) && tgError.Code == 403 {
 				// User blocked bot
@@ -140,14 +142,20 @@ func SendNotifications(time2 string) error {
 		}
 
 		if haveClasses {
+			// Group have classes, send notification
+
 			// Send notification to chat
 			err = SendNotification(chat.ChatId, chat.LangCode, schedule, time2)
 			if err != nil {
 				log.Warningf("Error sending notification to chat %d: %s", chat.ChatId, err)
 				continue
 			}
+
+			sentCount++
 		}
 	}
+
+	log.Infof("Sent notifications to %d chats", sentCount)
 
 	return nil
 }
