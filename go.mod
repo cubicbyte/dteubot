@@ -4,7 +4,8 @@ go 1.21.1
 
 require (
 	github.com/dlclark/regexp2 v1.10.0
-	github.com/go-telegram-bot-api/telegram-bot-api/v5 v5.5.1
+	github.com/go-co-op/gocron v1.35.2
+	github.com/go-telegram-bot-api/telegram-bot-api/v5 v5.5.2-0.20221020003552-4126fa611266
 	github.com/gregjones/httpcache v0.0.0-20190611155906-901d90724c79
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/joho/godotenv v1.5.1
@@ -12,7 +13,6 @@ require (
 	github.com/op/go-logging v0.0.0-20160315200505-970db520ece7
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/sirkon/go-format/v2 v2.0.2
-	github.com/go-co-op/gocron v1.35.2
 	gopkg.in/yaml.v3 v3.0.1
 	modernc.org/sqlite v1.26.0
 )

@@ -90,13 +90,15 @@ func InitDatabaseRecords(upd *tgbotapi.Update) error {
 	if userData.FirstName != upd.SentFrom().FirstName ||
 		userData.LastName != upd.SentFrom().LastName ||
 		userData.Username != upd.SentFrom().UserName ||
-		userData.LanguageCode != upd.SentFrom().LanguageCode {
+		userData.LanguageCode != upd.SentFrom().LanguageCode ||
+		userData.IsPremium != upd.SentFrom().IsPremium {
 
 		// Update found
 		userData.FirstName = upd.SentFrom().FirstName
 		userData.LastName = upd.SentFrom().LastName
 		userData.Username = upd.SentFrom().UserName
 		userData.LanguageCode = upd.SentFrom().LanguageCode
+		userData.IsPremium = upd.SentFrom().IsPremium
 
 		err = um.UpdateUserData(userData)
 		if err != nil {
