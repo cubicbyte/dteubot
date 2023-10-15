@@ -6,11 +6,11 @@ import (
 )
 
 var fileFormat = logging.MustStringFormatter(
-	`%{time:2006-01-02 15:04:05.000} %{module} %{level}: %{message}`,
+	`%{time:2006-01-02 15:04:05.000} %{level} %{module}: %{message}`,
 )
 
 var cmdFormat = logging.MustStringFormatter(
-	`%{color}%{time:15:04:05.000} %{module} %{level} ▶%{color:reset} %{message}`,
+	`%{color}%{time:15:04:05.000} %{level} %{module} ▶%{color:reset} %{message}`,
 )
 
 const LogFilePath = "debug.log"

@@ -14,6 +14,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strings"
 )
 
 var log = logging.MustGetLogger("ErrorHandler")
@@ -186,72 +187,32 @@ func HandleError(err error, update tgbotapi.Update) {
 				log.Errorf("Error sending flood control alert: %s", err)
 				break
 			}
+		case 400:
+			// Bad request
+			if strings.HasPrefix(tgError.Message, "Bad Request: message is not modified") {
+				// We are trying to edit message with no changes,
+				// probably because of lag. Just send warning to log.
+				log.Warningf("Message is not modified: %s", err)
+				break
+			}
+
+			// Unknown Telegram API error
+			log.Errorf("Unknown bad request error: %s", err)
+			SendErrorToTelegram(err)
+			SendErrorPageToChat(&update)
 
 		default:
 			// Unknown Telegram API error
-			log.Errorf("Unknown Telegram API error: %s", err)
+			log.Errorf("Unknown Telegram API %d error: %s", tgError.Code, err)
 			SendErrorToTelegram(err)
-
-			// Send error page to user
-			chat := update.FromChat()
-			if chat == nil {
-				break
-			}
-			cm := utils.GetChatDataManager(chat.ID)
-			page, err := pages.CreateErrorPage(cm)
-			if err != nil {
-				log.Errorf("Error creating error page: %s", err)
-				SendErrorToTelegram(err)
-				break
-			}
-
-			if update.CallbackQuery != nil {
-				_, err = settings.Bot.Send(buttons.EditMessageRequest(page, update.CallbackQuery))
-			} else {
-				_, err = settings.Bot.Send(page.CreateMessage(cm.ChatId))
-			}
-
-			if err != nil {
-				log.Errorf("Error sending error page: %s", err)
-				SendErrorToTelegram(err)
-				break
-			}
+			SendErrorPageToChat(&update)
 		}
 
 	default:
-		// TODO: Handle User blocked bot error
 		// Unknown error
 		log.Errorf("Unknown error: %s", err)
-		chat := update.FromChat()
-
-		if chat == nil {
-			// Unknown error with no chat
-			log.Errorf("Unknown error with no chat: %s", err)
-			SendErrorToTelegram(err)
-			break
-		}
-
-		cm := utils.GetChatDataManager(chat.ID)
-		page, err := pages.CreateErrorPage(cm)
-		if err != nil {
-			log.Errorf("Error creating error page: %s", err)
-			SendErrorToTelegram(err)
-			break
-		}
-
-		if update.CallbackQuery != nil {
-			_, err = settings.Bot.Send(buttons.EditMessageRequest(page, update.CallbackQuery))
-		} else {
-			_, err = settings.Bot.Send(page.CreateMessage(cm.ChatId))
-		}
-
-		if err != nil {
-			log.Errorf("Error sending error page: %s", err)
-			SendErrorToTelegram(err)
-			break
-		}
-
 		SendErrorToTelegram(err)
+		SendErrorPageToChat(&update)
 	}
 }
 
@@ -268,5 +229,31 @@ func SendErrorToTelegram(err error) {
 	if err2 != nil {
 		// Nothing we can do here, just log the error
 		log.Errorf("Error sending error to Telegram: %s", err)
+	}
+}
+
+func SendErrorPageToChat(update *tgbotapi.Update) {
+	if update.FromChat() == nil {
+		return
+	}
+
+	cm := utils.GetChatDataManager(update.FromChat().ID)
+	page, err := pages.CreateErrorPage(cm)
+	if err != nil {
+		log.Errorf("Error creating error page: %s", err)
+		SendErrorToTelegram(err)
+		return
+	}
+
+	if update.CallbackQuery != nil {
+		_, err = settings.Bot.Send(buttons.EditMessageRequest(page, update.CallbackQuery))
+	} else {
+		_, err = settings.Bot.Send(page.CreateMessage(cm.ChatId))
+	}
+
+	if err != nil {
+		log.Errorf("Error sending error page: %s", err)
+		SendErrorToTelegram(err)
+		return
 	}
 }
