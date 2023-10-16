@@ -12,6 +12,7 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/op/go-logging"
 	"github.com/sirkon/go-format/v2"
+	"net/url"
 	"strings"
 	"time"
 )
@@ -132,6 +133,14 @@ func SendNotifications(time2 string) error {
 				continue
 			}
 
+			// Check if api connection error
+			var urlError *url.Error
+			if errors.As(err, &urlError) {
+				log.Warningf("Error getting result from API for chat %d: %s", chat.ChatId, err)
+				continue
+			}
+
+			// Unknown error
 			log.Errorf("Error getting group schedule day for chat %d: %s", chat.ChatId, err)
 			errorhandler.SendErrorToTelegram(err)
 			continue
