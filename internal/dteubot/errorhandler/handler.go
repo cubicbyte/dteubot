@@ -15,9 +15,14 @@ import (
 	"net/url"
 	"os"
 	"strings"
+	"time"
 )
 
+// ErrorSendDelay is the delay between sending errors to Telegram
+const ErrorSendDelay = time.Second * 5
+
 var log = logging.MustGetLogger("ErrorHandler")
+var lastErrorTime time.Time
 
 func HandleError(err error, update tgbotapi.Update) {
 	var urlError *url.Error
@@ -217,19 +222,26 @@ func HandleError(err error, update tgbotapi.Update) {
 }
 
 func SendErrorToTelegram(err error) {
+	// Don't send errors too often
+	if time.Since(lastErrorTime) < ErrorSendDelay {
+		return
+	}
+
 	chatId := os.Getenv("LOG_CHAT_ID")
 	if chatId == "" {
 		return
 	}
 
-	str := fmt.Sprintf("Error %T: %s", err, err)
+	errStr := fmt.Sprintf("Error %T: %s", err, err)
 
 	// Send error to Telegram
-	_, err2 := settings.Bot.Send(tgbotapi.NewMessageToChannel(chatId, str))
+	_, err2 := settings.Bot.Send(tgbotapi.NewMessageToChannel(chatId, errStr))
 	if err2 != nil {
 		// Nothing we can do here, just log the error
 		log.Errorf("Error sending error to Telegram: %s", err)
 	}
+
+	lastErrorTime = time.Now()
 }
 
 func SendErrorPageToChat(update *tgbotapi.Update) {
