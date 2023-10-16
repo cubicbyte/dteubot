@@ -104,7 +104,7 @@ func SendNotifications(time2 string) error {
 	log.Infof("Sending notifications %s", time2)
 
 	// Get chats with notifications enabled
-	chats, err := GetSubscribedChats("15m")
+	chats, err := GetSubscribedChats(time2)
 	if err != nil {
 		return err
 	}
