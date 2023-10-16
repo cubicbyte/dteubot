@@ -4,6 +4,7 @@ import (
 	_ "embed"
 	"errors"
 	"github.com/cubicbyte/dteubot/internal/data"
+	"github.com/cubicbyte/dteubot/internal/dteubot/errorhandler"
 	"github.com/cubicbyte/dteubot/internal/i18n"
 	api2 "github.com/cubicbyte/dteubot/pkg/api"
 	"github.com/cubicbyte/dteubot/pkg/api/cachedapi"
@@ -126,18 +127,21 @@ func SendNotifications(time2 string) error {
 				log.Infof("Bot blocked in chat %d", chat.ChatId)
 				if err = MakeChatUnavailable(chat.ChatId); err != nil {
 					log.Errorf("Error making chat %d unavailable: %s", chat.ChatId, err)
+					errorhandler.SendErrorToTelegram(err)
 				}
 				continue
 			}
 
-			log.Warningf("Error getting group schedule day for chat %d: %s", chat.ChatId, err)
+			log.Errorf("Error getting group schedule day for chat %d: %s", chat.ChatId, err)
+			errorhandler.SendErrorToTelegram(err)
 			continue
 		}
 
 		// Check if group have classes
 		haveClasses, err := IsGroupHaveClasses(schedule, curTime)
 		if err != nil {
-			log.Warningf("Error checking if group have classes for chat %d: %s", chat.ChatId, err)
+			log.Errorf("Error checking if group have classes for chat %d: %s", chat.ChatId, err)
+			errorhandler.SendErrorToTelegram(err)
 			continue
 		}
 
@@ -148,6 +152,7 @@ func SendNotifications(time2 string) error {
 			err = SendNotification(chat.ChatId, chat.LangCode, schedule, time2)
 			if err != nil {
 				log.Warningf("Error sending notification to chat %d: %s", chat.ChatId, err)
+				errorhandler.SendErrorToTelegram(err)
 				continue
 			}
 
