@@ -1,6 +1,6 @@
 module github.com/cubicbyte/dteubot
 
-go 1.21.1
+go 1.21
 
 require (
 	github.com/dlclark/regexp2 v1.10.0
