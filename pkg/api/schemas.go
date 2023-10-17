@@ -104,6 +104,10 @@ type ScheduleExtraInfo struct {
 type CallSchedule []CallScheduleEntry
 type Schedule []TimeTableDate
 
+func (stud *Student) GetFullName() string {
+	return stud.LastName + " " + stud.FirstName + " " + stud.SecondName
+}
+
 func (s *CallSchedule) GetCall(number int) *CallScheduleEntry {
 	for _, call := range *s {
 		if call.Number == number {
@@ -121,8 +125,6 @@ func (s *Schedule) GetDay(date string) *TimeTableDate {
 	}
 	return nil
 }
-
-// TODO: Add more wrappers
 
 // GetLesson returns a lesson with a specific number from a day.
 func (day *TimeTableDate) GetLesson(number int) *TimeTableLesson {

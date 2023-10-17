@@ -70,10 +70,7 @@ func CreateStudentsListPage(cm *data.ChatDataManager) (*Page, error) {
 	pageText := ""
 	for i, student := range students {
 		studentPos := strconv.Itoa(i + 1)
-		name := ""
-		name += utils.EscapeTelegramMarkdownV2(student.LastName) + " "
-		name += utils.EscapeTelegramMarkdownV2(student.FirstName) + " "
-		name += utils.EscapeTelegramMarkdownV2(student.SecondName)
+		name := utils.EscapeTelegramMarkdownV2(student.GetFullName())
 
 		pageText += "*" + studentPos + "*\\) " + name + "\n"
 	}
