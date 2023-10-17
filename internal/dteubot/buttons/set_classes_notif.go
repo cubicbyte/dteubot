@@ -100,7 +100,7 @@ func HandleSetClassesNotificationsNextPartButton(u *tgbotapi.Update) error {
 
 	// Also set 15m notification to true if notifications is disabled
 	if chatData.ClassesNotificationNextPart && (!chatData.ClassesNotification15m && !chatData.ClassesNotification1m) {
-		chatData.ClassesNotification15m = true
+		chatData.ClassesNotification1m = true
 	}
 
 	err = cManager.UpdateChatData(chatData)

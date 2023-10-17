@@ -61,9 +61,10 @@ var (
 )
 
 type chatInfo struct {
-	ChatId   int64  `db:"chat_id"`
-	GroupId  int    `db:"group_id"`
-	LangCode string `db:"lang_code"`
+	ChatId          int64  `db:"chat_id"`
+	GroupId         int    `db:"group_id"`
+	LangCode        string `db:"lang_code"`
+	ClNotifNextPart bool   `db:"cl_notif_next_part"`
 }
 
 // Setup initializes notifier and starts cron Scheduler
@@ -180,7 +181,7 @@ func SendNotifications(time2 string) error {
 			// Group have classes, send notification
 
 			// Send notification to chat
-			err = SendNotification(chat.ChatId, chat.LangCode, schedule, time2)
+			err = SendNotification(chat.ChatId, chat.LangCode, schedule, time2, "start")
 			if err != nil {
 				log.Warningf("Error sending notification to chat %d: %s", chat.ChatId, err)
 				errorhandler.SendErrorToTelegram(err)
@@ -188,6 +189,34 @@ func SendNotifications(time2 string) error {
 			}
 
 			sentCount++
+			continue
+		}
+
+		// Check if group have next classes part
+		if !chat.ClNotifNextPart {
+			continue
+		}
+
+		haveNextClassesPart, err := IsGroupHaveNextClassesPart(schedule, curTime)
+		if err != nil {
+			log.Errorf("Error checking if group have next classes part for chat %d: %s", chat.ChatId, err)
+			errorhandler.SendErrorToTelegram(err)
+			continue
+		}
+
+		if haveNextClassesPart {
+			// Group have next classes part, send notification
+
+			// Send notification to chat
+			err = SendNotification(chat.ChatId, chat.LangCode, schedule, time2, "next_part")
+			if err != nil {
+				log.Warningf("Error sending notification to chat %d: %s", chat.ChatId, err)
+				errorhandler.SendErrorToTelegram(err)
+				continue
+			}
+
+			sentCount++
+			continue
 		}
 	}
 
@@ -197,8 +226,8 @@ func SendNotifications(time2 string) error {
 }
 
 // SendNotification sends notification to chat
-func SendNotification(chatId int64, langCode string, schedule *api2.TimeTableDate, time string) error {
-	log.Debugf("Sending %s notification to chat %d", time, chatId)
+func SendNotification(chatId int64, langCode string, schedule *api2.TimeTableDate, time string, type2 string) error {
+	log.Debugf("Sending %s %s notification to chat %d", type2, time, chatId)
 
 	// Get chat language
 	lang, ok := langs[langCode]
@@ -206,24 +235,34 @@ func SendNotification(chatId int64, langCode string, schedule *api2.TimeTableDat
 		return &i18n.LanguageNotFoundError{LangCode: langCode}
 	}
 
-	// Create page schedule section
-	section := ""
-	strFormat := "`$lesson\\)` *$name*`[$type]`\n"
-	for _, lesson := range schedule.Lessons {
-		for _, period := range lesson.Periods {
-			section += format.Formatm(strFormat, format.Values{
-				"lesson": lesson.Number,
-				"name":   tgbotapi.EscapeText(tgbotapi.ModeMarkdownV2, period.DisciplineShortName),
-				"type":   tgbotapi.EscapeText(tgbotapi.ModeMarkdownV2, period.TypeStr),
-			})
+	var pageText string
+	if type2 == "start" {
+		// Create page schedule section
+		section := ""
+		strFormat := "`$lesson\\)` *$name*`[$type]`\n"
+		for _, lesson := range schedule.Lessons {
+			for _, period := range lesson.Periods {
+				section += format.Formatm(strFormat, format.Values{
+					"lesson": lesson.Number,
+					"name":   tgbotapi.EscapeText(tgbotapi.ModeMarkdownV2, period.DisciplineShortName),
+					"type":   tgbotapi.EscapeText(tgbotapi.ModeMarkdownV2, period.TypeStr),
+				})
+			}
 		}
-	}
 
-	// Create page text
-	pageText := format.Formatm(lang.Page.ClassesNotification, format.Values{
-		"remaining": time[:len(time)-1], // Remove last letter: 15m -> 15
-		"schedule":  section,
-	})
+		// Create page text
+		pageText = format.Formatm(lang.Page.ClassesNotification, format.Values{
+			"remaining": time[:len(time)-1], // Remove last letter: 15m -> 15
+			"schedule":  section,
+		})
+	} else if type2 == "next_part" {
+		// Create page text
+		pageText = format.Formatm(lang.Page.ClassesNotificationNextPart, format.Values{
+			"remaining": time[:len(time)-1],
+		})
+	} else {
+		return errors.New("invalid notification type: " + type2)
+	}
 
 	// Create buttons
 	replyMarkup := tgbotapi.NewInlineKeyboardMarkup(

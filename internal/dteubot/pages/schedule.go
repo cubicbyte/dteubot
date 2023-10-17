@@ -305,7 +305,7 @@ func scanEmptyDays(groupId int, date time.Time) (int, int, error) {
 	return skipLeft, skipRight, nil
 }
 
-func countNoLessonsDays(days *[]api.TimeTableDate, date time.Time, directionRight bool) (int, error) {
+func countNoLessonsDays(days *api.Schedule, date time.Time, directionRight bool) (int, error) {
 	count := 0
 
 	if directionRight {
