@@ -37,14 +37,15 @@ type ChatDataManager struct {
 
 // ChatData is a struct that contains all the data about a chat.
 type ChatData struct {
-	ChatId                 int64     `db:"chat_id"`
-	GroupId                int       `db:"group_id"`
-	LanguageCode           string    `db:"lang_code"`
-	ClassesNotification15m bool      `db:"cl_notif_15m"`
-	ClassesNotification1m  bool      `db:"cl_notif_1m"`
-	SeenSettings           bool      `db:"seen_settings"`
-	Accessible             bool      `db:"accessible"`
-	Created                time.Time `db:"created"`
+	ChatId                      int64     `db:"chat_id"`
+	GroupId                     int       `db:"group_id"`
+	LanguageCode                string    `db:"lang_code"`
+	ClassesNotification15m      bool      `db:"cl_notif_15m"`
+	ClassesNotification1m       bool      `db:"cl_notif_1m"`
+	ClassesNotificationNextPart bool      `db:"cl_notif_next_part"`
+	SeenSettings                bool      `db:"seen_settings"`
+	Accessible                  bool      `db:"accessible"`
+	Created                     time.Time `db:"created"`
 }
 
 // GetChatData returns chat data for the chat.

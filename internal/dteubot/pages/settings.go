@@ -73,8 +73,9 @@ func CreateSettingsPage(cm *data.ChatDataManager) (*Page, error) {
 
 	// Get classes notification states
 	var (
-		notif15mNextState string
-		notif1mNextState  string
+		notif15mNextState      string
+		notif1mNextState       string
+		notifNextPartNextState string
 	)
 	if chatData.ClassesNotification15m {
 		notif15mNextState = "0"
@@ -86,11 +87,14 @@ func CreateSettingsPage(cm *data.ChatDataManager) (*Page, error) {
 	} else {
 		notif1mNextState = "1"
 	}
+	if chatData.ClassesNotificationNextPart {
+		notifNextPartNextState = "0"
+	} else {
+		notifNextPartNextState = "1"
+	}
 
 	pageText := format.Formatm(lang.Page.Settings, format.Values{
-		"group":    groupName,
-		"notif15m": utils.GetSettingIcon(chatData.ClassesNotification15m),
-		"notif1m":  utils.GetSettingIcon(chatData.ClassesNotification1m),
+		"group": groupName,
 	})
 
 	page := Page{
@@ -102,14 +106,29 @@ func CreateSettingsPage(cm *data.ChatDataManager) (*Page, error) {
 			),
 			tgbotapi.NewInlineKeyboardRow(
 				tgbotapi.NewInlineKeyboardButtonData(
-					lang.Button.SettingClNotif15m,
+					format.Formatp(
+						lang.Button.SettingClNotif15m,
+						utils.GetSettingIcon(chatData.ClassesNotification15m),
+					),
 					"set.cl_notif#time=15m&state="+notif15mNextState,
 				),
 			),
 			tgbotapi.NewInlineKeyboardRow(
 				tgbotapi.NewInlineKeyboardButtonData(
-					lang.Button.SettingClNotif1m,
+					format.Formatp(
+						lang.Button.SettingClNotif1m,
+						utils.GetSettingIcon(chatData.ClassesNotification1m),
+					),
 					"set.cl_notif#time=1m&state="+notif1mNextState,
+				),
+			),
+			tgbotapi.NewInlineKeyboardRow(
+				tgbotapi.NewInlineKeyboardButtonData(
+					format.Formatp(
+						lang.Button.SettingClNotifNextPart,
+						utils.GetSettingIcon(chatData.ClassesNotificationNextPart),
+					),
+					"set.cl_notif_next_part#state="+notifNextPartNextState,
 				),
 			),
 			tgbotapi.NewInlineKeyboardRow(

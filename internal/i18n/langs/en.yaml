@@ -66,8 +66,9 @@ button:
   open_schedule: "📋 Open Schedule"
   students_list: "📋 Students List"
   settings: "⚙️ Settings"
-  setting.cl_notif_15m: "Reminders 15 min before classes"
-  setting.cl_notif_1m: "Reminders 1 min before classes"
+  setting.cl_notif_15m: "$ Reminders 15 min before classes"
+  setting.cl_notif_1m: "$ Reminders 1 min before classes"
+  setting.cl_notif_next_part: "$ Reminders for next part of classes"
   schedule: "📋 Class Schedule"
   schedule.today: "📋 Classes Today"
   schedule.tomorrow: "📋 Classes Tomorrow"
@@ -101,9 +102,7 @@ page:
   invalid_group: "❌ *It seems you haven't selected a group\\.*\n\nPlease select a group and try again\\."
   menu: "🏠 *Menu*\n\nThis bot was created for quick and convenient viewing of class schedules at SUTE\\."
   settings:
-    "⚙️ *Settings*\n\n*Your Group:* $group\n\n*Your Settings*\n$notif15m
-    Reminders 15 min before classes\n$notif1m
-    Reminders 1 min before classes"
+    "⚙️ *Settings*\n\n*Your Group:* $group"
   lang_selection: "🌐 *Change Language*\n\n*Your Current Language*: $"
   more: "🗂 *More*"
   info: "ℹ️ *Information*\n\n*Bot Creator*\nFIT 3\\-8 group
@@ -129,6 +128,7 @@ page:
     "Did you know that the bot can remind you when classes are about to start\\?
     \\(Available in settings\\)\n\nWould you like to enable reminders for the start of classes\\?"
   classes_notification: "*Reminder:* classes will start in *$remaining* min\\!\n\n$schedule"
+  classes_notification_next_part: "*Reminder:* next classes will start in *$remaining* min\\!"
   error:
     "❗️ *An error occurred\\!*\n\nSomething went wrong while processing your
     request\\.\nThe error has been reported to the developer in Telegram\\."
