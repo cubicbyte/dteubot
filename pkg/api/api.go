@@ -49,8 +49,8 @@ type IApi interface {
 	GetCourses(facultyId int) ([]Course, error)
 	GetGroups(facultyId int, course int) ([]Group, error)
 	GetGroupStudents(groupId int) ([]Student, error)
-	GetCallSchedule() ([]CallSchedule, error)
-	GetGroupSchedule(groupId int, dateStart string, dateEnd string) ([]TimeTableDate, error)
+	GetCallSchedule() (CallSchedule, error)
+	GetGroupSchedule(groupId int, dateStart string, dateEnd string) (Schedule, error)
 	GetScheduleExtraInfo(classCode int, date string) (*ScheduleExtraInfo, error)
 	GetGroupScheduleDay(groupId int, date string) (*TimeTableDate, error)
 }
@@ -202,8 +202,8 @@ func (api *Api) GetGroupStudents(groupId int) ([]Student, error) {
 }
 
 // GetCallSchedule returns a call schedule
-func (api *Api) GetCallSchedule() ([]CallSchedule, error) {
-	var callSchedule []CallSchedule
+func (api *Api) GetCallSchedule() (CallSchedule, error) {
+	var callSchedule []CallScheduleEntry
 
 	err := api.makeRequest("POST", "/time-table/call-schedule", "", &callSchedule)
 	if err != nil {
@@ -215,7 +215,7 @@ func (api *Api) GetCallSchedule() ([]CallSchedule, error) {
 
 // GetGroupSchedule returns a schedule for a group
 // from dateStart to dateEnd (inclusive)
-func (api *Api) GetGroupSchedule(groupId int, dateStart string, dateEnd string) ([]TimeTableDate, error) {
+func (api *Api) GetGroupSchedule(groupId int, dateStart string, dateEnd string) (Schedule, error) {
 	var timeTableDate []TimeTableDate
 	body := fmt.Sprintf(`{"groupId":%d,"dateStart":"%s","dateEnd":"%s"}`, groupId, dateStart, dateEnd)
 
@@ -235,7 +235,7 @@ func (api *Api) GetGroupSchedule(groupId int, dateStart string, dateEnd string) 
 // GetScheduleExtraInfo returns a extra info for a schedule,
 // that can be added by a teacher or university administration.
 //
-// classCode is a "R1" field from TimeTablePeriod
+// classCode is a TimeTablePeriod.R1 field
 func (api *Api) GetScheduleExtraInfo(classCode int, date string) (*ScheduleExtraInfo, error) {
 	var scheduleExtraInfo ScheduleExtraInfo
 	body := fmt.Sprintf(`{"r1":%d,"r2":"%s"}`, classCode, date)
@@ -250,20 +250,12 @@ func (api *Api) GetScheduleExtraInfo(classCode int, date string) (*ScheduleExtra
 
 // GetGroupScheduleDay returns a schedule for a group for a day
 //
-// Alias for GetGroupSchedule(groupId, date, date)[0]
+// Alias for GetGroupSchedule(groupId, date, date).GetDay(date)
 func (api *Api) GetGroupScheduleDay(groupId int, date string) (*TimeTableDate, error) {
 	schedule, err := api.GetGroupSchedule(groupId, date, date)
 	if err != nil {
 		return nil, err
 	}
 
-	// We are not using schedule[0] because api sometimes can return
-	// more than one day although we requested only one
-	for _, day := range schedule {
-		if day.Date == date {
-			return &day, nil
-		}
-	}
-
-	return nil, nil
+	return schedule.GetDay(date), nil
 }

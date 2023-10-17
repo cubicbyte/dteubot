@@ -53,7 +53,7 @@ type Student struct {
 	LastName   string `json:"lastName"`
 }
 
-type CallSchedule struct {
+type CallScheduleEntry struct {
 	TimeStart string `json:"timeStart"`
 	TimeEnd   string `json:"timeEnd"`
 	Number    int    `json:"number"`
@@ -99,4 +99,37 @@ type TimeTableDate struct {
 
 type ScheduleExtraInfo struct {
 	Html string `json:"html"`
+}
+
+type CallSchedule []CallScheduleEntry
+type Schedule []TimeTableDate
+
+func (s *CallSchedule) GetCall(number int) *CallScheduleEntry {
+	for _, call := range *s {
+		if call.Number == number {
+			return &call
+		}
+	}
+	return nil
+}
+
+func (s *Schedule) GetDay(date string) *TimeTableDate {
+	for _, day := range *s {
+		if day.Date == date {
+			return &day
+		}
+	}
+	return nil
+}
+
+// TODO: Add more wrappers
+
+// GetLesson returns a lesson with a specific number from a day.
+func (day *TimeTableDate) GetLesson(number int) *TimeTableLesson {
+	for _, lesson := range day.Lessons {
+		if lesson.Number == number {
+			return &lesson
+		}
+	}
+	return nil
 }
