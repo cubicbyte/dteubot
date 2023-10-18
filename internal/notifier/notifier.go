@@ -358,9 +358,9 @@ func IsGroupHaveNextClassesPart(schedule *api2.TimeTableDate, time2 time.Time) (
 		return false, nil
 	}
 
-	// If it's first lesson of the day, return true
+	// If it's first lesson of the day
 	if previousLesson == nil {
-		return true, nil
+		return isLessonIsAboutToStart(nextLesson, time2)
 	}
 
 	// Check if next lesson have new discipline
