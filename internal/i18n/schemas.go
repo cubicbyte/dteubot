@@ -104,6 +104,7 @@ type Language struct {
 		Settings                       string `yaml:"settings"`
 		SettingClNotif15m              string `yaml:"setting.cl_notif_15m"`
 		SettingClNotif1m               string `yaml:"setting.cl_notif_1m"`
+		SettingClNotifNextPart         string `yaml:"setting.cl_notif_next_part"`
 		Schedule                       string `yaml:"schedule"`
 		ScheduleToday                  string `yaml:"schedule.today"`
 		ScheduleTomorrow               string `yaml:"schedule.tomorrow"`
@@ -149,6 +150,7 @@ type Language struct {
 		ScheduleMultipleEmptyDays     string `yaml:"schedule.multiple_empty_days"`
 		NotificationFeatureSuggestion string `yaml:"notification_feature_suggestion"`
 		ClassesNotification           string `yaml:"classes_notification"`
+		ClassesNotificationNextPart   string `yaml:"classes_notification_next_part"`
 		Error                         string `yaml:"error"`
 		Forbidden                     string `yaml:"forbidden"`
 		NotFound                      string `yaml:"not_found"`

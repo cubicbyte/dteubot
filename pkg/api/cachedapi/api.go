@@ -313,8 +313,8 @@ func (api *CachedApi) GetGroupStudents(groupId int) ([]api2.Student, error) {
 }
 
 // GetCallSchedule returns a call schedule
-func (api *CachedApi) GetCallSchedule() ([]api2.CallSchedule, error) {
-	var callSchedule []api2.CallSchedule
+func (api *CachedApi) GetCallSchedule() (api2.CallSchedule, error) {
+	var callSchedule []api2.CallScheduleEntry
 
 	err := api.makeRequest("POST", "/time-table/call-schedule", "", &callSchedule)
 	if err != nil {
@@ -326,7 +326,7 @@ func (api *CachedApi) GetCallSchedule() ([]api2.CallSchedule, error) {
 
 // GetGroupSchedule returns a schedule for a group
 // from dateStart to dateEnd (inclusive)
-func (api *CachedApi) GetGroupSchedule(groupId int, dateStart string, dateEnd string) ([]api2.TimeTableDate, error) {
+func (api *CachedApi) GetGroupSchedule(groupId int, dateStart string, dateEnd string) (api2.Schedule, error) {
 	log.Debugf("Getting schedule for group %d from %s to %s", groupId, dateStart, dateEnd)
 
 	// Get dates range
@@ -453,20 +453,12 @@ func (api *CachedApi) GetScheduleExtraInfo(classCode int, date string) (*api2.Sc
 
 // GetGroupScheduleDay returns a schedule for a group for a day
 //
-// Alias for GetGroupSchedule(groupId, date, date)[0]
+// Alias for GetGroupSchedule(groupId, date, date).GetDay(date)
 func (api *CachedApi) GetGroupScheduleDay(groupId int, date string) (*api2.TimeTableDate, error) {
 	schedule, err := api.GetGroupSchedule(groupId, date, date)
 	if err != nil {
 		return nil, err
 	}
 
-	// We are not using schedule[0] because api sometimes can return
-	// more than one day although we requested only one
-	for _, day := range schedule {
-		if day.Date == date {
-			return &day, nil
-		}
-	}
-
-	return nil, nil
+	return schedule.GetDay(date), nil
 }

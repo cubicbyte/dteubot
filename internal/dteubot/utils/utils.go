@@ -35,28 +35,6 @@ import (
 
 var log = logging.MustGetLogger("bot")
 
-// Telegram markdownV2 characters to escape
-var escapeCharsMarkdownV2 = []string{
-	"_", "\\_",
-	"*", "\\*",
-	"[", "\\[",
-	"]", "\\]",
-	"(", "\\(",
-	")", "\\)",
-	"~", "\\~",
-	"`", "\\`",
-	">", "\\>",
-	"#", "\\#",
-	"+", "\\+",
-	"-", "\\-",
-	"=", "\\=",
-	"|", "\\|",
-	"{", "\\{",
-	"}", "\\}",
-	".", "\\.",
-	"!", "\\!",
-}
-
 // InitDatabaseRecords initializes the database records
 // for user and chat from given update.
 func InitDatabaseRecords(upd *tgbotapi.Update) error {
@@ -131,19 +109,43 @@ func InitDatabaseRecords(upd *tgbotapi.Update) error {
 	return nil
 }
 
+// EscapeText takes an input text and escape Telegram markup symbols.
+// In this way we can send a text without being afraid of having to escape the characters manually.
+// Note that you don't have to include the formatting style in the input text, or it will be escaped too.
+// If there is an error, an empty string will be returned.
+//
+// parseMode is the text formatting mode (ModeMarkdown, ModeMarkdownV2 or ModeHTML)
+// text is the input string that will be escaped
+//
+// TODO: Remove this when merged: https://github.com/go-telegram-bot-api/telegram-bot-api/pull/604
+func EscapeText(parseMode string, text string) string {
+	var replacer *strings.Replacer
+
+	if parseMode == tgbotapi.ModeHTML {
+		replacer = strings.NewReplacer("<", "&lt;", ">", "&gt;", "&", "&amp;")
+	} else if parseMode == tgbotapi.ModeMarkdown {
+		replacer = strings.NewReplacer("_", "\\_", "*", "\\*", "`", "\\`", "[", "\\[")
+	} else if parseMode == tgbotapi.ModeMarkdownV2 {
+		replacer = strings.NewReplacer(
+			"\\", "\\\\",
+			"_", "\\_", "*", "\\*", "[", "\\[", "]", "\\]", "(",
+			"\\(", ")", "\\)", "~", "\\~", "`", "\\`", ">", "\\>",
+			"#", "\\#", "+", "\\+", "-", "\\-", "=", "\\=", "|",
+			"\\|", "{", "\\{", "}", "\\}", ".", "\\.", "!", "\\!",
+		)
+	} else {
+		return ""
+	}
+
+	return replacer.Replace(text)
+}
+
 // GetSettingIcon returns the icon for the setting: ✅ or ❌
 func GetSettingIcon(enabled bool) string {
 	if enabled {
 		return "✅"
 	}
 	return "❌"
-}
-
-// EscapeTelegramMarkdownV2 escapes the Telegram markdownV2 characters
-func EscapeTelegramMarkdownV2(str string) string {
-	// TODO: Replace this with tgbotapi.EscapeText
-	replacer := strings.NewReplacer(escapeCharsMarkdownV2...)
-	return replacer.Replace(str)
 }
 
 // ParseTime parses time in given layout with local timezone

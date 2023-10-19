@@ -65,7 +65,7 @@ func GetCallsStatus(groupId int, time_ time.Time) (*CallsStatus, error) {
 
 	date := time_
 	for i := 0; i < DaysScanLimit; i++ {
-		day := getDaySchedule(&schedule, date.Format("2006-01-02"))
+		day := schedule.GetDay(date.Format("2006-01-02"))
 		if day == nil {
 			date = date.AddDate(0, 0, 1)
 			continue
@@ -86,23 +86,14 @@ func GetCallsStatus(groupId int, time_ time.Time) (*CallsStatus, error) {
 	return nil, nil
 }
 
-func getDaySchedule(days *[]api.TimeTableDate, date string) *api.TimeTableDate {
-	for _, day := range *days {
-		if day.Date == date {
-			return &day
-		}
-	}
-	return nil
-}
-
 // getCallsStatus returns GetCallsStatus for a specific day
-func getCallsStatus(day api.TimeTableDate, calls []api.CallSchedule, time_ time.Time) (*CallsStatus, error) {
+func getCallsStatus(day api.TimeTableDate, calls api.CallSchedule, time_ time.Time) (*CallsStatus, error) {
 	if len(day.Lessons) == 0 {
 		return nil, nil
 	}
 
 	// Check if the current time is before the first lesson
-	firstCall := GetCall(&calls, day.Lessons[0].Number)
+	firstCall := calls.GetCall(day.Lessons[0].Number)
 	firstCallStart, err := ParseTime("2006-01-02 15:04", day.Date+" "+firstCall.TimeStart)
 	if err != nil {
 		return nil, err
@@ -115,7 +106,7 @@ func getCallsStatus(day api.TimeTableDate, calls []api.CallSchedule, time_ time.
 	}
 
 	// Check if the current time is after the last lesson
-	lastCall := GetCall(&calls, day.Lessons[len(day.Lessons)-1].Number)
+	lastCall := calls.GetCall(day.Lessons[len(day.Lessons)-1].Number)
 	lastCallEnd, err := ParseTime("2006-01-02 15:04", day.Date+" "+lastCall.TimeEnd)
 	if err != nil {
 		return nil, err
@@ -126,7 +117,7 @@ func getCallsStatus(day api.TimeTableDate, calls []api.CallSchedule, time_ time.
 
 	// Check if the current time is during the lesson or break
 	for _, lesson := range day.Lessons {
-		call := GetCall(&calls, lesson.Number)
+		call := calls.GetCall(lesson.Number)
 		callStart, err := ParseTime("2006-01-02 15:04", day.Date+" "+call.TimeStart)
 		if err != nil {
 			return nil, err
@@ -193,13 +184,4 @@ func FormatDuration(duration time.Duration, depth int, lang *i18n.Language) stri
 	}
 
 	return result
-}
-
-func GetCall(calls *[]api.CallSchedule, number int) *api.CallSchedule {
-	for _, call := range *calls {
-		if call.Number == number {
-			return &call
-		}
-	}
-	return nil
 }

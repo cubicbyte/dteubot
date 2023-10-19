@@ -78,3 +78,46 @@ func HandleSetClassesNotificationsButton(u *tgbotapi.Update) error {
 
 	return nil
 }
+
+func HandleSetClassesNotificationsNextPartButton(u *tgbotapi.Update) error {
+	// Get state & time from button data
+	button := utils.ParseButtonData(u.CallbackQuery.Data)
+
+	state, ok := button.Params["state"]
+	if !ok {
+		return errors.New("no state in button data")
+	}
+
+	// Update chat classes notifications settings
+	cManager := utils.GetChatDataManager(u.FromChat().ID)
+
+	chatData, err := cManager.GetChatData()
+	if err != nil {
+		return err
+	}
+
+	chatData.ClassesNotificationNextPart = state == "1"
+
+	// Also set 15m notification to true if notifications is disabled
+	if chatData.ClassesNotificationNextPart && (!chatData.ClassesNotification15m && !chatData.ClassesNotification1m) {
+		chatData.ClassesNotification1m = true
+	}
+
+	err = cManager.UpdateChatData(chatData)
+	if err != nil {
+		return err
+	}
+
+	// Update page
+	page, err := pages.CreateSettingsPage(cManager)
+	if err != nil {
+		return err
+	}
+
+	_, err = settings.Bot.Send(EditMessageRequest(page, u.CallbackQuery))
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

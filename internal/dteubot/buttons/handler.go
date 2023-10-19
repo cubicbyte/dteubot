@@ -113,6 +113,10 @@ func HandleButton(u *tgbotapi.Update) error {
 		if err := HandleSetClassesNotificationsButton(u); err != nil {
 			return err
 		}
+	case "set.cl_notif_next_part":
+		if err := HandleSetClassesNotificationsNextPartButton(u); err != nil {
+			return err
+		}
 	case "admin.clear_cache":
 		if err := HandleClearCacheButton(u); err != nil {
 			return err

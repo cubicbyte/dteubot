@@ -60,20 +60,17 @@ func CreateStudentsListPage(cm *data.ChatDataManager) (*Page, error) {
 			log.Warningf("Error getting %d group name: %s", chatData.GroupId, err)
 		}
 		if group == nil {
-			groupId := utils.EscapeTelegramMarkdownV2(strconv.Itoa(chatData.GroupId))
+			groupId := utils.EscapeText(tgbotapi.ModeMarkdownV2, strconv.Itoa(chatData.GroupId))
 			groupName = format.Formatp(lang.Text.UnknownGroupName, groupId)
 		} else {
-			groupName = utils.EscapeTelegramMarkdownV2(group.Name)
+			groupName = utils.EscapeText(tgbotapi.ModeMarkdownV2, group.Name)
 		}
 	}
 
 	pageText := ""
 	for i, student := range students {
 		studentPos := strconv.Itoa(i + 1)
-		name := ""
-		name += utils.EscapeTelegramMarkdownV2(student.LastName) + " "
-		name += utils.EscapeTelegramMarkdownV2(student.FirstName) + " "
-		name += utils.EscapeTelegramMarkdownV2(student.SecondName)
+		name := utils.EscapeText(tgbotapi.ModeMarkdownV2, student.GetFullName())
 
 		pageText += "*" + studentPos + "*\\) " + name + "\n"
 	}
