@@ -64,10 +64,10 @@ func CreateSettingsPage(cm *data.ChatDataManager) (*Page, error) {
 			log.Warningf("Error getting %d group name: %s", chatData.GroupId, err)
 		}
 		if group == nil {
-			groupId := utils.EscapeTelegramMarkdownV2(strconv.Itoa(chatData.GroupId))
+			groupId := utils.EscapeText(tgbotapi.ModeMarkdownV2, strconv.Itoa(chatData.GroupId))
 			groupName = format.Formatp(lang.Text.UnknownGroupName, groupId)
 		} else {
-			groupName = utils.EscapeTelegramMarkdownV2(group.Name)
+			groupName = utils.EscapeText(tgbotapi.ModeMarkdownV2, group.Name)
 		}
 	}
 

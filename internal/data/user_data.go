@@ -143,3 +143,10 @@ func (m *UserDataManager) GetOrCreateUserData() (*UserData, error) {
 
 	return userData, nil
 }
+
+func (u *UserData) GetFullName() string {
+	if u.LastName == "" {
+		return u.FirstName
+	}
+	return u.FirstName + " " + u.LastName
+}

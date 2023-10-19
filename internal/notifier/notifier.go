@@ -27,6 +27,7 @@ import (
 	"errors"
 	"github.com/cubicbyte/dteubot/internal/data"
 	"github.com/cubicbyte/dteubot/internal/dteubot/errorhandler"
+	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
 	"github.com/cubicbyte/dteubot/internal/i18n"
 	api2 "github.com/cubicbyte/dteubot/pkg/api"
 	"github.com/cubicbyte/dteubot/pkg/api/cachedapi"
@@ -244,8 +245,8 @@ func SendNotification(chatId int64, langCode string, schedule *api2.TimeTableDat
 			for _, period := range lesson.Periods {
 				section += format.Formatm(strFormat, format.Values{
 					"lesson": lesson.Number,
-					"name":   tgbotapi.EscapeText(tgbotapi.ModeMarkdownV2, period.DisciplineShortName),
-					"type":   tgbotapi.EscapeText(tgbotapi.ModeMarkdownV2, period.TypeStr),
+					"name":   utils.EscapeText(tgbotapi.ModeMarkdownV2, period.DisciplineShortName),
+					"type":   utils.EscapeText(tgbotapi.ModeMarkdownV2, period.TypeStr),
 				})
 			}
 		}

@@ -145,12 +145,12 @@ func CreateSchedulePage(cm *data.ChatDataManager, date string) (*Page, error) {
 				format_ := "`———— ``$timeStart`` ——— ``$timeEnd`` ————`\n`  `*$disciplineShortName*`[$typeStr]`\n`$lessonNumber `$classroom\n`  `$teachersNameFull\n"
 				lessonNumber := strconv.Itoa(lesson.Number)
 				pageText += format.Formatm(format_, format.Values{
-					"timeStart":           utils.EscapeTelegramMarkdownV2(period.TimeStart),
-					"timeEnd":             utils.EscapeTelegramMarkdownV2(period.TimeEnd),
-					"disciplineShortName": utils.EscapeTelegramMarkdownV2(period.DisciplineShortName),
-					"typeStr":             utils.EscapeTelegramMarkdownV2(period.TypeStr),
-					"lessonNumber":        utils.EscapeTelegramMarkdownV2(lessonNumber),
-					"classroom":           utils.EscapeTelegramMarkdownV2(period.Classroom),
+					"timeStart":           utils.EscapeText(tgbotapi.ModeMarkdownV2, period.TimeStart),
+					"timeEnd":             utils.EscapeText(tgbotapi.ModeMarkdownV2, period.TimeEnd),
+					"disciplineShortName": utils.EscapeText(tgbotapi.ModeMarkdownV2, period.DisciplineShortName),
+					"typeStr":             utils.EscapeText(tgbotapi.ModeMarkdownV2, period.TypeStr),
+					"lessonNumber":        utils.EscapeText(tgbotapi.ModeMarkdownV2, lessonNumber),
+					"classroom":           utils.EscapeText(tgbotapi.ModeMarkdownV2, period.Classroom),
 					"teachersNameFull":    getTeacher(period.TeachersNameFull),
 				})
 			}
@@ -250,7 +250,7 @@ func getTeacher(teachersNameFull string) string {
 	teacher = firstTeacher
 
 	// Escape markdown
-	teacher = utils.EscapeTelegramMarkdownV2(teacher)
+	teacher = utils.EscapeText(tgbotapi.ModeMarkdownV2, teacher)
 
 	// Get teacher profile link
 	profileLink, ok := settings.TeachersList.GetLink(firstTeacher)
