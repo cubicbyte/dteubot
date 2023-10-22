@@ -86,7 +86,7 @@ func (r *PostgresUserRepository) GetById(id int64) (*User, error) {
 
 // Update updates a user.
 func (r *PostgresUserRepository) Update(user *User) error {
-	_, err := r.db.NamedExec(updateChatQuery, user)
+	_, err := r.db.NamedExec(updateUserQuery, user)
 	if err != nil {
 		return err
 	}
