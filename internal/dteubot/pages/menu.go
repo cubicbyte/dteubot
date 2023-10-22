@@ -24,22 +24,11 @@ package pages
 
 import (
 	"github.com/cubicbyte/dteubot/internal/data"
-	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
+	"github.com/cubicbyte/dteubot/internal/i18n"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
-func CreateMenuPage(cm *data.ChatDataManager, um *data.UserDataManager) (*Page, error) {
-	lang, err := utils.GetLang(cm)
-	if err != nil {
-		return nil, err
-	}
-
-	// Get user data
-	uData, err := um.GetUserData()
-	if err != nil {
-		return nil, err
-	}
-
+func CreateMenuPage(lang *i18n.Language, user *data.User) (*Page, error) {
 	page := Page{
 		Text: lang.Page.Menu,
 		InlineKeyboard: tgbotapi.NewInlineKeyboardMarkup(
@@ -55,7 +44,7 @@ func CreateMenuPage(cm *data.ChatDataManager, um *data.UserDataManager) (*Page, 
 	}
 
 	// Add admin panel button if the user is admin
-	if uData.IsAdmin {
+	if user.IsAdmin {
 		page.InlineKeyboard.InlineKeyboard = append(page.InlineKeyboard.InlineKeyboard, tgbotapi.NewInlineKeyboardRow(
 			tgbotapi.NewInlineKeyboardButtonData(lang.Button.AdminPanel, "open.admin_panel"),
 		))

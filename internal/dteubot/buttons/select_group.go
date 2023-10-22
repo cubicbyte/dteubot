@@ -24,50 +24,37 @@ package buttons
 
 import (
 	"errors"
+	"github.com/cubicbyte/dteubot/internal/data"
 	"github.com/cubicbyte/dteubot/internal/dteubot/pages"
-	"github.com/cubicbyte/dteubot/internal/dteubot/settings"
 	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
+	"github.com/cubicbyte/dteubot/internal/i18n"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"strconv"
 )
 
-func HandleSelectGroupButton(u *tgbotapi.Update) error {
-	// Get group id from button data
+func HandleSelectGroupButton(u *tgbotapi.Update, bot *tgbotapi.BotAPI, lang *i18n.Language, chat *data.Chat, user *data.User, chatRepo data.ChatRepository) error {
 	button := utils.ParseButtonData(u.CallbackQuery.Data)
+
+	// Get group id from button params
 	groupId, ok := button.Params["groupId"]
 	if !ok {
-		return errors.New("no groupId in button data")
+		return errors.New("groupId param not found")
 	}
-	groupId_, err := strconv.Atoi(groupId)
+
+	groupId2, err := strconv.Atoi(groupId)
 	if err != nil {
 		return err
 	}
 
 	// Update chat group id
-	uManager := utils.GetUserDataManager(u.SentFrom().ID)
-	cManager := utils.GetChatDataManager(u.FromChat().ID)
+	chat.GroupId = groupId2
 
-	chatData, err := cManager.GetChatData()
+	err = chatRepo.Update(chat)
 	if err != nil {
 		return err
 	}
 
-	chatData.GroupId = groupId_
-	err = cManager.UpdateChatData(chatData)
-	if err != nil {
-		return err
-	}
-
-	// Create page
-	page, err := pages.CreateMenuPage(cManager, uManager)
-	if err != nil {
-		return err
-	}
-
-	_, err = settings.Bot.Send(EditMessageRequest(page, u.CallbackQuery))
-	if err != nil {
-		return err
-	}
-
-	return nil
+	// Open menu page
+	page, err := pages.CreateMenuPage(lang, user)
+	return editPage(page, err, u, bot)
 }

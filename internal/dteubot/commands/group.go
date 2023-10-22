@@ -23,36 +23,62 @@
 package commands
 
 import (
+	"github.com/cubicbyte/dteubot/internal/data"
+	"github.com/cubicbyte/dteubot/internal/dteubot/groupscache"
 	"github.com/cubicbyte/dteubot/internal/dteubot/pages"
-	"github.com/cubicbyte/dteubot/internal/dteubot/settings"
-	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
+	"github.com/cubicbyte/dteubot/internal/i18n"
+	"github.com/cubicbyte/dteubot/pkg/api"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"strconv"
 )
 
-func handleGroupCommand(u *tgbotapi.Update) error {
-	cManager := utils.GetChatDataManager(u.FromChat().ID)
+func HandleGroupCommand(u *tgbotapi.Update, bot *tgbotapi.BotAPI, lang *i18n.Language, chat *data.Chat, chatRepo data.ChatRepository, groups *groupscache.Cache, api2 api.IApi) error {
+	// Get group from command arguments
+	args := u.Message.CommandArguments()
+	if args != "" {
+		groupId, err := strconv.Atoi(args)
+		if err != nil {
+			// User provided group name instead of id
+			// Check if group exists
+			group, err := groups.GetGroupByName(args)
+			if err != nil {
+				return err
+			}
 
-	// TODO: Handle command arguments: /g <groupId/groupName>
+			if group == nil {
+				// Do not set group if it does not exist
+				goto CREATE_PAGE
+			}
 
-	structures, err := settings.Api.GetStructures()
+			groupId = group.Id
+		}
+
+		// Set chat group
+		chat.GroupId = groupId
+
+		// Update chat
+		err = chatRepo.Update(chat)
+		if err != nil {
+			return err
+		}
+
+		// Create settings page
+		page, err := pages.CreateSettingsPage(lang, chat, chatRepo, groups)
+		return sendPage(page, err, u, bot)
+	}
+
+CREATE_PAGE:
+	structures, err := api2.GetStructures()
 	if err != nil {
 		return err
 	}
 
 	var page *pages.Page
 	if len(structures) == 1 {
-		page, err = pages.CreateFacultiesListPage(cManager, structures[0].Id)
+		page, err = pages.CreateFacultiesListPage(lang, structures[0].Id, api2)
 	} else {
-		page, err = pages.CreateStructuresListPage(cManager)
-	}
-	if err != nil {
-		return err
+		page, err = pages.CreateStructuresListPage(lang, api2)
 	}
 
-	_, err = settings.Bot.Send(page.CreateMessage(cManager.ChatId))
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return sendPage(page, err, u, bot)
 }

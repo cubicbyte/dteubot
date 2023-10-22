@@ -20,24 +20,24 @@
  * SOFTWARE.
  */
 
-package settings
+package buttons
 
 import (
-	"github.com/cubicbyte/dteubot/internal/data"
-	"github.com/cubicbyte/dteubot/internal/dteubot/groupscache"
-	"github.com/cubicbyte/dteubot/internal/dteubot/teachers"
-	"github.com/cubicbyte/dteubot/internal/i18n"
-	"github.com/cubicbyte/dteubot/pkg/api/cachedapi"
+	"github.com/cubicbyte/dteubot/internal/dteubot/pages"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"time"
 )
 
-var (
-	Bot          *tgbotapi.BotAPI
-	Api          *cachedapi.CachedApi
-	Db           *data.Database
-	Languages    map[string]i18n.Language
-	GroupsCache  *groupscache.Cache
-	TeachersList *teachers.TeachersList
-	Location     *time.Location
-)
+// editPage edits the message with the given page.
+func editPage(page *pages.Page, err error, u *tgbotapi.Update, bot *tgbotapi.BotAPI) error {
+	if err != nil {
+		return err
+	}
+
+	conf := page.CreateEditMessage(u.CallbackQuery.Message.Chat.ID, u.CallbackQuery.Message.MessageID)
+	_, err = bot.Send(conf)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

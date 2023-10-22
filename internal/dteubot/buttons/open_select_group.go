@@ -24,33 +24,23 @@ package buttons
 
 import (
 	"github.com/cubicbyte/dteubot/internal/dteubot/pages"
-	"github.com/cubicbyte/dteubot/internal/dteubot/settings"
-	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
+	"github.com/cubicbyte/dteubot/internal/i18n"
+	"github.com/cubicbyte/dteubot/pkg/api"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
-func HandleOpenSelectGroupButton(u *tgbotapi.Update) error {
-	cManager := utils.GetChatDataManager(u.FromChat().ID)
-
-	structures, err := settings.Api.GetStructures()
+func HandleOpenSelectGroupButton(u *tgbotapi.Update, bot *tgbotapi.BotAPI, lang *i18n.Language, api2 api.IApi) error {
+	structures, err := api2.GetStructures()
 	if err != nil {
 		return err
 	}
 
 	var page *pages.Page
 	if len(structures) == 1 {
-		page, err = pages.CreateFacultiesListPage(cManager, structures[0].Id)
+		page, err = pages.CreateFacultiesListPage(lang, structures[0].Id, api2)
 	} else {
-		page, err = pages.CreateStructuresListPage(cManager)
-	}
-	if err != nil {
-		return err
+		page, err = pages.CreateStructuresListPage(lang, api2)
 	}
 
-	_, err = settings.Bot.Send(EditMessageRequest(page, u.CallbackQuery))
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return editPage(page, err, u, bot)
 }

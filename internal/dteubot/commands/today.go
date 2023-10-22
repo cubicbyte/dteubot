@@ -23,26 +23,17 @@
 package commands
 
 import (
+	"github.com/cubicbyte/dteubot/internal/data"
 	"github.com/cubicbyte/dteubot/internal/dteubot/pages"
-	"github.com/cubicbyte/dteubot/internal/dteubot/settings"
-	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
+	"github.com/cubicbyte/dteubot/internal/dteubot/teachers"
+	"github.com/cubicbyte/dteubot/internal/i18n"
+	"github.com/cubicbyte/dteubot/pkg/api"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"time"
 )
 
-func handleTodayCommand(u *tgbotapi.Update) error {
-	cManager := utils.GetChatDataManager(u.FromChat().ID)
-
-	today := time.Now().In(settings.Location).Format("2006-01-02")
-	page, err := pages.CreateSchedulePage(cManager, today)
-	if err != nil {
-		return err
-	}
-
-	_, err = settings.Bot.Send(page.CreateMessage(cManager.ChatId))
-	if err != nil {
-		return err
-	}
-
-	return nil
+func HandleTodayCommand(u *tgbotapi.Update, bot *tgbotapi.BotAPI, lang *i18n.Language, chat *data.Chat, api2 api.IApi, teachersList *teachers.TeachersList) error {
+	today := time.Now().Format("2006-01-02")
+	page, err := pages.CreateSchedulePage(lang, chat.GroupId, today, api2, teachersList)
+	return sendPage(page, err, u, bot)
 }

@@ -24,47 +24,37 @@ package pages
 
 import (
 	"github.com/cubicbyte/dteubot/internal/data"
-	"github.com/cubicbyte/dteubot/internal/dteubot/settings"
+	"github.com/cubicbyte/dteubot/internal/dteubot/groupscache"
 	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
+	"github.com/cubicbyte/dteubot/internal/i18n"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/sirkon/go-format/v2"
 	"strconv"
 )
 
-func CreateSettingsPage(cm *data.ChatDataManager) (*Page, error) {
-
-	chatData, err := cm.GetChatData()
-	if err != nil {
-		return nil, err
-	}
-
-	lang, err := utils.GetChatLang(chatData)
-	if err != nil {
-		return nil, err
-	}
-
+func CreateSettingsPage(lang *i18n.Language, chat *data.Chat, repo data.ChatRepository, groups *groupscache.Cache) (*Page, error) {
 	// Mark settings as seen
-	if !chatData.SeenSettings {
-		chatData.SeenSettings = true
-		if err := cm.UpdateChatData(chatData); err != nil {
+	if !chat.SeenSettings {
+		chat.SeenSettings = true
+		if err := repo.Update(chat); err != nil {
 			return nil, err
 		}
 	}
 
 	// Get group name
 	var groupName string
-	if chatData.GroupId == -1 {
+	if chat.GroupId == -1 {
 		groupName = lang.Text.NotSelected
 	} else {
-		group, err := settings.GroupsCache.GetGroup(chatData.GroupId)
+		group, err := groups.GetGroupById(chat.GroupId)
 		if err != nil {
 			if group == nil {
 				return nil, err
 			}
-			log.Warningf("Error getting %d group name: %s", chatData.GroupId, err)
+			log.Warningf("Error getting %d group name: %s", chat.GroupId, err)
 		}
 		if group == nil {
-			groupId := utils.EscapeText(tgbotapi.ModeMarkdownV2, strconv.Itoa(chatData.GroupId))
+			groupId := utils.EscapeText(tgbotapi.ModeMarkdownV2, strconv.Itoa(chat.GroupId))
 			groupName = format.Formatp(lang.Text.UnknownGroupName, groupId)
 		} else {
 			groupName = utils.EscapeText(tgbotapi.ModeMarkdownV2, group.Name)
@@ -77,17 +67,17 @@ func CreateSettingsPage(cm *data.ChatDataManager) (*Page, error) {
 		notif1mNextState       string
 		notifNextPartNextState string
 	)
-	if chatData.ClassesNotification15m {
+	if chat.ClassesNotification15m {
 		notif15mNextState = "0"
 	} else {
 		notif15mNextState = "1"
 	}
-	if chatData.ClassesNotification1m {
+	if chat.ClassesNotification1m {
 		notif1mNextState = "0"
 	} else {
 		notif1mNextState = "1"
 	}
-	if chatData.ClassesNotificationNextPart {
+	if chat.ClassesNotificationNextPart {
 		notifNextPartNextState = "0"
 	} else {
 		notifNextPartNextState = "1"
@@ -108,7 +98,7 @@ func CreateSettingsPage(cm *data.ChatDataManager) (*Page, error) {
 				tgbotapi.NewInlineKeyboardButtonData(
 					format.Formatp(
 						lang.Button.SettingClNotif15m,
-						utils.GetSettingIcon(chatData.ClassesNotification15m),
+						utils.GetSettingIcon(chat.ClassesNotification15m),
 					),
 					"set.cl_notif#time=15m&state="+notif15mNextState,
 				),
@@ -117,7 +107,7 @@ func CreateSettingsPage(cm *data.ChatDataManager) (*Page, error) {
 				tgbotapi.NewInlineKeyboardButtonData(
 					format.Formatp(
 						lang.Button.SettingClNotif1m,
-						utils.GetSettingIcon(chatData.ClassesNotification1m),
+						utils.GetSettingIcon(chat.ClassesNotification1m),
 					),
 					"set.cl_notif#time=1m&state="+notif1mNextState,
 				),
@@ -126,7 +116,7 @@ func CreateSettingsPage(cm *data.ChatDataManager) (*Page, error) {
 				tgbotapi.NewInlineKeyboardButtonData(
 					format.Formatp(
 						lang.Button.SettingClNotifNextPart,
-						utils.GetSettingIcon(chatData.ClassesNotificationNextPart),
+						utils.GetSettingIcon(chat.ClassesNotificationNextPart),
 					),
 					"set.cl_notif_next_part#state="+notifNextPartNextState,
 				),

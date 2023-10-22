@@ -23,20 +23,14 @@
 package pages
 
 import (
-	"github.com/cubicbyte/dteubot/internal/data"
-	"github.com/cubicbyte/dteubot/internal/dteubot/settings"
-	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
+	"github.com/cubicbyte/dteubot/internal/i18n"
+	"github.com/cubicbyte/dteubot/pkg/api"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"strconv"
 )
 
-func CreateStructuresListPage(cm *data.ChatDataManager) (*Page, error) {
-	lang, err := utils.GetLang(cm)
-	if err != nil {
-		return nil, err
-	}
-
-	structures, err := settings.Api.GetStructures()
+func CreateStructuresListPage(lang *i18n.Language, api api.IApi) (*Page, error) {
+	structures, err := api.GetStructures()
 	if err != nil {
 		return nil, err
 	}

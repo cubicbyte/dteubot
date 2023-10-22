@@ -23,9 +23,9 @@
 package pages
 
 import (
-	"github.com/cubicbyte/dteubot/internal/data"
-	"github.com/cubicbyte/dteubot/internal/dteubot/settings"
 	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
+	"github.com/cubicbyte/dteubot/internal/i18n"
+	"github.com/cubicbyte/dteubot/pkg/api"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/sirkon/go-format/v2"
 	"math/rand"
@@ -33,29 +33,19 @@ import (
 	"time"
 )
 
-func CreateLeftPage(cm *data.ChatDataManager, backButton string) (*Page, error) {
-
-	chatData, err := cm.GetChatData()
-	if err != nil {
-		return nil, err
-	}
-
-	lang, err := utils.GetChatLang(chatData)
-	if err != nil {
-		return nil, err
-	}
-
+func CreateLeftPage(lang *i18n.Language, groupId int, backButton string, api2 api.IApi) (*Page, error) {
 	// Get time left
-	status, err := utils.GetCallsStatus(chatData.GroupId, time.Now().In(settings.Location))
+	status, err := utils.GetCallsStatus(groupId, time.Now(), api2)
 	if err != nil {
 		return nil, err
 	}
 
+	// Create page text
 	var pageText string
 	if status == nil {
 		pageText = format.Formatp(lang.Page.LeftUnknown, utils.DaysScanLimit)
 	} else {
-		timeLeft := status.Time.Sub(time.Now().In(settings.Location))
+		timeLeft := status.Time.Sub(time.Now())
 		timeLeftStr := utils.FormatDuration(timeLeft, 2, lang)
 
 		switch status.Status {
@@ -68,7 +58,7 @@ func CreateLeftPage(cm *data.ChatDataManager, backButton string) (*Page, error) 
 		}
 	}
 
-	rand_ := strconv.Itoa(rand.Intn(1e6))
+	rand_ := strconv.Itoa(rand.Intn(1e6)) // Salt to prevent "Message is not modified" error
 	page := Page{
 		Text: pageText,
 		InlineKeyboard: tgbotapi.NewInlineKeyboardMarkup(

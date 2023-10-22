@@ -30,9 +30,9 @@ import (
 	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
 	"github.com/cubicbyte/dteubot/internal/i18n"
 	api2 "github.com/cubicbyte/dteubot/pkg/api"
-	"github.com/cubicbyte/dteubot/pkg/api/cachedapi"
 	"github.com/go-co-op/gocron"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/jmoiron/sqlx"
 	"github.com/op/go-logging"
 	"github.com/sirkon/go-format/v2"
 	"net/url"
@@ -52,8 +52,8 @@ var (
 )
 
 var (
-	db        *data.Database
-	api       *cachedapi.CachedApi
+	db        *sqlx.DB
+	api       api2.IApi
 	bot       *tgbotapi.BotAPI
 	langs     map[string]i18n.Language
 	calls     api2.CallSchedule
@@ -69,7 +69,7 @@ type chatInfo struct {
 }
 
 // Setup initializes notifier and starts cron Scheduler
-func Setup(db2 *data.Database, api3 *cachedapi.CachedApi, bot2 *tgbotapi.BotAPI, langs2 map[string]i18n.Language) error {
+func Setup(db2 *sqlx.DB, api3 api2.IApi, bot2 *tgbotapi.BotAPI, langs2 map[string]i18n.Language) error {
 	log.Info("Setting up notifier")
 
 	db = db2
@@ -152,7 +152,7 @@ func SendNotifications(time2 string) error {
 				log.Infof("Bot blocked in chat %d", chat.ChatId)
 				if err = MakeChatUnavailable(chat.ChatId); err != nil {
 					log.Errorf("Error making chat %d unavailable: %s", chat.ChatId, err)
-					errorhandler.SendErrorToTelegram(err)
+					errorhandler.SendErrorToTelegram(err, bot)
 				}
 				continue
 			}
@@ -166,7 +166,7 @@ func SendNotifications(time2 string) error {
 
 			// Unknown error
 			log.Errorf("Error getting group schedule day for chat %d: %s", chat.ChatId, err)
-			errorhandler.SendErrorToTelegram(err)
+			errorhandler.SendErrorToTelegram(err, bot)
 			continue
 		}
 
@@ -174,7 +174,7 @@ func SendNotifications(time2 string) error {
 		haveClasses, err := IsGroupHaveClasses(schedule, curTime)
 		if err != nil {
 			log.Errorf("Error checking if group have classes for chat %d: %s", chat.ChatId, err)
-			errorhandler.SendErrorToTelegram(err)
+			errorhandler.SendErrorToTelegram(err, bot)
 			continue
 		}
 
@@ -185,7 +185,7 @@ func SendNotifications(time2 string) error {
 			err = SendNotification(chat.ChatId, chat.LangCode, schedule, time2, "start")
 			if err != nil {
 				log.Warningf("Error sending notification to chat %d: %s", chat.ChatId, err)
-				errorhandler.SendErrorToTelegram(err)
+				errorhandler.SendErrorToTelegram(err, bot)
 				continue
 			}
 
@@ -201,7 +201,7 @@ func SendNotifications(time2 string) error {
 		haveNextClassesPart, err := IsGroupHaveNextClassesPart(schedule, curTime)
 		if err != nil {
 			log.Errorf("Error checking if group have next classes part for chat %d: %s", chat.ChatId, err)
-			errorhandler.SendErrorToTelegram(err)
+			errorhandler.SendErrorToTelegram(err, bot)
 			continue
 		}
 
@@ -212,7 +212,7 @@ func SendNotifications(time2 string) error {
 			err = SendNotification(chat.ChatId, chat.LangCode, schedule, time2, "next_part")
 			if err != nil {
 				log.Warningf("Error sending notification to chat %d: %s", chat.ChatId, err)
-				errorhandler.SendErrorToTelegram(err)
+				errorhandler.SendErrorToTelegram(err, bot)
 				continue
 			}
 
@@ -293,9 +293,9 @@ func GetSubscribedChats(time string) ([]chatInfo, error) {
 
 	switch time {
 	case "15m":
-		err = db.Db.Select(&chats, getChats15mQuery)
+		err = db.Select(&chats, getChats15mQuery)
 	case "1m":
-		err = db.Db.Select(&chats, getChats1mQuery)
+		err = db.Select(&chats, getChats1mQuery)
 	default:
 		panic("invalid time: " + time)
 	}
@@ -427,14 +427,15 @@ func isLessonIsAboutToStart(lesson *api2.TimeTableLesson, time2 time.Time) (bool
 // MakeChatUnavailable makes chat unavailable if user blocked bot.
 // It is needed to prevent sending notifications to blocked users.
 func MakeChatUnavailable(chatId int64) error {
-	cm := data.ChatDataManager{ChatId: chatId, Database: db}
-	chatData, err := cm.GetChatData()
+	repo := data.NewPostgresChatRepository(db)
+
+	chat, err := repo.GetById(chatId)
 	if err != nil {
 		return err
 	}
 
-	chatData.Accessible = false
-	err = cm.UpdateChatData(chatData)
+	chat.Accessible = false
+	err = repo.Update(chat)
 	if err != nil {
 		return err
 	}

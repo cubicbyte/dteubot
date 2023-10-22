@@ -23,20 +23,13 @@
 package pages
 
 import (
-	"github.com/cubicbyte/dteubot/internal/data"
-	"github.com/cubicbyte/dteubot/internal/dteubot/settings"
-	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
+	"github.com/cubicbyte/dteubot/internal/i18n"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/sirkon/go-format/v2"
 )
 
-func CreateLanguageSelectionPage(cm *data.ChatDataManager, backButton string) (*Page, error) {
-	lang, err := utils.GetLang(cm)
-	if err != nil {
-		return nil, err
-	}
-
-	langsCount := len(settings.Languages)
+func CreateLanguageSelectionPage(lang *i18n.Language, langs map[string]i18n.Language, backButton string) (*Page, error) {
+	langsCount := len(langs)
 
 	buttons := make([][]tgbotapi.InlineKeyboardButton, langsCount+1)
 	buttons[langsCount] = tgbotapi.NewInlineKeyboardRow(
@@ -45,7 +38,7 @@ func CreateLanguageSelectionPage(cm *data.ChatDataManager, backButton string) (*
 	)
 
 	i := 0
-	for code, lang := range settings.Languages {
+	for code, lang := range langs {
 		query := "select.lang#lang=" + code
 		buttons[i] = tgbotapi.NewInlineKeyboardRow(
 			tgbotapi.NewInlineKeyboardButtonData(lang.LangName, query),

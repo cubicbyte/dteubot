@@ -24,100 +24,70 @@ package buttons
 
 import (
 	"errors"
+	"github.com/cubicbyte/dteubot/internal/data"
+	"github.com/cubicbyte/dteubot/internal/dteubot/groupscache"
 	"github.com/cubicbyte/dteubot/internal/dteubot/pages"
-	"github.com/cubicbyte/dteubot/internal/dteubot/settings"
 	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
+	"github.com/cubicbyte/dteubot/internal/i18n"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
-func HandleSetClassesNotificationsButton(u *tgbotapi.Update) error {
-	// Get state & time from button data
+func HandleSetClassesNotificationsButton(u *tgbotapi.Update, bot *tgbotapi.BotAPI, lang *i18n.Language, chat *data.Chat, chatRepo data.ChatRepository, groups *groupscache.Cache) error {
 	button := utils.ParseButtonData(u.CallbackQuery.Data)
 
+	// Get state & time from button data
 	state, ok := button.Params["state"]
 	if !ok {
-		return errors.New("no state in button data")
+		return errors.New("notif param not found")
 	}
-	time, ok := button.Params["time"]
+	time2, ok := button.Params["time"]
 	if !ok {
-		return errors.New("no time in button data")
+		return errors.New("time param not found")
 	}
 
 	// Update chat classes notifications settings
-	cManager := utils.GetChatDataManager(u.FromChat().ID)
-
-	chatData, err := cManager.GetChatData()
-	if err != nil {
-		return err
-	}
-
-	switch time {
+	switch time2 {
 	case "15m":
-		chatData.ClassesNotification15m = state == "1"
+		chat.ClassesNotification15m = state == "1"
 	case "1m":
-		chatData.ClassesNotification1m = state == "1"
+		chat.ClassesNotification1m = state == "1"
 	default:
 		return errors.New("invalid time in button data")
 	}
 
-	err = cManager.UpdateChatData(chatData)
+	err := chatRepo.Update(chat)
 	if err != nil {
 		return err
 	}
 
 	// Update page
-	page, err := pages.CreateSettingsPage(cManager)
-	if err != nil {
-		return err
-	}
-
-	_, err = settings.Bot.Send(EditMessageRequest(page, u.CallbackQuery))
-	if err != nil {
-		return err
-	}
-
-	return nil
+	page, err := pages.CreateSettingsPage(lang, chat, chatRepo, groups)
+	return editPage(page, err, u, bot)
 }
 
-func HandleSetClassesNotificationsNextPartButton(u *tgbotapi.Update) error {
-	// Get state & time from button data
+func HandleSetClassesNotificationsNextPartButton(u *tgbotapi.Update, bot *tgbotapi.BotAPI, lang *i18n.Language, chat *data.Chat, chatRepo data.ChatRepository, groups *groupscache.Cache) error {
 	button := utils.ParseButtonData(u.CallbackQuery.Data)
 
+	// Get state from button data
 	state, ok := button.Params["state"]
 	if !ok {
-		return errors.New("no state in button data")
+		return errors.New("state param not found")
 	}
 
 	// Update chat classes notifications settings
-	cManager := utils.GetChatDataManager(u.FromChat().ID)
-
-	chatData, err := cManager.GetChatData()
-	if err != nil {
-		return err
-	}
-
-	chatData.ClassesNotificationNextPart = state == "1"
+	chat.ClassesNotificationNextPart = state == "1"
 
 	// Also set 15m notification to true if notifications is disabled
-	if chatData.ClassesNotificationNextPart && (!chatData.ClassesNotification15m && !chatData.ClassesNotification1m) {
-		chatData.ClassesNotification1m = true
+	if chat.ClassesNotificationNextPart && (!chat.ClassesNotification15m && !chat.ClassesNotification1m) {
+		chat.ClassesNotification1m = true
 	}
 
-	err = cManager.UpdateChatData(chatData)
+	err := chatRepo.Update(chat)
 	if err != nil {
 		return err
 	}
 
 	// Update page
-	page, err := pages.CreateSettingsPage(cManager)
-	if err != nil {
-		return err
-	}
-
-	_, err = settings.Bot.Send(EditMessageRequest(page, u.CallbackQuery))
-	if err != nil {
-		return err
-	}
-
-	return nil
+	page, err := pages.CreateSettingsPage(lang, chat, chatRepo, groups)
+	return editPage(page, err, u, bot)
 }

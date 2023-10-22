@@ -30,18 +30,21 @@ package groupscache
 
 import (
 	"encoding/csv"
-	"github.com/cubicbyte/dteubot/pkg/api/cachedapi"
+	"github.com/cubicbyte/dteubot/pkg/api"
 	"github.com/op/go-logging"
 	"io"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 )
 
 var log = logging.MustGetLogger("GroupsCache")
 
+// TTL is time to live for group in cache
 const TTL = 60 * 60 * 24 // 1 day
 
+// Group represents group
 type Group struct {
 	Id        int
 	Name      string
@@ -50,21 +53,23 @@ type Group struct {
 	Updated   int64
 }
 
+// Cache provides cache for groups
 type Cache struct {
 	File   string
 	groups map[int]Group
-	api    *cachedapi.CachedApi
+	api    api.IApi
 }
 
 // New creates new cache instance
-func New(file string, apiInstance *cachedapi.CachedApi) *Cache {
+func New(file string, api2 api.IApi) *Cache {
 	return &Cache{
 		File:   file,
 		groups: make(map[int]Group),
-		api:    apiInstance,
+		api:    api2,
 	}
 }
 
+// AddGroups adds groups to cache
 func (c *Cache) AddGroups(groups []Group) error {
 	for _, group := range groups {
 		c.groups[group.Id] = group
@@ -73,13 +78,15 @@ func (c *Cache) AddGroups(groups []Group) error {
 	return c.Save()
 }
 
+// AddGroup adds group to cache
 func (c *Cache) AddGroup(group Group) error {
 	c.groups[group.Id] = group
 
 	return c.Save()
 }
 
-func (c *Cache) GetGroup(id int) (*Group, error) {
+// GetGroupById returns group by id
+func (c *Cache) GetGroupById(id int) (*Group, error) {
 	log.Debugf("Getting group %d\n", id)
 
 	group, ok := c.groups[id]
@@ -106,6 +113,36 @@ func (c *Cache) GetGroup(id int) (*Group, error) {
 	return &group, nil
 }
 
+// GetGroupByName returns group by name
+func (c *Cache) GetGroupByName(name string) (*Group, error) {
+	log.Debugf("Getting group %s\n", name)
+
+	name = strings.ToLower(name)
+
+	for _, group := range c.groups {
+		groupName := strings.ToLower(group.Name)
+
+		if groupName == name {
+			// Check if group is outdated
+			timestamp := time.Now().Unix()
+			if timestamp-group.Updated > TTL {
+				// Update group
+				newGroup, err := c.updateGroup(group)
+				if err != nil {
+					return nil, err
+				}
+
+				return newGroup, nil
+			}
+
+			return &group, nil
+		}
+	}
+
+	return nil, nil
+}
+
+// GetGroups returns all groups
 func (c *Cache) updateGroup(group Group) (*Group, error) {
 	log.Debugf("Updating group %d\n", group.Id)
 

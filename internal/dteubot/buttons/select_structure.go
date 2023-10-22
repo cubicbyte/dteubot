@@ -25,18 +25,20 @@ package buttons
 import (
 	"errors"
 	"github.com/cubicbyte/dteubot/internal/dteubot/pages"
-	"github.com/cubicbyte/dteubot/internal/dteubot/settings"
 	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
+	"github.com/cubicbyte/dteubot/internal/i18n"
+	"github.com/cubicbyte/dteubot/pkg/api"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"strconv"
 )
 
-func HandleSelectStructureButton(u *tgbotapi.Update) error {
-	// Get structureId from button data
+func HandleSelectStructureButton(u *tgbotapi.Update, bot *tgbotapi.BotAPI, lang *i18n.Language, api2 api.IApi) error {
 	button := utils.ParseButtonData(u.CallbackQuery.Data)
+
+	// Get structure id from button params
 	structureId, ok := button.Params["structureId"]
 	if !ok {
-		return errors.New("no structureId in button data")
+		return errors.New("structureId param not found")
 	}
 
 	structId, err := strconv.Atoi(structureId)
@@ -44,17 +46,7 @@ func HandleSelectStructureButton(u *tgbotapi.Update) error {
 		return err
 	}
 
-	// Create page
-	cManager := utils.GetChatDataManager(u.FromChat().ID)
-	page, err := pages.CreateFacultiesListPage(cManager, structId)
-	if err != nil {
-		return err
-	}
-
-	_, err = settings.Bot.Send(EditMessageRequest(page, u.CallbackQuery))
-	if err != nil {
-		return err
-	}
-
-	return nil
+	// Open faculties list page
+	page, err := pages.CreateFacultiesListPage(lang, structId, api2)
+	return editPage(page, err, u, bot)
 }

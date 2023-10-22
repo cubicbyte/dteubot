@@ -23,44 +23,35 @@
 package pages
 
 import (
-	"github.com/cubicbyte/dteubot/internal/data"
-	"github.com/cubicbyte/dteubot/internal/dteubot/settings"
+	"github.com/cubicbyte/dteubot/internal/dteubot/groupscache"
 	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
+	"github.com/cubicbyte/dteubot/internal/i18n"
+	"github.com/cubicbyte/dteubot/pkg/api"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/sirkon/go-format/v2"
 	"strconv"
 )
 
-func CreateStudentsListPage(cm *data.ChatDataManager) (*Page, error) {
-	chatData, err := cm.GetChatData()
-	if err != nil {
-		return nil, err
-	}
-
-	lang, err := utils.GetChatLang(chatData)
-	if err != nil {
-		return nil, err
-	}
-
-	students, err := settings.Api.GetGroupStudents(chatData.GroupId)
+func CreateStudentsListPage(lang *i18n.Language, groupId int, groups *groupscache.Cache, api api.IApi) (*Page, error) {
+	students, err := api.GetGroupStudents(groupId)
 	if err != nil {
 		return nil, err
 	}
 
 	// Get group name
 	var groupName string
-	if chatData.GroupId == -1 {
+	if groupId == -1 {
 		groupName = lang.Text.NotSelected
 	} else {
-		group, err := settings.GroupsCache.GetGroup(chatData.GroupId)
+		group, err := groups.GetGroupById(groupId)
 		if err != nil {
 			if group == nil {
 				return nil, err
 			}
-			log.Warningf("Error getting %d group name: %s", chatData.GroupId, err)
+			log.Warningf("Error getting %d group name: %s", groupId, err)
 		}
 		if group == nil {
-			groupId := utils.EscapeText(tgbotapi.ModeMarkdownV2, strconv.Itoa(chatData.GroupId))
+			groupId := utils.EscapeText(tgbotapi.ModeMarkdownV2, strconv.Itoa(groupId))
 			groupName = format.Formatp(lang.Text.UnknownGroupName, groupId)
 		} else {
 			groupName = utils.EscapeText(tgbotapi.ModeMarkdownV2, group.Name)

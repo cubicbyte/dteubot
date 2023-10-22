@@ -63,6 +63,7 @@ type CachedApi struct {
 	getScheduleStmt *sql.Stmt
 }
 
+// CachedDate is a cached schedule date
 type CachedDate struct {
 	GroupId int    `db:"group_id"`
 	Date    string `db:"date"`
@@ -70,6 +71,7 @@ type CachedDate struct {
 	Updated int64  `db:"updated"`
 }
 
+// New creates a new CachedApi instance
 func New(url string, leveldbPath string, cachePath string, expires time.Duration, timeout time.Duration) (*CachedApi, error) {
 	cache, err := leveldbcache.New(leveldbPath)
 	if err != nil {

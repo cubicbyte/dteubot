@@ -24,7 +24,7 @@ package statistic
 
 import (
 	_ "embed"
-	"github.com/cubicbyte/dteubot/internal/dteubot/settings"
+	"github.com/jmoiron/sqlx"
 	"github.com/op/go-logging"
 )
 
@@ -38,7 +38,7 @@ var (
 var log = logging.MustGetLogger("Statistic")
 
 // LogButtonClick logs a button click to the database for statistic purposes.
-func LogButtonClick(chatId int64, userId int64, messageId int, button string) error {
+func LogButtonClick(db *sqlx.DB, chatId int64, userId int64, messageId int, button string) error {
 	log.Debug("Logging button click")
 
 	// Truncate button to 64 characters
@@ -46,12 +46,12 @@ func LogButtonClick(chatId int64, userId int64, messageId int, button string) er
 		button = button[:64]
 	}
 
-	_, err := settings.Db.Db.Exec(logButtonClickQuery, chatId, userId, messageId, button)
+	_, err := db.Exec(logButtonClickQuery, chatId, userId, messageId, button)
 	return err
 }
 
 // LogCommand logs a bot command to the database for statistic purposes.
-func LogCommand(chatId int64, userId int64, messageId int, command string) error {
+func LogCommand(db *sqlx.DB, chatId int64, userId int64, messageId int, command string) error {
 	log.Debug("Logging command")
 
 	// Truncate command to 64 characters
@@ -59,6 +59,6 @@ func LogCommand(chatId int64, userId int64, messageId int, command string) error
 		command = command[:64]
 	}
 
-	_, err := settings.Db.Db.Exec(logCommandQuery, chatId, userId, messageId, command)
+	_, err := db.Exec(logCommandQuery, chatId, userId, messageId, command)
 	return err
 }

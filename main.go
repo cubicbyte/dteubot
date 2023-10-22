@@ -26,7 +26,7 @@ import (
 	"fmt"
 	"github.com/cubicbyte/dteubot/internal/config"
 	"github.com/cubicbyte/dteubot/internal/dteubot"
-	logging_ "github.com/cubicbyte/dteubot/internal/logging"
+	"github.com/cubicbyte/dteubot/internal/logging"
 	"os"
 )
 
@@ -44,7 +44,7 @@ func main() {
 	}
 
 	// Initialize logging
-	if err := logging_.Init(); err != nil {
+	if err := logging.Init(); err != nil {
 		fmt.Printf("Error initializing logging: %s\n", err)
 		os.Exit(1)
 	}

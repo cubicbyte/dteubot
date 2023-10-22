@@ -23,39 +23,22 @@
 package buttons
 
 import (
+	"github.com/cubicbyte/dteubot/internal/data"
 	"github.com/cubicbyte/dteubot/internal/dteubot/pages"
-	"github.com/cubicbyte/dteubot/internal/dteubot/settings"
-	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
+	"github.com/cubicbyte/dteubot/internal/i18n"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
-func HandleUnsupportedButton(u *tgbotapi.Update) error {
-	cManager := utils.GetChatDataManager(u.FromChat().ID)
-
-	lang, err := utils.GetLang(cManager)
-	if err != nil {
-		return err
-	}
-
+func HandleUnsupportedButton(u *tgbotapi.Update, bot *tgbotapi.BotAPI, lang *i18n.Language, user *data.User) error {
 	// Send alert
 	alert := tgbotapi.NewCallbackWithAlert(u.CallbackQuery.ID, lang.Alert.CallbackQueryUnsupported)
-	_, err = settings.Bot.Request(alert)
+	_, err := bot.Request(alert)
 	if err != nil {
 		println("test")
 		return err
 	}
 
 	// Move to menu page
-	uManager := utils.GetUserDataManager(u.SentFrom().ID)
-	page, err := pages.CreateMenuPage(cManager, uManager)
-	if err != nil {
-		return err
-	}
-
-	_, err = settings.Bot.Send(EditMessageRequest(page, u.CallbackQuery))
-	if err != nil {
-		return err
-	}
-
-	return nil
+	page, err := pages.CreateMenuPage(lang, user)
+	return editPage(page, err, u, bot)
 }

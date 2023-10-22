@@ -23,10 +23,9 @@
 package pages
 
 import (
-	"github.com/cubicbyte/dteubot/internal/data"
 	"github.com/cubicbyte/dteubot/internal/dteubot/groupscache"
-	"github.com/cubicbyte/dteubot/internal/dteubot/settings"
-	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
+	"github.com/cubicbyte/dteubot/internal/i18n"
+	"github.com/cubicbyte/dteubot/pkg/api"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"strconv"
 	"time"
@@ -34,21 +33,16 @@ import (
 
 const rowSize = 3
 
-func CreateGroupsListPage(cm *data.ChatDataManager, facultyId int, course int, structureId int) (*Page, error) {
-	lang, err := utils.GetLang(cm)
-	if err != nil {
-		return nil, err
-	}
-
-	groups, err := settings.Api.GetGroups(facultyId, course)
+func CreateGroupsListPage(lang *i18n.Language, facultyId int, course int, structureId int, api2 api.IApi, groups *groupscache.Cache) (*Page, error) {
+	groupsList, err := api2.GetGroups(facultyId, course)
 	if err != nil {
 		return nil, err
 	}
 
 	// Save groups to cache
-	groups_ := make([]groupscache.Group, len(groups))
+	groups_ := make([]groupscache.Group, len(groupsList))
 	now := time.Now().Unix()
-	for i, group := range groups {
+	for i, group := range groupsList {
 		groups_[i] = groupscache.Group{
 			Id:        group.Id,
 			Name:      group.Name,
@@ -58,7 +52,7 @@ func CreateGroupsListPage(cm *data.ChatDataManager, facultyId int, course int, s
 		}
 	}
 
-	err = settings.GroupsCache.AddGroups(groups_)
+	err = groups.AddGroups(groups_)
 	if err != nil {
 		return nil, err
 	}
@@ -66,8 +60,8 @@ func CreateGroupsListPage(cm *data.ChatDataManager, facultyId int, course int, s
 	// TODO: Move row generation logic to utils
 
 	// Create back button
-	rowsCount := len(groups)/rowSize + 1
-	if len(groups)%rowSize != 0 {
+	rowsCount := len(groupsList)/rowSize + 1
+	if len(groupsList)%rowSize != 0 {
 		rowsCount++
 	}
 	buttons := make([][]tgbotapi.InlineKeyboardButton, rowsCount)
@@ -78,13 +72,13 @@ func CreateGroupsListPage(cm *data.ChatDataManager, facultyId int, course int, s
 	)
 
 	// Create group buttons
-	lastRow := make([]tgbotapi.InlineKeyboardButton, min(rowSize, len(groups)))
-	for i, group := range groups {
+	lastRow := make([]tgbotapi.InlineKeyboardButton, min(rowSize, len(groupsList)))
+	for i, group := range groupsList {
 		query := "select.schedule.group#groupId=" + strconv.Itoa(group.Id)
 		lastRow[i%rowSize] = tgbotapi.NewInlineKeyboardButtonData(group.Name, query)
 		if i%rowSize == rowSize-1 {
 			buttons[i/rowSize+1] = lastRow
-			lastRow = make([]tgbotapi.InlineKeyboardButton, min(rowSize, len(groups)-i-1))
+			lastRow = make([]tgbotapi.InlineKeyboardButton, min(rowSize, len(groupsList)-i-1))
 		}
 	}
 	if len(lastRow) > 0 {

@@ -23,11 +23,10 @@
 package pages
 
 import (
-	"github.com/cubicbyte/dteubot/internal/data"
-	"github.com/cubicbyte/dteubot/internal/dteubot/settings"
+	"github.com/cubicbyte/dteubot/internal/dteubot/teachers"
 	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
 	"github.com/cubicbyte/dteubot/internal/i18n"
-	"github.com/cubicbyte/dteubot/pkg/api"
+	api2 "github.com/cubicbyte/dteubot/pkg/api"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/op/go-logging"
 	"github.com/sirkon/go-format/v2"
@@ -44,23 +43,13 @@ var log = logging.MustGetLogger("Bot")
 
 const ScheduleDateRange = 14
 
-func CreateSchedulePage(cm *data.ChatDataManager, date string) (*Page, error) {
-	date_, err := api.ParseISODate(date)
+func CreateSchedulePage(lang *i18n.Language, groupId int, date string, api api2.IApi, teachersList *teachers.TeachersList) (*Page, error) {
+	date_, err := api2.ParseISODate(date)
 	if err != nil {
 		return nil, err
 	}
 
-	chatData, err := cm.GetChatData()
-	if err != nil {
-		return nil, err
-	}
-
-	lang, err := utils.GetChatLang(chatData)
-	if err != nil {
-		return nil, err
-	}
-
-	schedule, err := settings.Api.GetGroupScheduleDay(chatData.GroupId, date)
+	day, err := api.GetGroupScheduleDay(groupId, date)
 	if err != nil {
 		return nil, err
 	}
@@ -68,9 +57,17 @@ func CreateSchedulePage(cm *data.ChatDataManager, date string) (*Page, error) {
 	var buttons tgbotapi.InlineKeyboardMarkup
 	var pageText string
 
-	if isNoLessons(schedule) {
+	if isNoLessons(day) {
+		// Get more days if there are no lessons
+		dateStart, dateEnd := api2.GetDateRange(date_, ScheduleDateRange)
+		schedule, err := api.GetGroupSchedule(
+			groupId,
+			dateStart.Format("2006-01-02"),
+			dateEnd.Format("2006-01-02"),
+		)
+
 		// Create empty schedule page
-		skipLeft, skipRight, err := scanEmptyDays(chatData.GroupId, date_)
+		skipLeft, skipRight, err := ScanEmptyDays(schedule, date_)
 		if err != nil {
 			return nil, err
 		}
@@ -87,7 +84,7 @@ func CreateSchedulePage(cm *data.ChatDataManager, date string) (*Page, error) {
 		nextWeekDate := date_.AddDate(0, 0, 7)
 		prevWeekDate := date_.AddDate(0, 0, -7)
 
-		now := time.Now().In(settings.Location)
+		now := time.Now()
 		enableTodayButton := !(nextDayDate.After(now) && now.After(prevDayDate))
 
 		if skipLeft > 1 || skipRight > 1 {
@@ -140,7 +137,7 @@ func CreateSchedulePage(cm *data.ChatDataManager, date string) (*Page, error) {
 		// Create schedule page
 		pageText = getLocalizedDate(lang, date_) + "\n\n"
 
-		for _, lesson := range schedule.Lessons {
+		for _, lesson := range day.Lessons {
 			for _, period := range lesson.Periods {
 				format_ := "`———— ``$timeStart`` ——— ``$timeEnd`` ————`\n`  `*$disciplineShortName*`[$typeStr]`\n`$lessonNumber `$classroom\n`  `$teachersNameFull\n"
 				lessonNumber := strconv.Itoa(lesson.Number)
@@ -151,7 +148,7 @@ func CreateSchedulePage(cm *data.ChatDataManager, date string) (*Page, error) {
 					"typeStr":             utils.EscapeText(tgbotapi.ModeMarkdownV2, period.TypeStr),
 					"lessonNumber":        utils.EscapeText(tgbotapi.ModeMarkdownV2, lessonNumber),
 					"classroom":           utils.EscapeText(tgbotapi.ModeMarkdownV2, period.Classroom),
-					"teachersNameFull":    getTeacher(period.TeachersNameFull),
+					"teachersNameFull":    getTeacher(period.TeachersNameFull, teachersList),
 				})
 			}
 		}
@@ -188,7 +185,7 @@ func CreateSchedulePage(cm *data.ChatDataManager, date string) (*Page, error) {
 		)
 
 		// Add today button if needed
-		if date != time.Now().In(settings.Location).Format("2006-01-02") {
+		if date != time.Now().Format("2006-01-02") {
 			buttons.InlineKeyboard[len(buttons.InlineKeyboard)-1] = append(
 				buttons.InlineKeyboard[len(buttons.InlineKeyboard)-1],
 				tgbotapi.NewInlineKeyboardButtonData(
@@ -199,7 +196,7 @@ func CreateSchedulePage(cm *data.ChatDataManager, date string) (*Page, error) {
 		}
 
 		// Add extra info button if needed
-		if checkExtraText(schedule) {
+		if CheckExtraText(day) {
 			// Add to the start
 			buttons.InlineKeyboard = append(
 				tgbotapi.NewInlineKeyboardMarkup(
@@ -228,7 +225,7 @@ func CreateSchedulePage(cm *data.ChatDataManager, date string) (*Page, error) {
 }
 
 // isNoLessons checks if there are no lessons in the given day
-func isNoLessons(day *api.TimeTableDate) bool {
+func isNoLessons(day *api2.TimeTableDate) bool {
 	for _, lesson := range day.Lessons {
 		for _, period := range lesson.Periods {
 			name := strings.ToLower(period.DisciplineShortName)
@@ -241,19 +238,19 @@ func isNoLessons(day *api.TimeTableDate) bool {
 	return true
 }
 
-func getTeacher(teachersNameFull string) string {
+func getTeacher(teachersNameFull string, teachersList *teachers.TeachersList) string {
 	var teacher string
 
 	// Get first teacher
-	teachers := strings.Split(teachersNameFull, ", ")
-	firstTeacher := teachers[0]
+	teachers2 := strings.Split(teachersNameFull, ", ")
+	firstTeacher := teachers2[0]
 	teacher = firstTeacher
 
 	// Escape markdown
 	teacher = utils.EscapeText(tgbotapi.ModeMarkdownV2, teacher)
 
 	// Get teacher profile link
-	profileLink, ok := settings.TeachersList.GetLink(firstTeacher)
+	profileLink, ok := teachersList.GetLink(firstTeacher)
 	if ok {
 		teacher = "[" + teacher + "](" + profileLink + ")"
 	} else {
@@ -265,14 +262,15 @@ func getTeacher(teachersNameFull string) string {
 	}
 
 	// If there is multiple teachers, return only the first one and add " +n" to the end
-	if len(teachers) > 1 {
-		teacher += " \\+" + strconv.Itoa(len(teachers)-1)
+	if len(teachers2) > 1 {
+		teacher += " \\+" + strconv.Itoa(len(teachers2)-1)
 	}
 
 	return teacher
 }
 
-func checkExtraText(day *api.TimeTableDate) bool {
+// CheckExtraText checks if there is extra text in any lesson of the given day
+func CheckExtraText(day *api2.TimeTableDate) bool {
 	for _, lesson := range day.Lessons {
 		for _, period := range lesson.Periods {
 			if period.ExtraText {
@@ -283,21 +281,14 @@ func checkExtraText(day *api.TimeTableDate) bool {
 	return false
 }
 
-func scanEmptyDays(groupId int, date time.Time) (int, int, error) {
-	dateStart, dateEnd := api.GetDateRange(date, ScheduleDateRange)
-
-	schedule, err := settings.Api.GetGroupSchedule(
-		groupId,
-		dateStart.Format("2006-01-02"),
-		dateEnd.Format("2006-01-02"),
-	)
-
-	skipLeft, err := countNoLessonsDays(&schedule, date, false)
+// ScanEmptyDays scans the days before and after the given date and returns the number of days without lessons
+func ScanEmptyDays(days []api2.TimeTableDate, date time.Time) (int, int, error) {
+	skipLeft, err := CountNoLessonsDays(days, date, false)
 	if err != nil {
 		return 0, 0, err
 	}
 
-	skipRight, err := countNoLessonsDays(&schedule, date, true)
+	skipRight, err := CountNoLessonsDays(days, date, true)
 	if err != nil {
 		return 0, 0, err
 	}
@@ -305,12 +296,13 @@ func scanEmptyDays(groupId int, date time.Time) (int, int, error) {
 	return skipLeft, skipRight, nil
 }
 
-func countNoLessonsDays(days *api.Schedule, date time.Time, directionRight bool) (int, error) {
+// CountNoLessonsDays counts the number of days without lessons
+func CountNoLessonsDays(days []api2.TimeTableDate, date time.Time, directionRight bool) (int, error) {
 	count := 0
 
 	if directionRight {
-		for _, day := range *days {
-			date_, err := api.ParseISODate(day.Date)
+		for _, day := range days {
+			date_, err := api2.ParseISODate(day.Date)
 			if err != nil {
 				return 0, err
 			}
@@ -324,15 +316,15 @@ func countNoLessonsDays(days *api.Schedule, date time.Time, directionRight bool)
 			}
 		}
 	} else {
-		for i := len(*days) - 1; i >= 0; i-- {
-			date_, err := api.ParseISODate((*days)[i].Date)
+		for i := len(days) - 1; i >= 0; i-- {
+			date_, err := api2.ParseISODate(days[i].Date)
 			if err != nil {
 				return 0, err
 			}
 			if date_.After(date) {
 				continue
 			}
-			day := (*days)[i]
+			day := days[i]
 			if len(day.Lessons) == 0 {
 				count++
 			} else {

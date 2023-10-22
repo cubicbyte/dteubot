@@ -23,7 +23,6 @@
 package utils
 
 import (
-	"github.com/cubicbyte/dteubot/internal/dteubot/settings"
 	"github.com/cubicbyte/dteubot/internal/i18n"
 	"github.com/cubicbyte/dteubot/pkg/api"
 	"strconv"
@@ -50,20 +49,20 @@ type CallsStatus struct {
 const DaysScanLimit = 7
 
 // GetCallsStatus returns the time relative to the current lesson
-func GetCallsStatus(groupId int, time_ time.Time) (*CallsStatus, error) {
-	calls, err := settings.Api.GetCallSchedule()
+func GetCallsStatus(groupId int, time2 time.Time, api2 api.IApi) (*CallsStatus, error) {
+	calls, err := api2.GetCallSchedule()
 	if err != nil {
 		return nil, err
 	}
 
-	dateStart := time_.Format("2006-01-02")
-	dateEnd := time_.AddDate(0, 0, DaysScanLimit).Format("2006-01-02")
-	schedule, err := settings.Api.GetGroupSchedule(groupId, dateStart, dateEnd)
+	dateStart := time2.Format("2006-01-02")
+	dateEnd := time2.AddDate(0, 0, DaysScanLimit).Format("2006-01-02")
+	schedule, err := api2.GetGroupSchedule(groupId, dateStart, dateEnd)
 	if err != nil {
 		return nil, err
 	}
 
-	date := time_
+	date := time2
 	for i := 0; i < DaysScanLimit; i++ {
 		day := schedule.GetDay(date.Format("2006-01-02"))
 		if day == nil {
@@ -71,7 +70,7 @@ func GetCallsStatus(groupId int, time_ time.Time) (*CallsStatus, error) {
 			continue
 		}
 
-		status, err := getCallsStatus(*day, calls, time_)
+		status, err := getCallsStatus(*day, calls, time2)
 		if err != nil {
 			return nil, err
 		}
@@ -94,7 +93,7 @@ func getCallsStatus(day api.TimeTableDate, calls api.CallSchedule, time_ time.Ti
 
 	// Check if the current time is before the first lesson
 	firstCall := calls.GetCall(day.Lessons[0].Number)
-	firstCallStart, err := ParseTime("2006-01-02 15:04", day.Date+" "+firstCall.TimeStart)
+	firstCallStart, err := time.Parse("2006-01-02 15:04", day.Date+" "+firstCall.TimeStart)
 	if err != nil {
 		return nil, err
 	}
@@ -107,7 +106,7 @@ func getCallsStatus(day api.TimeTableDate, calls api.CallSchedule, time_ time.Ti
 
 	// Check if the current time is after the last lesson
 	lastCall := calls.GetCall(day.Lessons[len(day.Lessons)-1].Number)
-	lastCallEnd, err := ParseTime("2006-01-02 15:04", day.Date+" "+lastCall.TimeEnd)
+	lastCallEnd, err := time.Parse("2006-01-02 15:04", day.Date+" "+lastCall.TimeEnd)
 	if err != nil {
 		return nil, err
 	}
@@ -118,11 +117,11 @@ func getCallsStatus(day api.TimeTableDate, calls api.CallSchedule, time_ time.Ti
 	// Check if the current time is during the lesson or break
 	for _, lesson := range day.Lessons {
 		call := calls.GetCall(lesson.Number)
-		callStart, err := ParseTime("2006-01-02 15:04", day.Date+" "+call.TimeStart)
+		callStart, err := time.Parse("2006-01-02 15:04", day.Date+" "+call.TimeStart)
 		if err != nil {
 			return nil, err
 		}
-		callEnd, err := ParseTime("2006-01-02 15:04", day.Date+" "+call.TimeEnd)
+		callEnd, err := time.Parse("2006-01-02 15:04", day.Date+" "+call.TimeEnd)
 		if err != nil {
 			return nil, err
 		}

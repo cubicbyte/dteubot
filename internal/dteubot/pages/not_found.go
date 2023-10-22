@@ -23,17 +23,11 @@
 package pages
 
 import (
-	"github.com/cubicbyte/dteubot/internal/data"
-	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
+	"github.com/cubicbyte/dteubot/internal/i18n"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
-func CreateNotFoundPage(cm *data.ChatDataManager, backButton string) (*Page, error) {
-	lang, err := utils.GetLang(cm)
-	if err != nil {
-		return nil, err
-	}
-
+func CreateNotFoundPage(lang *i18n.Language, backButton string) (*Page, error) {
 	page := Page{
 		Text: lang.Page.NotFound,
 		InlineKeyboard: tgbotapi.NewInlineKeyboardMarkup(

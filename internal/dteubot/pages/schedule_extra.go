@@ -23,33 +23,17 @@
 package pages
 
 import (
-	"github.com/cubicbyte/dteubot/internal/data"
-	"github.com/cubicbyte/dteubot/internal/dteubot/settings"
 	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
-	"github.com/dlclark/regexp2"
+	"github.com/cubicbyte/dteubot/internal/i18n"
+	"github.com/cubicbyte/dteubot/pkg/api"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/sirkon/go-format/v2"
 	"strconv"
 	"strings"
 )
 
-var telegramSupportedHTMLTags = [...]string{
-	"a", "s", "i", "b", "u", "em", "pre",
-	"ins", "del", "code", "strong", "strike",
-}
-
-func CreateScheduleExtraInfoPage(cm *data.ChatDataManager, date string) (*Page, error) {
-	chatData, err := cm.GetChatData()
-	if err != nil {
-		return nil, err
-	}
-
-	lang, err := utils.GetChatLang(chatData)
-	if err != nil {
-		return nil, err
-	}
-
-	schedule, err := settings.Api.GetGroupScheduleDay(chatData.GroupId, date)
+func CreateScheduleExtraInfoPage(lang *i18n.Language, groupId int, date string, api api.IApi) (*Page, error) {
+	schedule, err := api.GetGroupScheduleDay(groupId, date)
 	if err != nil {
 		return nil, err
 	}
@@ -62,13 +46,13 @@ func CreateScheduleExtraInfoPage(cm *data.ChatDataManager, date string) (*Page, 
 			}
 
 			// Get extra info
-			extraText, err := settings.Api.GetScheduleExtraInfo(period.R1, date)
+			extraText, err := api.GetScheduleExtraInfo(period.R1, date)
 			if err != nil {
 				return nil, err
 			}
 
 			// Clean HTML from unsupported tags
-			extraTextStr, err := cleanHTML(extraText.Html)
+			extraTextStr, err := utils.CleanHTML(extraText.Html)
 			if err != nil {
 				return nil, err
 			}
@@ -92,26 +76,4 @@ func CreateScheduleExtraInfoPage(cm *data.ChatDataManager, date string) (*Page, 
 	}
 
 	return &page, nil
-}
-
-func cleanHTML(text string) (string, error) {
-	// Save line breaks
-	text = strings.ReplaceAll(text, "<br>", "\n")
-	text = strings.ReplaceAll(text, "<br/>", "\n")
-	text = strings.ReplaceAll(text, "<br />", "\n")
-
-	// Remove all other tags
-	// tag|tag2|tag3
-	supported := strings.Join(telegramSupportedHTMLTags[:], "|")
-	cleanr, err := regexp2.Compile("<(?!\\/?("+supported+")\\b)[^>]*>", regexp2.IgnoreCase)
-	if err != nil {
-		return "", err
-	}
-
-	text, err = cleanr.Replace(text, "", -1, -1)
-	if err != nil {
-		return "", err
-	}
-
-	return text, nil
 }

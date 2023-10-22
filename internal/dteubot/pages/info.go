@@ -23,17 +23,11 @@
 package pages
 
 import (
-	"github.com/cubicbyte/dteubot/internal/data"
-	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
+	"github.com/cubicbyte/dteubot/internal/i18n"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
-func CreateInfoPage(cm *data.ChatDataManager) (*Page, error) {
-	lang, err := utils.GetLang(cm)
-	if err != nil {
-		return nil, err
-	}
-
+func CreateInfoPage(lang *i18n.Language) (*Page, error) {
 	page := Page{
 		Text: lang.Page.Info,
 		InlineKeyboard: tgbotapi.NewInlineKeyboardMarkup(

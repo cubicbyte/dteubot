@@ -24,89 +24,116 @@ package utils
 
 import (
 	"github.com/cubicbyte/dteubot/internal/data"
-	"github.com/cubicbyte/dteubot/internal/dteubot/settings"
 	"github.com/cubicbyte/dteubot/internal/i18n"
+	"github.com/dlclark/regexp2"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/op/go-logging"
 	"os"
 	"strings"
-	"time"
 )
 
 var log = logging.MustGetLogger("bot")
 
 // InitDatabaseRecords initializes the database records
 // for user and chat from given update.
-func InitDatabaseRecords(upd *tgbotapi.Update) error {
+func InitDatabaseRecords(upd *tgbotapi.Update, chatRepo data.ChatRepository, userRepo data.UserRepository) error {
 	log.Debug("Initializing database records")
 
-	// Check if the chat is in the database
-	cm := GetChatDataManager(upd.FromChat().ID)
+	fromChat := upd.FromChat()
+	sentFrom := upd.SentFrom()
 
-	exists, err := cm.IsChatExists()
+	// Check if the chat is in the database
+	chat, err := chatRepo.GetById(fromChat.ID)
 	if err != nil {
 		return err
 	}
-	if !exists {
-		if _, err := cm.CreateChatData(); err != nil {
+
+	if chat == nil {
+		// Chat not found, create a new one
+		chat = data.NewChat(fromChat.ID)
+		err := chatRepo.Update(chat)
+		if err != nil {
 			return err
 		}
-	}
-
-	if upd.SentFrom() == nil {
-		return nil
 	}
 
 	// Check if the user is in the database
-	um := GetUserDataManager(upd.SentFrom().ID)
-
-	exists, err = um.IsUserExists()
+	if sentFrom == nil {
+		return nil
+	}
+	user, err := userRepo.GetById(sentFrom.ID)
 	if err != nil {
 		return err
 	}
-	if !exists {
-		userData, err := um.CreateUserData()
-		if err != nil {
-			return err
-		}
+
+	if user == nil {
+		// User not found, create a new one
+		user = data.NewUser(sentFrom.ID)
 
 		// Update user data
-		userData.FirstName = upd.SentFrom().FirstName
-		userData.LastName = upd.SentFrom().LastName
-		userData.Username = upd.SentFrom().UserName
-		userData.LanguageCode = upd.SentFrom().LanguageCode
-		err = um.UpdateUserData(userData)
+		user.FirstName = sentFrom.FirstName
+		user.LastName = sentFrom.LastName
+		user.Username = sentFrom.UserName
+		user.LanguageCode = sentFrom.LanguageCode
+		user.IsPremium = sentFrom.IsPremium
+
+		err = userRepo.Update(user)
 		if err != nil {
 			return err
 		}
+
+		return nil
 	}
 
-	// Update user data
-	userData, err := um.GetUserData()
-	if err != nil {
-		return err
-	}
-
-	if userData.FirstName != upd.SentFrom().FirstName ||
-		userData.LastName != upd.SentFrom().LastName ||
-		userData.Username != upd.SentFrom().UserName ||
-		userData.LanguageCode != upd.SentFrom().LanguageCode ||
-		userData.IsPremium != upd.SentFrom().IsPremium {
+	// Check if user data has changed
+	if user.FirstName != sentFrom.FirstName ||
+		user.LastName != sentFrom.LastName ||
+		user.Username != sentFrom.UserName ||
+		user.LanguageCode != sentFrom.LanguageCode ||
+		user.IsPremium != sentFrom.IsPremium {
 
 		// Update found
-		userData.FirstName = upd.SentFrom().FirstName
-		userData.LastName = upd.SentFrom().LastName
-		userData.Username = upd.SentFrom().UserName
-		userData.LanguageCode = upd.SentFrom().LanguageCode
-		userData.IsPremium = upd.SentFrom().IsPremium
+		user.FirstName = sentFrom.FirstName
+		user.LastName = sentFrom.LastName
+		user.Username = sentFrom.UserName
+		user.LanguageCode = sentFrom.LanguageCode
+		user.IsPremium = sentFrom.IsPremium
 
-		err = um.UpdateUserData(userData)
+		err = userRepo.Update(user)
 		if err != nil {
 			return err
 		}
 	}
 
 	return nil
+}
+
+// CleanHTML removes all unsupported HTML tags from given text.
+func CleanHTML(text string) (string, error) {
+	telegramSupportedHTMLTags := [...]string{
+		"a", "s", "i", "b", "u", "em", "pre",
+		"ins", "del", "code", "strong", "strike",
+	}
+
+	// Save line breaks
+	text = strings.ReplaceAll(text, "<br>", "\n")
+	text = strings.ReplaceAll(text, "<br/>", "\n")
+	text = strings.ReplaceAll(text, "<br />", "\n")
+
+	// Remove all other tags
+	// tag|tag2|tag3
+	supported := strings.Join(telegramSupportedHTMLTags[:], "|")
+	cleanr, err := regexp2.Compile("<(?!\\/?("+supported+")\\b)[^>]*>", regexp2.IgnoreCase)
+	if err != nil {
+		return "", err
+	}
+
+	text, err = cleanr.Replace(text, "", -1, -1)
+	if err != nil {
+		return "", err
+	}
+
+	return text, nil
 }
 
 // EscapeText takes an input text and escape Telegram markup symbols.
@@ -148,45 +175,15 @@ func GetSettingIcon(enabled bool) string {
 	return "❌"
 }
 
-// ParseTime parses time in given layout with local timezone
-func ParseTime(layout string, value string) (time.Time, error) {
-	return time.ParseInLocation(layout, value, settings.Location)
-}
-
-// GetChatDataManager returns ChatDataManager for given chat ID.
-func GetChatDataManager(chatId int64) *data.ChatDataManager {
-	return &data.ChatDataManager{ChatId: chatId, Database: settings.Db}
-}
-
-// GetUserDataManager returns UserDataManager for given user ID.
-func GetUserDataManager(userId int64) *data.UserDataManager {
-	return &data.UserDataManager{UserId: userId, Database: settings.Db}
-}
-
 // GetLang returns the language of the chat.
-func GetLang(cm *data.ChatDataManager) (*i18n.Language, error) {
-	chatData, err := cm.GetChatData()
-	if err != nil {
-		return nil, err
+func GetLang(code string, langs map[string]i18n.Language) (*i18n.Language, error) {
+	if code == "" {
+		code = os.Getenv("DEFAULT_LANG")
 	}
 
-	return GetChatLang(chatData)
-}
-
-// GetChatLang returns the language of the chat from given ChatData.
-func GetChatLang(chatData *data.ChatData) (*i18n.Language, error) {
-	// Use default language if chat language is not set
-	var langCode string
-	if chatData.LanguageCode == "" {
-		langCode = os.Getenv("DEFAULT_LANG")
-	} else {
-		langCode = chatData.LanguageCode
-	}
-
-	// Get language
-	lang, ok := settings.Languages[langCode]
+	lang, ok := langs[code]
 	if !ok {
-		return nil, &i18n.LanguageNotFoundError{LangCode: langCode}
+		return nil, &i18n.LanguageNotFoundError{LangCode: code}
 	}
 
 	return &lang, nil
