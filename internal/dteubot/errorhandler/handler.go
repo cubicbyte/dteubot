@@ -45,7 +45,7 @@ const ErrorSendDelay = time.Second * 5
 var log = logging.MustGetLogger("ErrorHandler")
 var lastErrorTime time.Time
 
-func HandleError(err error, update tgbotapi.Update, bot *tgbotapi.BotAPI, lang *i18n.Language, chat *data.Chat, chatRepo data.ChatRepository) {
+func HandleError(err error, update *tgbotapi.Update, bot *tgbotapi.BotAPI, lang *i18n.Language, chat *data.Chat, chatRepo data.ChatRepository) {
 	var urlError *url.Error
 	var httpApiError *api.HTTPApiError
 	var tgError *tgbotapi.Error
@@ -196,20 +196,20 @@ func HandleError(err error, update tgbotapi.Update, bot *tgbotapi.BotAPI, lang *
 			// Unknown Telegram API error
 			log.Errorf("Unknown bad request error: %s", err)
 			SendErrorToTelegram(err, bot)
-			SendErrorPageToChat(&update, bot, lang)
+			SendErrorPageToChat(update, bot, lang)
 
 		default:
 			// Unknown Telegram API error
 			log.Errorf("Unknown Telegram API %d error: %s", tgError.Code, err)
 			SendErrorToTelegram(err, bot)
-			SendErrorPageToChat(&update, bot, lang)
+			SendErrorPageToChat(update, bot, lang)
 		}
 
 	default:
 		// Unknown error
 		log.Errorf("Unknown error: %s", err)
 		SendErrorToTelegram(err, bot)
-		SendErrorPageToChat(&update, bot, lang)
+		SendErrorPageToChat(update, bot, lang)
 	}
 }
 

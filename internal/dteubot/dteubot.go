@@ -173,82 +173,86 @@ func Run() {
 	updates := bot.GetUpdatesChan(u)
 
 	for update := range updates {
-		if update.Message == nil && update.CallbackQuery == nil {
-			continue
-		}
+		go HandleUpdate(&update)
+	}
+}
 
-		chatRepo := data.NewPostgresChatRepository(db)
-		userRepo := data.NewPostgresUserRepository(db)
+func HandleUpdate(update *tgbotapi.Update) {
+	if update.Message == nil && update.CallbackQuery == nil {
+		return
+	}
 
-		if err := utils.InitDatabaseRecords(&update, chatRepo, userRepo); err != nil {
-			log.Errorf("Error initializing database records: %s\n", err)
+	chatRepo := data.NewPostgresChatRepository(db)
+	userRepo := data.NewPostgresUserRepository(db)
 
-			lang, err := utils.GetLang("", languages)
-			if err != nil {
-				log.Errorf("Error getting language: %s\n", err)
-				errorhandler.SendErrorToTelegram(err, bot)
-			}
+	if err := utils.InitDatabaseRecords(update, chatRepo, userRepo); err != nil {
+		log.Errorf("Error initializing database records: %s\n", err)
 
-			errorhandler.SendErrorToTelegram(err, bot)
-			errorhandler.SendErrorPageToChat(&update, bot, lang)
-			continue
-		}
-
-		chat, err := chatRepo.GetById(update.FromChat().ID)
-		if err != nil {
-			log.Errorf("Error getting chat: %s\n", err)
-			errorhandler.SendErrorToTelegram(err, bot)
-			continue
-		}
-
-		lang, err := utils.GetLang(chat.LanguageCode, languages)
+		lang, err := utils.GetLang("", languages)
 		if err != nil {
 			log.Errorf("Error getting language: %s\n", err)
 			errorhandler.SendErrorToTelegram(err, bot)
-			continue
 		}
 
-		if update.Message != nil {
-			// Handle command
-			err := HandleCommand(&update)
-			if err != nil {
-				errorhandler.HandleError(err, update, bot, lang, chat, chatRepo)
-			}
+		errorhandler.SendErrorToTelegram(err, bot)
+		errorhandler.SendErrorPageToChat(update, bot, lang)
+		return
+	}
 
-			// Save command to statistics
-			if update.Message.Command() != "" {
-				err = statistic.LogCommand(
-					db,
-					update.Message.Chat.ID,
-					update.Message.From.ID,
-					update.Message.MessageID,
-					update.Message.Command(),
-				)
-				if err != nil {
-					errorhandler.HandleError(err, update, bot, lang, chat, chatRepo)
-				}
-			}
+	chat, err := chatRepo.GetById(update.FromChat().ID)
+	if err != nil {
+		log.Errorf("Error getting chat: %s\n", err)
+		errorhandler.SendErrorToTelegram(err, bot)
+		return
+	}
+
+	lang, err := utils.GetLang(chat.LanguageCode, languages)
+	if err != nil {
+		log.Errorf("Error getting language: %s\n", err)
+		errorhandler.SendErrorToTelegram(err, bot)
+		return
+	}
+
+	if update.Message != nil {
+		// Handle command
+		err := HandleCommand(update)
+		if err != nil {
+			errorhandler.HandleError(err, update, bot, lang, chat, chatRepo)
 		}
 
-		if update.CallbackQuery != nil {
-			// Handle button
-			if err := HandleButtonClick(&update); err != nil {
-				errorhandler.HandleError(err, update, bot, lang, chat, chatRepo)
-			}
-
-			// Save button click to statistics
-			err := statistic.LogButtonClick(
+		// Save command to statistics
+		if update.Message.Command() != "" {
+			err = statistic.LogCommand(
 				db,
-				update.CallbackQuery.Message.Chat.ID,
-				update.CallbackQuery.From.ID,
-				update.CallbackQuery.Message.MessageID,
-				update.CallbackQuery.Data,
+				update.Message.Chat.ID,
+				update.Message.From.ID,
+				update.Message.MessageID,
+				update.Message.Command(),
 			)
 			if err != nil {
 				errorhandler.HandleError(err, update, bot, lang, chat, chatRepo)
 			}
 		}
-
-		log.Debug("Update processed")
 	}
+
+	if update.CallbackQuery != nil {
+		// Handle button
+		if err := HandleButtonClick(update); err != nil {
+			errorhandler.HandleError(err, update, bot, lang, chat, chatRepo)
+		}
+
+		// Save button click to statistics
+		err := statistic.LogButtonClick(
+			db,
+			update.CallbackQuery.Message.Chat.ID,
+			update.CallbackQuery.From.ID,
+			update.CallbackQuery.Message.MessageID,
+			update.CallbackQuery.Data,
+		)
+		if err != nil {
+			errorhandler.HandleError(err, update, bot, lang, chat, chatRepo)
+		}
+	}
+
+	log.Debug("Update processed")
 }
