@@ -43,7 +43,7 @@ func HandleCommand(u *tgbotapi.Update) error {
 	chatRepo := data.NewPostgresChatRepository(db)
 	userRepo := data.NewPostgresUserRepository(db)
 
-	chat, err := chatRepo.GetById(u.FromChat().ID)
+	chat, err := chatRepo.GetById(u.Message.Chat.ID)
 	if err != nil {
 		return err
 	}
@@ -51,7 +51,7 @@ func HandleCommand(u *tgbotapi.Update) error {
 		return errors.New("chat not found")
 	}
 
-	user, err := userRepo.GetById(u.FromChat().ID)
+	user, err := userRepo.GetById(u.Message.From.ID)
 	if err != nil {
 		return err
 	}
