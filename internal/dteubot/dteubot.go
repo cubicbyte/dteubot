@@ -40,6 +40,7 @@ import (
 	_ "github.com/lib/pq"
 	"github.com/op/go-logging"
 	"os"
+	"runtime/debug"
 	"strconv"
 	"time"
 )
@@ -182,6 +183,9 @@ func HandleUpdate(update *tgbotapi.Update) {
 		return
 	}
 
+	// Handle panics
+	defer HandlePanics(update)
+
 	chatRepo := data.NewPostgresChatRepository(db)
 	userRepo := data.NewPostgresUserRepository(db)
 
@@ -255,4 +259,41 @@ func HandleUpdate(update *tgbotapi.Update) {
 	}
 
 	log.Debug("Update processed")
+}
+
+// HandlePanics handles panics in the code and sends them to the user.
+func HandlePanics(u *tgbotapi.Update) {
+	// Recover from panic
+	r := recover()
+	if r == nil {
+		return
+	}
+
+	log.Errorf("Panic: %s\n%s", r, string(debug.Stack()))
+
+	// Get chat where the panic happened
+	chat := u.FromChat()
+	chatRepo := data.NewPostgresChatRepository(db)
+
+	if chat != nil {
+		// Send error page to chat
+		chat, err := chatRepo.GetById(u.FromChat().ID)
+		if err != nil {
+			log.Errorf("Error getting chat: %s\n", err)
+			errorhandler.SendErrorToTelegram(err, bot)
+			return
+		}
+
+		lang, err := utils.GetLang(chat.LanguageCode, languages)
+		if err != nil {
+			log.Errorf("Error getting language: %s\n", err)
+			errorhandler.SendErrorToTelegram(err, bot)
+			return
+		}
+
+		errorhandler.SendErrorPageToChat(u, bot, lang)
+	}
+
+	// Send error to the developer
+	errorhandler.SendErrorToTelegram(fmt.Errorf("panic: %s\n%s", r, string(debug.Stack())), bot)
 }
