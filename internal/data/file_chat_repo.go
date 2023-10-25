@@ -37,7 +37,7 @@ type FileChatRepository struct {
 }
 
 // NewFileChatRepository creates a new instance of FileChatRepository.
-func NewFileChatRepository(dir string) (*FileChatRepository, error) {
+func NewFileChatRepository(dir string) (ChatRepository, error) {
 	if err := os.MkdirAll(dir, 0755); err != nil {
 		return nil, err
 	}
@@ -82,7 +82,76 @@ func (r *FileChatRepository) Update(chat *Chat) error {
 	return nil
 }
 
+func (r *FileChatRepository) GetChatsWithEnabled15mNotification() ([]*Chat, error) {
+	// Iterate over all files in the directory
+	files, err := os.ReadDir(r.dir)
+	if err != nil {
+		return nil, err
+	}
+
+	// Create slice of chats
+	chats := make([]*Chat, 0, len(files))
+
+	for _, file := range files {
+		// Read chat from file
+		chat, err := readChatFile(r.dir + "/" + file.Name())
+		if err != nil {
+			return nil, err
+		}
+
+		// Append chat to slice
+		if chat.ClassesNotification15m {
+			chats = append(chats, chat)
+		}
+	}
+
+	return chats, nil
+}
+
+func (r *FileChatRepository) GetChatsWithEnabled1mNotification() ([]*Chat, error) {
+	// Iterate over all files in the directory
+	files, err := os.ReadDir(r.dir)
+	if err != nil {
+		return nil, err
+	}
+
+	// Create slice of chats
+	chats := make([]*Chat, 0, len(files))
+
+	for _, file := range files {
+		// Read chat from file
+		chat, err := readChatFile(r.dir + "/" + file.Name())
+		if err != nil {
+			return nil, err
+		}
+
+		// Append chat to slice
+		if chat.ClassesNotification1m {
+			chats = append(chats, chat)
+		}
+	}
+
+	return chats, nil
+}
+
 // getChatFile returns a path to a file with chat data.
 func (r *FileChatRepository) getChatFile(id int64) string {
 	return r.dir + "/" + strconv.FormatInt(id, 10) + ".json"
+}
+
+// readChatFile reads a chat from a file.
+func readChatFile(path string) (*Chat, error) {
+	file, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	chat := new(Chat)
+	err = json.NewDecoder(file).Decode(chat)
+	if err != nil {
+		return nil, err
+	}
+
+	return chat, nil
 }

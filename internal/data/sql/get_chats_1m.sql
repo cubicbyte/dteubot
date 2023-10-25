@@ -1,8 +1,5 @@
 SELECT
-    chat_id,
-    group_id,
-    lang_code,
-    cl_notif_next_part
+    *
 FROM
     chats
 WHERE

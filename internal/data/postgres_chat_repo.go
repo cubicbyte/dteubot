@@ -35,6 +35,11 @@ var (
 	getChatQuery string
 	//go:embed sql/update_chat.sql
 	updateChatQuery string
+
+	//go:embed sql/get_chats_15m.sql
+	getChats15mQuery string
+	//go:embed sql/get_chats_1m.sql
+	getChats1mQuery string
 )
 
 // PostgresChatRepository implements ChatRepository interface for PostgreSQL.
@@ -45,7 +50,7 @@ type PostgresChatRepository struct {
 }
 
 // NewPostgresChatRepository creates a new instance of PostgresChatRepository.
-func NewPostgresChatRepository(db *sqlx.DB) *PostgresChatRepository {
+func NewPostgresChatRepository(db *sqlx.DB) ChatRepository {
 	return &PostgresChatRepository{db: db}
 }
 
@@ -70,4 +75,26 @@ func (r *PostgresChatRepository) Update(chat *Chat) error {
 	}
 
 	return nil
+}
+
+func (r *PostgresChatRepository) GetChatsWithEnabled15mNotification() ([]*Chat, error) {
+	chats := make([]*Chat, 0)
+	err := r.db.Select(&chats, getChats15mQuery)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return chats, nil
+}
+
+func (r *PostgresChatRepository) GetChatsWithEnabled1mNotification() ([]*Chat, error) {
+	chats := make([]*Chat, 0)
+	err := r.db.Select(&chats, getChats1mQuery)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return chats, nil
 }

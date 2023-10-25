@@ -25,6 +25,7 @@ package notifier
 import (
 	_ "embed"
 	"errors"
+	"fmt"
 	"github.com/cubicbyte/dteubot/internal/data"
 	"github.com/cubicbyte/dteubot/internal/dteubot/errorhandler"
 	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
@@ -32,7 +33,6 @@ import (
 	api2 "github.com/cubicbyte/dteubot/pkg/api"
 	"github.com/go-co-op/gocron"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"github.com/jmoiron/sqlx"
 	"github.com/op/go-logging"
 	"github.com/sirkon/go-format/v2"
 	"net/url"
@@ -44,54 +44,22 @@ var Location = "Europe/Kiev"
 
 var log = logging.MustGetLogger("Notifier")
 
-// TODO: Move this login to ChatRepository (important)
-var (
-	//go:embed sql/get_chats_15m.sql
-	getChats15mQuery string
-	//go:embed sql/get_chats_1m.sql
-	getChats1mQuery string
-)
-
-var (
-	db        *sqlx.DB
-	api       api2.IApi
-	bot       *tgbotapi.BotAPI
-	langs     map[string]i18n.Language
-	chatRepo  data.ChatRepository
-	calls     api2.CallSchedule
-	location  *time.Location
-	Scheduler *gocron.Scheduler
-)
-
-type chatInfo struct {
-	ChatId          int64  `db:"chat_id"`
-	GroupId         int    `db:"group_id"`
-	LangCode        string `db:"lang_code"`
-	ClNotifNextPart bool   `db:"cl_notif_next_part"`
-}
-
 // Setup initializes notifier and starts cron Scheduler
-func Setup(db2 *sqlx.DB, api3 api2.IApi, bot2 *tgbotapi.BotAPI, langs2 map[string]i18n.Language, chatRepo2 data.ChatRepository) error {
+func Setup(api api2.IApi, bot *tgbotapi.BotAPI, langs map[string]i18n.Language, chatRepo data.ChatRepository) (*gocron.Scheduler, error) {
 	log.Info("Setting up notifier")
 
-	db = db2
-	api = api3
-	bot = bot2
-	langs = langs2
-	chatRepo = chatRepo2
-
-	// Setup cron Scheduler
+	// Setup cron scheduler
 	var err error
-	location, err = time.LoadLocation(Location)
+	location, err := time.LoadLocation(Location)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	Scheduler = gocron.NewScheduler(location)
+	scheduler := gocron.NewScheduler(location)
 
 	// Get calls
-	calls, err = api.GetCallSchedule()
+	calls, err := api.GetCallSchedule()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// Format calls to cron format
@@ -102,7 +70,7 @@ func Setup(db2 *sqlx.DB, api3 api2.IApi, bot2 *tgbotapi.BotAPI, langs2 map[strin
 		// Parse call start time
 		timeStart, err := time.Parse("15:04", call.TimeStart)
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		// 15 minutes
@@ -116,31 +84,36 @@ func Setup(db2 *sqlx.DB, api3 api2.IApi, bot2 *tgbotapi.BotAPI, langs2 map[strin
 	cronTime1m = cronTime1m[:len(cronTime1m)-1]
 
 	// Add cron jobs
-	_, err = Scheduler.Every(1).Day().At(cronTime15m).Do(SendNotifications, "15m")
+	_, err = scheduler.Every(1).Day().At(cronTime15m).Do(SendNotifications, "15m", chatRepo, api, bot, langs, calls)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	_, err = Scheduler.Every(1).Day().At(cronTime1m).Do(SendNotifications, "1m")
+	_, err = scheduler.Every(1).Day().At(cronTime1m).Do(SendNotifications, "1m", chatRepo, api, bot, langs, calls)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return scheduler, nil
 }
 
 // SendNotifications sends notifications to chats that subscribed to notifications
-func SendNotifications(time2 string) error {
+func SendNotifications(time2 string, chatRepo data.ChatRepository, api api2.IApi, bot *tgbotapi.BotAPI, langs map[string]i18n.Language, calls *api2.CallSchedule) error {
 	log.Infof("Sending notifications %s", time2)
 
 	// Get chats with notifications enabled
-	chats, err := GetSubscribedChats(time2)
+	chats, err := GetSubscribedChats(time2, chatRepo)
 	if err != nil {
 		return err
 	}
 	log.Debugf("Got %d chats with notifications enabled", len(chats))
 
+	loc, err := time.LoadLocation(Location)
+	if err != nil {
+		return err
+	}
+
 	// Get current time
-	curTime := time.Now().In(location)
+	curTime := time.Now().In(loc)
 
 	// Send notifications
 	sentCount := 0
@@ -152,9 +125,9 @@ func SendNotifications(time2 string) error {
 			var tgError *tgbotapi.Error
 			if errors.As(err, &tgError) && tgError.Code == 403 {
 				// User blocked bot
-				log.Infof("Bot blocked in chat %d", chat.ChatId)
-				if err = MakeChatUnavailable(chat.ChatId); err != nil {
-					log.Errorf("Error making chat %d unavailable: %s", chat.ChatId, err)
+				log.Infof("Bot blocked in chat %d", chat.Id)
+				if err = MakeChatUnavailable(chat, chatRepo); err != nil {
+					log.Errorf("Error making chat %d unavailable: %s", chat.Id, err)
 					errorhandler.SendErrorToTelegram(err, bot)
 				}
 				continue
@@ -163,20 +136,20 @@ func SendNotifications(time2 string) error {
 			// Check if api connection error
 			var urlError *url.Error
 			if errors.As(err, &urlError) {
-				log.Warningf("Error getting result from API for chat %d: %s", chat.ChatId, err)
+				log.Warningf("Error getting result from API for chat %d: %s", chat.Id, err)
 				continue
 			}
 
 			// Unknown error
-			log.Errorf("Error getting group schedule day for chat %d: %s", chat.ChatId, err)
+			log.Errorf("Error getting group schedule day for chat %d: %s", chat.Id, err)
 			errorhandler.SendErrorToTelegram(err, bot)
 			continue
 		}
 
 		// Check if group have classes
-		haveClasses, err := IsGroupHaveClasses(schedule, curTime)
+		haveClasses, err := IsGroupHaveClasses(schedule, calls, curTime)
 		if err != nil {
-			log.Errorf("Error checking if group have classes for chat %d: %s", chat.ChatId, err)
+			log.Errorf("Error checking if group have classes for chat %d: %s", chat.Id, err)
 			errorhandler.SendErrorToTelegram(err, bot)
 			continue
 		}
@@ -184,10 +157,18 @@ func SendNotifications(time2 string) error {
 		if haveClasses {
 			// Group have classes, send notification
 
-			// Send notification to chat
-			err = SendNotification(chat.ChatId, chat.LangCode, schedule, time2, "start")
+			// Get chat language
+			lang, err := utils.GetLang(chat.LanguageCode, langs)
 			if err != nil {
-				log.Warningf("Error sending notification to chat %d: %s", chat.ChatId, err)
+				log.Errorf("Error getting language for chat %d: %s", chat.Id, err)
+				errorhandler.SendErrorToTelegram(err, bot)
+				continue
+			}
+
+			// Send notification to chat
+			err = SendNotification(chat.Id, lang, bot, schedule, time2, "start")
+			if err != nil {
+				log.Warningf("Error sending notification to chat %d: %s", chat.Id, err)
 				errorhandler.SendErrorToTelegram(err, bot)
 				continue
 			}
@@ -197,13 +178,13 @@ func SendNotifications(time2 string) error {
 		}
 
 		// Check if group have next classes part
-		if !chat.ClNotifNextPart {
+		if !chat.ClassesNotificationNextPart {
 			continue
 		}
 
-		haveNextClassesPart, err := IsGroupHaveNextClassesPart(schedule, curTime)
+		haveNextClassesPart, err := IsGroupHaveNextClassesPart(schedule, calls, curTime)
 		if err != nil {
-			log.Errorf("Error checking if group have next classes part for chat %d: %s", chat.ChatId, err)
+			log.Errorf("Error checking if group have next classes part for chat %d: %s", chat.Id, err)
 			errorhandler.SendErrorToTelegram(err, bot)
 			continue
 		}
@@ -211,10 +192,18 @@ func SendNotifications(time2 string) error {
 		if haveNextClassesPart {
 			// Group have next classes part, send notification
 
-			// Send notification to chat
-			err = SendNotification(chat.ChatId, chat.LangCode, schedule, time2, "next_part")
+			// Get chat language
+			lang, err := utils.GetLang(chat.LanguageCode, langs)
 			if err != nil {
-				log.Warningf("Error sending notification to chat %d: %s", chat.ChatId, err)
+				log.Errorf("Error getting language for chat %d: %s", chat.Id, err)
+				errorhandler.SendErrorToTelegram(err, bot)
+				continue
+			}
+
+			// Send notification to chat
+			err = SendNotification(chat.Id, lang, bot, schedule, time2, "next_part")
+			if err != nil {
+				log.Warningf("Error sending notification to chat %d: %s", chat.Id, err)
 				errorhandler.SendErrorToTelegram(err, bot)
 				continue
 			}
@@ -230,14 +219,8 @@ func SendNotifications(time2 string) error {
 }
 
 // SendNotification sends notification to chat
-func SendNotification(chatId int64, langCode string, schedule *api2.TimeTableDate, time string, type2 string) error {
+func SendNotification(chatId int64, lang *i18n.Language, bot *tgbotapi.BotAPI, schedule *api2.TimeTableDate, time string, type2 string) error {
 	log.Debugf("Sending %s %s notification to chat %d", type2, time, chatId)
-
-	// Get chat language
-	lang, ok := langs[langCode]
-	if !ok {
-		return &i18n.LanguageNotFoundError{LangCode: langCode}
-	}
 
 	var pageText string
 	if type2 == "start" {
@@ -290,29 +273,20 @@ func SendNotification(chatId int64, langCode string, schedule *api2.TimeTableDat
 }
 
 // GetSubscribedChats returns chats that subscribed to notifications for given time
-func GetSubscribedChats(time string) ([]chatInfo, error) {
-	chats := make([]chatInfo, 0)
-	var err error
-
+func GetSubscribedChats(time string, chatRepo data.ChatRepository) ([]*data.Chat, error) {
 	switch time {
 	case "15m":
-		err = db.Select(&chats, getChats15mQuery)
+		return chatRepo.GetChatsWithEnabled15mNotification()
 	case "1m":
-		err = db.Select(&chats, getChats1mQuery)
+		return chatRepo.GetChatsWithEnabled1mNotification()
 	default:
-		panic("invalid time: " + time)
+		return nil, fmt.Errorf("invalid time: %s", time)
 	}
-
-	if err != nil {
-		return nil, err
-	}
-
-	return chats, nil
 }
 
 // IsGroupHaveClasses checks if group have classes at given time that are about to start
 // to know if we need to send notifications
-func IsGroupHaveClasses(schedule *api2.TimeTableDate, time2 time.Time) (bool, error) {
+func IsGroupHaveClasses(schedule *api2.TimeTableDate, calls *api2.CallSchedule, time2 time.Time) (bool, error) {
 	// Get first lesson
 	if len(schedule.Lessons) == 0 {
 		return false, nil
@@ -328,12 +302,12 @@ func IsGroupHaveClasses(schedule *api2.TimeTableDate, time2 time.Time) (bool, er
 	}
 
 	// Check if first lesson is about to start
-	return isLessonIsAboutToStart(&firstLesson, time2)
+	return isLessonIsAboutToStart(&firstLesson, calls, time2)
 }
 
 // IsGroupHaveNextClassesPart checks if group have next classes part
 // at given time that are about to start.
-func IsGroupHaveNextClassesPart(schedule *api2.TimeTableDate, time2 time.Time) (bool, error) {
+func IsGroupHaveNextClassesPart(schedule *api2.TimeTableDate, calls *api2.CallSchedule, time2 time.Time) (bool, error) {
 	if len(schedule.Lessons) == 0 {
 		return false, nil
 	}
@@ -343,7 +317,7 @@ func IsGroupHaveNextClassesPart(schedule *api2.TimeTableDate, time2 time.Time) (
 	var nextLesson *api2.TimeTableLesson
 	for i, lesson := range schedule.Lessons {
 		timeEnd, err := time.Parse("15:04", lesson.Periods[0].TimeEnd)
-		timeEnd = time.Date(time2.Year(), time2.Month(), time2.Day(), timeEnd.Hour(), timeEnd.Minute(), 0, 0, location)
+		timeEnd = time.Date(time2.Year(), time2.Month(), time2.Day(), timeEnd.Hour(), timeEnd.Minute(), 0, 0, time2.Location())
 		if err != nil {
 			return false, err
 		}
@@ -364,7 +338,7 @@ func IsGroupHaveNextClassesPart(schedule *api2.TimeTableDate, time2 time.Time) (
 
 	// If it's first lesson of the day
 	if previousLesson == nil {
-		return isLessonIsAboutToStart(nextLesson, time2)
+		return isLessonIsAboutToStart(nextLesson, calls, time2)
 	}
 
 	// Check if next lesson have new discipline
@@ -376,23 +350,14 @@ func IsGroupHaveNextClassesPart(schedule *api2.TimeTableDate, time2 time.Time) (
 		}
 	}
 
-	return isLessonIsAboutToStart(nextLesson, time2)
+	return isLessonIsAboutToStart(nextLesson, calls, time2)
 }
 
 // isLessonIsAboutToStart checks if lesson is about to start
-func isLessonIsAboutToStart(lesson *api2.TimeTableLesson, time2 time.Time) (bool, error) {
+func isLessonIsAboutToStart(lesson *api2.TimeTableLesson, calls *api2.CallSchedule, time2 time.Time) (bool, error) {
 	// Get this lesson call and previous lesson call
-	var thisCall *api2.CallScheduleEntry
-	var previousCall *api2.CallScheduleEntry
-	for i, call := range calls {
-		if call.Number == lesson.Number {
-			thisCall = &call
-			if i != 0 {
-				previousCall = &calls[i-1]
-			}
-			break
-		}
-	}
+	thisCall := calls.GetCall(lesson.Number)
+	previousCall := calls.GetCall(lesson.Number - 1)
 
 	if thisCall == nil {
 		log.Errorf("Error getting current call for lesson %d", lesson.Number)
@@ -404,7 +369,7 @@ func isLessonIsAboutToStart(lesson *api2.TimeTableLesson, time2 time.Time) (bool
 	if err != nil {
 		return false, err
 	}
-	thisCallEndTime = time.Date(time2.Year(), time2.Month(), time2.Day(), thisCallEndTime.Hour(), thisCallEndTime.Minute(), 0, 0, location)
+	thisCallEndTime = time.Date(time2.Year(), time2.Month(), time2.Day(), thisCallEndTime.Hour(), thisCallEndTime.Minute(), 0, 0, time2.Location())
 
 	var previousCallEndTime time.Time
 	if previousCall == nil {
@@ -415,7 +380,7 @@ func isLessonIsAboutToStart(lesson *api2.TimeTableLesson, time2 time.Time) (bool
 		if err != nil {
 			return false, err
 		}
-		previousCallEndTime = time.Date(time2.Year(), time2.Month(), time2.Day(), previousCallEndTime.Hour(), previousCallEndTime.Minute(), 0, 0, location)
+		previousCallEndTime = time.Date(time2.Year(), time2.Month(), time2.Day(), previousCallEndTime.Hour(), previousCallEndTime.Minute(), 0, 0, time2.Location())
 	}
 
 	// So, to check if lesson is about to start we need to check
@@ -429,15 +394,10 @@ func isLessonIsAboutToStart(lesson *api2.TimeTableLesson, time2 time.Time) (bool
 
 // MakeChatUnavailable makes chat unavailable if user blocked bot.
 // It is needed to prevent sending notifications to blocked users.
-func MakeChatUnavailable(chatId int64) error {
-	chat, err := chatRepo.GetById(chatId)
-	if err != nil {
-		return err
-	}
-
+func MakeChatUnavailable(chat *data.Chat, chatRepo data.ChatRepository) error {
 	chat.Accessible = false
-	err = chatRepo.Update(chat)
-	if err != nil {
+
+	if err := chatRepo.Update(chat); err != nil {
 		return err
 	}
 

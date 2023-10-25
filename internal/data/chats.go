@@ -47,6 +47,10 @@ type ChatRepository interface {
 	GetById(id int64) (*Chat, error)
 	// Update updates a chat.
 	Update(chat *Chat) error
+	// GetChatsWithEnabled15mNotification returns all chats with enabled 15m notifications.
+	GetChatsWithEnabled15mNotification() ([]*Chat, error)
+	// GetChatsWithEnabled1mNotification returns all chats with enabled 1m notifications.
+	GetChatsWithEnabled1mNotification() ([]*Chat, error)
 }
 
 // NewChat creates a new instance of Chat.

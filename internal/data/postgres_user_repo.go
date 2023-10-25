@@ -45,7 +45,7 @@ type PostgresUserRepository struct {
 }
 
 // NewPostgresUserRepository creates a new instance of PostgresUserRepository.
-func NewPostgresUserRepository(db *sqlx.DB) *PostgresUserRepository {
+func NewPostgresUserRepository(db *sqlx.DB) UserRepository {
 	return &PostgresUserRepository{db: db}
 }
 

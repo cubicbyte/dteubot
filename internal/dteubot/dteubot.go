@@ -35,6 +35,7 @@ import (
 	"github.com/cubicbyte/dteubot/internal/notifier"
 	api2 "github.com/cubicbyte/dteubot/pkg/api"
 	"github.com/cubicbyte/dteubot/pkg/api/cachedapi"
+	"github.com/go-co-op/gocron"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
@@ -63,6 +64,7 @@ var (
 	chatRepo     data.ChatRepository
 	userRepo     data.UserRepository
 	statLogger   statistics.Logger
+	scheduler    *gocron.Scheduler
 	languages    map[string]i18n.Language
 	groupsCache  *groupscache.Cache
 	teachersList *teachers.TeachersList
@@ -71,7 +73,7 @@ var (
 // Setup sets up all the Bot components.
 func Setup() {
 	log.Info("Setting up Bot")
-	os.Setenv("DATABASE_TYPE", "postgres") // TODO
+	os.Setenv("DATABASE_TYPE", "file") // TODO
 
 	// Set timezone
 	loc, err := time.LoadLocation(Location)
@@ -194,11 +196,9 @@ func Setup() {
 	log.Infof("Connected to Telegram API as %s\n", bot.Self.UserName)
 
 	// Set up notifier
-	if os.Getenv("DATABASE_TYPE") == "postgres" {
-		err = notifier.Setup(db, api, bot, languages, chatRepo)
-		if err != nil {
-			log.Fatalf("Error setting up notifier: %s\n", err)
-		}
+	scheduler, err = notifier.Setup(api, bot, languages, chatRepo)
+	if err != nil {
+		log.Fatalf("Error setting up notifier: %s\n", err)
 	}
 }
 
@@ -207,9 +207,7 @@ func Run() {
 	log.Info("Starting Bot")
 
 	// Start notifier
-	if os.Getenv("DATABASE_TYPE") == "postgres" { // TODO
-		notifier.Scheduler.StartAsync()
-	}
+	scheduler.StartAsync()
 
 	// Start updates loop
 	u := tgbotapi.NewUpdate(0)
