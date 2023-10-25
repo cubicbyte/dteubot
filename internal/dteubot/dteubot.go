@@ -60,6 +60,7 @@ var (
 	api          api2.IApi
 	chatRepo     data.ChatRepository
 	userRepo     data.UserRepository
+	statLogger   statistic.Logger
 	languages    map[string]i18n.Language
 	groupsCache  *groupscache.Cache
 	teachersList *teachers.TeachersList
@@ -132,6 +133,7 @@ func Setup() {
 
 	chatRepo = data.NewPostgresChatRepository(db)
 	userRepo = data.NewPostgresUserRepository(db)
+	statLogger = statistic.NewPostgresLogger(db)
 
 	// Load the groups cache
 	groupsCache = groupscache.New(GroupsCachePath, api)
@@ -228,16 +230,17 @@ func HandleUpdate(update *tgbotapi.Update) {
 		}
 
 		// Save command to statistics
-		if update.Message.Command() != "" {
-			err = statistic.LogCommand(
-				db,
-				update.Message.Chat.ID,
-				update.Message.From.ID,
-				update.Message.MessageID,
-				update.Message.Command(),
-			)
-			if err != nil {
-				errorhandler.HandleError(err, update, bot, lang, chat, chatRepo)
+		if os.Getenv("DATABASE_TYPE") == "postgres" {
+			if update.Message.Command() != "" {
+				err = statLogger.LogCommand(
+					update.Message.Chat.ID,
+					update.Message.From.ID,
+					update.Message.MessageID,
+					update.Message.Command(),
+				)
+				if err != nil {
+					errorhandler.HandleError(err, update, bot, lang, chat, chatRepo)
+				}
 			}
 		}
 	}
@@ -249,15 +252,16 @@ func HandleUpdate(update *tgbotapi.Update) {
 		}
 
 		// Save button click to statistics
-		err := statistic.LogButtonClick(
-			db,
-			update.CallbackQuery.Message.Chat.ID,
-			update.CallbackQuery.From.ID,
-			update.CallbackQuery.Message.MessageID,
-			update.CallbackQuery.Data,
-		)
-		if err != nil {
-			errorhandler.HandleError(err, update, bot, lang, chat, chatRepo)
+		if os.Getenv("DATABASE_TYPE") == "postgres" {
+			err := statLogger.LogButtonClick(
+				update.CallbackQuery.Message.Chat.ID,
+				update.CallbackQuery.From.ID,
+				update.CallbackQuery.Message.MessageID,
+				update.CallbackQuery.Data,
+			)
+			if err != nil {
+				errorhandler.HandleError(err, update, bot, lang, chat, chatRepo)
+			}
 		}
 	}
 

@@ -25,7 +25,6 @@ package statistic
 import (
 	_ "embed"
 	"github.com/jmoiron/sqlx"
-	"github.com/op/go-logging"
 )
 
 var (
@@ -35,10 +34,19 @@ var (
 	logCommandQuery string
 )
 
-var log = logging.MustGetLogger("Statistic")
+// PostgresLogger is a logger that logs statistic events to the database.
+//
+// It implements Logger interface.
+type PostgresLogger struct {
+	db *sqlx.DB
+}
 
-// LogButtonClick logs a button click to the database for statistic purposes.
-func LogButtonClick(db *sqlx.DB, chatId int64, userId int64, messageId int, button string) error {
+// NewPostgresLogger creates a new logger that logs statistic events to the database.
+func NewPostgresLogger(db *sqlx.DB) Logger {
+	return &PostgresLogger{db: db}
+}
+
+func (l *PostgresLogger) LogButtonClick(chatId int64, userId int64, messageId int, button string) error {
 	log.Debug("Logging button click")
 
 	// Truncate button to 64 characters
@@ -46,12 +54,11 @@ func LogButtonClick(db *sqlx.DB, chatId int64, userId int64, messageId int, butt
 		button = button[:64]
 	}
 
-	_, err := db.Exec(logButtonClickQuery, chatId, userId, messageId, button)
+	_, err := l.db.Exec(logButtonClickQuery, chatId, userId, messageId, button)
 	return err
 }
 
-// LogCommand logs a bot command to the database for statistic purposes.
-func LogCommand(db *sqlx.DB, chatId int64, userId int64, messageId int, command string) error {
+func (l *PostgresLogger) LogCommand(chatId int64, userId int64, messageId int, command string) error {
 	log.Debug("Logging command")
 
 	// Truncate command to 64 characters
@@ -59,6 +66,6 @@ func LogCommand(db *sqlx.DB, chatId int64, userId int64, messageId int, command 
 		command = command[:64]
 	}
 
-	_, err := db.Exec(logCommandQuery, chatId, userId, messageId, command)
+	_, err := l.db.Exec(logCommandQuery, chatId, userId, messageId, command)
 	return err
 }
