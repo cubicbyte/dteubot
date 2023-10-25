@@ -48,7 +48,7 @@ except ImportError:
     exit(1)
 
 PAGE_URL: str = 'https://knute.edu.ua'
-REQUEST_TIMEOUT: int = int(os.environ.get('REQUEST_TIMEOUT', '5'))
+REQUEST_TIMEOUT: int = int(os.environ.get('REQUEST_TIMEOUT', '10'))
 
 
 @dataclass
@@ -144,9 +144,17 @@ def get_teachers(chair_page_url: str) -> list[Teacher]:
     req = requests.get(chair_page_url, timeout=REQUEST_TIMEOUT)
     soup = BeautifulSoup(req.text, 'html.parser')
 
-    teachers_page_link_el = soup.find('a',
-        class_='trix-top-menu-item-hrf',
-        string=lambda s: 'склад' in s.lower() or 'виклад' in s.lower())
+    # TODO: fix this:
+    #string=lambda s: 'склад' in s.lower() or 'виклад' in s.lower())
+    #                            ^^^^^^^
+    #AttributeError: 'NoneType' object has no attribute 'lower'
+
+    try:
+        teachers_page_link_el = soup.find('a',
+            class_='trix-top-menu-item-hrf',
+            string=lambda s: 'склад' in s.lower() or 'виклад' in s.lower())
+    except AttributeError:
+        return []
 
     if teachers_page_link_el is None:
         raise PageUpdatedException('Teachers page link not found')

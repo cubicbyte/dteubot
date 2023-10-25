@@ -144,11 +144,16 @@ def _make_api_request(path: str, method: str = 'GET', json_: Optional[Dict] = No
 
     http = urllib3.PoolManager()
     url = f'{API_URL}{path}'
+    headers = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Accept-Language': 'uk'
+    }
 
     if method == 'GET':
-        response = http.request(method, url)
+        response = http.request(method, url, headers=headers)
     elif method == 'POST':
-        response = http.request(method, url, body=json.dumps(json_), headers={'Content-Type': 'application/json'})
+        response = http.request(method, url, body=json.dumps(json_), headers=headers)
     else:
         raise Exception(f'Unknown method: {method}')
 
