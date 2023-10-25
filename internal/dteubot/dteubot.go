@@ -73,7 +73,6 @@ var (
 // Setup sets up all the Bot components.
 func Setup() {
 	log.Info("Setting up Bot")
-	os.Setenv("DATABASE_TYPE", "file") // TODO
 
 	// Set timezone
 	loc, err := time.LoadLocation(Location)
@@ -85,14 +84,6 @@ func Setup() {
 	// Create required directories
 	if err := os.Mkdir(CachePath, 0755); err != nil && !os.IsExist(err) {
 		log.Fatalf("Error creating cache directory: %s\n", err)
-	}
-	if os.Getenv("DATABASE_TYPE") == "file" {
-		if err := os.Mkdir(ChatsDirPath, 0755); err != nil && !os.IsExist(err) {
-			log.Fatalf("Error creating chats directory: %s\n", err)
-		}
-		if err := os.Mkdir(UsersDirPath, 0755); err != nil && !os.IsExist(err) {
-			log.Fatalf("Error creating users directory: %s\n", err)
-		}
 	}
 
 	// Setup the API

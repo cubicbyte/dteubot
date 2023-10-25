@@ -43,14 +43,14 @@ var LogFile *os.File
 func Init() error {
 	logLevel := os.Getenv("LOG_LEVEL")
 	if logLevel == "" {
-		logLevel = "INFO"
+		logLevel = "DISABLED"
 	}
 
 	// Disable logging if needed
 	if logLevel == "DISABLED" {
 		backend := logging.NewLogBackend(os.Stderr, "", 0)
 		backendLeveled := logging.AddModuleLevel(backend)
-		backendLeveled.SetLevel(logging.CRITICAL, "")
+		backendLeveled.SetLevel(logging.INFO, "")
 		logging.SetBackend(backendLeveled)
 		return nil
 	}

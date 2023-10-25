@@ -44,31 +44,40 @@ func ValidateEnv() error {
 		return &IncorrectEnvVariableError{"BOT_TOKEN"}
 	}
 
-	if os.Getenv("POSTGRES_HOST") == "" {
-		return &IncorrectEnvVariableError{"POSTGRES_HOST"}
-	}
+	switch os.Getenv("DATABASE_TYPE") {
+	case "postgres":
+		if os.Getenv("POSTGRES_HOST") == "" {
+			return &IncorrectEnvVariableError{"POSTGRES_HOST"}
+		}
 
-	_, err := strconv.ParseInt(os.Getenv("POSTGRES_PORT"), 10, 64)
-	if err != nil {
-		return &IncorrectEnvVariableError{"POSTGRES_PORT"}
-	}
+		_, err := strconv.ParseInt(os.Getenv("POSTGRES_PORT"), 10, 64)
+		if err != nil {
+			return &IncorrectEnvVariableError{"POSTGRES_PORT"}
+		}
 
-	if os.Getenv("POSTGRES_USER") == "" {
-		return &IncorrectEnvVariableError{"POSTGRES_USER"}
-	}
+		if os.Getenv("POSTGRES_USER") == "" {
+			return &IncorrectEnvVariableError{"POSTGRES_USER"}
+		}
 
-	if os.Getenv("POSTGRES_PASSWORD") == "" {
-		return &IncorrectEnvVariableError{"POSTGRES_PASSWORD"}
-	}
+		if os.Getenv("POSTGRES_PASSWORD") == "" {
+			return &IncorrectEnvVariableError{"POSTGRES_PASSWORD"}
+		}
 
-	if os.Getenv("POSTGRES_DB") == "" {
-		return &IncorrectEnvVariableError{"POSTGRES_DB"}
-	}
+		if os.Getenv("POSTGRES_DB") == "" {
+			return &IncorrectEnvVariableError{"POSTGRES_DB"}
+		}
 
-	switch os.Getenv("POSTGRES_SSL") {
-	case "true", "false":
+		switch os.Getenv("POSTGRES_SSL") {
+		case "true", "false":
+		default:
+			return &IncorrectEnvVariableError{"POSTGRES_SSL"}
+		}
+
+	case "file":
+		// Do nothing
+
 	default:
-		return &IncorrectEnvVariableError{"POSTGRES_SSL"}
+		return &IncorrectEnvVariableError{"DATABASE_TYPE"}
 	}
 
 	if os.Getenv("API_URL") == "" {
@@ -76,25 +85,35 @@ func ValidateEnv() error {
 	}
 
 	// Optional env variables below
-	if os.Getenv("API_REQUEST_TIMEOUT") != "" {
-		_, err := strconv.ParseInt(os.Getenv("API_REQUEST_TIMEOUT"), 10, 64)
-		if err != nil {
-			return &IncorrectEnvVariableError{"API_REQUEST_TIMEOUT"}
+
+	if os.Getenv("API_REQUEST_TIMEOUT") == "" {
+		if err := os.Setenv("API_REQUEST_TIMEOUT", "1000"); err != nil {
+			return err
 		}
 	}
-
-	if os.Getenv("API_CACHE_EXPIRES") != "" {
-		_, err := strconv.ParseInt(os.Getenv("API_CACHE_EXPIRES"), 10, 64)
-		if err != nil {
-			return &IncorrectEnvVariableError{"API_CACHE_EXPIRES"}
-		}
+	_, err := strconv.ParseInt(os.Getenv("API_REQUEST_TIMEOUT"), 10, 64)
+	if err != nil {
+		return &IncorrectEnvVariableError{"API_REQUEST_TIMEOUT"}
 	}
 
-	if os.Getenv("NOTIFICATIONS_SUGGESTION_DELAY") != "" {
-		_, err = strconv.ParseInt(os.Getenv("NOTIFICATIONS_SUGGESTION_DELAY"), 10, 64)
-		if err != nil {
-			return &IncorrectEnvVariableError{"NOTIFICATIONS_SUGGESTION_DELAY"}
+	if os.Getenv("API_CACHE_EXPIRES") == "" {
+		if err := os.Setenv("API_CACHE_EXPIRES", "3600"); err != nil {
+			return err
 		}
+	}
+	_, err = strconv.ParseInt(os.Getenv("API_CACHE_EXPIRES"), 10, 64)
+	if err != nil {
+		return &IncorrectEnvVariableError{"API_CACHE_EXPIRES"}
+	}
+
+	if os.Getenv("NOTIFICATIONS_SUGGESTION_DELAY") == "" {
+		if err := os.Setenv("NOTIFICATIONS_SUGGESTION_DELAY", "60"); err != nil {
+			return err
+		}
+	}
+	_, err = strconv.ParseInt(os.Getenv("NOTIFICATIONS_SUGGESTION_DELAY"), 10, 64)
+	if err != nil {
+		return &IncorrectEnvVariableError{"NOTIFICATIONS_SUGGESTION_DELAY"}
 	}
 
 	if os.Getenv("LOG_CHAT_ID") != "" {
