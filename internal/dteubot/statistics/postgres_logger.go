@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-package statistic
+package statistics
 
 import (
 	_ "embed"
@@ -34,14 +34,14 @@ var (
 	logCommandQuery string
 )
 
-// PostgresLogger is a logger that logs statistic events to the database.
+// PostgresLogger is a logger that logs statistics events to the database.
 //
 // It implements Logger interface.
 type PostgresLogger struct {
 	db *sqlx.DB
 }
 
-// NewPostgresLogger creates a new logger that logs statistic events to the database.
+// NewPostgresLogger creates a new logger that logs statistics events to the database.
 func NewPostgresLogger(db *sqlx.DB) Logger {
 	return &PostgresLogger{db: db}
 }

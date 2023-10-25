@@ -20,14 +20,14 @@
  * SOFTWARE.
  */
 
-package statistic
+package statistics
 
 import (
 	_ "embed"
 	"github.com/op/go-logging"
 )
 
-// Logger is an interface for logging statistic events.
+// Logger is an interface for logging statistics events.
 type Logger interface {
 	// LogButtonClick logs a user button click to the database.
 	LogButtonClick(chatId int64, userId int64, messageId int, button string) error
