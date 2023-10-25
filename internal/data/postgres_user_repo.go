@@ -23,42 +23,51 @@
 package data
 
 import (
+	"database/sql"
 	_ "embed"
-	"time"
+	"errors"
+	"github.com/jmoiron/sqlx"
 )
 
-// User is a struct that contains all the user data
-type User struct {
-	Id           int64     `db:"user_id"`
-	FirstName    string    `db:"first_name"`
-	LastName     string    `db:"last_name"`
-	Username     string    `db:"username"`
-	LanguageCode string    `db:"lang_code"`
-	IsPremium    bool      `db:"is_premium"`
-	IsAdmin      bool      `db:"is_admin"`
-	Referral     string    `db:"referral"`
-	Created      time.Time `db:"created"`
+// Load SQL queries from files
+var (
+	//go:embed sql/get_user.sql
+	getUserQuery string
+	//go:embed sql/update_user.sql
+	updateUserQuery string
+)
+
+// PostgresUserRepository implements UserRepository interface for PostgreSQL.
+//
+// Should be created via NewPostgresUserRepository.
+type PostgresUserRepository struct {
+	db *sqlx.DB
 }
 
-// UserRepository is an interface for working with user data.
-type UserRepository interface {
-	// GetById returns a user by its id.
-	GetById(id int64) (*User, error)
-	// Update updates the user data.
-	Update(user *User) error
+// NewPostgresUserRepository creates a new instance of PostgresUserRepository.
+func NewPostgresUserRepository(db *sqlx.DB) *PostgresUserRepository {
+	return &PostgresUserRepository{db: db}
 }
 
-// NewUser creates a new instance of User.
-func NewUser(id int64) *User {
-	return &User{
-		Id:           id,
-		FirstName:    "",
-		LastName:     "",
-		Username:     "",
-		LanguageCode: "",
-		IsPremium:    false,
-		IsAdmin:      false,
-		Referral:     "",
-		Created:      time.Now(),
+func (r *PostgresUserRepository) GetById(id int64) (*User, error) {
+	user := &User{}
+	err := r.db.Get(user, getUserQuery, id)
+
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, nil
 	}
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
+
+func (r *PostgresUserRepository) Update(user *User) error {
+	_, err := r.db.NamedExec(updateUserQuery, user)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

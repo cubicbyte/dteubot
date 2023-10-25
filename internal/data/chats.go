@@ -23,20 +23,9 @@
 package data
 
 import (
-	"database/sql"
 	_ "embed"
-	"errors"
-	"github.com/jmoiron/sqlx"
 	"os"
 	"time"
-)
-
-// Load SQL queries from files
-var (
-	//go:embed sql/get_chat.sql
-	getChatQuery string
-	//go:embed sql/update_chat.sql
-	updateChatQuery string
 )
 
 // Chat is a struct that contains all the chat settings
@@ -54,45 +43,10 @@ type Chat struct {
 
 // ChatRepository is an interface for working with chat data.
 type ChatRepository interface {
+	// GetById returns a chat by its id.
 	GetById(id int64) (*Chat, error)
+	// Update updates a chat.
 	Update(chat *Chat) error
-}
-
-// PostgresChatRepository implements ChatRepository interface for PostgreSQL.
-//
-// Should be created via NewPostgresChatRepository.
-type PostgresChatRepository struct {
-	db *sqlx.DB
-}
-
-// NewPostgresChatRepository creates a new instance of PostgresChatRepository.
-func NewPostgresChatRepository(db *sqlx.DB) *PostgresChatRepository {
-	return &PostgresChatRepository{db: db}
-}
-
-// GetById returns a chat by its id.
-func (r *PostgresChatRepository) GetById(id int64) (*Chat, error) {
-	chat := new(Chat)
-	err := r.db.Get(chat, getChatQuery, id)
-
-	if errors.Is(err, sql.ErrNoRows) {
-		return nil, nil
-	}
-	if err != nil {
-		return nil, err
-	}
-
-	return chat, nil
-}
-
-// Update updates a chat.
-func (r *PostgresChatRepository) Update(chat *Chat) error {
-	_, err := r.db.NamedExec(updateChatQuery, chat)
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
 
 // NewChat creates a new instance of Chat.

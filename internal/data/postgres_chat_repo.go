@@ -23,42 +23,51 @@
 package data
 
 import (
+	"database/sql"
 	_ "embed"
-	"time"
+	"errors"
+	"github.com/jmoiron/sqlx"
 )
 
-// User is a struct that contains all the user data
-type User struct {
-	Id           int64     `db:"user_id"`
-	FirstName    string    `db:"first_name"`
-	LastName     string    `db:"last_name"`
-	Username     string    `db:"username"`
-	LanguageCode string    `db:"lang_code"`
-	IsPremium    bool      `db:"is_premium"`
-	IsAdmin      bool      `db:"is_admin"`
-	Referral     string    `db:"referral"`
-	Created      time.Time `db:"created"`
+// Load SQL queries from files
+var (
+	//go:embed sql/get_chat.sql
+	getChatQuery string
+	//go:embed sql/update_chat.sql
+	updateChatQuery string
+)
+
+// PostgresChatRepository implements ChatRepository interface for PostgreSQL.
+//
+// Should be created via NewPostgresChatRepository.
+type PostgresChatRepository struct {
+	db *sqlx.DB
 }
 
-// UserRepository is an interface for working with user data.
-type UserRepository interface {
-	// GetById returns a user by its id.
-	GetById(id int64) (*User, error)
-	// Update updates the user data.
-	Update(user *User) error
+// NewPostgresChatRepository creates a new instance of PostgresChatRepository.
+func NewPostgresChatRepository(db *sqlx.DB) *PostgresChatRepository {
+	return &PostgresChatRepository{db: db}
 }
 
-// NewUser creates a new instance of User.
-func NewUser(id int64) *User {
-	return &User{
-		Id:           id,
-		FirstName:    "",
-		LastName:     "",
-		Username:     "",
-		LanguageCode: "",
-		IsPremium:    false,
-		IsAdmin:      false,
-		Referral:     "",
-		Created:      time.Now(),
+func (r *PostgresChatRepository) GetById(id int64) (*Chat, error) {
+	chat := new(Chat)
+	err := r.db.Get(chat, getChatQuery, id)
+
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, nil
 	}
+	if err != nil {
+		return nil, err
+	}
+
+	return chat, nil
+}
+
+func (r *PostgresChatRepository) Update(chat *Chat) error {
+	_, err := r.db.NamedExec(updateChatQuery, chat)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
