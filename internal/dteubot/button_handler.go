@@ -24,7 +24,6 @@ package dteubot
 
 import (
 	"errors"
-	"github.com/cubicbyte/dteubot/internal/data"
 	"github.com/cubicbyte/dteubot/internal/dteubot/buttons"
 	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -32,9 +31,6 @@ import (
 
 func HandleButtonClick(u *tgbotapi.Update) error {
 	log.Infof("Handling button %s from %d\n", u.CallbackQuery.Data, u.CallbackQuery.From.ID)
-
-	chatRepo := data.NewPostgresChatRepository(db)
-	userRepo := data.NewPostgresUserRepository(db)
 
 	chat, err := chatRepo.GetById(u.CallbackQuery.Message.Chat.ID)
 	if err != nil {

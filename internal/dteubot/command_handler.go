@@ -24,7 +24,6 @@ package dteubot
 
 import (
 	"errors"
-	"github.com/cubicbyte/dteubot/internal/data"
 	"github.com/cubicbyte/dteubot/internal/dteubot/commands"
 	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -39,9 +38,6 @@ func HandleCommand(u *tgbotapi.Update) error {
 	}
 
 	log.Infof("Handling command %s from %d\n", u.Message.Command(), u.Message.From.ID)
-
-	chatRepo := data.NewPostgresChatRepository(db)
-	userRepo := data.NewPostgresUserRepository(db)
 
 	chat, err := chatRepo.GetById(u.Message.Chat.ID)
 	if err != nil {

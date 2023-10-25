@@ -44,6 +44,7 @@ var Location = "Europe/Kiev"
 
 var log = logging.MustGetLogger("Notifier")
 
+// TODO: Move this login to ChatRepository (important)
 var (
 	//go:embed sql/get_chats_15m.sql
 	getChats15mQuery string
@@ -56,6 +57,7 @@ var (
 	api       api2.IApi
 	bot       *tgbotapi.BotAPI
 	langs     map[string]i18n.Language
+	chatRepo  data.ChatRepository
 	calls     api2.CallSchedule
 	location  *time.Location
 	Scheduler *gocron.Scheduler
@@ -69,13 +71,14 @@ type chatInfo struct {
 }
 
 // Setup initializes notifier and starts cron Scheduler
-func Setup(db2 *sqlx.DB, api3 api2.IApi, bot2 *tgbotapi.BotAPI, langs2 map[string]i18n.Language) error {
+func Setup(db2 *sqlx.DB, api3 api2.IApi, bot2 *tgbotapi.BotAPI, langs2 map[string]i18n.Language, chatRepo2 data.ChatRepository) error {
 	log.Info("Setting up notifier")
 
 	db = db2
 	api = api3
 	bot = bot2
 	langs = langs2
+	chatRepo = chatRepo2
 
 	// Setup cron Scheduler
 	var err error
@@ -427,15 +430,13 @@ func isLessonIsAboutToStart(lesson *api2.TimeTableLesson, time2 time.Time) (bool
 // MakeChatUnavailable makes chat unavailable if user blocked bot.
 // It is needed to prevent sending notifications to blocked users.
 func MakeChatUnavailable(chatId int64) error {
-	repo := data.NewPostgresChatRepository(db)
-
-	chat, err := repo.GetById(chatId)
+	chat, err := chatRepo.GetById(chatId)
 	if err != nil {
 		return err
 	}
 
 	chat.Accessible = false
-	err = repo.Update(chat)
+	err = chatRepo.Update(chat)
 	if err != nil {
 		return err
 	}

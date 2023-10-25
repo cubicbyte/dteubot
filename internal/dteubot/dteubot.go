@@ -58,6 +58,8 @@ var (
 	bot          *tgbotapi.BotAPI
 	db           *sqlx.DB
 	api          api2.IApi
+	chatRepo     data.ChatRepository
+	userRepo     data.UserRepository
 	languages    map[string]i18n.Language
 	groupsCache  *groupscache.Cache
 	teachersList *teachers.TeachersList
@@ -114,6 +116,7 @@ func Setup() {
 	} else {
 		ssl = "disable"
 	}
+
 	connStr := fmt.Sprintf("user=%s password=%s host=%s port=%s dbname=%s sslmode=%s",
 		os.Getenv("POSTGRES_USER"),
 		os.Getenv("POSTGRES_PASSWORD"),
@@ -126,6 +129,9 @@ func Setup() {
 	if err != nil {
 		log.Fatalf("Error connecting to database: %s\n", err)
 	}
+
+	chatRepo = data.NewPostgresChatRepository(db)
+	userRepo = data.NewPostgresUserRepository(db)
 
 	// Load the groups cache
 	groupsCache = groupscache.New(GroupsCachePath, api)
@@ -155,7 +161,7 @@ func Setup() {
 	log.Infof("Connected to Telegram API as %s\n", bot.Self.UserName)
 
 	// Set up notifier
-	err = notifier.Setup(db, api, bot, languages)
+	err = notifier.Setup(db, api, bot, languages, chatRepo)
 	if err != nil {
 		log.Fatalf("Error setting up notifier: %s\n", err)
 	}
@@ -185,9 +191,6 @@ func HandleUpdate(update *tgbotapi.Update) {
 
 	// Handle panics
 	defer HandlePanics(update)
-
-	chatRepo := data.NewPostgresChatRepository(db)
-	userRepo := data.NewPostgresUserRepository(db)
 
 	if err := utils.InitDatabaseRecords(update, chatRepo, userRepo); err != nil {
 		log.Errorf("Error initializing database records: %s\n", err)
@@ -273,7 +276,6 @@ func HandlePanics(u *tgbotapi.Update) {
 
 	// Get chat where the panic happened
 	chat := u.FromChat()
-	chatRepo := data.NewPostgresChatRepository(db)
 
 	if chat != nil {
 		// Send error page to chat
