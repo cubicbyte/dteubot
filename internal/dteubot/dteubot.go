@@ -28,7 +28,7 @@ import (
 	"github.com/cubicbyte/dteubot/internal/data"
 	"github.com/cubicbyte/dteubot/internal/dteubot/errorhandler"
 	"github.com/cubicbyte/dteubot/internal/dteubot/groupscache"
-	"github.com/cubicbyte/dteubot/internal/dteubot/statistic"
+	"github.com/cubicbyte/dteubot/internal/dteubot/statistics"
 	"github.com/cubicbyte/dteubot/internal/dteubot/teachers"
 	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
 	"github.com/cubicbyte/dteubot/internal/i18n"
@@ -47,6 +47,8 @@ import (
 
 const Location = "Europe/Kyiv"
 const CachePath = "cache"
+const ChatsDirPath = "chats"
+const UsersDirPath = "users"
 const ApiLevelDBPath = CachePath + "/api"
 const ApiCachePath = CachePath + "/api.sqlite"
 const GroupsCachePath = CachePath + "/groups.csv"
@@ -60,7 +62,7 @@ var (
 	api          api2.IApi
 	chatRepo     data.ChatRepository
 	userRepo     data.UserRepository
-	statLogger   statistic.Logger
+	statLogger   statistics.Logger
 	languages    map[string]i18n.Language
 	groupsCache  *groupscache.Cache
 	teachersList *teachers.TeachersList
@@ -69,6 +71,7 @@ var (
 // Setup sets up all the Bot components.
 func Setup() {
 	log.Info("Setting up Bot")
+	os.Setenv("DATABASE_TYPE", "postgres") // TODO
 
 	// Set timezone
 	loc, err := time.LoadLocation(Location)
@@ -80,6 +83,14 @@ func Setup() {
 	// Create required directories
 	if err := os.Mkdir(CachePath, 0755); err != nil && !os.IsExist(err) {
 		log.Fatalf("Error creating cache directory: %s\n", err)
+	}
+	if os.Getenv("DATABASE_TYPE") == "file" {
+		if err := os.Mkdir(ChatsDirPath, 0755); err != nil && !os.IsExist(err) {
+			log.Fatalf("Error creating chats directory: %s\n", err)
+		}
+		if err := os.Mkdir(UsersDirPath, 0755); err != nil && !os.IsExist(err) {
+			log.Fatalf("Error creating users directory: %s\n", err)
+		}
 	}
 
 	// Setup the API
@@ -110,30 +121,50 @@ func Setup() {
 	}
 	log.Infof("Loaded %d languages\n", len(languages))
 
-	// Connect to the database
-	var ssl string
-	if os.Getenv("POSTGRES_SSL") == "true" {
-		ssl = "require"
-	} else {
-		ssl = "disable"
-	}
+	// Setup the database
+	switch os.Getenv("DATABASE_TYPE") {
+	case "postgres":
+		var ssl string
+		if os.Getenv("POSTGRES_SSL") == "true" {
+			ssl = "require"
+		} else {
+			ssl = "disable"
+		}
 
-	connStr := fmt.Sprintf("user=%s password=%s host=%s port=%s dbname=%s sslmode=%s",
-		os.Getenv("POSTGRES_USER"),
-		os.Getenv("POSTGRES_PASSWORD"),
-		os.Getenv("POSTGRES_HOST"),
-		os.Getenv("POSTGRES_PORT"),
-		os.Getenv("POSTGRES_DB"),
-		ssl,
-	)
-	db, err = sqlx.Connect("postgres", connStr)
-	if err != nil {
-		log.Fatalf("Error connecting to database: %s\n", err)
-	}
+		connStr := fmt.Sprintf("user=%s password=%s host=%s port=%s dbname=%s sslmode=%s",
+			os.Getenv("POSTGRES_USER"),
+			os.Getenv("POSTGRES_PASSWORD"),
+			os.Getenv("POSTGRES_HOST"),
+			os.Getenv("POSTGRES_PORT"),
+			os.Getenv("POSTGRES_DB"),
+			ssl,
+		)
+		db, err = sqlx.Connect("postgres", connStr)
+		if err != nil {
+			log.Fatalf("Error connecting to database: %s\n", err)
+		}
 
-	chatRepo = data.NewPostgresChatRepository(db)
-	userRepo = data.NewPostgresUserRepository(db)
-	statLogger = statistic.NewPostgresLogger(db)
+		chatRepo = data.NewPostgresChatRepository(db)
+		userRepo = data.NewPostgresUserRepository(db)
+		statLogger = statistics.NewPostgresLogger(db)
+
+	case "file":
+		chatRepo, err = data.NewFileChatRepository(ChatsDirPath)
+		if err != nil {
+			log.Fatalf("Error setting up chat repository: %s\n", err)
+		}
+		userRepo, err = data.NewFileUserRepository(UsersDirPath)
+		if err != nil {
+			log.Fatalf("Error setting up user repository: %s\n", err)
+		}
+		statLogger, err = statistics.NewFileLogger("statistics")
+		if err != nil {
+			log.Fatalf("Error setting up statistics logger: %s\n", err)
+		}
+
+	default:
+		log.Fatalf("Unknown database type: %s\n", os.Getenv("DATABASE_TYPE"))
+	}
 
 	// Load the groups cache
 	groupsCache = groupscache.New(GroupsCachePath, api)
@@ -163,9 +194,11 @@ func Setup() {
 	log.Infof("Connected to Telegram API as %s\n", bot.Self.UserName)
 
 	// Set up notifier
-	err = notifier.Setup(db, api, bot, languages, chatRepo)
-	if err != nil {
-		log.Fatalf("Error setting up notifier: %s\n", err)
+	if os.Getenv("DATABASE_TYPE") == "postgres" {
+		err = notifier.Setup(db, api, bot, languages, chatRepo)
+		if err != nil {
+			log.Fatalf("Error setting up notifier: %s\n", err)
+		}
 	}
 }
 
@@ -174,7 +207,9 @@ func Run() {
 	log.Info("Starting Bot")
 
 	// Start notifier
-	notifier.Scheduler.StartAsync()
+	if os.Getenv("DATABASE_TYPE") == "postgres" { // TODO
+		notifier.Scheduler.StartAsync()
+	}
 
 	// Start updates loop
 	u := tgbotapi.NewUpdate(0)
@@ -230,17 +265,15 @@ func HandleUpdate(update *tgbotapi.Update) {
 		}
 
 		// Save command to statistics
-		if os.Getenv("DATABASE_TYPE") == "postgres" {
-			if update.Message.Command() != "" {
-				err = statLogger.LogCommand(
-					update.Message.Chat.ID,
-					update.Message.From.ID,
-					update.Message.MessageID,
-					update.Message.Command(),
-				)
-				if err != nil {
-					errorhandler.HandleError(err, update, bot, lang, chat, chatRepo)
-				}
+		if update.Message.Command() != "" {
+			err = statLogger.LogCommand(
+				update.Message.Chat.ID,
+				update.Message.From.ID,
+				update.Message.MessageID,
+				update.Message.Command(),
+			)
+			if err != nil {
+				errorhandler.HandleError(err, update, bot, lang, chat, chatRepo)
 			}
 		}
 	}
@@ -252,16 +285,14 @@ func HandleUpdate(update *tgbotapi.Update) {
 		}
 
 		// Save button click to statistics
-		if os.Getenv("DATABASE_TYPE") == "postgres" {
-			err := statLogger.LogButtonClick(
-				update.CallbackQuery.Message.Chat.ID,
-				update.CallbackQuery.From.ID,
-				update.CallbackQuery.Message.MessageID,
-				update.CallbackQuery.Data,
-			)
-			if err != nil {
-				errorhandler.HandleError(err, update, bot, lang, chat, chatRepo)
-			}
+		err := statLogger.LogButtonClick(
+			update.CallbackQuery.Message.Chat.ID,
+			update.CallbackQuery.From.ID,
+			update.CallbackQuery.Message.MessageID,
+			update.CallbackQuery.Data,
+		)
+		if err != nil {
+			errorhandler.HandleError(err, update, bot, lang, chat, chatRepo)
 		}
 	}
 

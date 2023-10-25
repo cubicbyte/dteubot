@@ -29,15 +29,15 @@ import (
 
 // User is a struct that contains all the user data
 type User struct {
-	Id           int64     `db:"user_id"`
-	FirstName    string    `db:"first_name"`
-	LastName     string    `db:"last_name"`
-	Username     string    `db:"username"`
-	LanguageCode string    `db:"lang_code"`
-	IsPremium    bool      `db:"is_premium"`
-	IsAdmin      bool      `db:"is_admin"`
-	Referral     string    `db:"referral"`
-	Created      time.Time `db:"created"`
+	Id           int64     `db:"user_id" json:"id"`
+	FirstName    string    `db:"first_name" json:"firstName"`
+	LastName     string    `db:"last_name" json:"lastName"`
+	Username     string    `db:"username" json:"username"`
+	LanguageCode string    `db:"lang_code" json:"languageCode"`
+	IsPremium    bool      `db:"is_premium" json:"isPremium"`
+	IsAdmin      bool      `db:"is_admin" json:"isAdmin"`
+	Referral     string    `db:"referral" json:"referral"`
+	Created      time.Time `db:"created" json:"created"`
 }
 
 // UserRepository is an interface for working with user data.

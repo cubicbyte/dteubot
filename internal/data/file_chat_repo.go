@@ -37,8 +37,12 @@ type FileChatRepository struct {
 }
 
 // NewFileChatRepository creates a new instance of FileChatRepository.
-func NewFileChatRepository(dir string) *FileChatRepository {
-	return &FileChatRepository{dir: dir}
+func NewFileChatRepository(dir string) (*FileChatRepository, error) {
+	if err := os.MkdirAll(dir, 0755); err != nil {
+		return nil, err
+	}
+
+	return &FileChatRepository{dir: dir}, nil
 }
 
 func (r *FileChatRepository) GetById(id int64) (*Chat, error) {

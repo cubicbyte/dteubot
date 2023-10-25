@@ -37,8 +37,12 @@ type FileUserRepository struct {
 }
 
 // NewFileUserRepository creates a new instance of FileUserRepository.
-func NewFileUserRepository(dir string) *FileUserRepository {
-	return &FileUserRepository{dir: dir}
+func NewFileUserRepository(dir string) (*FileUserRepository, error) {
+	if err := os.MkdirAll(dir, 0755); err != nil {
+		return nil, err
+	}
+
+	return &FileUserRepository{dir: dir}, nil
 }
 
 func (r *FileUserRepository) GetById(id int64) (*User, error) {

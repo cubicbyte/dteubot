@@ -30,15 +30,15 @@ import (
 
 // Chat is a struct that contains all the chat settings
 type Chat struct {
-	Id                          int64     `db:"chat_id"`
-	GroupId                     int       `db:"group_id"`
-	LanguageCode                string    `db:"lang_code"`
-	ClassesNotification15m      bool      `db:"cl_notif_15m"`
-	ClassesNotification1m       bool      `db:"cl_notif_1m"`
-	ClassesNotificationNextPart bool      `db:"cl_notif_next_part"`
-	SeenSettings                bool      `db:"seen_settings"`
-	Accessible                  bool      `db:"accessible"`
-	Created                     time.Time `db:"created"`
+	Id                          int64     `db:"chat_id" json:"id"`
+	GroupId                     int       `db:"group_id" json:"groupId"`
+	LanguageCode                string    `db:"lang_code" json:"languageCode"`
+	ClassesNotification15m      bool      `db:"cl_notif_15m" json:"clNotif15m"`
+	ClassesNotification1m       bool      `db:"cl_notif_1m" json:"clNotif1m"`
+	ClassesNotificationNextPart bool      `db:"cl_notif_next_part" json:"clNotifNextPart"`
+	SeenSettings                bool      `db:"seen_settings" json:"seenSettings"`
+	Accessible                  bool      `db:"accessible" json:"accessible"`
+	Created                     time.Time `db:"created" json:"created"`
 }
 
 // ChatRepository is an interface for working with chat data.
