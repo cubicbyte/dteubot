@@ -89,7 +89,7 @@ At the moment in development.
 
 ## 3. Manual compilation
 
-> :warning: For this method you need **Go** version **1.21+** - [download](https://golang.org/dl/)
+> :warning: For this method you need **Go** version **1.21.1+** - [download](https://golang.org/dl/)
 
 1. Download this repository and open command line in it.<br>
    To download, click the green button **<span style="color: lightgreen;"><> Code</span> > Download ZIP**<br>
