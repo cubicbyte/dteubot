@@ -97,7 +97,7 @@ func Setup(api api2.IApi, bot *tgbotapi.BotAPI, langs map[string]i18n.Language, 
 }
 
 // SendNotifications sends notifications to chats that subscribed to notifications
-func SendNotifications(time2 string, chatRepo data.ChatRepository, api api2.IApi, bot *tgbotapi.BotAPI, langs map[string]i18n.Language, calls *api2.CallSchedule) error {
+func SendNotifications(time2 string, chatRepo data.ChatRepository, api api2.IApi, bot *tgbotapi.BotAPI, langs map[string]i18n.Language, calls api2.CallSchedule) error {
 	log.Infof("Sending notifications %s", time2)
 
 	// Get chats with notifications enabled
@@ -286,7 +286,7 @@ func GetSubscribedChats(time string, chatRepo data.ChatRepository) ([]*data.Chat
 
 // IsGroupHaveClasses checks if group have classes at given time that are about to start
 // to know if we need to send notifications
-func IsGroupHaveClasses(schedule *api2.TimeTableDate, calls *api2.CallSchedule, time2 time.Time) (bool, error) {
+func IsGroupHaveClasses(schedule *api2.TimeTableDate, calls api2.CallSchedule, time2 time.Time) (bool, error) {
 	// Get first lesson
 	if len(schedule.Lessons) == 0 {
 		return false, nil
@@ -307,7 +307,7 @@ func IsGroupHaveClasses(schedule *api2.TimeTableDate, calls *api2.CallSchedule, 
 
 // IsGroupHaveNextClassesPart checks if group have next classes part
 // at given time that are about to start.
-func IsGroupHaveNextClassesPart(schedule *api2.TimeTableDate, calls *api2.CallSchedule, time2 time.Time) (bool, error) {
+func IsGroupHaveNextClassesPart(schedule *api2.TimeTableDate, calls api2.CallSchedule, time2 time.Time) (bool, error) {
 	if len(schedule.Lessons) == 0 {
 		return false, nil
 	}
@@ -354,7 +354,7 @@ func IsGroupHaveNextClassesPart(schedule *api2.TimeTableDate, calls *api2.CallSc
 }
 
 // isLessonIsAboutToStart checks if lesson is about to start
-func isLessonIsAboutToStart(lesson *api2.TimeTableLesson, calls *api2.CallSchedule, time2 time.Time) (bool, error) {
+func isLessonIsAboutToStart(lesson *api2.TimeTableLesson, calls api2.CallSchedule, time2 time.Time) (bool, error) {
 	// Get this lesson call and previous lesson call
 	thisCall := calls.GetCall(lesson.Number)
 	previousCall := calls.GetCall(lesson.Number - 1)
