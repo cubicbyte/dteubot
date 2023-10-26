@@ -55,28 +55,14 @@ Bot can be started in three ways:
 
 ## 1. Normal way
 
-Bot needs a database [PostgreSQL](https://www.postgresql.org/download/) to work.
-
-### 1. Database setup
-
-You need to create a database and configure it using the [setup.sql](sql/setup.sql) file.
-
-1. Download and install PostgreSQL
-2. Create a database and setup it using [setup.sql](sql/setup.sql) file
-
-### 2. Bot setup
-
 1. Download [latest bot version](https://github.com/cubicbyte/dteubot/releases/latest)
 2. Put file `dteubot` in any directory you want to store bot data
 3. Run the file with this command: (after first run, config file will be created)
    ```shell
    ./dteubot
    ```
-4. Open `.env` file and fill all required fields, such as bot token and database connection parameters.
-
-### 3. Bot launch
-
-1. Run the file with this command:
+4. Open `.env` file and fill **BOT_TOKEN**. Other settings are optional.
+5. Run bot with this command:
    ```shell
    ./dteubot
    ```
