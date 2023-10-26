@@ -76,6 +76,11 @@ func ValidateEnv() error {
 	case "file":
 		// Do nothing
 
+	case "":
+		if err := os.Setenv("DATABASE_TYPE", "file"); err != nil {
+			return err
+		}
+
 	default:
 		return &IncorrectEnvVariableError{"DATABASE_TYPE"}
 	}
