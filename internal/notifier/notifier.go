@@ -121,18 +121,6 @@ func SendNotifications(time2 string, chatRepo data.ChatRepository, api api2.IApi
 		// Get group schedule
 		schedule, err := api.GetGroupScheduleDay(chat.GroupId, curTime.Format("2006-01-02"))
 		if err != nil {
-			// Check if user blocked bot
-			var tgError *tgbotapi.Error
-			if errors.As(err, &tgError) && tgError.Code == 403 {
-				// User blocked bot
-				log.Infof("Bot blocked in chat %d", chat.Id)
-				if err = MakeChatUnavailable(chat, chatRepo); err != nil {
-					log.Errorf("Error making chat %d unavailable: %s", chat.Id, err)
-					errorhandler.SendErrorToTelegram(err, bot)
-				}
-				continue
-			}
-
 			// Check if api connection error
 			var urlError *url.Error
 			if errors.As(err, &urlError) {
@@ -166,7 +154,7 @@ func SendNotifications(time2 string, chatRepo data.ChatRepository, api api2.IApi
 			}
 
 			// Send notification to chat
-			err = SendNotification(chat.Id, lang, bot, schedule, time2, "start")
+			err = SendNotification(chat, chatRepo, lang, bot, schedule, time2, "start")
 			if err != nil {
 				log.Warningf("Error sending notification to chat %d: %s", chat.Id, err)
 				errorhandler.SendErrorToTelegram(err, bot)
@@ -201,7 +189,7 @@ func SendNotifications(time2 string, chatRepo data.ChatRepository, api api2.IApi
 			}
 
 			// Send notification to chat
-			err = SendNotification(chat.Id, lang, bot, schedule, time2, "next_part")
+			err = SendNotification(chat, chatRepo, lang, bot, schedule, time2, "next_part")
 			if err != nil {
 				log.Warningf("Error sending notification to chat %d: %s", chat.Id, err)
 				errorhandler.SendErrorToTelegram(err, bot)
@@ -219,8 +207,8 @@ func SendNotifications(time2 string, chatRepo data.ChatRepository, api api2.IApi
 }
 
 // SendNotification sends notification to chat
-func SendNotification(chatId int64, lang *i18n.Language, bot *tgbotapi.BotAPI, schedule *api2.TimeTableDate, time string, type2 string) error {
-	log.Debugf("Sending %s %s notification to chat %d", type2, time, chatId)
+func SendNotification(chat *data.Chat, chatRepo data.ChatRepository, lang *i18n.Language, bot *tgbotapi.BotAPI, schedule *api2.TimeTableDate, time string, type2 string) error {
+	log.Debugf("Sending %s %s notification to chat %d", type2, time, chat.Id)
 
 	var pageText string
 	if type2 == "start" {
@@ -260,12 +248,23 @@ func SendNotification(chatId int64, lang *i18n.Language, bot *tgbotapi.BotAPI, s
 	)
 
 	// Send message
-	msg := tgbotapi.NewMessage(chatId, pageText)
+	msg := tgbotapi.NewMessage(chat.Id, pageText)
 	msg.ParseMode = tgbotapi.ModeMarkdownV2
 	msg.ReplyMarkup = replyMarkup
 
 	_, err := bot.Send(msg)
 	if err != nil {
+		// Check if user blocked bot
+		var tgError *tgbotapi.Error
+		if errors.As(err, &tgError) && tgError.Code == 403 {
+			log.Infof("Bot blocked in chat %d", chat.Id)
+			if err = MakeChatUnavailable(chat, chatRepo); err != nil {
+				log.Errorf("Error making chat %d unavailable: %s", chat.Id, err)
+				errorhandler.SendErrorToTelegram(err, bot)
+			}
+			return nil
+		}
+
 		return err
 	}
 
