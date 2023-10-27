@@ -36,6 +36,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -58,6 +59,7 @@ type Cache struct {
 	File   string
 	groups map[int]Group
 	api    api.IApi
+	mu     sync.Mutex
 }
 
 // New creates new cache instance
@@ -66,6 +68,7 @@ func New(file string, api2 api.IApi) *Cache {
 		File:   file,
 		groups: make(map[int]Group),
 		api:    api2,
+		mu:     sync.Mutex{},
 	}
 }
 
@@ -220,6 +223,8 @@ func (c *Cache) Load() error {
 		return err
 	}
 
+	defer f.Close()
+
 	// Read file
 	reader := csv.NewReader(f)
 	reader.Comma = ';'
@@ -266,18 +271,24 @@ func (c *Cache) Load() error {
 		c.groups[id] = group
 	}
 
-	return f.Close()
+	return nil
 }
 
 // Save cache to csv file
 func (c *Cache) Save() error {
 	log.Debugf("Saving groups cache to %s\n", c.File)
 
+	// Lock mutex
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
 	// Open csv file
 	f, err := os.OpenFile(c.File, os.O_RDWR|os.O_CREATE, 0666)
 	if err != nil {
 		return err
 	}
+
+	defer f.Close()
 
 	// Create csv writer
 	writer := csv.NewWriter(f)
@@ -300,5 +311,5 @@ func (c *Cache) Save() error {
 	// Flush csv writer
 	writer.Flush()
 
-	return f.Close()
+	return nil
 }
