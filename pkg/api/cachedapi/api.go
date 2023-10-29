@@ -332,11 +332,11 @@ func (api *CachedApi) GetGroupSchedule(groupId int, dateStart string, dateEnd st
 	log.Debugf("Getting schedule for group %d from %s to %s", groupId, dateStart, dateEnd)
 
 	// Get dates range
-	start, err := api2.ParseISODate(dateStart)
+	start, err := time.Parse(time.DateOnly, dateStart)
 	if err != nil {
 		return nil, err
 	}
-	end, err := api2.ParseISODate(dateEnd)
+	end, err := time.Parse(time.DateOnly, dateEnd)
 	if err != nil {
 		return nil, err
 	}
