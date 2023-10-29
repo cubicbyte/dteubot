@@ -311,5 +311,9 @@ func (c *Cache) Save() error {
 	// Flush csv writer
 	writer.Flush()
 
+	if err := writer.Error(); err != nil {
+		return err
+	}
+
 	return nil
 }
