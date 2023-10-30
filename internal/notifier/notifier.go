@@ -135,7 +135,8 @@ func SendNotifications(time2 string, chatRepo data.ChatRepository, api api2.IApi
 		}
 
 		// Check if group have classes
-		haveClasses, err := IsGroupHaveClasses(schedule, calls, curTime)
+		expectedTime := AddNotificationTime(curTime, time2)
+		haveClasses, err := IsGroupHaveClasses(schedule, calls, expectedTime)
 		if err != nil {
 			log.Errorf("Error checking if group have classes for chat %d: %s", chat.Id, err)
 			errorhandler.SendErrorToTelegram(err, bot)
@@ -170,7 +171,7 @@ func SendNotifications(time2 string, chatRepo data.ChatRepository, api api2.IApi
 			continue
 		}
 
-		haveNextClassesPart, err := IsGroupHaveNextClassesPart(schedule, calls, curTime)
+		haveNextClassesPart, err := IsGroupHaveNextClassesPart(schedule, calls, expectedTime)
 		if err != nil {
 			log.Errorf("Error checking if group have next classes part for chat %d: %s", chat.Id, err)
 			errorhandler.SendErrorToTelegram(err, bot)
@@ -401,4 +402,16 @@ func MakeChatUnavailable(chat *data.Chat, chatRepo data.ChatRepository) error {
 	}
 
 	return nil
+}
+
+// AddNotificationTime returns adds notification time to given time
+func AddNotificationTime(time2 time.Time, notificationTime string) time.Time {
+	switch notificationTime {
+	case "15m":
+		return time2.Add(15 * time.Minute)
+	case "1m":
+		return time2.Add(1 * time.Minute)
+	default:
+		return time2
+	}
 }
