@@ -30,6 +30,7 @@ import (
 	"github.com/op/go-logging"
 	"os"
 	"strings"
+	"time"
 )
 
 var log = logging.MustGetLogger("bot")
@@ -187,4 +188,9 @@ func GetLang(code string, langs map[string]i18n.Language) (*i18n.Language, error
 	}
 
 	return &lang, nil
+}
+
+// SetLocation sets the location of the time without changing the time itself.
+func SetLocation(time2 time.Time, location *time.Location) time.Time {
+	return time.Date(time2.Year(), time2.Month(), time2.Day(), time2.Hour(), time2.Minute(), time2.Second(), time2.Nanosecond(), location)
 }

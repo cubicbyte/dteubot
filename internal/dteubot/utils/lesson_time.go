@@ -86,7 +86,7 @@ func GetCallsStatus(groupId int, time2 time.Time, api2 api.IApi) (*CallsStatus, 
 }
 
 // getCallsStatus returns GetCallsStatus for a specific day
-func getCallsStatus(day api.TimeTableDate, calls api.CallSchedule, time_ time.Time) (*CallsStatus, error) {
+func getCallsStatus(day api.TimeTableDate, calls api.CallSchedule, time2 time.Time) (*CallsStatus, error) {
 	if len(day.Lessons) == 0 {
 		return nil, nil
 	}
@@ -97,7 +97,10 @@ func getCallsStatus(day api.TimeTableDate, calls api.CallSchedule, time_ time.Ti
 	if err != nil {
 		return nil, err
 	}
-	if time_.Before(firstCallStart) {
+
+	firstCallStart = SetLocation(firstCallStart, time2.Location())
+
+	if time2.Before(firstCallStart) {
 		return &CallsStatus{
 			Status: CallStatusBeforeStart,
 			Time:   firstCallStart,
@@ -110,24 +113,31 @@ func getCallsStatus(day api.TimeTableDate, calls api.CallSchedule, time_ time.Ti
 	if err != nil {
 		return nil, err
 	}
-	if time_.After(lastCallEnd) {
+
+	lastCallEnd = SetLocation(lastCallEnd, time2.Location())
+
+	if time2.After(lastCallEnd) {
 		return nil, nil
 	}
 
 	// Check if the current time is during the lesson or break
 	for _, lesson := range day.Lessons {
 		call := calls.GetCall(lesson.Number)
+
 		callStart, err := time.Parse("2006-01-02 15:04", day.Date+" "+call.TimeStart)
 		if err != nil {
 			return nil, err
 		}
+		callStart = SetLocation(callStart, time2.Location())
+
 		callEnd, err := time.Parse("2006-01-02 15:04", day.Date+" "+call.TimeEnd)
 		if err != nil {
 			return nil, err
 		}
+		callEnd = SetLocation(callEnd, time2.Location())
 
 		// Check if the current time is during the lesson
-		if time_.After(callStart) && time_.Before(callEnd) {
+		if time2.After(callStart) && time2.Before(callEnd) {
 			return &CallsStatus{
 				Status: CallStatusDuring,
 				Time:   callEnd,
@@ -135,7 +145,7 @@ func getCallsStatus(day api.TimeTableDate, calls api.CallSchedule, time_ time.Ti
 		}
 
 		// Check if the current time is before the next lesson
-		if time_.Before(callStart) {
+		if time2.Before(callStart) {
 			return &CallsStatus{
 				Status: CallStatusBefore,
 				Time:   callStart,
