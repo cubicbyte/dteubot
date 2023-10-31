@@ -30,12 +30,13 @@ import (
 	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
 	"github.com/cubicbyte/dteubot/internal/i18n"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/sirkon/go-format/v2"
 )
 
-func HandleSetClassesNotificationsButton(u *tgbotapi.Update, bot *tgbotapi.BotAPI, lang *i18n.Language, chat *data.Chat, chatRepo data.ChatRepository, groups *groupscache.Cache) error {
+func HandleSetClassesNotificationsButton(u *tgbotapi.Update, bot *tgbotapi.BotAPI, lang *i18n.Language, chat *data.Chat, chatRepo data.ChatRepository, user *data.User, groups *groupscache.Cache) error {
 	button := utils.ParseButtonData(u.CallbackQuery.Data)
 
-	// Get state & time from button data
+	// Get button data
 	state, ok := button.Params["state"]
 	if !ok {
 		return errors.New("notif param not found")
@@ -44,6 +45,7 @@ func HandleSetClassesNotificationsButton(u *tgbotapi.Update, bot *tgbotapi.BotAP
 	if !ok {
 		return errors.New("time param not found")
 	}
+	_, isSuggestion := button.Params["suggestion"]
 
 	// Update chat classes notifications settings
 	switch time2 {
@@ -58,6 +60,22 @@ func HandleSetClassesNotificationsButton(u *tgbotapi.Update, bot *tgbotapi.BotAP
 	err := chatRepo.Update(chat)
 	if err != nil {
 		return err
+	}
+
+	// If it's a suggestion, send tooltip and close page
+	if isSuggestion {
+		// Send alert
+		alertText := format.Formatm(lang.Alert.ClNotifEnabledTooltip, format.Values{
+			"remaining": time2[0 : len(time2)-1],
+		})
+		alert := tgbotapi.NewCallbackWithAlert(u.CallbackQuery.ID, alertText)
+		_, err = bot.Request(alert)
+		if err != nil {
+			return err
+		}
+
+		// Close page
+		return ClosePage(u.CallbackQuery.Message.Chat.ID, u.CallbackQuery.Message.MessageID, bot, lang, user)
 	}
 
 	// Update page

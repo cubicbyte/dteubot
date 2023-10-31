@@ -81,7 +81,7 @@ func HandleButtonClick(u *tgbotapi.Update) error {
 	case "open.select_lang":
 		return buttons.HandleOpenSelectLanguageButton(u, bot, lang, languages)
 	case "open.schedule.day":
-		return buttons.HandleScheduleDayButton(u, bot, lang, chat.GroupId, api, teachersList)
+		return buttons.HandleScheduleDayButton(u, bot, lang, chat, chatRepo, chat.GroupId, api, teachersList)
 	case "select.schedule.structure":
 		return buttons.HandleSelectStructureButton(u, bot, lang, api)
 	case "select.schedule.faculty":
@@ -93,7 +93,7 @@ func HandleButtonClick(u *tgbotapi.Update) error {
 	case "select.lang":
 		return buttons.HandleSelectLanguageButton(u, bot, lang, languages, chat, chatRepo, groupsCache)
 	case "set.cl_notif":
-		return buttons.HandleSetClassesNotificationsButton(u, bot, lang, chat, chatRepo, groupsCache)
+		return buttons.HandleSetClassesNotificationsButton(u, bot, lang, chat, chatRepo, user, groupsCache)
 	case "set.cl_notif_next_part":
 		return buttons.HandleSetClassesNotificationsNextPartButton(u, bot, lang, chat, chatRepo, groupsCache)
 	case "admin.clear_cache":
@@ -102,6 +102,8 @@ func HandleButtonClick(u *tgbotapi.Update) error {
 		return buttons.HandleClearLogsButton(u, bot, lang, user)
 	case "admin.get_logs":
 		return buttons.HandleSendLogsButton(u, bot, lang, user)
+	case "close_page":
+		return buttons.HandleClosePageButton(u, bot, lang, user)
 	default:
 		log.Warningf("Unknown button action: %s\n", button.Action)
 		return buttons.HandleUnsupportedButton(u, bot, lang, user)

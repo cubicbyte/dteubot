@@ -9,4 +9,5 @@
 # User files
 /.idea
 /.env
+/*.syso
 *.exe

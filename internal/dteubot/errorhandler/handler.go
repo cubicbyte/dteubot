@@ -193,6 +193,18 @@ func HandleError(err error, update *tgbotapi.Update, bot *tgbotapi.BotAPI, lang 
 				break
 			}
 
+			if strings.HasPrefix(tgError.Message, "Bad Request: message to edit not found") {
+				// Message to edit not found
+				log.Warningf("Message to edit not found: %s", err)
+				break
+			}
+
+			if strings.HasPrefix(tgError.Message, "Bad Request: message can't be deleted for everyone") {
+				// We are trying to delete message that is older than 48 hours
+				log.Warningf("Message can't be deleted for everyone: %s", err)
+				break
+			}
+
 			// Unknown Telegram API error
 			log.Errorf("Unknown bad request error: %s", err)
 			SendErrorToTelegram(err, bot)

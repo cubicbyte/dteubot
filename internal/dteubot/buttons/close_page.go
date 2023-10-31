@@ -26,60 +26,39 @@ import (
 	"errors"
 	"github.com/cubicbyte/dteubot/internal/data"
 	"github.com/cubicbyte/dteubot/internal/dteubot/pages"
-	"github.com/cubicbyte/dteubot/internal/dteubot/teachers"
-	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
 	"github.com/cubicbyte/dteubot/internal/i18n"
-	"github.com/cubicbyte/dteubot/pkg/api"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"time"
+	"strings"
 )
 
-func HandleScheduleDayButton(u *tgbotapi.Update, bot *tgbotapi.BotAPI, lang *i18n.Language, chat *data.Chat, chatRepo data.ChatRepository, groupId int, api2 api.IApi, teachersList *teachers.TeachersList) error {
-	button := utils.ParseButtonData(u.CallbackQuery.Data)
-
-	// Get date from button params
-	date, ok := button.Params["date"]
-	if !ok {
-		return errors.New("date param not found")
-	}
-
-	// Open schedule page
-	page, err := pages.CreateSchedulePage(lang, groupId, date, api2, teachersList)
-	if err := editPage(page, err, u, bot); err != nil {
-		return err
-	}
-
-	// Suggest notifications
-	if err := SuggestNotifications(chat, chatRepo, bot, lang); err != nil {
-		return err
-	}
-
-	return nil
+func HandleClosePageButton(u *tgbotapi.Update, bot *tgbotapi.BotAPI, lang *i18n.Language, user *data.User) error {
+	return ClosePage(u.CallbackQuery.Message.Chat.ID, u.CallbackQuery.Message.MessageID, bot, lang, user)
 }
 
-func SuggestNotifications(chat *data.Chat, chatRepo data.ChatRepository, bot *tgbotapi.BotAPI, lang *i18n.Language) error {
-	if chat.SeenSettings {
-		return nil
-	}
+// ClosePage closes page or changes it to menu page
+func ClosePage(chatId int64, messageId int, bot *tgbotapi.BotAPI, lang *i18n.Language, user *data.User) error {
+	_, err := bot.Request(tgbotapi.NewDeleteMessage(chatId, messageId))
 
-	// Wait for 1 second
-	time.Sleep(1 * time.Second)
-
-	// Send notifications feature suggestion page
-	page, err := pages.CreateNotificationFeatureSuggestionPage(lang)
 	if err != nil {
-		return err
-	}
+		// Check if error is because of message is older than 48 hours
+		var tgError *tgbotapi.Error
+		if errors.As(err, &tgError) && tgError.Code == 400 {
+			if strings.HasPrefix(tgError.Message, "Bad Request: message can't be deleted for everyone") {
+				// Edit message to menu page
+				page, err := pages.CreateMenuPage(lang, user)
+				if err != nil {
+					return err
+				}
 
-	_, err = bot.Send(page.CreateMessage(chat.Id))
-	if err != nil {
-		return err
-	}
+				_, err = bot.Send(page.CreateEditMessage(chatId, messageId))
+				if err != nil {
+					return err
+				}
 
-	// Update chat
-	chat.SeenSettings = true
+				return nil
+			}
+		}
 
-	if err := chatRepo.Update(chat); err != nil {
 		return err
 	}
 
