@@ -45,6 +45,13 @@ func ValidateEnv() error {
 	}
 
 	switch os.Getenv("DATABASE_TYPE") {
+	case "":
+		// Set default database type
+		if err := os.Setenv("DATABASE_TYPE", "file"); err != nil {
+			return err
+		}
+		fallthrough
+
 	case "postgres":
 		if os.Getenv("POSTGRES_HOST") == "" {
 			return &IncorrectEnvVariableError{"POSTGRES_HOST"}
@@ -76,11 +83,6 @@ func ValidateEnv() error {
 	case "file":
 		// Do nothing
 
-	case "":
-		if err := os.Setenv("DATABASE_TYPE", "file"); err != nil {
-			return err
-		}
-
 	default:
 		return &IncorrectEnvVariableError{"DATABASE_TYPE"}
 	}
@@ -92,7 +94,7 @@ func ValidateEnv() error {
 	// Optional env variables below
 
 	if os.Getenv("API_REQUEST_TIMEOUT") == "" {
-		if err := os.Setenv("API_REQUEST_TIMEOUT", "1000"); err != nil {
+		if err := os.Setenv("API_REQUEST_TIMEOUT", "800"); err != nil {
 			return err
 		}
 	}
@@ -109,16 +111,6 @@ func ValidateEnv() error {
 	_, err = strconv.ParseInt(os.Getenv("API_CACHE_EXPIRES"), 10, 64)
 	if err != nil {
 		return &IncorrectEnvVariableError{"API_CACHE_EXPIRES"}
-	}
-
-	if os.Getenv("NOTIFICATIONS_SUGGESTION_DELAY") == "" {
-		if err := os.Setenv("NOTIFICATIONS_SUGGESTION_DELAY", "60"); err != nil {
-			return err
-		}
-	}
-	_, err = strconv.ParseInt(os.Getenv("NOTIFICATIONS_SUGGESTION_DELAY"), 10, 64)
-	if err != nil {
-		return &IncorrectEnvVariableError{"NOTIFICATIONS_SUGGESTION_DELAY"}
 	}
 
 	if os.Getenv("LOG_CHAT_ID") != "" {
