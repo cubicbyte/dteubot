@@ -30,6 +30,7 @@ import (
 	"github.com/sirkon/go-format/v2"
 	"strconv"
 	"strings"
+	"unicode/utf8"
 )
 
 func CreateScheduleExtraInfoPage(lang *i18n.Language, groupId int, date string, api api.IApi) (*Page, error) {
@@ -75,7 +76,7 @@ func CreateScheduleExtraInfoPage(lang *i18n.Language, groupId int, date string, 
 
 	pageText := format.Formatp(lang.Page.ScheduleExtraInfo, pageExtraText)
 
-	if len(pageText) > 4096 {
+	if utf8.RuneCountInString(pageText) > 4096 {
 		// FIXME: This is vulnerable to HTML tags and can break the page.
 		//   Create a function that will cut the string carefully, excluding HTML tags.
 		//   This func should also support other formatting modes (Markdown, MarkdownV2, HTML)
