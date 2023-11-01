@@ -38,11 +38,20 @@ func CreateScheduleExtraInfoPage(lang *i18n.Language, groupId int, date string, 
 		return nil, err
 	}
 
-	pageText := ""
+	// Don't show multiple times the same extra text for the same lessons
+	shownEntries := make(map[int]bool)
+
+	pageExtraText := ""
 	for _, lesson := range schedule.Lessons {
 		for _, period := range lesson.Periods {
 			if !period.ExtraText {
 				continue
+			}
+
+			if _, ok := shownEntries[period.R1]; ok {
+				continue
+			} else {
+				shownEntries[period.R1] = true
 			}
 
 			// Get extra info
@@ -60,12 +69,21 @@ func CreateScheduleExtraInfoPage(lang *i18n.Language, groupId int, date string, 
 			// Remove all spaces and newlines from the beginning and end of the string
 			extraTextStr = strings.Trim(extraTextStr, "\n ")
 
-			pageText += "<b>" + strconv.Itoa(lesson.Number) + ")</b> " + extraTextStr + "\n\n"
+			pageExtraText += "<b>" + strconv.Itoa(lesson.Number) + ")</b> " + extraTextStr + "\n\n"
 		}
 	}
 
+	pageText := format.Formatp(lang.Page.ScheduleExtraInfo, pageExtraText)
+
+	if len(pageText) > 4096 {
+		// FIXME: This is vulnerable to HTML tags and can break the page.
+		//   Create a function that will cut the string carefully, excluding HTML tags.
+		//   This func should also support other formatting modes (Markdown, MarkdownV2, HTML)
+		pageText = pageText[:4093] + "..."
+	}
+
 	page := Page{
-		Text: format.Formatp(lang.Page.ScheduleExtraInfo, pageText),
+		Text: pageText,
 		InlineKeyboard: tgbotapi.NewInlineKeyboardMarkup(
 			tgbotapi.NewInlineKeyboardRow(
 				tgbotapi.NewInlineKeyboardButtonData(lang.Button.Back, "open.schedule.day#date="+date),
