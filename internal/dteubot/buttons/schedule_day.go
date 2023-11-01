@@ -62,6 +62,13 @@ func SuggestNotifications(chat *data.Chat, chatRepo data.ChatRepository, bot *tg
 		return nil
 	}
 
+	// Update chat
+	chat.SeenSettings = true
+
+	if err := chatRepo.Update(chat); err != nil {
+		return err
+	}
+
 	// Wait for 1 second
 	time.Sleep(1 * time.Second)
 
@@ -73,13 +80,6 @@ func SuggestNotifications(chat *data.Chat, chatRepo data.ChatRepository, bot *tg
 
 	_, err = bot.Send(page.CreateMessage(chat.Id))
 	if err != nil {
-		return err
-	}
-
-	// Update chat
-	chat.SeenSettings = true
-
-	if err := chatRepo.Update(chat); err != nil {
 		return err
 	}
 
