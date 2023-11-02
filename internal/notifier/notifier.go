@@ -26,6 +26,7 @@ import (
 	_ "embed"
 	"errors"
 	"fmt"
+	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/cubicbyte/dteubot/internal/data"
 	"github.com/cubicbyte/dteubot/internal/dteubot/errorhandler"
 	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
@@ -45,7 +46,7 @@ var Location = "Europe/Kiev"
 var log = logging.MustGetLogger("Notifier")
 
 // Setup initializes notifier and starts cron Scheduler
-func Setup(api api2.IApi, bot *tgbotapi.BotAPI, langs map[string]i18n.Language, chatRepo data.ChatRepository) (*gocron.Scheduler, error) {
+func Setup(api api2.IApi, bot *gotgbot.Bot, langs map[string]i18n.Language, chatRepo data.ChatRepository) (*gocron.Scheduler, error) {
 	log.Info("Setting up notifier")
 
 	// Setup cron scheduler
@@ -208,7 +209,7 @@ func SendNotifications(time2 string, chatRepo data.ChatRepository, api api2.IApi
 }
 
 // SendNotification sends notification to chat
-func SendNotification(chat *data.Chat, chatRepo data.ChatRepository, lang *i18n.Language, bot *tgbotapi.BotAPI, schedule *api2.TimeTableDate, time string, type2 string) error {
+func SendNotification(chat *data.Chat, chatRepo data.ChatRepository, lang *i18n.Language, bot *gotgbot.Bot, schedule *api2.TimeTableDate, time string, type2 string) error {
 	log.Debugf("Sending %s %s notification to chat %d", type2, time, chat.Id)
 
 	var pageText string
@@ -220,8 +221,8 @@ func SendNotification(chat *data.Chat, chatRepo data.ChatRepository, lang *i18n.
 			for _, period := range lesson.Periods {
 				section += format.Formatm(strFormat, format.Values{
 					"lesson": lesson.Number,
-					"name":   utils.EscapeText(tgbotapi.ModeMarkdownV2, period.DisciplineShortName),
-					"type":   utils.EscapeText(tgbotapi.ModeMarkdownV2, period.TypeStr),
+					"name":   utils.EscapeMarkdownV2(period.DisciplineShortName),
+					"type":   utils.EscapeMarkdownV2(period.TypeStr),
 				})
 			}
 		}

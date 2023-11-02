@@ -47,9 +47,9 @@ func CreateLanguageSelectionPage(lang *i18n.Language, langs map[string]i18n.Lang
 	}
 
 	page := Page{
-		Text:           format.Formatp(lang.Page.LangSelection, lang.LangName),
-		InlineKeyboard: tgbotapi.NewInlineKeyboardMarkup(buttons...),
-		ParseMode:      "MarkdownV2",
+		Text:        format.Formatp(lang.Page.LangSelection, lang.LangName),
+		ReplyMarkup: tgbotapi.NewInlineKeyboardMarkup(buttons...),
+		ParseMode:   "MarkdownV2",
 	}
 
 	return &page, nil

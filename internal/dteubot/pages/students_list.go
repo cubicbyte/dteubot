@@ -73,7 +73,7 @@ func CreateStudentsListPage(lang *i18n.Language, groupId int, groups *groupscach
 
 	page := Page{
 		Text: pageText,
-		InlineKeyboard: tgbotapi.NewInlineKeyboardMarkup(
+		ReplyMarkup: tgbotapi.NewInlineKeyboardMarkup(
 			tgbotapi.NewInlineKeyboardRow(
 				tgbotapi.NewInlineKeyboardButtonData(lang.Button.Back, "open.more"),
 			),

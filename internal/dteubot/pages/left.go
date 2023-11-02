@@ -61,7 +61,7 @@ func CreateLeftPage(lang *i18n.Language, groupId int, backButton string, api2 ap
 	rand_ := strconv.Itoa(rand.Intn(1e6)) // Salt to prevent "Message is not modified" error
 	page := Page{
 		Text: pageText,
-		InlineKeyboard: tgbotapi.NewInlineKeyboardMarkup(
+		ReplyMarkup: tgbotapi.NewInlineKeyboardMarkup(
 			tgbotapi.NewInlineKeyboardRow(
 				tgbotapi.NewInlineKeyboardButtonData(lang.Button.Back, backButton),
 				tgbotapi.NewInlineKeyboardButtonData(lang.Button.Refresh, "open.left#refresh&rnd="+rand_),

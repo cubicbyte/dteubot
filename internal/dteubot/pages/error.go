@@ -30,7 +30,7 @@ import (
 func CreateErrorPage(lang *i18n.Language) (*Page, error) {
 	page := Page{
 		Text: lang.Page.Error,
-		InlineKeyboard: tgbotapi.NewInlineKeyboardMarkup(
+		ReplyMarkup: tgbotapi.NewInlineKeyboardMarkup(
 			tgbotapi.NewInlineKeyboardRow(
 				tgbotapi.NewInlineKeyboardButtonData(lang.Button.Menu, "open.menu"),
 			),

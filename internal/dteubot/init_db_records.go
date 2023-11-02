@@ -20,23 +20,13 @@
  * SOFTWARE.
  */
 
-package pages
+package dteubot
 
 import (
-	"github.com/cubicbyte/dteubot/internal/i18n"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/PaulSonOfLars/gotgbot/v2"
+	"github.com/PaulSonOfLars/gotgbot/v2/ext"
 )
 
-func CreateApiUnavailablePage(lang *i18n.Language) (*Page, error) {
-	page := Page{
-		Text: lang.Page.ApiUnavailable,
-		ReplyMarkup: tgbotapi.NewInlineKeyboardMarkup(
-			tgbotapi.NewInlineKeyboardRow(
-				tgbotapi.NewInlineKeyboardButtonData(lang.Button.Back, "open.menu"),
-			),
-		),
-		ParseMode: "MarkdownV2",
-	}
-
-	return &page, nil
+func InitDatabaseRecords(b *gotgbot.Bot, ctx *ext.Context) error {
+	ctx.Data
 }

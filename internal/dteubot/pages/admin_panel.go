@@ -30,7 +30,7 @@ import (
 func CreateAdminPanelPage(lang *i18n.Language) (*Page, error) {
 	page := Page{
 		Text: lang.Page.AdminPanel,
-		InlineKeyboard: tgbotapi.NewInlineKeyboardMarkup(
+		ReplyMarkup: tgbotapi.NewInlineKeyboardMarkup(
 			tgbotapi.NewInlineKeyboardRow(
 				tgbotapi.NewInlineKeyboardButtonData(lang.Button.ClearCache, "admin.clear_cache"),
 			),

@@ -89,7 +89,7 @@ func CreateSettingsPage(lang *i18n.Language, chat *data.Chat, repo data.ChatRepo
 
 	page := Page{
 		Text: pageText,
-		InlineKeyboard: tgbotapi.NewInlineKeyboardMarkup(
+		ReplyMarkup: tgbotapi.NewInlineKeyboardMarkup(
 			tgbotapi.NewInlineKeyboardRow(
 				tgbotapi.NewInlineKeyboardButtonData(lang.Button.SelectGroup, "open.select_group"),
 				tgbotapi.NewInlineKeyboardButtonData(lang.Button.SelectLang, "open.select_lang"),

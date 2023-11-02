@@ -20,23 +20,44 @@
  * SOFTWARE.
  */
 
-package pages
+package errorhandler
 
 import (
-	"github.com/cubicbyte/dteubot/internal/i18n"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"fmt"
+	"github.com/PaulSonOfLars/gotgbot/v2"
+	"github.com/PaulSonOfLars/gotgbot/v2/ext"
+	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
+	"runtime/debug"
 )
 
-func CreateApiUnavailablePage(lang *i18n.Language) (*Page, error) {
-	page := Page{
-		Text: lang.Page.ApiUnavailable,
-		ReplyMarkup: tgbotapi.NewInlineKeyboardMarkup(
-			tgbotapi.NewInlineKeyboardRow(
-				tgbotapi.NewInlineKeyboardButtonData(lang.Button.Back, "open.menu"),
-			),
-		),
-		ParseMode: "MarkdownV2",
+// PanicsHandler handles panics in the code and sends them to the user.
+//
+// Implements the ext.DispatcherPanicHandler interface.
+func PanicsHandler(b *gotgbot.Bot, ctx *ext.Context, r interface{}) {
+	log.Errorf("Panic: %s\n%s", r, string(debug.Stack()))
+
+	// Get chat where the panic happened
+	tgChat := utils.GetUpdChat(u)
+
+	if tgChat != nil {
+		// Send error page to chat
+		chat, err := chatRepo.GetById(tgChat.ID)
+		if err != nil {
+			log.Errorf("Error getting chat: %s\n", err)
+			errorhandler.SendErrorToTelegram(ctx, err, bot)
+			return
+		}
+
+		lang, err := utils.GetLang(chat.LanguageCode, languages)
+		if err != nil {
+			log.Errorf("Error getting language: %s\n", err)
+			errorhandler.SendErrorToTelegram(ctx, err, bot)
+			return
+		}
+
+		errorhandler.SendErrorPageToChat(ctx, u, bot, lang)
 	}
 
-	return &page, nil
+	// Send error to the developer
+	errorhandler.SendErrorToTelegram(ctx, fmt.Errorf("panic: %s\n%s", r, string(debug.Stack())), bot)
 }

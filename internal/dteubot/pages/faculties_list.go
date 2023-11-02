@@ -61,9 +61,9 @@ func CreateFacultiesListPage(lang *i18n.Language, structureId int, api2 api.IApi
 	}
 
 	page := Page{
-		Text:           lang.Page.FacultySelection,
-		InlineKeyboard: tgbotapi.NewInlineKeyboardMarkup(buttons...),
-		ParseMode:      "MarkdownV2",
+		Text:        lang.Page.FacultySelection,
+		ReplyMarkup: tgbotapi.NewInlineKeyboardMarkup(buttons...),
+		ParseMode:   "MarkdownV2",
 	}
 
 	return &page, nil

@@ -216,7 +216,7 @@ func CreateSchedulePage(lang *i18n.Language, groupId int, date string, api api2.
 
 	page := Page{
 		Text:                  pageText,
-		InlineKeyboard:        buttons,
+		ReplyMarkup:           buttons,
 		ParseMode:             "MarkdownV2",
 		DisableWebPagePreview: true,
 	}

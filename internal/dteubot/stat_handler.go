@@ -20,23 +20,29 @@
  * SOFTWARE.
  */
 
-package pages
+package dteubot
 
 import (
-	"github.com/cubicbyte/dteubot/internal/i18n"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/PaulSonOfLars/gotgbot/v2"
+	"github.com/PaulSonOfLars/gotgbot/v2/ext"
 )
 
-func CreateApiUnavailablePage(lang *i18n.Language) (*Page, error) {
-	page := Page{
-		Text: lang.Page.ApiUnavailable,
-		ReplyMarkup: tgbotapi.NewInlineKeyboardMarkup(
-			tgbotapi.NewInlineKeyboardRow(
-				tgbotapi.NewInlineKeyboardButtonData(lang.Button.Back, "open.menu"),
-			),
-		),
-		ParseMode: "MarkdownV2",
-	}
+// CommandStatisticHandler saves command to statistics.
+func CommandStatisticHandler(_ *gotgbot.Bot, ctx *ext.Context) error {
+	return statLogger.LogCommand(
+		ctx.Update.Message.Chat.Id,
+		ctx.Update.Message.From.Id,
+		int(ctx.Update.Message.MessageId),
+		ctx.Update.Message.Text,
+	)
+}
 
-	return &page, nil
+// ButtonStatisticHandler saves button click to statistics.
+func ButtonStatisticHandler(_ *gotgbot.Bot, ctx *ext.Context) error {
+	return statLogger.LogButtonClick(
+		ctx.Update.CallbackQuery.Message.Chat.Id,
+		ctx.Update.CallbackQuery.From.Id,
+		int(ctx.Update.CallbackQuery.Message.MessageId),
+		ctx.Update.CallbackQuery.Data,
+	)
 }

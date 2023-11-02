@@ -6,6 +6,8 @@ require (
 	github.com/dlclark/regexp2 v1.10.0
 	github.com/go-co-op/gocron v1.35.2
 	github.com/go-telegram-bot-api/telegram-bot-api/v5 v5.5.2-0.20221020003552-4126fa611266
+	github.com/go-telegram/bot v0.8.2
+	github.com/PaulSonOfLars/gotgbot/v2 v2.0.0-rc.22
 	github.com/gregjones/httpcache v0.0.0-20190611155906-901d90724c79
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/joho/godotenv v1.5.1

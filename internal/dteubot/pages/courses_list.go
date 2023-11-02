@@ -51,9 +51,9 @@ func CreateCoursesListPage(lang *i18n.Language, facultyId int, structureId int, 
 	}
 
 	page := Page{
-		Text:           lang.Page.CourseSelection,
-		InlineKeyboard: tgbotapi.NewInlineKeyboardMarkup(buttons...),
-		ParseMode:      "MarkdownV2",
+		Text:        lang.Page.CourseSelection,
+		ReplyMarkup: tgbotapi.NewInlineKeyboardMarkup(buttons...),
+		ParseMode:   "MarkdownV2",
 	}
 
 	return &page, nil

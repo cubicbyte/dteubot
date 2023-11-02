@@ -31,7 +31,7 @@ import (
 func CreateMenuPage(lang *i18n.Language, user *data.User) (*Page, error) {
 	page := Page{
 		Text: lang.Page.Menu,
-		InlineKeyboard: tgbotapi.NewInlineKeyboardMarkup(
+		ReplyMarkup: tgbotapi.NewInlineKeyboardMarkup(
 			tgbotapi.NewInlineKeyboardRow(
 				tgbotapi.NewInlineKeyboardButtonData(lang.Button.Schedule, "open.schedule.today"),
 			),
@@ -45,7 +45,7 @@ func CreateMenuPage(lang *i18n.Language, user *data.User) (*Page, error) {
 
 	// Add admin panel button if the user is admin
 	if user.IsAdmin {
-		page.InlineKeyboard.InlineKeyboard = append(page.InlineKeyboard.InlineKeyboard, tgbotapi.NewInlineKeyboardRow(
+		page.ReplyMarkup.InlineKeyboard = append(page.ReplyMarkup.InlineKeyboard, tgbotapi.NewInlineKeyboardRow(
 			tgbotapi.NewInlineKeyboardButtonData(lang.Button.AdminPanel, "open.admin_panel"),
 		))
 	}

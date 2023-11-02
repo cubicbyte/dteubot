@@ -30,7 +30,7 @@ import (
 func CreateNotFoundPage(lang *i18n.Language, backButton string) (*Page, error) {
 	page := Page{
 		Text: lang.Page.NotFound,
-		InlineKeyboard: tgbotapi.NewInlineKeyboardMarkup(
+		ReplyMarkup: tgbotapi.NewInlineKeyboardMarkup(
 			tgbotapi.NewInlineKeyboardRow(
 				tgbotapi.NewInlineKeyboardButtonData(lang.Button.Back, backButton),
 			),

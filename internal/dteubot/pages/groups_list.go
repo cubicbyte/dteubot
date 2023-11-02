@@ -86,9 +86,9 @@ func CreateGroupsListPage(lang *i18n.Language, facultyId int, course int, struct
 	}
 
 	page := Page{
-		Text:           lang.Page.GroupSelection,
-		InlineKeyboard: tgbotapi.NewInlineKeyboardMarkup(buttons...),
-		ParseMode:      "MarkdownV2",
+		Text:        lang.Page.GroupSelection,
+		ReplyMarkup: tgbotapi.NewInlineKeyboardMarkup(buttons...),
+		ParseMode:   "MarkdownV2",
 	}
 
 	return &page, nil

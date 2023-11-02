@@ -30,7 +30,7 @@ import (
 func CreateForbiddenPage(lang *i18n.Language, backButton string) (*Page, error) {
 	page := Page{
 		Text: lang.Page.Forbidden,
-		InlineKeyboard: tgbotapi.NewInlineKeyboardMarkup(
+		ReplyMarkup: tgbotapi.NewInlineKeyboardMarkup(
 			tgbotapi.NewInlineKeyboardRow(
 				tgbotapi.NewInlineKeyboardButtonData(lang.Button.Back, backButton),
 			),

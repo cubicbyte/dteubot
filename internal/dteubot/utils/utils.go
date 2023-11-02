@@ -23,91 +23,13 @@
 package utils
 
 import (
-	"github.com/cubicbyte/dteubot/internal/data"
 	"github.com/cubicbyte/dteubot/internal/i18n"
 	"github.com/dlclark/regexp2"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"github.com/op/go-logging"
+	"github.com/go-telegram/bot/models"
 	"os"
 	"strings"
 	"time"
 )
-
-var log = logging.MustGetLogger("bot")
-
-// InitDatabaseRecords initializes the database records
-// for user and chat from given update.
-func InitDatabaseRecords(upd *tgbotapi.Update, chatRepo data.ChatRepository, userRepo data.UserRepository) error {
-	log.Debug("Initializing database records")
-
-	fromChat := upd.FromChat()
-	sentFrom := upd.SentFrom()
-
-	// Check if the chat is in the database
-	chat, err := chatRepo.GetById(fromChat.ID)
-	if err != nil {
-		return err
-	}
-
-	if chat == nil {
-		// Chat not found, create a new one
-		chat = data.NewChat(fromChat.ID)
-		err := chatRepo.Update(chat)
-		if err != nil {
-			return err
-		}
-	}
-
-	// Check if the user is in the database
-	if sentFrom == nil {
-		return nil
-	}
-	user, err := userRepo.GetById(sentFrom.ID)
-	if err != nil {
-		return err
-	}
-
-	if user == nil {
-		// User not found, create a new one
-		user = data.NewUser(sentFrom.ID)
-
-		// Update user data
-		user.FirstName = sentFrom.FirstName
-		user.LastName = sentFrom.LastName
-		user.Username = sentFrom.UserName
-		user.LanguageCode = sentFrom.LanguageCode
-		user.IsPremium = sentFrom.IsPremium
-
-		err = userRepo.Update(user)
-		if err != nil {
-			return err
-		}
-
-		return nil
-	}
-
-	// Check if user data has changed
-	if user.FirstName != sentFrom.FirstName ||
-		user.LastName != sentFrom.LastName ||
-		user.Username != sentFrom.UserName ||
-		user.LanguageCode != sentFrom.LanguageCode ||
-		user.IsPremium != sentFrom.IsPremium {
-
-		// Update found
-		user.FirstName = sentFrom.FirstName
-		user.LastName = sentFrom.LastName
-		user.Username = sentFrom.UserName
-		user.LanguageCode = sentFrom.LanguageCode
-		user.IsPremium = sentFrom.IsPremium
-
-		err = userRepo.Update(user)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
 
 // CleanHTML removes all unsupported HTML tags from given text.
 func CleanHTML(text string) (string, error) {
@@ -137,33 +59,17 @@ func CleanHTML(text string) (string, error) {
 	return text, nil
 }
 
-// EscapeText takes an input text and escape Telegram markup symbols.
-// In this way we can send a text without being afraid of having to escape the characters manually.
-// Note that you don't have to include the formatting style in the input text, or it will be escaped too.
-// If there is an error, an empty string will be returned.
+// EscapeMarkdownV2 takes an input text and escape Telegram MarkdownV2 markup symbols.
 //
-// parseMode is the text formatting mode (ModeMarkdown, ModeMarkdownV2 or ModeHTML)
-// text is the input string that will be escaped
-//
-// TODO: Remove this when merged: https://github.com/go-telegram-bot-api/telegram-bot-api/pull/604
-func EscapeText(parseMode string, text string) string {
-	var replacer *strings.Replacer
-
-	if parseMode == tgbotapi.ModeHTML {
-		replacer = strings.NewReplacer("<", "&lt;", ">", "&gt;", "&", "&amp;")
-	} else if parseMode == tgbotapi.ModeMarkdown {
-		replacer = strings.NewReplacer("_", "\\_", "*", "\\*", "`", "\\`", "[", "\\[")
-	} else if parseMode == tgbotapi.ModeMarkdownV2 {
-		replacer = strings.NewReplacer(
-			"\\", "\\\\",
-			"_", "\\_", "*", "\\*", "[", "\\[", "]", "\\]", "(",
-			"\\(", ")", "\\)", "~", "\\~", "`", "\\`", ">", "\\>",
-			"#", "\\#", "+", "\\+", "-", "\\-", "=", "\\=", "|",
-			"\\|", "{", "\\{", "}", "\\}", ".", "\\.", "!", "\\!",
-		)
-	} else {
-		return ""
-	}
+// TODO: Remove this when merged: https://github.com/go-telegram/bot/pull/44
+func EscapeMarkdownV2(text string) string {
+	replacer := strings.NewReplacer(
+		"\\", "\\\\",
+		"_", "\\_", "*", "\\*", "[", "\\[", "]", "\\]", "(",
+		"\\(", ")", "\\)", "~", "\\~", "`", "\\`", ">", "\\>",
+		"#", "\\#", "+", "\\+", "-", "\\-", "=", "\\=", "|",
+		"\\|", "{", "\\{", "}", "\\}", ".", "\\.", "!", "\\!",
+	)
 
 	return replacer.Replace(text)
 }
@@ -193,4 +99,96 @@ func GetLang(code string, langs map[string]i18n.Language) (*i18n.Language, error
 // SetLocation sets the location of the time without changing the time itself.
 func SetLocation(time2 time.Time, location *time.Location) time.Time {
 	return time.Date(time2.Year(), time2.Month(), time2.Day(), time2.Hour(), time2.Minute(), time2.Second(), time2.Nanosecond(), location)
+}
+
+// GetUpdChat returns the chat from the given update.
+func GetUpdChat(u *models.Update) *models.Chat {
+	if u.Message != nil {
+		return &u.Message.Chat
+	} else if u.CallbackQuery != nil {
+		return &u.CallbackQuery.Message.Chat
+	} else if u.EditedMessage != nil {
+		return &u.EditedMessage.Chat
+	} else if u.ChannelPost != nil {
+		return &u.ChannelPost.Chat
+	} else if u.EditedChannelPost != nil {
+		return &u.EditedChannelPost.Chat
+	} else if u.MyChatMember != nil {
+		return &u.MyChatMember.Chat
+	} else if u.ChatMember != nil {
+		return &u.ChatMember.Chat
+	}
+
+	return nil
+}
+
+// GetUpdUser returns the user from the given update.
+func GetUpdUser(u *models.Update) *models.User {
+	if u.Message != nil {
+		return u.Message.From
+	} else if u.CallbackQuery != nil {
+		return &u.CallbackQuery.Sender
+	} else if u.EditedMessage != nil {
+		return u.EditedMessage.From
+	} else if u.ChannelPost != nil {
+		return u.ChannelPost.From
+	} else if u.EditedChannelPost != nil {
+		return u.EditedChannelPost.From
+	} else if u.MyChatMember != nil {
+		return &u.MyChatMember.From
+	} else if u.ChatMember != nil {
+		return &u.ChatMember.From
+	}
+
+	return nil
+}
+
+// GetUpdMessage returns the message from the given update.
+func GetUpdMessage(u *models.Update) *models.Message {
+	if u.Message != nil {
+		return u.Message
+	} else if u.CallbackQuery != nil {
+		return u.CallbackQuery.Message
+	} else if u.EditedMessage != nil {
+		return u.EditedMessage
+	} else if u.ChannelPost != nil {
+		return u.ChannelPost
+	} else if u.EditedChannelPost != nil {
+		return u.EditedChannelPost
+	}
+
+	return nil
+}
+
+// GetMsgCommand returns the command from the given message. If there is no command, returns an empty string.
+//
+// Example: /start@bot -> start
+func GetMsgCommand(msg *models.Message) string {
+	if msg == nil {
+		return ""
+	}
+
+	if !IsCommand(msg) {
+		return ""
+	}
+
+	entity := msg.Entities[0]
+	command := msg.Text[1:entity.Length]
+
+	// Remove bot username from command: /start@bot -> /start
+	if i := strings.Index(command, "@"); i != -1 {
+		command = command[:i]
+	}
+
+	return command
+}
+
+// IsCommand returns true if the given message is a bot command.
+func IsCommand(m *models.Message) bool {
+	if m.Entities == nil || len(m.Entities) == 0 {
+		return false
+	}
+
+	entity := m.Entities[0]
+	return entity.Offset == 0 && entity.Type == "bot_command"
 }

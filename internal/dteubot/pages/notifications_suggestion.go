@@ -30,7 +30,7 @@ import (
 func CreateNotificationFeatureSuggestionPage(lang *i18n.Language) (*Page, error) {
 	page := Page{
 		Text: lang.Page.NotificationFeatureSuggestion,
-		InlineKeyboard: tgbotapi.NewInlineKeyboardMarkup(
+		ReplyMarkup: tgbotapi.NewInlineKeyboardMarkup(
 			tgbotapi.NewInlineKeyboardRow(
 				tgbotapi.NewInlineKeyboardButtonData(lang.Text.TryIt, "set.cl_notif#time=15m&state=1&suggestion"),
 				tgbotapi.NewInlineKeyboardButtonData(lang.Text.NoThanks, "close_page#page=notification_feature_suggestion"),

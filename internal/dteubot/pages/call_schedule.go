@@ -42,7 +42,7 @@ func CreateCallSchedulePage(lang *i18n.Language, backButton string, api2 api.IAp
 
 	page := Page{
 		Text: format.Formatp(lang.Page.CallSchedule, callsText),
-		InlineKeyboard: tgbotapi.NewInlineKeyboardMarkup(
+		ReplyMarkup: tgbotapi.NewInlineKeyboardMarkup(
 			tgbotapi.NewInlineKeyboardRow(
 				tgbotapi.NewInlineKeyboardButtonData(lang.Button.Back, backButton),
 			),

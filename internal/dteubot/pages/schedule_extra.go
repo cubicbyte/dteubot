@@ -85,7 +85,7 @@ func CreateScheduleExtraInfoPage(lang *i18n.Language, groupId int, date string, 
 
 	page := Page{
 		Text: pageText,
-		InlineKeyboard: tgbotapi.NewInlineKeyboardMarkup(
+		ReplyMarkup: tgbotapi.NewInlineKeyboardMarkup(
 			tgbotapi.NewInlineKeyboardRow(
 				tgbotapi.NewInlineKeyboardButtonData(lang.Button.Back, "open.schedule.day#date="+date),
 			),

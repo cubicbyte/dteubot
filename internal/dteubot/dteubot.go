@@ -25,24 +25,26 @@ package dteubot
 import (
 	"errors"
 	"fmt"
+	"github.com/PaulSonOfLars/gotgbot/v2"
+	"github.com/PaulSonOfLars/gotgbot/v2/ext"
+	"github.com/PaulSonOfLars/gotgbot/v2/ext/handlers"
 	"github.com/cubicbyte/dteubot/internal/data"
 	"github.com/cubicbyte/dteubot/internal/dteubot/errorhandler"
 	"github.com/cubicbyte/dteubot/internal/dteubot/groupscache"
 	"github.com/cubicbyte/dteubot/internal/dteubot/statistics"
 	"github.com/cubicbyte/dteubot/internal/dteubot/teachers"
-	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
 	"github.com/cubicbyte/dteubot/internal/i18n"
 	"github.com/cubicbyte/dteubot/internal/notifier"
 	api2 "github.com/cubicbyte/dteubot/pkg/api"
 	"github.com/cubicbyte/dteubot/pkg/api/cachedapi"
 	"github.com/go-co-op/gocron"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 	"github.com/op/go-logging"
+	"net/http"
 	"os"
-	"runtime/debug"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -58,7 +60,8 @@ const TeachersListPath = "teachers.csv"
 var log = logging.MustGetLogger("Bot")
 
 var (
-	bot          *tgbotapi.BotAPI
+	bot          *gotgbot.Bot
+	updater      *ext.Updater
 	db           *sqlx.DB
 	api          api2.IApi
 	chatRepo     data.ChatRepository
@@ -175,18 +178,51 @@ func Setup() {
 		log.Fatalf("Error loading teachers list: %s\n", err)
 	}
 
-	// Connect to the Telegram API
-	log.Info("Connecting to Telegram API")
-	bot, err = tgbotapi.NewBotAPI(os.Getenv("BOT_TOKEN"))
-	if err != nil {
-		log.Fatal("Error connecting to Telegram API: %s\n", err)
-		log.Info("Most likely the bot token is invalid or network is unreachable")
-		os.Exit(1)
+	// Set up the bot
+	log.Info("Setting up bot")
+
+	opts := gotgbot.BotOpts{
+		DisableTokenCheck: true, // Prevent crash when network is unreachable
+		BotClient: &gotgbot.BaseBotClient{
+			Client: http.Client{},
+			DefaultRequestOpts: &gotgbot.RequestOpts{
+				Timeout: gotgbot.DefaultTimeout,
+				APIURL:  gotgbot.DefaultAPIURL,
+			},
+		},
 	}
 
-	log.Infof("Connected to Telegram API as %s\n", bot.Self.UserName)
+	bot, err = gotgbot.NewBot(os.Getenv("BOT_TOKEN"), &opts)
+	if err != nil {
+		log.Fatal("Error setting up bot: %s\n", err)
+	}
+
+	updater = ext.NewUpdater(&ext.UpdaterOpts{
+		Dispatcher: ext.NewDispatcher(&ext.DispatcherOpts{
+			Error:       errorhandler.HandleError,
+			Panic:       errorhandler.PanicsHandler,
+			MaxRoutines: ext.DefaultMaxRoutines,
+		}),
+	})
+
+	// Add bot update handlers
+	anyCommandFilter := func(m *gotgbot.Message) bool {
+		return strings.HasPrefix(m.Text, "/")
+	}
+
+	anyCallbackFilter := func(cq *gotgbot.CallbackQuery) bool {
+		return true
+	}
+
+	// Init database records
+	updater.Dispatcher.AddHandlerToGroup(handlers.NewMessage(anyCommandFilter, InitDatabaseRecords), -10)
+	updater.Dispatcher.AddHandlerToGroup(handlers.NewCallback(anyCallbackFilter, InitDatabaseRecords), -10)
+	// Save interaction to statistics
+	updater.Dispatcher.AddHandlerToGroup(handlers.NewMessage(anyCommandFilter, CommandStatisticHandler), 10)
+	updater.Dispatcher.AddHandlerToGroup(handlers.NewCallback(anyCallbackFilter, ButtonStatisticHandler), 10)
 
 	// Set up notifier
+	log.Info("Setting up notifier")
 	scheduler, err = notifier.Setup(api, bot, languages, chatRepo)
 	if err != nil {
 		log.Fatalf("Error setting up notifier: %s\n", err)
@@ -200,126 +236,13 @@ func Run() {
 	// Start notifier
 	scheduler.StartAsync()
 
-	// Start updates loop
-	u := tgbotapi.NewUpdate(0)
-	u.Timeout = -1
-	updates := bot.GetUpdatesChan(u)
-
-	for update := range updates {
-		go HandleUpdate(&update)
-	}
-}
-
-func HandleUpdate(update *tgbotapi.Update) {
-	if update.Message == nil && update.CallbackQuery == nil {
-		return
-	}
-
-	// Handle panics
-	defer HandlePanics(update)
-
-	if err := utils.InitDatabaseRecords(update, chatRepo, userRepo); err != nil {
-		log.Errorf("Error initializing database records: %s\n", err)
-
-		lang, err := utils.GetLang("", languages)
-		if err != nil {
-			log.Errorf("Error getting language: %s\n", err)
-			errorhandler.SendErrorToTelegram(err, bot)
-		}
-
-		errorhandler.SendErrorToTelegram(err, bot)
-		errorhandler.SendErrorPageToChat(update, bot, lang)
-		return
-	}
-
-	chat, err := chatRepo.GetById(update.FromChat().ID)
+	// Start bot
+	err := updater.StartPolling(bot, &ext.PollingOpts{
+		GetUpdatesOpts: &gotgbot.GetUpdatesOpts{
+			Timeout: 10,
+		},
+	})
 	if err != nil {
-		log.Errorf("Error getting chat: %s\n", err)
-		errorhandler.SendErrorToTelegram(err, bot)
-		return
+		log.Fatalf("Error starting polling: %s\n", err)
 	}
-
-	lang, err := utils.GetLang(chat.LanguageCode, languages)
-	if err != nil {
-		log.Errorf("Error getting language: %s\n", err)
-		errorhandler.SendErrorToTelegram(err, bot)
-		return
-	}
-
-	if update.Message != nil {
-		// Handle command
-		err := HandleCommand(update)
-		if err != nil {
-			errorhandler.HandleError(err, update, bot, lang, chat, chatRepo)
-		}
-
-		// Save command to statistics
-		if update.Message.Command() != "" {
-			err = statLogger.LogCommand(
-				update.Message.Chat.ID,
-				update.Message.From.ID,
-				update.Message.MessageID,
-				update.Message.Command(),
-			)
-			if err != nil {
-				errorhandler.HandleError(err, update, bot, lang, chat, chatRepo)
-			}
-		}
-	}
-
-	if update.CallbackQuery != nil {
-		// Handle button
-		if err := HandleButtonClick(update); err != nil {
-			errorhandler.HandleError(err, update, bot, lang, chat, chatRepo)
-		}
-
-		// Save button click to statistics
-		err := statLogger.LogButtonClick(
-			update.CallbackQuery.Message.Chat.ID,
-			update.CallbackQuery.From.ID,
-			update.CallbackQuery.Message.MessageID,
-			update.CallbackQuery.Data,
-		)
-		if err != nil {
-			errorhandler.HandleError(err, update, bot, lang, chat, chatRepo)
-		}
-	}
-
-	log.Debug("Update processed")
-}
-
-// HandlePanics handles panics in the code and sends them to the user.
-func HandlePanics(u *tgbotapi.Update) {
-	// Recover from panic
-	r := recover()
-	if r == nil {
-		return
-	}
-
-	log.Errorf("Panic: %s\n%s", r, string(debug.Stack()))
-
-	// Get chat where the panic happened
-	chat := u.FromChat()
-
-	if chat != nil {
-		// Send error page to chat
-		chat, err := chatRepo.GetById(u.FromChat().ID)
-		if err != nil {
-			log.Errorf("Error getting chat: %s\n", err)
-			errorhandler.SendErrorToTelegram(err, bot)
-			return
-		}
-
-		lang, err := utils.GetLang(chat.LanguageCode, languages)
-		if err != nil {
-			log.Errorf("Error getting language: %s\n", err)
-			errorhandler.SendErrorToTelegram(err, bot)
-			return
-		}
-
-		errorhandler.SendErrorPageToChat(u, bot, lang)
-	}
-
-	// Send error to the developer
-	errorhandler.SendErrorToTelegram(fmt.Errorf("panic: %s\n%s", r, string(debug.Stack())), bot)
 }

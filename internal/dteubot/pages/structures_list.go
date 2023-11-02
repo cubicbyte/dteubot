@@ -48,9 +48,9 @@ func CreateStructuresListPage(lang *i18n.Language, api api.IApi) (*Page, error) 
 	}
 
 	page := Page{
-		Text:           lang.Page.StructureSelection,
-		InlineKeyboard: tgbotapi.NewInlineKeyboardMarkup(buttons...),
-		ParseMode:      "MarkdownV2",
+		Text:        lang.Page.StructureSelection,
+		ReplyMarkup: tgbotapi.NewInlineKeyboardMarkup(buttons...),
+		ParseMode:   "MarkdownV2",
 	}
 
 	return &page, nil

@@ -24,33 +24,39 @@ package pages
 
 import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/go-telegram/bot"
+	"github.com/go-telegram/bot/models"
 )
 
 // Page represents a telegram page
 type Page struct {
 	Text                  string
-	InlineKeyboard        tgbotapi.InlineKeyboardMarkup
-	ParseMode             string
+	ReplyMarkup           tgbotapi.InlineKeyboardMarkup
+	ParseMode             models.ParseMode
 	DisableWebPagePreview bool
 }
 
-// CreateMessage creates a telegram message request from the page
-func (p *Page) CreateMessage(chatId int64) tgbotapi.MessageConfig {
-	msg := tgbotapi.NewMessage(chatId, p.Text)
-	if len(p.InlineKeyboard.InlineKeyboard) > 0 {
-		msg.ReplyMarkup = p.InlineKeyboard
+// CreateMessage creates a telegram message parameters from the page
+func (p *Page) CreateMessage(chatId int64) bot.SendMessageParams {
+	params := bot.SendMessageParams{
+		ChatID:                chatId,
+		Text:                  p.Text,
+		ParseMode:             p.ParseMode,
+		DisableWebPagePreview: p.DisableWebPagePreview,
+		ReplyMarkup:           p.ReplyMarkup,
 	}
-	if p.ParseMode != "" {
-		msg.ParseMode = p.ParseMode
-	}
-	msg.DisableWebPagePreview = p.DisableWebPagePreview
-	return msg
+	return params
 }
 
-// CreateEditMessage creates a telegram edit message request from the page
-func (p *Page) CreateEditMessage(chatId int64, messageId int) tgbotapi.EditMessageTextConfig {
-	msg := tgbotapi.NewEditMessageTextAndMarkup(chatId, messageId, p.Text, p.InlineKeyboard)
-	msg.ParseMode = p.ParseMode
-	msg.DisableWebPagePreview = p.DisableWebPagePreview
-	return msg
+// CreateEditMessage creates a telegram edit message parameters from the page
+func (p *Page) CreateEditMessage(chatId int64, messageId int) bot.EditMessageTextParams {
+	params := bot.EditMessageTextParams{
+		ChatID:                chatId,
+		MessageID:             messageId,
+		Text:                  p.Text,
+		ParseMode:             p.ParseMode,
+		DisableWebPagePreview: p.DisableWebPagePreview,
+		ReplyMarkup:           p.ReplyMarkup,
+	}
+	return params
 }

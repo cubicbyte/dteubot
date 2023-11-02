@@ -30,7 +30,7 @@ import (
 func CreateMorePage(lang *i18n.Language) (*Page, error) {
 	page := Page{
 		Text: lang.Page.More,
-		InlineKeyboard: tgbotapi.NewInlineKeyboardMarkup(
+		ReplyMarkup: tgbotapi.NewInlineKeyboardMarkup(
 			tgbotapi.NewInlineKeyboardRow(
 				tgbotapi.NewInlineKeyboardButtonData(lang.Button.CallsSchedule, "open.calls"),
 				tgbotapi.NewInlineKeyboardButtonData(lang.Button.TimeLeft, "open.left"),

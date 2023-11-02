@@ -30,7 +30,7 @@ import (
 func CreateInvalidGroupPage(lang *i18n.Language) (*Page, error) {
 	page := Page{
 		Text: lang.Page.InvalidGroup,
-		InlineKeyboard: tgbotapi.NewInlineKeyboardMarkup(
+		ReplyMarkup: tgbotapi.NewInlineKeyboardMarkup(
 			tgbotapi.NewInlineKeyboardRow(
 				tgbotapi.NewInlineKeyboardButtonData(lang.Button.SelectGroup, "open.select_group"),
 				tgbotapi.NewInlineKeyboardButtonData(lang.Button.Menu, "open.menu"),
