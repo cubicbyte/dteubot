@@ -24,6 +24,7 @@ package pages
 
 import (
 	"github.com/cubicbyte/dteubot/internal/dteubot/groupscache"
+	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
 	"github.com/cubicbyte/dteubot/internal/i18n"
 	"github.com/cubicbyte/dteubot/pkg/api"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -57,14 +58,12 @@ func CreateGroupsListPage(lang *i18n.Language, facultyId int, course int, struct
 		return nil, err
 	}
 
-	// TODO: Move row generation logic to utils
-
 	// Create back button
 	rowsCount := len(groupsList)/rowSize + 1
 	if len(groupsList)%rowSize != 0 {
 		rowsCount++
 	}
-	buttons := make([][]tgbotapi.InlineKeyboardButton, rowsCount)
+	buttons := make([][]tgbotapi.InlineKeyboardButton, 1, rowsCount)
 	backBtnQuery := "select.schedule.faculty#facultyId=" + strconv.Itoa(facultyId) +
 		"&structureId=" + strconv.Itoa(structureId)
 	buttons[0] = tgbotapi.NewInlineKeyboardRow(
@@ -72,18 +71,14 @@ func CreateGroupsListPage(lang *i18n.Language, facultyId int, course int, struct
 	)
 
 	// Create group buttons
-	lastRow := make([]tgbotapi.InlineKeyboardButton, min(rowSize, len(groupsList)))
+	btns := make([]tgbotapi.InlineKeyboardButton, len(groupsList))
 	for i, group := range groupsList {
 		query := "select.schedule.group#groupId=" + strconv.Itoa(group.Id)
-		lastRow[i%rowSize] = tgbotapi.NewInlineKeyboardButtonData(group.Name, query)
-		if i%rowSize == rowSize-1 {
-			buttons[i/rowSize+1] = lastRow
-			lastRow = make([]tgbotapi.InlineKeyboardButton, min(rowSize, len(groupsList)-i-1))
-		}
+		btns[i] = tgbotapi.NewInlineKeyboardButtonData(group.Name, query)
 	}
-	if len(lastRow) > 0 {
-		buttons[len(buttons)-1] = lastRow
-	}
+
+	// Create keyboard rows
+	buttons = append(buttons, utils.SplitRows(btns, rowSize)...)
 
 	page := Page{
 		Text:           lang.Page.GroupSelection,
