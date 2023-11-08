@@ -110,13 +110,15 @@ func InitDatabaseRecords(upd *tgbotapi.Update, chatRepo data.ChatRepository, use
 }
 
 // CleanHTML removes all unsupported HTML tags from given text.
-func CleanHTML(text string) (string, error) {
+func CleanHTML(text string) string {
 	telegramSupportedHTMLTags := [...]string{
 		"a", "s", "i", "b", "u", "em", "pre",
 		"ins", "del", "code", "strong", "strike",
 	}
 
 	// Save line breaks
+	// <br> <br/> <br /> <p>
+	text = strings.ReplaceAll(text, "<p>", "\n")
 	text = strings.ReplaceAll(text, "<br>", "\n")
 	text = strings.ReplaceAll(text, "<br/>", "\n")
 	text = strings.ReplaceAll(text, "<br />", "\n")
@@ -124,17 +126,28 @@ func CleanHTML(text string) (string, error) {
 	// Remove all other tags
 	// tag|tag2|tag3
 	supported := strings.Join(telegramSupportedHTMLTags[:], "|")
-	cleanr, err := regexp2.Compile("<(?!\\/?("+supported+")\\b)[^>]*>", regexp2.IgnoreCase)
-	if err != nil {
-		return "", err
-	}
+	cleanr := regexp2.MustCompile("<(?!\\/?("+supported+")\\b)[^>]*>", regexp2.IgnoreCase)
+	text, _ = cleanr.Replace(text, "", -1, -1)
 
-	text, err = cleanr.Replace(text, "", -1, -1)
-	if err != nil {
-		return "", err
-	}
+	return text
+}
 
-	return text, nil
+// CleanText removes unnecessary characters from given text:
+//   - Too many newlines
+//   - Spaces and newlines from the beginning and end of the string
+func CleanText(text string) string {
+	// Remove newlines like this: \n \n
+	re := regexp2.MustCompile(`\n[^\S\r\n]+`, regexp2.IgnoreCase)
+	text, _ = re.Replace(text, "\n", -1, -1)
+
+	// Remove too many newlines
+	re = regexp2.MustCompile(`\n{3,}`, regexp2.IgnoreCase)
+	text, _ = re.Replace(text, "\n\n", -1, -1)
+
+	// Remove all spaces and newlines from the beginning and end of the string
+	text = strings.Trim(text, "\n ")
+
+	return text
 }
 
 // EscapeText takes an input text and escape Telegram markup symbols.
