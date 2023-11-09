@@ -76,7 +76,7 @@ func HandleCommand(u *tgbotapi.Update) error {
 	case "lang", "language":
 		return commands.HandleLanguageCommand(u, bot, lang, languages)
 	case "group", "g", "select":
-		return commands.HandleGroupCommand(u, bot, lang, chat, chatRepo, groupsCache, api)
+		return commands.HandleGroupCommand(u, bot, lang, chat, chatRepo, groupsCache, api, teachersList)
 	default:
 		// Not our command
 		return nil

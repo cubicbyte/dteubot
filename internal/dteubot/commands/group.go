@@ -26,13 +26,15 @@ import (
 	"github.com/cubicbyte/dteubot/internal/data"
 	"github.com/cubicbyte/dteubot/internal/dteubot/groupscache"
 	"github.com/cubicbyte/dteubot/internal/dteubot/pages"
+	"github.com/cubicbyte/dteubot/internal/dteubot/teachers"
 	"github.com/cubicbyte/dteubot/internal/i18n"
 	"github.com/cubicbyte/dteubot/pkg/api"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"strconv"
+	"time"
 )
 
-func HandleGroupCommand(u *tgbotapi.Update, bot *tgbotapi.BotAPI, lang *i18n.Language, chat *data.Chat, chatRepo data.ChatRepository, groups *groupscache.Cache, api2 api.IApi) error {
+func HandleGroupCommand(u *tgbotapi.Update, bot *tgbotapi.BotAPI, lang *i18n.Language, chat *data.Chat, chatRepo data.ChatRepository, groups *groupscache.Cache, api2 api.IApi, teachersList *teachers.TeachersList) error {
 	// Get group from command arguments
 	args := u.Message.CommandArguments()
 	if args != "" {
@@ -62,8 +64,9 @@ func HandleGroupCommand(u *tgbotapi.Update, bot *tgbotapi.BotAPI, lang *i18n.Lan
 			return err
 		}
 
-		// Create settings page
-		page, err := pages.CreateSettingsPage(lang, chat, chatRepo, groups)
+		// Create today's schedule page
+		today := time.Now().Format(time.DateOnly)
+		page, err := pages.CreateSchedulePage(lang, groupId, today, api2, teachersList)
 		return sendPage(page, err, u, bot)
 	}
 
