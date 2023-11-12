@@ -28,5 +28,6 @@ import (
 )
 
 func InitDatabaseRecords(b *gotgbot.Bot, ctx *ext.Context) error {
-	ctx.Data
+	// TODO
+	return nil
 }

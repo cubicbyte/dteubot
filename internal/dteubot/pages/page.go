@@ -23,40 +23,33 @@
 package pages
 
 import (
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"github.com/go-telegram/bot"
-	"github.com/go-telegram/bot/models"
+	"github.com/PaulSonOfLars/gotgbot/v2"
 )
 
 // Page represents a telegram page
 type Page struct {
 	Text                  string
-	ReplyMarkup           tgbotapi.InlineKeyboardMarkup
-	ParseMode             models.ParseMode
+	ReplyMarkup           gotgbot.InlineKeyboardMarkup
+	ParseMode             string
 	DisableWebPagePreview bool
 }
 
-// CreateMessage creates a telegram message parameters from the page
-func (p *Page) CreateMessage(chatId int64) bot.SendMessageParams {
-	params := bot.SendMessageParams{
-		ChatID:                chatId,
-		Text:                  p.Text,
+// CreateSendMessageOpts creates a telegram message parameters from the page
+func (p *Page) CreateSendMessageOpts() gotgbot.SendMessageOpts {
+	return gotgbot.SendMessageOpts{
 		ParseMode:             p.ParseMode,
 		DisableWebPagePreview: p.DisableWebPagePreview,
 		ReplyMarkup:           p.ReplyMarkup,
 	}
-	return params
 }
 
-// CreateEditMessage creates a telegram edit message parameters from the page
-func (p *Page) CreateEditMessage(chatId int64, messageId int) bot.EditMessageTextParams {
-	params := bot.EditMessageTextParams{
-		ChatID:                chatId,
-		MessageID:             messageId,
-		Text:                  p.Text,
+// CreateEditMessageOpts creates a telegram edit message parameters from the page
+func (p *Page) CreateEditMessageOpts(chatId int64, messageId int64) gotgbot.EditMessageTextOpts {
+	return gotgbot.EditMessageTextOpts{
+		ChatId:                chatId,
+		MessageId:             messageId,
 		ParseMode:             p.ParseMode,
 		DisableWebPagePreview: p.DisableWebPagePreview,
 		ReplyMarkup:           p.ReplyMarkup,
 	}
-	return params
 }

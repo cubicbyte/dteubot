@@ -23,6 +23,7 @@
 package dteubot
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"github.com/PaulSonOfLars/gotgbot/v2"
@@ -178,6 +179,9 @@ func Setup() {
 		log.Fatalf("Error loading teachers list: %s\n", err)
 	}
 
+	// Set up error handler
+	errorhandler.Setup(languages, chatRepo)
+
 	// Set up the bot
 	log.Info("Setting up bot")
 
@@ -223,7 +227,8 @@ func Setup() {
 
 	// Set up notifier
 	log.Info("Setting up notifier")
-	scheduler, err = notifier.Setup(api, bot, languages, chatRepo)
+	schedulerCtx := context.TODO()
+	scheduler, err = notifier.Setup(schedulerCtx, api, bot, languages, chatRepo)
 	if err != nil {
 		log.Fatalf("Error setting up notifier: %s\n", err)
 	}

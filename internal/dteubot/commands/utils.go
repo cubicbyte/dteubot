@@ -33,7 +33,7 @@ func sendPage(page *pages.Page, err error, u *tgbotapi.Update, bot *tgbotapi.Bot
 		return err
 	}
 
-	msg := page.CreateMessage(u.FromChat().ID)
+	msg := page.CreateSendMessageOpts(u.FromChat().ID)
 	_, err = bot.Send(msg)
 	if err != nil {
 		return err

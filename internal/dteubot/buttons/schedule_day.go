@@ -78,7 +78,7 @@ func SuggestNotifications(chat *data.Chat, chatRepo data.ChatRepository, bot *tg
 		return err
 	}
 
-	_, err = bot.Send(page.CreateMessage(chat.Id))
+	_, err = bot.Send(page.CreateSendMessageOpts(chat.Id))
 	if err != nil {
 		return err
 	}

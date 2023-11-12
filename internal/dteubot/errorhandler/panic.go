@@ -36,28 +36,26 @@ import (
 func PanicsHandler(b *gotgbot.Bot, ctx *ext.Context, r interface{}) {
 	log.Errorf("Panic: %s\n%s", r, string(debug.Stack()))
 
-	// Get chat where the panic happened
-	tgChat := utils.GetUpdChat(u)
-
-	if tgChat != nil {
-		// Send error page to chat
-		chat, err := chatRepo.GetById(tgChat.ID)
-		if err != nil {
-			log.Errorf("Error getting chat: %s\n", err)
-			errorhandler.SendErrorToTelegram(ctx, err, bot)
-			return
-		}
-
-		lang, err := utils.GetLang(chat.LanguageCode, languages)
-		if err != nil {
-			log.Errorf("Error getting language: %s\n", err)
-			errorhandler.SendErrorToTelegram(ctx, err, bot)
-			return
-		}
-
-		errorhandler.SendErrorPageToChat(ctx, u, bot, lang)
+	if ctx.EffectiveChat == nil {
+		// Send error to the developer
+		SendErrorToTelegram(fmt.Errorf("panic: %s\n%s", r, string(debug.Stack())), b)
+		return
 	}
 
-	// Send error to the developer
-	errorhandler.SendErrorToTelegram(ctx, fmt.Errorf("panic: %s\n%s", r, string(debug.Stack())), bot)
+	// Send error page to chat
+	chat, err := chatRepo.GetById(ctx.EffectiveChat.Id)
+	if err != nil {
+		log.Errorf("Error getting chat: %s\n", err)
+		SendErrorToTelegram(err, b)
+		return
+	}
+
+	lang, err := utils.GetLang(chat.LanguageCode, langs)
+	if err != nil {
+		log.Errorf("Error getting language: %s\n", err)
+		SendErrorToTelegram(err, b)
+		return
+	}
+
+	SendErrorPageToChat(ctx, b, lang)
 }

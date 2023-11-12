@@ -50,7 +50,7 @@ func ClosePage(chatId int64, messageId int, bot *tgbotapi.BotAPI, lang *i18n.Lan
 					return err
 				}
 
-				_, err = bot.Send(page.CreateEditMessage(chatId, messageId))
+				_, err = bot.Send(page.CreateEditMessageOpts(chatId, messageId))
 				if err != nil {
 					return err
 				}

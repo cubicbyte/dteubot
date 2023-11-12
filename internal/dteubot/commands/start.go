@@ -44,7 +44,7 @@ func HandleStartCommand(u *tgbotapi.Update, bot *tgbotapi.BotAPI, lang *i18n.Lan
 	if err != nil {
 		return err
 	}
-	_, err = bot.Send(greeting.CreateMessage(u.FromChat().ID))
+	_, err = bot.Send(greeting.CreateSendMessageOpts(u.FromChat().ID))
 	if err != nil {
 		return err
 	}
@@ -66,7 +66,7 @@ func HandleStartCommand(u *tgbotapi.Update, bot *tgbotapi.BotAPI, lang *i18n.Lan
 		return err
 	}
 
-	_, err = bot.Send(groupSelection.CreateMessage(u.FromChat().ID))
+	_, err = bot.Send(groupSelection.CreateSendMessageOpts(u.FromChat().ID))
 	if err != nil {
 		return err
 	}

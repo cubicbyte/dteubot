@@ -33,7 +33,7 @@ func editPage(page *pages.Page, err error, u *tgbotapi.Update, bot *tgbotapi.Bot
 		return err
 	}
 
-	conf := page.CreateEditMessage(u.CallbackQuery.Message.Chat.ID, u.CallbackQuery.Message.MessageID)
+	conf := page.CreateEditMessageOpts(u.CallbackQuery.Message.Chat.ID, u.CallbackQuery.Message.MessageID)
 	_, err = bot.Send(conf)
 	if err != nil {
 		return err

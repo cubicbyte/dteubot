@@ -54,6 +54,8 @@ func NewPostgresChatRepository(db *sqlx.DB) ChatRepository {
 	return &PostgresChatRepository{db: db}
 }
 
+// TODO: Optimize pointer usage, like here: r *PostgresChatRepository -> r PostgresChatRepository
+
 func (r *PostgresChatRepository) GetById(id int64) (*Chat, error) {
 	chat := new(Chat)
 	err := r.db.Get(chat, getChatQuery, id)

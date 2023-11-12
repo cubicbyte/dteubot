@@ -23,6 +23,7 @@
 package notifier
 
 import (
+	"context"
 	_ "embed"
 	"errors"
 	"fmt"
@@ -46,7 +47,7 @@ var Location = "Europe/Kiev"
 var log = logging.MustGetLogger("Notifier")
 
 // Setup initializes notifier and starts cron Scheduler
-func Setup(api api2.IApi, bot *gotgbot.Bot, langs map[string]i18n.Language, chatRepo data.ChatRepository) (*gocron.Scheduler, error) {
+func Setup(ctx context.Context, api api2.IApi, bot *gotgbot.Bot, langs map[string]i18n.Language, chatRepo data.ChatRepository) (*gocron.Scheduler, error) {
 	log.Info("Setting up notifier")
 
 	// Setup cron scheduler
@@ -85,11 +86,11 @@ func Setup(api api2.IApi, bot *gotgbot.Bot, langs map[string]i18n.Language, chat
 	cronTime1m = cronTime1m[:len(cronTime1m)-1]
 
 	// Add cron jobs
-	_, err = scheduler.Every(1).Day().At(cronTime15m).Do(SendNotifications, "15m", chatRepo, api, bot, langs, calls)
+	_, err = scheduler.Every(1).Day().At(cronTime15m).Do(SendNotifications, ctx, "15m", chatRepo, api, bot, langs, calls)
 	if err != nil {
 		return nil, err
 	}
-	_, err = scheduler.Every(1).Day().At(cronTime1m).Do(SendNotifications, "1m", chatRepo, api, bot, langs, calls)
+	_, err = scheduler.Every(1).Day().At(cronTime1m).Do(SendNotifications, ctx, "1m", chatRepo, api, bot, langs, calls)
 	if err != nil {
 		return nil, err
 	}
@@ -98,8 +99,10 @@ func Setup(api api2.IApi, bot *gotgbot.Bot, langs map[string]i18n.Language, chat
 }
 
 // SendNotifications sends notifications to chats that subscribed to notifications
-func SendNotifications(time2 string, chatRepo data.ChatRepository, api api2.IApi, bot *tgbotapi.BotAPI, langs map[string]i18n.Language, calls api2.CallSchedule) error {
+func SendNotifications(ctx context.Context, time2 string, chatRepo data.ChatRepository, api api2.IApi, bot *gotgbot.Bot, langs map[string]i18n.Language, calls api2.CallSchedule) error {
 	log.Infof("Sending notifications %s", time2)
+
+	// TODO: Limit message sending per second
 
 	// Get chats with notifications enabled
 	chats, err := GetSubscribedChats(time2, chatRepo)
@@ -120,7 +123,7 @@ func SendNotifications(time2 string, chatRepo data.ChatRepository, api api2.IApi
 	sentCount := 0
 	for _, chat := range chats {
 		// Get group schedule
-		schedule, err := api.GetGroupScheduleDay(chat.GroupId, curTime.Format("2006-01-02"))
+		schedule, err := api.GetGroupScheduleDay(chat.GroupId, curTime.Format(time.DateOnly))
 		if err != nil {
 			// Check if api connection error
 			var urlError *url.Error
@@ -131,7 +134,7 @@ func SendNotifications(time2 string, chatRepo data.ChatRepository, api api2.IApi
 
 			// Unknown error
 			log.Errorf("Error getting group schedule day for chat %d: %s", chat.Id, err)
-			errorhandler.SendErrorToTelegram(err, bot)
+			errorhandler.SendErrorToTelegram(ctx, err, bot)
 			continue
 		}
 
@@ -140,7 +143,7 @@ func SendNotifications(time2 string, chatRepo data.ChatRepository, api api2.IApi
 		haveClasses, err := IsGroupHaveClasses(schedule, calls, expectedTime)
 		if err != nil {
 			log.Errorf("Error checking if group have classes for chat %d: %s", chat.Id, err)
-			errorhandler.SendErrorToTelegram(err, bot)
+			errorhandler.SendErrorToTelegram(ctx, err, bot)
 			continue
 		}
 
@@ -151,15 +154,15 @@ func SendNotifications(time2 string, chatRepo data.ChatRepository, api api2.IApi
 			lang, err := utils.GetLang(chat.LanguageCode, langs)
 			if err != nil {
 				log.Errorf("Error getting language for chat %d: %s", chat.Id, err)
-				errorhandler.SendErrorToTelegram(err, bot)
+				errorhandler.SendErrorToTelegram(ctx, err, bot)
 				continue
 			}
 
 			// Send notification to chat
-			err = SendNotification(chat, chatRepo, lang, bot, schedule, time2, "start")
+			err = SendNotification(ctx, chat, chatRepo, lang, bot, schedule, time2, "start")
 			if err != nil {
 				log.Warningf("Error sending notification to chat %d: %s", chat.Id, err)
-				errorhandler.SendErrorToTelegram(err, bot)
+				errorhandler.SendErrorToTelegram(ctx, err, bot)
 				continue
 			}
 
@@ -175,7 +178,7 @@ func SendNotifications(time2 string, chatRepo data.ChatRepository, api api2.IApi
 		haveNextClassesPart, err := IsGroupHaveNextClassesPart(schedule, calls, expectedTime)
 		if err != nil {
 			log.Errorf("Error checking if group have next classes part for chat %d: %s", chat.Id, err)
-			errorhandler.SendErrorToTelegram(err, bot)
+			errorhandler.SendErrorToTelegram(ctx, err, bot)
 			continue
 		}
 
@@ -186,15 +189,15 @@ func SendNotifications(time2 string, chatRepo data.ChatRepository, api api2.IApi
 			lang, err := utils.GetLang(chat.LanguageCode, langs)
 			if err != nil {
 				log.Errorf("Error getting language for chat %d: %s", chat.Id, err)
-				errorhandler.SendErrorToTelegram(err, bot)
+				errorhandler.SendErrorToTelegram(ctx, err, bot)
 				continue
 			}
 
 			// Send notification to chat
-			err = SendNotification(chat, chatRepo, lang, bot, schedule, time2, "next_part")
+			err = SendNotification(ctx, chat, chatRepo, lang, bot, schedule, time2, "next_part")
 			if err != nil {
 				log.Warningf("Error sending notification to chat %d: %s", chat.Id, err)
-				errorhandler.SendErrorToTelegram(err, bot)
+				errorhandler.SendErrorToTelegram(ctx, err, bot)
 				continue
 			}
 
@@ -209,7 +212,7 @@ func SendNotifications(time2 string, chatRepo data.ChatRepository, api api2.IApi
 }
 
 // SendNotification sends notification to chat
-func SendNotification(chat *data.Chat, chatRepo data.ChatRepository, lang *i18n.Language, bot *gotgbot.Bot, schedule *api2.TimeTableDate, time string, type2 string) error {
+func SendNotification(ctx context.Context, chat *data.Chat, chatRepo data.ChatRepository, lang *i18n.Language, bot *gotgbot.Bot, schedule *api2.TimeTableDate, time string, type2 string) error {
 	log.Debugf("Sending %s %s notification to chat %d", type2, time, chat.Id)
 
 	var pageText string
@@ -242,19 +245,25 @@ func SendNotification(chat *data.Chat, chatRepo data.ChatRepository, lang *i18n.
 	}
 
 	// Create buttons
-	replyMarkup := tgbotapi.NewInlineKeyboardMarkup(
-		tgbotapi.NewInlineKeyboardRow(
-			tgbotapi.NewInlineKeyboardButtonData(lang.Button.OpenSchedule, "open.schedule.day#from=notification&date="+schedule.Date),
-			tgbotapi.NewInlineKeyboardButtonData(lang.Button.Settings, "open.settings#from=notification"),
-		),
-	)
+	replyMarkup := gotgbot.InlineKeyboardMarkup{
+		InlineKeyboard: [][]gotgbot.InlineKeyboardButton{{
+			{
+				Text:         lang.Button.OpenSchedule,
+				CallbackData: "open.schedule.day#from=notification&date=" + schedule.Date,
+			}, {
+				Text:         lang.Button.Settings,
+				CallbackData: "open.settings#from=notification",
+			},
+		}},
+	}
 
 	// Send message
-	msg := tgbotapi.NewMessage(chat.Id, pageText)
-	msg.ParseMode = tgbotapi.ModeMarkdownV2
-	msg.ReplyMarkup = replyMarkup
+	opts := gotgbot.SendMessageOpts{
+		ParseMode:   gotgbot.ParseModeMarkdownV2,
+		ReplyMarkup: replyMarkup,
+	}
 
-	_, err := bot.Send(msg)
+	_, err := bot.SendMessage(chat.Id, pageText, &opts)
 	if err != nil {
 		// Check if user blocked bot
 		var tgError *tgbotapi.Error
@@ -262,7 +271,7 @@ func SendNotification(chat *data.Chat, chatRepo data.ChatRepository, lang *i18n.
 			log.Infof("Bot blocked in chat %d", chat.Id)
 			if err = MakeChatUnavailable(chat, chatRepo); err != nil {
 				log.Errorf("Error making chat %d unavailable: %s", chat.Id, err)
-				errorhandler.SendErrorToTelegram(err, bot)
+				errorhandler.SendErrorToTelegram(ctx, err, bot)
 			}
 			return nil
 		}
