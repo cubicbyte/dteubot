@@ -45,7 +45,6 @@ import (
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 	"github.com/op/go-logging"
-	"net/http"
 	"os"
 	"strconv"
 	"strings"
@@ -190,13 +189,6 @@ func Setup() {
 
 	opts := gotgbot.BotOpts{
 		DisableTokenCheck: true, // Prevent crash when network is unreachable
-		BotClient: &gotgbot.BaseBotClient{
-			Client: http.Client{},
-			DefaultRequestOpts: &gotgbot.RequestOpts{
-				Timeout: gotgbot.DefaultTimeout, // TODO: this throws error every 5 seconds. Determine why.
-				APIURL:  gotgbot.DefaultAPIURL,
-			},
-		},
 	}
 
 	bot, err = gotgbot.NewBot(os.Getenv("BOT_TOKEN"), &opts)
@@ -238,7 +230,10 @@ func Run() {
 	err := updater.StartPolling(bot, &ext.PollingOpts{
 		DropPendingUpdates: true,
 		GetUpdatesOpts: &gotgbot.GetUpdatesOpts{
-			Timeout: 10,
+			Timeout: 9,
+			RequestOpts: &gotgbot.RequestOpts{
+				Timeout: 10 * time.Second,
+			},
 		},
 	})
 	if err != nil {
