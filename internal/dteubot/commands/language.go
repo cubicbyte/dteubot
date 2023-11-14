@@ -23,12 +23,24 @@
 package commands
 
 import (
+	"github.com/PaulSonOfLars/gotgbot/v2"
+	"github.com/PaulSonOfLars/gotgbot/v2/ext"
 	"github.com/cubicbyte/dteubot/internal/dteubot/pages"
-	"github.com/cubicbyte/dteubot/internal/i18n"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
 )
 
-func HandleLanguageCommand(u *tgbotapi.Update, bot *tgbotapi.BotAPI, lang *i18n.Language, langs map[string]i18n.Language) error {
-	page, err := pages.CreateLanguageSelectionPage(lang, langs, "open.menu#from=language")
-	return sendPage(page, err, u, bot)
+func HandleLanguageCommand(bot *gotgbot.Bot, ctx *ext.Context) error {
+	// Get chat
+	chat, err := chatRepo.GetById(ctx.EffectiveChat.Id)
+	if err != nil {
+		return err
+	}
+
+	lang, err := utils.GetLang(chat.LanguageCode, languages)
+	if err != nil {
+		return err
+	}
+
+	page, err := pages.CreateLanguageSelectionPage(lang, "open.menu#from=language")
+	return sendPage(bot, ctx, page, err)
 }

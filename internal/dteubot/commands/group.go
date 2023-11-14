@@ -23,24 +23,34 @@
 package commands
 
 import (
-	"github.com/cubicbyte/dteubot/internal/data"
-	"github.com/cubicbyte/dteubot/internal/dteubot/groupscache"
+	"github.com/PaulSonOfLars/gotgbot/v2"
+	"github.com/PaulSonOfLars/gotgbot/v2/ext"
 	"github.com/cubicbyte/dteubot/internal/dteubot/pages"
-	"github.com/cubicbyte/dteubot/internal/i18n"
-	"github.com/cubicbyte/dteubot/pkg/api"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
 	"strconv"
+	"strings"
 )
 
-func HandleGroupCommand(u *tgbotapi.Update, bot *tgbotapi.BotAPI, lang *i18n.Language, chat *data.Chat, chatRepo data.ChatRepository, groups *groupscache.Cache, api2 api.IApi) error {
+func HandleGroupCommand(bot *gotgbot.Bot, ctx *ext.Context) error {
+	// Get chat
+	chat, err := chatRepo.GetById(ctx.EffectiveChat.Id)
+	if err != nil {
+		return err
+	}
+
+	lang, err := utils.GetLang(chat.LanguageCode, languages)
+	if err != nil {
+		return err
+	}
+
 	// Get group from command arguments
-	args := u.Message.CommandArguments()
-	if args != "" {
-		groupId, err := strconv.Atoi(args)
+	if strings.Contains(ctx.EffectiveMessage.Text, " ") {
+		arg := strings.SplitN(ctx.EffectiveMessage.Text, " ", 2)[1]
+		groupId, err := strconv.Atoi(arg)
 		if err != nil {
 			// User provided group name instead of id
 			// Check if group exists
-			group, err := groups.GetGroupByName(args)
+			group, err := groupsCache.GetGroupByName(arg)
 			if err != nil {
 				return err
 			}
@@ -63,22 +73,22 @@ func HandleGroupCommand(u *tgbotapi.Update, bot *tgbotapi.BotAPI, lang *i18n.Lan
 		}
 
 		// Create settings page
-		page, err := pages.CreateSettingsPage(lang, chat, chatRepo, groups)
-		return sendPage(page, err, u, bot)
+		page, err := pages.CreateSettingsPage(lang, chat)
+		return sendPage(bot, ctx, page, err)
 	}
 
 CREATE_PAGE:
-	structures, err := api2.GetStructures()
+	structures, err := api.GetStructures()
 	if err != nil {
 		return err
 	}
 
-	var page *pages.Page
+	var page pages.Page
 	if len(structures) == 1 {
-		page, err = pages.CreateFacultiesListPage(lang, structures[0].Id, api2)
+		page, err = pages.CreateFacultiesListPage(lang, structures[0].Id)
 	} else {
-		page, err = pages.CreateStructuresListPage(lang, api2)
+		page, err = pages.CreateStructuresListPage(lang)
 	}
 
-	return sendPage(page, err, u, bot)
+	return sendPage(bot, ctx, page, err)
 }

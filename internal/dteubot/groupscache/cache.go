@@ -116,7 +116,7 @@ func (c *Cache) GetGroupById(id int) (*Group, error) {
 	return &group, nil
 }
 
-// GetGroupByName returns group by name
+// GetGroupByName returns group by name. Not case sensitive
 func (c *Cache) GetGroupByName(name string) (*Group, error) {
 	log.Debugf("Getting group %s\n", name)
 

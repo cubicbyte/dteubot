@@ -20,41 +20,34 @@
  * SOFTWARE.
  */
 
-package data
+package commands
 
 import (
-	_ "embed"
-	"time"
+	"github.com/cubicbyte/dteubot/internal/data"
+	"github.com/cubicbyte/dteubot/internal/dteubot/groupscache"
+	"github.com/cubicbyte/dteubot/internal/i18n"
+	api2 "github.com/cubicbyte/dteubot/pkg/api"
 )
 
-// User is a struct that contains all the user data
-type User struct {
-	Id        int64     `db:"id" json:"id"`
-	FirstName string    `db:"first_name" json:"firstName"`
-	LastName  string    `db:"last_name" json:"lastName"`
-	Username  string    `db:"username" json:"username"`
-	IsAdmin   bool      `db:"is_admin" json:"isAdmin"`
-	Referral  string    `db:"referral" json:"referral"`
-	Created   time.Time `db:"created" json:"created"`
-}
+var (
+	chatRepo    data.ChatRepository
+	userRepo    data.UserRepository
+	api         api2.IApi
+	languages   map[string]i18n.Language
+	groupsCache *groupscache.Cache
+)
 
-// UserRepository is an interface for working with user data.
-type UserRepository interface {
-	// GetById returns a user by its id.
-	GetById(id int64) (*User, error)
-	// Update updates the user data.
-	Update(user *User) error
-}
-
-// NewUser creates a new instance of User.
-func NewUser(id int64) *User {
-	return &User{
-		Id:        id,
-		FirstName: "",
-		LastName:  "",
-		Username:  "",
-		IsAdmin:   false,
-		Referral:  "",
-		Created:   time.Now(),
-	}
+// InitCommands initializes commands package. Must be called before using this package
+func InitCommands(
+	chatRepo2 data.ChatRepository,
+	userRepo2 data.UserRepository,
+	api2 api2.IApi,
+	languages2 map[string]i18n.Language,
+	groupsCache2 *groupscache.Cache,
+) {
+	chatRepo = chatRepo2
+	userRepo = userRepo2
+	api = api2
+	languages = languages2
+	groupsCache = groupsCache2
 }

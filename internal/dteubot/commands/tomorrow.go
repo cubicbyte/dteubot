@@ -23,17 +23,26 @@
 package commands
 
 import (
-	"github.com/cubicbyte/dteubot/internal/data"
+	"github.com/PaulSonOfLars/gotgbot/v2"
+	"github.com/PaulSonOfLars/gotgbot/v2/ext"
 	"github.com/cubicbyte/dteubot/internal/dteubot/pages"
-	"github.com/cubicbyte/dteubot/internal/dteubot/teachers"
-	"github.com/cubicbyte/dteubot/internal/i18n"
-	"github.com/cubicbyte/dteubot/pkg/api"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
 	"time"
 )
 
-func HandleTomorrowCommand(u *tgbotapi.Update, bot *tgbotapi.BotAPI, lang *i18n.Language, chat *data.Chat, api2 api.IApi, teachersList *teachers.TeachersList) error {
+func HandleTomorrowCommand(bot *gotgbot.Bot, ctx *ext.Context) error {
+	// Get chat
+	chat, err := chatRepo.GetById(ctx.EffectiveChat.Id)
+	if err != nil {
+		return err
+	}
+
+	lang, err := utils.GetLang(chat.LanguageCode, languages)
+	if err != nil {
+		return err
+	}
+
 	tomorrow := time.Now().AddDate(0, 0, 1).Format("2006-01-02")
-	page, err := pages.CreateSchedulePage(lang, chat.GroupId, tomorrow, api2, teachersList)
-	return sendPage(page, err, u, bot)
+	page, err := pages.CreateSchedulePage(lang, chat.GroupId, tomorrow)
+	return sendPage(bot, ctx, page, err)
 }

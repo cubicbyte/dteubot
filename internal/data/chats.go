@@ -30,7 +30,7 @@ import (
 
 // Chat is a struct that contains all the chat settings
 type Chat struct {
-	Id                          int64     `db:"chat_id" json:"id"`
+	Id                          int64     `db:"id" json:"id"`
 	GroupId                     int       `db:"group_id" json:"groupId"`
 	LanguageCode                string    `db:"lang_code" json:"languageCode"`
 	ClassesNotification15m      bool      `db:"cl_notif_15m" json:"clNotif15m"`

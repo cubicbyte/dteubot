@@ -98,7 +98,7 @@ func HandleError(b *gotgbot.Bot, ctx *ext.Context, err error) ext.DispatcherActi
 			break
 		}
 
-		SendPageToChat(ctx, b, page)
+		SendPageToChat(ctx, b, &page)
 	case errors.As(err, &httpApiError):
 		// Non-200 api status code
 
@@ -109,40 +109,40 @@ func HandleError(b *gotgbot.Bot, ctx *ext.Context, err error) ext.DispatcherActi
 
 		switch httpApiError.Code {
 		case http.StatusUnauthorized:
-			page, pageErr = pages.CreateForbiddenPage(lang, "open.menu#from=unauthorized")
+			*page, pageErr = pages.CreateForbiddenPage(lang, "open.menu#from=unauthorized")
 
 		case http.StatusInternalServerError:
-			page, pageErr = pages.CreateApiUnavailablePage(lang)
+			*page, pageErr = pages.CreateApiUnavailablePage(lang)
 
 		case http.StatusForbidden:
-			page, pageErr = pages.CreateForbiddenPage(lang, "open.menu#from=forbidden")
+			*page, pageErr = pages.CreateForbiddenPage(lang, "open.menu#from=forbidden")
 
 		case http.StatusNotFound:
-			page, pageErr = pages.CreateNotFoundPage(lang, "open.menu#from=not_found")
+			*page, pageErr = pages.CreateNotFoundPage(lang, "open.menu#from=not_found")
 
 		case http.StatusUnprocessableEntity:
 			// Request body is invalid: incorrect group id, etc
 			for _, field := range httpApiError.Err.(*api.ValidationError).Fields {
 				switch field.Field {
 				case "groupId":
-					page, pageErr = pages.CreateInvalidGroupPage(lang)
+					*page, pageErr = pages.CreateInvalidGroupPage(lang)
 				default:
 					// Unknown field
-					page, pageErr = pages.CreateErrorPage(lang)
+					*page, pageErr = pages.CreateErrorPage(lang)
 					log.Errorf("Unknown validation error field: %s", field.Field)
 					SendErrorToTelegram(err, b)
 				}
 			}
 			if page == nil {
 				// No fields in ValidationError
-				page, pageErr = pages.CreateErrorPage(lang)
+				*page, pageErr = pages.CreateErrorPage(lang)
 				log.Errorf("No fields in ValidationError: %s", err)
 				SendErrorToTelegram(err, b)
 			}
 
 		default:
 			// Unknown error
-			page, pageErr = pages.CreateApiUnavailablePage(lang)
+			*page, pageErr = pages.CreateApiUnavailablePage(lang)
 
 			if httpApiError.Code/100 != 5 {
 				log.Errorf("Unknown API http status code %d: %s", httpApiError.Code, httpApiError.Body)
@@ -226,7 +226,7 @@ func HandleError(b *gotgbot.Bot, ctx *ext.Context, err error) ext.DispatcherActi
 
 	default:
 		// Unknown error
-		log.Errorf("Unknown error: %s", err)
+		log.Errorf("Unknown error: %s", err.Error())
 		SendErrorToTelegram(err, b)
 		SendErrorPageToChat(ctx, b, lang)
 	}
@@ -263,7 +263,7 @@ func SendErrorToTelegram(err error, bot *gotgbot.Bot) {
 	lastErrorTime = time.Now()
 }
 
-func SendErrorPageToChat(ctx2 *ext.Context, bot *gotgbot.Bot, lang *i18n.Language) {
+func SendErrorPageToChat(ctx2 *ext.Context, bot *gotgbot.Bot, lang i18n.Language) {
 	if ctx2.EffectiveChat == nil {
 		log.Errorf("Error sending error page: no chat")
 		return
@@ -276,7 +276,7 @@ func SendErrorPageToChat(ctx2 *ext.Context, bot *gotgbot.Bot, lang *i18n.Languag
 		return
 	}
 
-	SendPageToChat(ctx2, bot, page)
+	SendPageToChat(ctx2, bot, &page)
 }
 
 // SendPageToChat sends the given page to the chat of the given update.

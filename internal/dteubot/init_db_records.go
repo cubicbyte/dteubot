@@ -25,9 +25,45 @@ package dteubot
 import (
 	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext"
+	"github.com/cubicbyte/dteubot/internal/data"
 )
 
 func InitDatabaseRecords(b *gotgbot.Bot, ctx *ext.Context) error {
-	// TODO
+	log.Debug("Initializing database records")
+
+	// Create chat if not exists
+	if ctx.EffectiveChat != nil {
+		chat, err := chatRepo.GetById(ctx.EffectiveChat.Id)
+		if err != nil {
+			return err
+		}
+
+		if chat == nil {
+			log.Debug("Creating new chat record")
+
+			chat = data.NewChat(ctx.EffectiveChat.Id)
+			if err := chatRepo.Update(chat); err != nil {
+				return err
+			}
+		}
+	}
+
+	// Create user if not exists
+	if ctx.EffectiveUser != nil {
+		user, err := userRepo.GetById(ctx.EffectiveUser.Id)
+		if err != nil {
+			return err
+		}
+
+		if user == nil {
+			log.Debug("Creating new user record")
+
+			user = data.NewUser(ctx.EffectiveUser.Id)
+			if err := userRepo.Update(user); err != nil {
+				return err
+			}
+		}
+	}
+
 	return nil
 }

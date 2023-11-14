@@ -23,13 +23,15 @@
 package dteubot
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext/handlers"
+	"github.com/PaulSonOfLars/gotgbot/v2/ext/handlers/filters/callbackquery"
 	"github.com/cubicbyte/dteubot/internal/data"
+	"github.com/cubicbyte/dteubot/internal/dteubot/buttons"
+	"github.com/cubicbyte/dteubot/internal/dteubot/commands"
 	"github.com/cubicbyte/dteubot/internal/dteubot/errorhandler"
 	"github.com/cubicbyte/dteubot/internal/dteubot/groupscache"
 	"github.com/cubicbyte/dteubot/internal/dteubot/pages"
@@ -191,7 +193,7 @@ func Setup() {
 		BotClient: &gotgbot.BaseBotClient{
 			Client: http.Client{},
 			DefaultRequestOpts: &gotgbot.RequestOpts{
-				Timeout: gotgbot.DefaultTimeout,
+				Timeout: gotgbot.DefaultTimeout, // TODO: this throws error every 5 seconds. Determine why.
 				APIURL:  gotgbot.DefaultAPIURL,
 			},
 		},
@@ -211,32 +213,19 @@ func Setup() {
 	})
 
 	// Add bot update handlers
-	anyCommandFilter := func(m *gotgbot.Message) bool {
-		return strings.HasPrefix(m.Text, "/")
-	}
-
-	anyCallbackFilter := func(cq *gotgbot.CallbackQuery) bool {
-		return true
-	}
-
-	// Init database records
-	updater.Dispatcher.AddHandlerToGroup(handlers.NewMessage(anyCommandFilter, InitDatabaseRecords), -10)
-	updater.Dispatcher.AddHandlerToGroup(handlers.NewCallback(anyCallbackFilter, InitDatabaseRecords), -10)
-	// Save interaction to statistics
-	updater.Dispatcher.AddHandlerToGroup(handlers.NewMessage(anyCommandFilter, CommandStatisticHandler), 10)
-	updater.Dispatcher.AddHandlerToGroup(handlers.NewCallback(anyCallbackFilter, ButtonStatisticHandler), 10)
+	setupDispatcherHandlers(updater.Dispatcher)
 
 	// Set up notifier
 	log.Info("Setting up notifier")
-	schedulerCtx := context.TODO()
-	scheduler, err = notifier.Setup(schedulerCtx, api, bot, languages, chatRepo)
+	scheduler, err = notifier.Setup(api, bot, languages, chatRepo)
 	if err != nil {
 		log.Fatalf("Error setting up notifier: %s\n", err)
 	}
 
-	// Set up pages
-	log.Info("Setting up pages")
+	// Set up pages, commands and buttons
 	pages.InitPages(chatRepo, userRepo, api, groupsCache, teachersList, languages)
+	buttons.InitButtons(chatRepo, userRepo, api, languages)
+	commands.InitCommands(chatRepo, userRepo, api, languages, groupsCache)
 }
 
 // Run starts the Bot.
@@ -248,6 +237,7 @@ func Run() {
 
 	// Start bot
 	err := updater.StartPolling(bot, &ext.PollingOpts{
+		DropPendingUpdates: true,
 		GetUpdatesOpts: &gotgbot.GetUpdatesOpts{
 			Timeout: 10,
 		},
@@ -255,4 +245,98 @@ func Run() {
 	if err != nil {
 		log.Fatalf("Error starting polling: %s\n", err)
 	}
+
+	// Wait for SIGINT
+	updater.Idle()
+}
+
+func setupDispatcherHandlers(dp *ext.Dispatcher) {
+	anyCommandFilter := func(m *gotgbot.Message) bool {
+		return strings.HasPrefix(m.Text, "/")
+	}
+
+	anyCallbackFilter := func(cq *gotgbot.CallbackQuery) bool {
+		return true
+	}
+
+	var buttonsMapping = map[string]func(*gotgbot.Bot, *ext.Context) error{
+		"open.admin_panel":          buttons.HandleAdminPanelButton,
+		"open.calls":                buttons.HandleCallsButton,
+		"admin.clear_cache":         buttons.HandleClearCacheButton,
+		"admin.clear_logs":          buttons.HandleClearLogsButton,
+		"close_page":                buttons.HandleClosePageButton,
+		"open.info":                 buttons.HandleInfoButton,
+		"open.left":                 buttons.HandleLeftButton,
+		"open.menu":                 buttons.HandleMenuButton,
+		"open.more":                 buttons.HandleMoreButton,
+		"open.select_group":         buttons.HandleOpenSelectGroupButton,
+		"open.select_lang":          buttons.HandleOpenSelectLanguageButton,
+		"open.schedule.day":         buttons.HandleScheduleDayButton,
+		"open.schedule.extra":       buttons.HandleScheduleExtraButton,
+		"open.schedule.today":       buttons.HandleScheduleTodayButton,
+		"select.schedule.course":    buttons.HandleSelectCourseButton,
+		"select.schedule.faculty":   buttons.HandleSelectFacultyButton,
+		"select.schedule.group":     buttons.HandleSelectGroupButton,
+		"select.lang":               buttons.HandleSelectLanguageButton,
+		"select.schedule.structure": buttons.HandleSelectStructureButton,
+		"admin.send_logs":           buttons.HandleSendLogsButton,
+		"set.cl_notif":              buttons.HandleSetClassesNotificationsButton,
+		"set.cl_notif_next_part":    buttons.HandleSetClassesNotificationsNextPartButton,
+		"open.settings":             buttons.HandleSettingsButton,
+		"open.students_list":        buttons.HandleStudentsListButton,
+	}
+
+	var commandsMapping = map[string]func(*gotgbot.Bot, *ext.Context) error{
+		"calls":    commands.HandleCallsCommand,
+		"c":        commands.HandleCallsCommand,
+		"group":    commands.HandleGroupCommand,
+		"g":        commands.HandleGroupCommand,
+		"lang":     commands.HandleLanguageCommand,
+		"language": commands.HandleLanguageCommand,
+		"left":     commands.HandleLeftCommand,
+		"l":        commands.HandleLeftCommand,
+		"settings": commands.HandleSettingsCommand,
+		"start":    commands.HandleStartCommand,
+		"today":    commands.HandleTodayCommand,
+		"t":        commands.HandleTodayCommand,
+		"tomorrow": commands.HandleTomorrowCommand,
+		"tt":       commands.HandleTomorrowCommand,
+	}
+
+	// Here is handlers distribution by priority:
+	// Lower number = higher priority
+	// -20: Log update
+	// -10: Init database records
+	//   0: Buttons and commands
+	//  40: Save bot interaction to statistics
+
+	// Log update
+	dp.AddHandlerToGroup(handlers.NewMessage(anyCommandFilter, func(b *gotgbot.Bot, ctx *ext.Context) error {
+		log.Infof("Handling command %s from %s\n", ctx.EffectiveMessage.Text, ctx.EffectiveUser.FirstName)
+		return nil
+	}), -20)
+	dp.AddHandlerToGroup(handlers.NewCallback(anyCallbackFilter, func(b *gotgbot.Bot, ctx *ext.Context) error {
+		log.Infof("Handling button %s from %s\n", ctx.Update.CallbackQuery.Data, ctx.EffectiveUser.FirstName)
+		return nil
+	}), -20)
+
+	// Init database records
+	dp.AddHandlerToGroup(handlers.NewMessage(anyCommandFilter, InitDatabaseRecords), -10)
+	dp.AddHandlerToGroup(handlers.NewCallback(anyCallbackFilter, InitDatabaseRecords), -10)
+	// Save interaction to statistics
+	dp.AddHandlerToGroup(handlers.NewMessage(anyCommandFilter, CommandStatisticHandler), 40)
+	dp.AddHandlerToGroup(handlers.NewCallback(anyCallbackFilter, ButtonStatisticHandler), 40)
+
+	// Buttons
+	for query, handler := range buttonsMapping {
+		dp.AddHandlerToGroup(handlers.NewCallback(callbackquery.Prefix(query), handler), 0)
+	}
+
+	// Commands
+	for command, handler := range commandsMapping {
+		dp.AddHandlerToGroup(handlers.NewCommand(command, handler), 0)
+	}
+
+	// Unsupported button
+	dp.AddHandlerToGroup(handlers.NewCallback(anyCallbackFilter, buttons.HandleUnsupportedButton), 0)
 }
