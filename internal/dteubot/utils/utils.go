@@ -25,7 +25,6 @@ package utils
 import (
 	"github.com/cubicbyte/dteubot/internal/i18n"
 	"github.com/dlclark/regexp2"
-	"github.com/go-telegram/bot/models"
 	"os"
 	"strings"
 	"time"
@@ -99,96 +98,4 @@ func GetLang(code string, langs map[string]i18n.Language) (i18n.Language, error)
 // SetLocation sets the location of the time without changing the time itself.
 func SetLocation(time2 time.Time, location *time.Location) time.Time {
 	return time.Date(time2.Year(), time2.Month(), time2.Day(), time2.Hour(), time2.Minute(), time2.Second(), time2.Nanosecond(), location)
-}
-
-// GetUpdChat returns the chat from the given update.
-func GetUpdChat(u *models.Update) *models.Chat {
-	if u.Message != nil {
-		return &u.Message.Chat
-	} else if u.CallbackQuery != nil {
-		return &u.CallbackQuery.Message.Chat
-	} else if u.EditedMessage != nil {
-		return &u.EditedMessage.Chat
-	} else if u.ChannelPost != nil {
-		return &u.ChannelPost.Chat
-	} else if u.EditedChannelPost != nil {
-		return &u.EditedChannelPost.Chat
-	} else if u.MyChatMember != nil {
-		return &u.MyChatMember.Chat
-	} else if u.ChatMember != nil {
-		return &u.ChatMember.Chat
-	}
-
-	return nil
-}
-
-// GetUpdUser returns the user from the given update.
-func GetUpdUser(u *models.Update) *models.User {
-	if u.Message != nil {
-		return u.Message.From
-	} else if u.CallbackQuery != nil {
-		return &u.CallbackQuery.Sender
-	} else if u.EditedMessage != nil {
-		return u.EditedMessage.From
-	} else if u.ChannelPost != nil {
-		return u.ChannelPost.From
-	} else if u.EditedChannelPost != nil {
-		return u.EditedChannelPost.From
-	} else if u.MyChatMember != nil {
-		return &u.MyChatMember.From
-	} else if u.ChatMember != nil {
-		return &u.ChatMember.From
-	}
-
-	return nil
-}
-
-// GetUpdMessage returns the message from the given update.
-func GetUpdMessage(u *models.Update) *models.Message {
-	if u.Message != nil {
-		return u.Message
-	} else if u.CallbackQuery != nil {
-		return u.CallbackQuery.Message
-	} else if u.EditedMessage != nil {
-		return u.EditedMessage
-	} else if u.ChannelPost != nil {
-		return u.ChannelPost
-	} else if u.EditedChannelPost != nil {
-		return u.EditedChannelPost
-	}
-
-	return nil
-}
-
-// GetMsgCommand returns the command from the given message. If there is no command, returns an empty string.
-//
-// Example: /start@bot -> start
-func GetMsgCommand(msg *models.Message) string {
-	if msg == nil {
-		return ""
-	}
-
-	if !IsCommand(msg) {
-		return ""
-	}
-
-	entity := msg.Entities[0]
-	command := msg.Text[1:entity.Length]
-
-	// Remove bot username from command: /start@bot -> /start
-	if i := strings.Index(command, "@"); i != -1 {
-		command = command[:i]
-	}
-
-	return command
-}
-
-// IsCommand returns true if the given message is a bot command.
-func IsCommand(m *models.Message) bool {
-	if m.Entities == nil || len(m.Entities) == 0 {
-		return false
-	}
-
-	entity := m.Entities[0]
-	return entity.Offset == 0 && entity.Type == "bot_command"
 }
