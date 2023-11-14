@@ -204,16 +204,15 @@ func Setup() {
 		log.Fatal("Error setting up bot: %s\n", err)
 	}
 
-	updater = ext.NewUpdater(&ext.UpdaterOpts{
-		Dispatcher: ext.NewDispatcher(&ext.DispatcherOpts{
-			Error:       errorhandler.HandleError,
-			Panic:       errorhandler.PanicsHandler,
-			MaxRoutines: ext.DefaultMaxRoutines,
-		}),
+	dispatcher := ext.NewDispatcher(&ext.DispatcherOpts{
+		Error:       errorhandler.HandleError,
+		Panic:       errorhandler.PanicsHandler,
+		MaxRoutines: ext.DefaultMaxRoutines,
 	})
+	updater = ext.NewUpdater(dispatcher, nil)
 
 	// Add bot update handlers
-	setupDispatcherHandlers(updater.Dispatcher)
+	setupDispatcherHandlers(dispatcher)
 
 	// Set up notifier
 	log.Info("Setting up notifier")

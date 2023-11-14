@@ -28,7 +28,7 @@ import (
 	"github.com/cubicbyte/dteubot/internal/data"
 )
 
-func InitDatabaseRecords(b *gotgbot.Bot, ctx *ext.Context) error {
+func InitDatabaseRecords(_ *gotgbot.Bot, ctx *ext.Context) error {
 	log.Debug("Initializing database records")
 
 	// Create chat if not exists
