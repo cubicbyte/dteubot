@@ -32,6 +32,7 @@ import (
 	"github.com/cubicbyte/dteubot/internal/data"
 	"github.com/cubicbyte/dteubot/internal/dteubot/errorhandler"
 	"github.com/cubicbyte/dteubot/internal/dteubot/groupscache"
+	"github.com/cubicbyte/dteubot/internal/dteubot/pages"
 	"github.com/cubicbyte/dteubot/internal/dteubot/statistics"
 	"github.com/cubicbyte/dteubot/internal/dteubot/teachers"
 	"github.com/cubicbyte/dteubot/internal/i18n"
@@ -232,6 +233,10 @@ func Setup() {
 	if err != nil {
 		log.Fatalf("Error setting up notifier: %s\n", err)
 	}
+
+	// Set up pages
+	log.Info("Setting up pages")
+	pages.InitPages(chatRepo, userRepo, api, groupsCache, teachersList, languages)
 }
 
 // Run starts the Bot.

@@ -23,30 +23,38 @@
 package pages
 
 import (
+	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/cubicbyte/dteubot/internal/i18n"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
-func CreateMorePage(lang *i18n.Language) (*Page, error) {
+func CreateMorePage(lang i18n.Language) (Page, error) {
 	page := Page{
 		Text: lang.Page.More,
-		ReplyMarkup: tgbotapi.NewInlineKeyboardMarkup(
-			tgbotapi.NewInlineKeyboardRow(
-				tgbotapi.NewInlineKeyboardButtonData(lang.Button.CallsSchedule, "open.calls"),
-				tgbotapi.NewInlineKeyboardButtonData(lang.Button.TimeLeft, "open.left"),
-			),
-			tgbotapi.NewInlineKeyboardRow(
-				tgbotapi.NewInlineKeyboardButtonData(lang.Button.StudentsList, "open.students_list"),
-			),
-			tgbotapi.NewInlineKeyboardRow(
-				tgbotapi.NewInlineKeyboardButtonData(lang.Button.Info, "open.info"),
-			),
-			tgbotapi.NewInlineKeyboardRow(
-				tgbotapi.NewInlineKeyboardButtonData(lang.Button.Back, "open.menu"),
-			),
-		),
+		ReplyMarkup: gotgbot.InlineKeyboardMarkup{
+			InlineKeyboard: [][]gotgbot.InlineKeyboardButton{
+				{{
+					Text:         lang.Button.CallsSchedule,
+					CallbackData: "open.calls",
+				}, {
+					Text:         lang.Button.TimeLeft,
+					CallbackData: "open.left",
+				}},
+				{{
+					Text:         lang.Button.StudentsList,
+					CallbackData: "open.students_list",
+				}},
+				{{
+					Text:         lang.Button.Info,
+					CallbackData: "open.info",
+				}},
+				{{
+					Text:         lang.Button.Back,
+					CallbackData: "open.menu",
+				}},
+			},
+		},
 		ParseMode: "MarkdownV2",
 	}
 
-	return &page, nil
+	return page, nil
 }

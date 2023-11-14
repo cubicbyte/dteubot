@@ -24,7 +24,38 @@ package pages
 
 import (
 	"github.com/PaulSonOfLars/gotgbot/v2"
+	"github.com/cubicbyte/dteubot/internal/data"
+	"github.com/cubicbyte/dteubot/internal/dteubot/groupscache"
+	"github.com/cubicbyte/dteubot/internal/dteubot/teachers"
+	"github.com/cubicbyte/dteubot/internal/i18n"
+	api2 "github.com/cubicbyte/dteubot/pkg/api"
 )
+
+var (
+	chatRepo     data.ChatRepository
+	userRepo     data.UserRepository
+	api          api2.IApi
+	groupsCache  *groupscache.Cache
+	teachersList *teachers.TeachersList
+	languages    map[string]i18n.Language
+)
+
+// InitPages initializes the pages package. Must be called before using the package
+func InitPages(
+	chatRepo2 data.ChatRepository,
+	userRepo2 data.UserRepository,
+	api2 api2.IApi,
+	groupsCache2 *groupscache.Cache,
+	teachersList2 *teachers.TeachersList,
+	languages2 map[string]i18n.Language,
+) {
+	chatRepo = chatRepo2
+	userRepo = userRepo2
+	api = api2
+	groupsCache = groupsCache2
+	teachersList = teachersList2
+	languages = languages2
+}
 
 // Page represents a telegram page
 type Page struct {

@@ -23,20 +23,19 @@
 package pages
 
 import (
+	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
 	"github.com/cubicbyte/dteubot/internal/i18n"
-	"github.com/cubicbyte/dteubot/pkg/api"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/sirkon/go-format/v2"
 	"strconv"
 	"strings"
 	"unicode/utf8"
 )
 
-func CreateScheduleExtraInfoPage(lang *i18n.Language, groupId int, date string, api api.IApi) (*Page, error) {
+func CreateScheduleExtraInfoPage(lang i18n.Language, groupId int, date string) (Page, error) {
 	schedule, err := api.GetGroupScheduleDay(groupId, date)
 	if err != nil {
-		return nil, err
+		return Page{}, err
 	}
 
 	// Don't show multiple times the same extra text for the same lessons
@@ -58,13 +57,13 @@ func CreateScheduleExtraInfoPage(lang *i18n.Language, groupId int, date string, 
 			// Get extra info
 			extraText, err := api.GetScheduleExtraInfo(period.R1, date)
 			if err != nil {
-				return nil, err
+				return Page{}, err
 			}
 
 			// Clean HTML from unsupported tags
 			extraTextStr, err := utils.CleanHTML(extraText.Html)
 			if err != nil {
-				return nil, err
+				return Page{}, err
 			}
 
 			// Remove all spaces and newlines from the beginning and end of the string
@@ -85,14 +84,17 @@ func CreateScheduleExtraInfoPage(lang *i18n.Language, groupId int, date string, 
 
 	page := Page{
 		Text: pageText,
-		ReplyMarkup: tgbotapi.NewInlineKeyboardMarkup(
-			tgbotapi.NewInlineKeyboardRow(
-				tgbotapi.NewInlineKeyboardButtonData(lang.Button.Back, "open.schedule.day#date="+date),
-			),
-		),
+		ReplyMarkup: gotgbot.InlineKeyboardMarkup{
+			InlineKeyboard: [][]gotgbot.InlineKeyboardButton{
+				{{
+					Text:         lang.Button.Back,
+					CallbackData: "open.schedule.day#date=" + date,
+				}},
+			},
+		},
 		ParseMode:             "HTML",
 		DisableWebPagePreview: true,
 	}
 
-	return &page, nil
+	return page, nil
 }

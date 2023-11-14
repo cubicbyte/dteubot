@@ -160,7 +160,7 @@ func getCallsStatus(day api.TimeTableDate, calls api.CallSchedule, time2 time.Ti
 //
 // Example:
 // FormatDuration(duration, depth=2) // "2d. 9h."
-func FormatDuration(duration time.Duration, depth int, lang *i18n.Language) string {
+func FormatDuration(duration time.Duration, depth int, lang i18n.Language) string {
 	result := ""
 	curDepth := 0
 

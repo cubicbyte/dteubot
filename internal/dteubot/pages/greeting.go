@@ -26,11 +26,11 @@ import (
 	"github.com/cubicbyte/dteubot/internal/i18n"
 )
 
-func CreateGreetingPage(lang *i18n.Language) (*Page, error) {
+func CreateGreetingPage(lang i18n.Language) (Page, error) {
 	page := Page{
 		Text:      lang.Page.Greeting,
 		ParseMode: "MarkdownV2",
 	}
 
-	return &page, nil
+	return page, nil
 }

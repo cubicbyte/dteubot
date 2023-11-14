@@ -23,21 +23,20 @@
 package pages
 
 import (
+	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
 	"github.com/cubicbyte/dteubot/internal/i18n"
-	"github.com/cubicbyte/dteubot/pkg/api"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/sirkon/go-format/v2"
 	"math/rand"
 	"strconv"
 	"time"
 )
 
-func CreateLeftPage(lang *i18n.Language, groupId int, backButton string, api2 api.IApi) (*Page, error) {
+func CreateLeftPage(lang i18n.Language, groupId int, backButton string) (Page, error) {
 	// Get time left
-	status, err := utils.GetCallsStatus(groupId, time.Now(), api2)
+	status, err := utils.GetCallsStatus(groupId, time.Now(), api)
 	if err != nil {
-		return nil, err
+		return Page{}, err
 	}
 
 	// Create page text
@@ -61,14 +60,19 @@ func CreateLeftPage(lang *i18n.Language, groupId int, backButton string, api2 ap
 	rand_ := strconv.Itoa(rand.Intn(1e6)) // Salt to prevent "Message is not modified" error
 	page := Page{
 		Text: pageText,
-		ReplyMarkup: tgbotapi.NewInlineKeyboardMarkup(
-			tgbotapi.NewInlineKeyboardRow(
-				tgbotapi.NewInlineKeyboardButtonData(lang.Button.Back, backButton),
-				tgbotapi.NewInlineKeyboardButtonData(lang.Button.Refresh, "open.left#refresh&rnd="+rand_),
-			),
-		),
+		ReplyMarkup: gotgbot.InlineKeyboardMarkup{
+			InlineKeyboard: [][]gotgbot.InlineKeyboardButton{
+				{{
+					Text:         lang.Button.Back,
+					CallbackData: backButton,
+				}, {
+					Text:         lang.Button.Refresh,
+					CallbackData: "open.left#refresh&rnd=" + rand_,
+				}},
+			},
+		},
 		ParseMode: "MarkdownV2",
 	}
 
-	return &page, nil
+	return page, nil
 }

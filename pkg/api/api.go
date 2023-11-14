@@ -38,12 +38,13 @@ const Location = "Europe/Kiev"
 
 // Api is a wrapper for mkr.org.ua API requests.
 // Documentation can be found here: https://mkr.org.ua
-type Api struct {
+type Api struct { // TODO: Rename this to "api", and IAapi to "Api"
 	Url     string
 	Timeout time.Duration
 }
 
-type IApi interface {
+type IApi interface { // TODO: comment each method
+	// GetStructures returns a list of structures
 	GetStructures() ([]Structure, error)
 	GetFaculties(structureId int) ([]Faculty, error)
 	GetCourses(facultyId int) ([]Course, error)

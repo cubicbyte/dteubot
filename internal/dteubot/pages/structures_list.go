@@ -23,35 +23,35 @@
 package pages
 
 import (
+	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/cubicbyte/dteubot/internal/i18n"
-	"github.com/cubicbyte/dteubot/pkg/api"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"strconv"
 )
 
-func CreateStructuresListPage(lang *i18n.Language, api api.IApi) (*Page, error) {
+func CreateStructuresListPage(lang i18n.Language) (Page, error) {
 	structures, err := api.GetStructures()
 	if err != nil {
-		return nil, err
+		return Page{}, err
 	}
 
-	buttons := make([][]tgbotapi.InlineKeyboardButton, len(structures)+1)
-	buttons[0] = tgbotapi.NewInlineKeyboardRow(
-		tgbotapi.NewInlineKeyboardButtonData(lang.Button.Back, "open.menu#from=group_select"),
-	)
+	buttons := make([][]gotgbot.InlineKeyboardButton, len(structures)+1)
+	buttons[0] = []gotgbot.InlineKeyboardButton{{
+		Text:         lang.Button.Back,
+		CallbackData: "open.menu#from=group_select",
+	}}
 
 	for i, structure := range structures {
-		query := "select.schedule.structure#structureId=" + strconv.Itoa(structure.Id)
-		buttons[i+1] = tgbotapi.NewInlineKeyboardRow(
-			tgbotapi.NewInlineKeyboardButtonData(structure.FullName, query),
-		)
+		buttons[i+1] = []gotgbot.InlineKeyboardButton{{
+			Text:         structure.FullName,
+			CallbackData: "select.schedule.structure#structureId=" + strconv.Itoa(structure.Id),
+		}}
 	}
 
 	page := Page{
 		Text:        lang.Page.StructureSelection,
-		ReplyMarkup: tgbotapi.NewInlineKeyboardMarkup(buttons...),
+		ReplyMarkup: gotgbot.InlineKeyboardMarkup{InlineKeyboard: buttons},
 		ParseMode:   "MarkdownV2",
 	}
 
-	return &page, nil
+	return page, nil
 }

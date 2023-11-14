@@ -23,20 +23,23 @@
 package pages
 
 import (
+	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/cubicbyte/dteubot/internal/i18n"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
-func CreateApiUnavailablePage(lang *i18n.Language) (*Page, error) {
+func CreateApiUnavailablePage(lang i18n.Language) (Page, error) {
 	page := Page{
 		Text: lang.Page.ApiUnavailable,
-		ReplyMarkup: tgbotapi.NewInlineKeyboardMarkup(
-			tgbotapi.NewInlineKeyboardRow(
-				tgbotapi.NewInlineKeyboardButtonData(lang.Button.Back, "open.menu"),
-			),
-		),
+		ReplyMarkup: gotgbot.InlineKeyboardMarkup{
+			InlineKeyboard: [][]gotgbot.InlineKeyboardButton{
+				{{
+					Text:         lang.Button.Back,
+					CallbackData: "open.menu",
+				}},
+			},
+		},
 		ParseMode: "MarkdownV2",
 	}
 
-	return &page, nil
+	return page, nil
 }

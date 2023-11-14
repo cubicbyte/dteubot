@@ -23,20 +23,23 @@
 package pages
 
 import (
+	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/cubicbyte/dteubot/internal/i18n"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
-func CreateNotFoundPage(lang *i18n.Language, backButton string) (*Page, error) {
+func CreateNotFoundPage(lang i18n.Language, backButton string) (Page, error) {
 	page := Page{
 		Text: lang.Page.NotFound,
-		ReplyMarkup: tgbotapi.NewInlineKeyboardMarkup(
-			tgbotapi.NewInlineKeyboardRow(
-				tgbotapi.NewInlineKeyboardButtonData(lang.Button.Back, backButton),
-			),
-		),
+		ReplyMarkup: gotgbot.InlineKeyboardMarkup{
+			InlineKeyboard: [][]gotgbot.InlineKeyboardButton{
+				{{
+					Text:         lang.Button.Back,
+					CallbackData: backButton,
+				}},
+			},
+		},
 		ParseMode: "MarkdownV2",
 	}
 
-	return &page, nil
+	return page, nil
 }

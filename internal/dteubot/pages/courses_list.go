@@ -23,38 +23,39 @@
 package pages
 
 import (
+	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/cubicbyte/dteubot/internal/i18n"
-	"github.com/cubicbyte/dteubot/pkg/api"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"strconv"
 )
 
-func CreateCoursesListPage(lang *i18n.Language, facultyId int, structureId int, api2 api.IApi) (*Page, error) {
-	courses, err := api2.GetCourses(facultyId)
+func CreateCoursesListPage(lang i18n.Language, facultyId int, structureId int) (Page, error) {
+	courses, err := api.GetCourses(facultyId)
 	if err != nil {
-		return nil, err
+		return Page{}, err
 	}
 
-	buttons := make([][]tgbotapi.InlineKeyboardButton, len(courses)+1)
+	buttons := make([][]gotgbot.InlineKeyboardButton, len(courses)+1)
 	backBtnQuery := "select.schedule.structure#structureId=" + strconv.Itoa(structureId)
-	buttons[0] = tgbotapi.NewInlineKeyboardRow(
-		tgbotapi.NewInlineKeyboardButtonData(lang.Button.Back, backBtnQuery),
-	)
+	buttons[0] = []gotgbot.InlineKeyboardButton{{
+		Text:         lang.Button.Back,
+		CallbackData: backBtnQuery,
+	}}
 
 	for i, course := range courses {
 		query := "select.schedule.course#course=" + strconv.Itoa(course.Course) +
 			"&facultyId=" + strconv.Itoa(facultyId) +
 			"&structureId=" + strconv.Itoa(structureId)
-		buttons[i+1] = tgbotapi.NewInlineKeyboardRow(
-			tgbotapi.NewInlineKeyboardButtonData(strconv.Itoa(course.Course), query),
-		)
+		buttons[i+1] = []gotgbot.InlineKeyboardButton{{
+			Text:         strconv.Itoa(course.Course),
+			CallbackData: query,
+		}}
 	}
 
 	page := Page{
 		Text:        lang.Page.CourseSelection,
-		ReplyMarkup: tgbotapi.NewInlineKeyboardMarkup(buttons...),
+		ReplyMarkup: gotgbot.InlineKeyboardMarkup{InlineKeyboard: buttons},
 		ParseMode:   "MarkdownV2",
 	}
 
-	return &page, nil
+	return page, nil
 }

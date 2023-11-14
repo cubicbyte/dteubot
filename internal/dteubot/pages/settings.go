@@ -23,21 +23,20 @@
 package pages
 
 import (
+	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/cubicbyte/dteubot/internal/data"
-	"github.com/cubicbyte/dteubot/internal/dteubot/groupscache"
 	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
 	"github.com/cubicbyte/dteubot/internal/i18n"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/sirkon/go-format/v2"
 	"strconv"
 )
 
-func CreateSettingsPage(lang *i18n.Language, chat *data.Chat, repo data.ChatRepository, groups *groupscache.Cache) (*Page, error) {
+func CreateSettingsPage(lang i18n.Language, chat *data.Chat) (Page, error) {
 	// Mark settings as seen
 	if !chat.SeenSettings {
 		chat.SeenSettings = true
-		if err := repo.Update(chat); err != nil {
-			return nil, err
+		if err := chatRepo.Update(chat); err != nil {
+			return Page{}, err
 		}
 	}
 
@@ -46,18 +45,18 @@ func CreateSettingsPage(lang *i18n.Language, chat *data.Chat, repo data.ChatRepo
 	if chat.GroupId == -1 {
 		groupName = lang.Text.NotSelected
 	} else {
-		group, err := groups.GetGroupById(chat.GroupId)
+		group, err := groupsCache.GetGroupById(chat.GroupId)
 		if err != nil {
 			if group == nil {
-				return nil, err
+				return Page{}, err
 			}
 			log.Warningf("Error getting %d group name: %s", chat.GroupId, err)
 		}
 		if group == nil {
-			groupId := utils.EscapeText(tgbotapi.ModeMarkdownV2, strconv.Itoa(chat.GroupId))
+			groupId := utils.EscapeMarkdownV2(strconv.Itoa(chat.GroupId))
 			groupName = format.Formatp(lang.Text.UnknownGroupName, groupId)
 		} else {
-			groupName = utils.EscapeText(tgbotapi.ModeMarkdownV2, group.Name)
+			groupName = utils.EscapeMarkdownV2(group.Name)
 		}
 	}
 
@@ -89,44 +88,35 @@ func CreateSettingsPage(lang *i18n.Language, chat *data.Chat, repo data.ChatRepo
 
 	page := Page{
 		Text: pageText,
-		ReplyMarkup: tgbotapi.NewInlineKeyboardMarkup(
-			tgbotapi.NewInlineKeyboardRow(
-				tgbotapi.NewInlineKeyboardButtonData(lang.Button.SelectGroup, "open.select_group"),
-				tgbotapi.NewInlineKeyboardButtonData(lang.Button.SelectLang, "open.select_lang"),
-			),
-			tgbotapi.NewInlineKeyboardRow(
-				tgbotapi.NewInlineKeyboardButtonData(
-					format.Formatp(
-						lang.Button.SettingClNotif15m,
-						utils.GetSettingIcon(chat.ClassesNotification15m),
-					),
-					"set.cl_notif#time=15m&state="+notif15mNextState,
-				),
-			),
-			tgbotapi.NewInlineKeyboardRow(
-				tgbotapi.NewInlineKeyboardButtonData(
-					format.Formatp(
-						lang.Button.SettingClNotif1m,
-						utils.GetSettingIcon(chat.ClassesNotification1m),
-					),
-					"set.cl_notif#time=1m&state="+notif1mNextState,
-				),
-			),
-			tgbotapi.NewInlineKeyboardRow(
-				tgbotapi.NewInlineKeyboardButtonData(
-					format.Formatp(
-						lang.Button.SettingClNotifNextPart,
-						utils.GetSettingIcon(chat.ClassesNotificationNextPart),
-					),
-					"set.cl_notif_next_part#state="+notifNextPartNextState,
-				),
-			),
-			tgbotapi.NewInlineKeyboardRow(
-				tgbotapi.NewInlineKeyboardButtonData(lang.Button.Back, "open.menu"),
-			),
-		),
+		ReplyMarkup: gotgbot.InlineKeyboardMarkup{
+			InlineKeyboard: [][]gotgbot.InlineKeyboardButton{
+				{{
+					Text:         lang.Button.SelectGroup,
+					CallbackData: "open.select_group",
+				}, {
+					Text:         lang.Button.SelectLang,
+					CallbackData: "open.select_lang",
+				}},
+				{{
+					Text:         format.Formatp(lang.Button.SettingClNotif15m, utils.GetSettingIcon(chat.ClassesNotification15m)),
+					CallbackData: "set.cl_notif#time=15m&state=" + notif15mNextState,
+				}},
+				{{
+					Text:         format.Formatp(lang.Button.SettingClNotif1m, utils.GetSettingIcon(chat.ClassesNotification1m)),
+					CallbackData: "set.cl_notif#time=1m&state=" + notif1mNextState,
+				}},
+				{{
+					Text:         format.Formatp(lang.Button.SettingClNotifNextPart, utils.GetSettingIcon(chat.ClassesNotificationNextPart)),
+					CallbackData: "set.cl_notif_next_part#state=" + notifNextPartNextState,
+				}},
+				{{
+					Text:         lang.Button.Back,
+					CallbackData: "open.menu",
+				}},
+			},
+		},
 		ParseMode: "MarkdownV2",
 	}
 
-	return &page, nil
+	return page, nil
 }

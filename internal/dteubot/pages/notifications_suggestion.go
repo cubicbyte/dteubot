@@ -23,21 +23,26 @@
 package pages
 
 import (
+	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/cubicbyte/dteubot/internal/i18n"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
-func CreateNotificationFeatureSuggestionPage(lang *i18n.Language) (*Page, error) {
+func CreateNotificationFeatureSuggestionPage(lang i18n.Language) (Page, error) {
 	page := Page{
 		Text: lang.Page.NotificationFeatureSuggestion,
-		ReplyMarkup: tgbotapi.NewInlineKeyboardMarkup(
-			tgbotapi.NewInlineKeyboardRow(
-				tgbotapi.NewInlineKeyboardButtonData(lang.Text.TryIt, "set.cl_notif#time=15m&state=1&suggestion"),
-				tgbotapi.NewInlineKeyboardButtonData(lang.Text.NoThanks, "close_page#page=notification_feature_suggestion"),
-			),
-		),
+		ReplyMarkup: gotgbot.InlineKeyboardMarkup{
+			InlineKeyboard: [][]gotgbot.InlineKeyboardButton{
+				{{
+					Text:         lang.Text.TryIt,
+					CallbackData: "set.cl_notif#time=15m&state=1&suggestion",
+				}, {
+					Text:         lang.Text.NoThanks,
+					CallbackData: "close_page#page=notification_feature_suggestion",
+				}},
+			},
+		},
 		ParseMode: "MarkdownV2",
 	}
 
-	return &page, nil
+	return page, nil
 }
