@@ -23,14 +23,24 @@
 package buttons
 
 import (
-	"github.com/cubicbyte/dteubot/internal/dteubot/groupscache"
+	"github.com/PaulSonOfLars/gotgbot/v2"
+	"github.com/PaulSonOfLars/gotgbot/v2/ext"
 	"github.com/cubicbyte/dteubot/internal/dteubot/pages"
-	"github.com/cubicbyte/dteubot/internal/i18n"
-	"github.com/cubicbyte/dteubot/pkg/api"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
 )
 
-func HandleStudentsListButton(u *tgbotapi.Update, bot *tgbotapi.BotAPI, lang *i18n.Language, groupId int, groups *groupscache.Cache, api2 api.IApi) error {
-	page, err := pages.CreateStudentsListPage(lang, groupId, groups, api2)
-	return editPage(page, err, u, bot)
+func HandleStudentsListButton(bot *gotgbot.Bot, ctx *ext.Context) error {
+	// Get chat
+	chat, err := chatRepo.GetById(ctx.EffectiveChat.Id)
+	if err != nil {
+		return err
+	}
+
+	lang, err := utils.GetLang(chat.LanguageCode, languages)
+	if err != nil {
+		return err
+	}
+
+	page, err := pages.CreateStudentsListPage(lang, chat.GroupId)
+	return openPage(bot, ctx, page, err)
 }

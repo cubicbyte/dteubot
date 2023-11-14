@@ -24,19 +24,33 @@ package buttons
 
 import (
 	"errors"
-	"github.com/cubicbyte/dteubot/internal/data"
-	"github.com/cubicbyte/dteubot/internal/dteubot/groupscache"
+	"github.com/PaulSonOfLars/gotgbot/v2"
+	"github.com/PaulSonOfLars/gotgbot/v2/ext"
 	"github.com/cubicbyte/dteubot/internal/dteubot/pages"
 	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
-	"github.com/cubicbyte/dteubot/internal/i18n"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/sirkon/go-format/v2"
 )
 
-func HandleSetClassesNotificationsButton(u *tgbotapi.Update, bot *tgbotapi.BotAPI, lang *i18n.Language, chat *data.Chat, chatRepo data.ChatRepository, user *data.User, groups *groupscache.Cache) error {
-	button := utils.ParseButtonData(u.CallbackQuery.Data)
+func HandleSetClassesNotificationsButton(bot *gotgbot.Bot, ctx *ext.Context) error {
+	// Get chat and user
+	chat, err := chatRepo.GetById(ctx.EffectiveChat.Id)
+	if err != nil {
+		return err
+	}
+
+	user, err := userRepo.GetById(ctx.EffectiveUser.Id)
+	if err != nil {
+		return err
+	}
+
+	lang, err := utils.GetLang(chat.LanguageCode, languages)
+	if err != nil {
+		return err
+	}
 
 	// Get button data
+	button := utils.ParseButtonData(ctx.CallbackQuery.Data)
+
 	state, ok := button.Params["state"]
 	if !ok {
 		return errors.New("notif param not found")
@@ -57,7 +71,7 @@ func HandleSetClassesNotificationsButton(u *tgbotapi.Update, bot *tgbotapi.BotAP
 		return errors.New("invalid time in button data")
 	}
 
-	err := chatRepo.Update(chat)
+	err = chatRepo.Update(chat)
 	if err != nil {
 		return err
 	}
@@ -68,25 +82,37 @@ func HandleSetClassesNotificationsButton(u *tgbotapi.Update, bot *tgbotapi.BotAP
 		alertText := format.Formatm(lang.Alert.ClNotifEnabledTooltip, format.Values{
 			"remaining": time2[0 : len(time2)-1],
 		})
-		alert := tgbotapi.NewCallbackWithAlert(u.CallbackQuery.ID, alertText)
-		_, err = bot.Request(alert)
+		_, err = bot.AnswerCallbackQuery(ctx.CallbackQuery.Id, &gotgbot.AnswerCallbackQueryOpts{
+			Text: alertText,
+		})
 		if err != nil {
 			return err
 		}
 
 		// Close page
-		return ClosePage(u.CallbackQuery.Message.Chat.ID, u.CallbackQuery.Message.MessageID, bot, lang, user)
+		return ClosePage(ctx.EffectiveChat.Id, ctx.EffectiveMessage.MessageId, bot, lang, user)
 	}
 
 	// Update page
-	page, err := pages.CreateSettingsPage(lang, chat, chatRepo, groups)
-	return editPage(page, err, u, bot)
+	page, err := pages.CreateSettingsPage(lang, chat)
+	return openPage(bot, ctx, page, err)
 }
 
-func HandleSetClassesNotificationsNextPartButton(u *tgbotapi.Update, bot *tgbotapi.BotAPI, lang *i18n.Language, chat *data.Chat, chatRepo data.ChatRepository, groups *groupscache.Cache) error {
-	button := utils.ParseButtonData(u.CallbackQuery.Data)
+func HandleSetClassesNotificationsNextPartButton(bot *gotgbot.Bot, ctx *ext.Context) error {
+	// Get chat
+	chat, err := chatRepo.GetById(ctx.EffectiveChat.Id)
+	if err != nil {
+		return err
+	}
+
+	lang, err := utils.GetLang(chat.LanguageCode, languages)
+	if err != nil {
+		return err
+	}
 
 	// Get state from button data
+	button := utils.ParseButtonData(ctx.CallbackQuery.Data)
+
 	state, ok := button.Params["state"]
 	if !ok {
 		return errors.New("state param not found")
@@ -100,12 +126,12 @@ func HandleSetClassesNotificationsNextPartButton(u *tgbotapi.Update, bot *tgbota
 		chat.ClassesNotification1m = true
 	}
 
-	err := chatRepo.Update(chat)
+	err = chatRepo.Update(chat)
 	if err != nil {
 		return err
 	}
 
 	// Update page
-	page, err := pages.CreateSettingsPage(lang, chat, chatRepo, groups)
-	return editPage(page, err, u, bot)
+	page, err := pages.CreateSettingsPage(lang, chat)
+	return openPage(bot, ctx, page, err)
 }

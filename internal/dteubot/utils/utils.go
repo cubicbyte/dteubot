@@ -83,17 +83,17 @@ func GetSettingIcon(enabled bool) string {
 }
 
 // GetLang returns the language of the chat.
-func GetLang(code string, langs map[string]i18n.Language) (*i18n.Language, error) {
+func GetLang(code string, langs map[string]i18n.Language) (i18n.Language, error) {
 	if code == "" {
 		code = os.Getenv("DEFAULT_LANG")
 	}
 
 	lang, ok := langs[code]
 	if !ok {
-		return nil, &i18n.LanguageNotFoundError{LangCode: code}
+		return i18n.Language{}, &i18n.LanguageNotFoundError{LangCode: code}
 	}
 
-	return &lang, nil
+	return lang, nil
 }
 
 // SetLocation sets the location of the time without changing the time itself.

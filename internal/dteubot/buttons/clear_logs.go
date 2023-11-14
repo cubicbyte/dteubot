@@ -23,20 +23,38 @@
 package buttons
 
 import (
-	"github.com/cubicbyte/dteubot/internal/data"
-	"github.com/cubicbyte/dteubot/internal/i18n"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/PaulSonOfLars/gotgbot/v2"
+	"github.com/PaulSonOfLars/gotgbot/v2/ext"
+	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
 )
 
-func HandleClearLogsButton(u *tgbotapi.Update, bot *tgbotapi.BotAPI, lang *i18n.Language, user *data.User) error {
+func HandleClearLogsButton(bot *gotgbot.Bot, ctx *ext.Context) error {
+	// Check if user is admin
+	user, err := userRepo.GetById(ctx.EffectiveUser.Id)
+	if err != nil {
+		return err
+	}
+
 	if !user.IsAdmin {
 		return nil
 	}
 
 	// TODO: Clear logs
 
-	alert := tgbotapi.NewCallbackWithAlert(u.CallbackQuery.ID, lang.Alert.Done)
-	_, err := bot.Request(alert)
+	// Send "Done" alert
+	chat, err := chatRepo.GetById(ctx.EffectiveChat.Id)
+	if err != nil {
+		return err
+	}
+
+	lang, err := utils.GetLang(chat.LanguageCode, languages)
+	if err != nil {
+		return err
+	}
+
+	_, err = bot.AnswerCallbackQuery(ctx.CallbackQuery.Id, &gotgbot.AnswerCallbackQueryOpts{
+		Text: lang.Alert.Done,
+	})
 	if err != nil {
 		return err
 	}

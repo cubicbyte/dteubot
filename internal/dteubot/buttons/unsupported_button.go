@@ -23,22 +23,39 @@
 package buttons
 
 import (
-	"github.com/cubicbyte/dteubot/internal/data"
+	"github.com/PaulSonOfLars/gotgbot/v2"
+	"github.com/PaulSonOfLars/gotgbot/v2/ext"
 	"github.com/cubicbyte/dteubot/internal/dteubot/pages"
-	"github.com/cubicbyte/dteubot/internal/i18n"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
 )
 
-func HandleUnsupportedButton(u *tgbotapi.Update, bot *tgbotapi.BotAPI, lang *i18n.Language, user *data.User) error {
-	// Send alert
-	alert := tgbotapi.NewCallbackWithAlert(u.CallbackQuery.ID, lang.Alert.CallbackQueryUnsupported)
-	_, err := bot.Request(alert)
+func HandleUnsupportedButton(bot *gotgbot.Bot, ctx *ext.Context) error {
+	// Get chat and user
+	chat, err := chatRepo.GetById(ctx.EffectiveChat.Id)
 	if err != nil {
-		println("test")
+		return err
+	}
+
+	user, err := userRepo.GetById(ctx.EffectiveUser.Id)
+	if err != nil {
+		return err
+	}
+
+	lang, err := utils.GetLang(chat.LanguageCode, languages)
+	if err != nil {
+		return err
+	}
+
+	// Send alert
+	_, err = bot.AnswerCallbackQuery(ctx.CallbackQuery.Id, &gotgbot.AnswerCallbackQueryOpts{
+		Text:      lang.Alert.CallbackQueryUnsupported,
+		ShowAlert: true,
+	})
+	if err != nil {
 		return err
 	}
 
 	// Move to menu page
 	page, err := pages.CreateMenuPage(lang, user)
-	return editPage(page, err, u, bot)
+	return openPage(bot, ctx, page, err)
 }

@@ -23,37 +23,40 @@
 package buttons
 
 import (
-	"github.com/cubicbyte/dteubot/internal/data"
-	"github.com/cubicbyte/dteubot/internal/i18n"
+	"github.com/PaulSonOfLars/gotgbot/v2"
+	"github.com/PaulSonOfLars/gotgbot/v2/ext"
 	"github.com/cubicbyte/dteubot/internal/logging"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
-func HandleSendLogsButton(u *tgbotapi.Update, bot *tgbotapi.BotAPI, lang *i18n.Language, user *data.User) error {
+func HandleSendLogsButton(bot *gotgbot.Bot, ctx *ext.Context) error {
+	// Check if user is admin
+	user, err := userRepo.GetById(ctx.EffectiveUser.Id)
+	if err != nil {
+		return err
+	}
+
 	if !user.IsAdmin {
 		return nil
 	}
 
 	// Send "sending document" action
-	action := tgbotapi.NewChatAction(u.CallbackQuery.Message.Chat.ID, tgbotapi.ChatUploadDocument)
-	_, err := bot.Request(action)
+	_, err = bot.SendChatAction(ctx.EffectiveChat.Id, "upload_document", nil)
 	if err != nil {
 		return err
 	}
 
 	// Send logs
-	msg := tgbotapi.NewDocument(u.CallbackQuery.Message.Chat.ID, tgbotapi.FilePath(logging.LogFilePath))
-	_, err = bot.Send(msg)
+	_, err = bot.SendDocument(ctx.EffectiveChat.Id, logging.LogFile, &gotgbot.SendDocumentOpts{
+		Caption: "Logs",
+	})
 	if err != nil {
 		return err
 	}
 
 	// Create "done" alert
-	alert := tgbotapi.NewCallbackWithAlert(u.CallbackQuery.ID, lang.Alert.Done)
-	_, err = bot.Request(alert)
-	if err != nil {
-		return err
-	}
+	_, err = bot.AnswerCallbackQuery(ctx.CallbackQuery.Id, &gotgbot.AnswerCallbackQueryOpts{
+		Text: "Done",
+	})
 
 	return nil
 }

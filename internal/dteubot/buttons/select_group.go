@@ -24,18 +24,33 @@ package buttons
 
 import (
 	"errors"
-	"github.com/cubicbyte/dteubot/internal/data"
+	"github.com/PaulSonOfLars/gotgbot/v2"
+	"github.com/PaulSonOfLars/gotgbot/v2/ext"
 	"github.com/cubicbyte/dteubot/internal/dteubot/pages"
 	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
-	"github.com/cubicbyte/dteubot/internal/i18n"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"strconv"
 )
 
-func HandleSelectGroupButton(u *tgbotapi.Update, bot *tgbotapi.BotAPI, lang *i18n.Language, chat *data.Chat, user *data.User, chatRepo data.ChatRepository) error {
-	button := utils.ParseButtonData(u.CallbackQuery.Data)
+func HandleSelectGroupButton(bot *gotgbot.Bot, ctx *ext.Context) error {
+	// Get chat and user
+	chat, err := chatRepo.GetById(ctx.EffectiveChat.Id)
+	if err != nil {
+		return err
+	}
+
+	user, err := userRepo.GetById(ctx.EffectiveUser.Id)
+	if err != nil {
+		return err
+	}
+
+	lang, err := utils.GetLang(chat.LanguageCode, languages)
+	if err != nil {
+		return err
+	}
 
 	// Get group id from button params
+	button := utils.ParseButtonData(ctx.CallbackQuery.Data)
+
 	groupId, ok := button.Params["groupId"]
 	if !ok {
 		return errors.New("groupId param not found")
@@ -56,5 +71,5 @@ func HandleSelectGroupButton(u *tgbotapi.Update, bot *tgbotapi.BotAPI, lang *i18
 
 	// Open menu page
 	page, err := pages.CreateMenuPage(lang, user)
-	return editPage(page, err, u, bot)
+	return openPage(bot, ctx, page, err)
 }

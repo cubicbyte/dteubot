@@ -66,7 +66,7 @@ type Page struct {
 }
 
 // CreateSendMessageOpts creates a telegram message parameters from the page
-func (p *Page) CreateSendMessageOpts() gotgbot.SendMessageOpts {
+func (p Page) CreateSendMessageOpts() gotgbot.SendMessageOpts {
 	return gotgbot.SendMessageOpts{
 		ParseMode:             p.ParseMode,
 		DisableWebPagePreview: p.DisableWebPagePreview,
@@ -75,7 +75,7 @@ func (p *Page) CreateSendMessageOpts() gotgbot.SendMessageOpts {
 }
 
 // CreateEditMessageOpts creates a telegram edit message parameters from the page
-func (p *Page) CreateEditMessageOpts(chatId int64, messageId int64) gotgbot.EditMessageTextOpts {
+func (p Page) CreateEditMessageOpts(chatId int64, messageId int64) gotgbot.EditMessageTextOpts {
 	return gotgbot.EditMessageTextOpts{
 		ChatId:                chatId,
 		MessageId:             messageId,

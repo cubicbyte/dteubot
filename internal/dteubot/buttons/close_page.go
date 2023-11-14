@@ -24,33 +24,51 @@ package buttons
 
 import (
 	"errors"
+	"github.com/PaulSonOfLars/gotgbot/v2"
+	"github.com/PaulSonOfLars/gotgbot/v2/ext"
 	"github.com/cubicbyte/dteubot/internal/data"
 	"github.com/cubicbyte/dteubot/internal/dteubot/pages"
+	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
 	"github.com/cubicbyte/dteubot/internal/i18n"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"strings"
 )
 
-func HandleClosePageButton(u *tgbotapi.Update, bot *tgbotapi.BotAPI, lang *i18n.Language, user *data.User) error {
-	return ClosePage(u.CallbackQuery.Message.Chat.ID, u.CallbackQuery.Message.MessageID, bot, lang, user)
+func HandleClosePageButton(bot *gotgbot.Bot, ctx *ext.Context) error {
+	chat, err := chatRepo.GetById(ctx.EffectiveChat.Id)
+	if err != nil {
+		return err
+	}
+
+	user, err := userRepo.GetById(ctx.EffectiveUser.Id)
+	if err != nil {
+		return err
+	}
+
+	lang, err := utils.GetLang(chat.LanguageCode, languages)
+	if err != nil {
+		return err
+	}
+
+	return ClosePage(ctx.EffectiveChat.Id, ctx.EffectiveMessage.MessageId, bot, lang, user)
 }
 
 // ClosePage closes page or changes it to menu page
-func ClosePage(chatId int64, messageId int, bot *tgbotapi.BotAPI, lang *i18n.Language, user *data.User) error {
-	_, err := bot.Request(tgbotapi.NewDeleteMessage(chatId, messageId))
+func ClosePage(chatId int64, messageId int64, bot *gotgbot.Bot, lang i18n.Language, user *data.User) error {
+	_, err := bot.DeleteMessage(chatId, messageId, nil)
 
 	if err != nil {
 		// Check if error is because of message is older than 48 hours
-		var tgError *tgbotapi.Error
+		var tgError *gotgbot.TelegramError
 		if errors.As(err, &tgError) && tgError.Code == 400 {
-			if strings.HasPrefix(tgError.Message, "Bad Request: message can't be deleted for everyone") {
+			if strings.HasPrefix(tgError.Description, "Bad Request: message can't be deleted for everyone") {
 				// Edit message to menu page
 				page, err := pages.CreateMenuPage(lang, user)
 				if err != nil {
 					return err
 				}
 
-				_, err = bot.Send(page.CreateEditMessageOpts(chatId, messageId))
+				opts := page.CreateEditMessageOpts(chatId, messageId)
+				_, _, err = bot.EditMessageText(page.Text, &opts)
 				if err != nil {
 					return err
 				}

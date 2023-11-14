@@ -23,17 +23,35 @@
 package buttons
 
 import (
-	"github.com/cubicbyte/dteubot/internal/data"
+	"github.com/PaulSonOfLars/gotgbot/v2"
+	"github.com/PaulSonOfLars/gotgbot/v2/ext"
 	"github.com/cubicbyte/dteubot/internal/dteubot/pages"
-	"github.com/cubicbyte/dteubot/internal/i18n"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
 )
 
-func HandleAdminPanelButton(u *tgbotapi.Update, bot *tgbotapi.BotAPI, lang *i18n.Language, user *data.User) error {
+func HandleAdminPanelButton(bot *gotgbot.Bot, ctx *ext.Context) error {
+	// Check if user is admin
+	user, err := userRepo.GetById(ctx.EffectiveUser.Id)
+	if err != nil {
+		return err
+	}
+
 	if !user.IsAdmin {
 		// TODO: send error message here & everywhere else
 		return nil
 	}
+
+	// Open admin panel
+	chat, err := chatRepo.GetById(ctx.EffectiveChat.Id)
+	if err != nil {
+		return err
+	}
+
+	lang, err := utils.GetLang(chat.LanguageCode, languages)
+	if err != nil {
+		return err
+	}
+
 	page, err := pages.CreateAdminPanelPage(lang)
-	return editPage(page, err, u, bot)
+	return openPage(bot, ctx, page, err)
 }
