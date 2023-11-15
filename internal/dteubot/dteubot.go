@@ -66,7 +66,7 @@ var (
 	bot          *gotgbot.Bot
 	updater      *ext.Updater
 	db           *sqlx.DB
-	api          api2.IApi
+	api          api2.Api
 	chatRepo     data.ChatRepository
 	userRepo     data.UserRepository
 	statLogger   statistics.Logger

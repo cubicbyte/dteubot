@@ -49,7 +49,7 @@ type CallsStatus struct {
 const DaysScanLimit = 7
 
 // GetCallsStatus returns the time relative to the current lesson
-func GetCallsStatus(groupId int, time2 time.Time, api2 api.IApi) (*CallsStatus, error) {
+func GetCallsStatus(groupId int, time2 time.Time, api2 api.Api) (*CallsStatus, error) {
 	calls, err := api2.GetCallSchedule()
 	if err != nil {
 		return nil, err

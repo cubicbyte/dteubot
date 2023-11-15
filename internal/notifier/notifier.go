@@ -45,7 +45,7 @@ var Location = "Europe/Kiev"
 var log = logging.MustGetLogger("Notifier")
 
 // Setup initializes notifier and starts cron Scheduler
-func Setup(api api2.IApi, bot *gotgbot.Bot, langs map[string]i18n.Language, chatRepo data.ChatRepository) (*gocron.Scheduler, error) {
+func Setup(api api2.Api, bot *gotgbot.Bot, langs map[string]i18n.Language, chatRepo data.ChatRepository) (*gocron.Scheduler, error) {
 	log.Info("Setting up notifier")
 
 	// Setup cron scheduler
@@ -97,7 +97,7 @@ func Setup(api api2.IApi, bot *gotgbot.Bot, langs map[string]i18n.Language, chat
 }
 
 // SendNotifications sends notifications to chats that subscribed to notifications
-func SendNotifications(time2 string, chatRepo data.ChatRepository, api api2.IApi, bot *gotgbot.Bot, langs map[string]i18n.Language, calls api2.CallSchedule) error {
+func SendNotifications(time2 string, chatRepo data.ChatRepository, api api2.Api, bot *gotgbot.Bot, langs map[string]i18n.Language, calls api2.CallSchedule) error {
 	log.Infof("Sending notifications %s", time2)
 
 	// TODO: Limit message sending per second

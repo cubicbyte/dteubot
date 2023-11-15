@@ -59,7 +59,7 @@ type CachedApi struct {
 	cache           *leveldbcache.Cache
 	db              *sql.DB
 	conn            *sql.Conn
-	api             *api2.Api
+	api             *api2.DefaultApi
 	getScheduleStmt *sql.Stmt
 }
 
@@ -107,7 +107,7 @@ func New(url string, leveldbPath string, cachePath string, expires time.Duration
 		cache:   cache,
 		db:      db,
 		conn:    conn,
-		api: &api2.Api{
+		api: &api2.DefaultApi{
 			Url:     url,
 			Timeout: timeout,
 		},
@@ -441,16 +441,12 @@ func (api *CachedApi) GetGroupSchedule(groupId int, dateStart string, dateEnd st
 // that can be added by a teacher or university administration.
 //
 // classCode is a "R1" field from TimeTablePeriod
-func (api *CachedApi) GetScheduleExtraInfo(classCode int, date string) (*api2.ScheduleExtraInfo, error) {
+func (api *CachedApi) GetScheduleExtraInfo(classCode int, date string) (api2.ScheduleExtraInfo, error) {
 	var scheduleExtraInfo api2.ScheduleExtraInfo
 	body := fmt.Sprintf(`{"r1":%d,"r2":"%s"}`, classCode, date)
 
 	err := api.makeRequest("POST", "/time-table/schedule-ad", body, &scheduleExtraInfo)
-	if err != nil {
-		return nil, err
-	}
-
-	return &scheduleExtraInfo, nil
+	return scheduleExtraInfo, err
 }
 
 // GetGroupScheduleDay returns a schedule for a group for a day

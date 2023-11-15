@@ -34,7 +34,7 @@ import (
 var (
 	chatRepo     data.ChatRepository
 	userRepo     data.UserRepository
-	api          api2.IApi
+	api          api2.Api
 	groupsCache  *groupscache.Cache
 	teachersList *teachers.TeachersList
 	languages    map[string]i18n.Language
@@ -44,7 +44,7 @@ var (
 func InitPages(
 	chatRepo2 data.ChatRepository,
 	userRepo2 data.UserRepository,
-	api2 api2.IApi,
+	api2 api2.Api,
 	groupsCache2 *groupscache.Cache,
 	teachersList2 *teachers.TeachersList,
 	languages2 map[string]i18n.Language,

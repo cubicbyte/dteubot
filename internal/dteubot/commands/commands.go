@@ -32,7 +32,7 @@ import (
 var (
 	chatRepo    data.ChatRepository
 	userRepo    data.UserRepository
-	api         api2.IApi
+	api         api2.Api
 	languages   map[string]i18n.Language
 	groupsCache *groupscache.Cache
 )
@@ -41,7 +41,7 @@ var (
 func InitCommands(
 	chatRepo2 data.ChatRepository,
 	userRepo2 data.UserRepository,
-	api2 api2.IApi,
+	api2 api2.Api,
 	languages2 map[string]i18n.Language,
 	groupsCache2 *groupscache.Cache,
 ) {
