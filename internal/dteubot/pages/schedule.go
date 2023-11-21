@@ -139,7 +139,7 @@ func CreateSchedulePage(lang *i18n.Language, groupId int, date string, api api2.
 
 		for _, lesson := range day.Lessons {
 			for _, period := range lesson.Periods {
-				format_ := "`———— ``$timeStart`` ——— ``$timeEnd`` ————`\n`  `*$disciplineShortName*`[$typeStr]`\n`$lessonNumber `$lessonIcon $classroom\n`  `$teachersNameFull\n"
+				format_ := "`———— ``$timeStart`` ——— ``$timeEnd`` ————`\n`  `$lessonIcon *$disciplineShortName*`[$typeStr]`\n`$lessonNumber `$classroom\n`  `$teachersNameFull\n"
 				lessonNumber := strconv.Itoa(lesson.Number)
 				lessonIcon := utils.GetLessonIcon(period.Type)
 
