@@ -239,3 +239,30 @@ func SplitRows[T any](slice []T, rowSize int) [][]T {
 
 	return rows
 }
+
+// GetLessonIcon returns the icon for the lesson type.
+//
+// Examples (*colored emoji):
+//   - Lecture:  🔸
+//   - Practice: 🔹
+//   - Exam:     🔺
+func GetLessonIcon(lessonType int) string {
+	/*
+		Лк - 1
+		Пз* - 2
+		Лб* - 4
+		Екз - 5
+		Зач - 6
+		КонсЕкз - 20
+	*/
+	switch lessonType {
+	case 1:
+		return "🔸"
+	case 2, 4:
+		return "🔹"
+	case 5, 6, 20:
+		return "🔺"
+	default:
+		return ""
+	}
+}
