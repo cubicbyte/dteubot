@@ -30,19 +30,19 @@ import (
 // CommandStatisticHandler saves command to statistics.
 func CommandStatisticHandler(_ *gotgbot.Bot, ctx *ext.Context) error {
 	return statLogger.LogCommand(
-		ctx.Update.Message.Chat.Id,
-		ctx.Update.Message.From.Id,
-		int(ctx.Update.Message.MessageId),
-		ctx.Update.Message.Text,
+		ctx.EffectiveChat.Id,
+		ctx.EffectiveUser.Id,
+		int(ctx.EffectiveMessage.MessageId),
+		ctx.EffectiveMessage.Text,
 	)
 }
 
 // ButtonStatisticHandler saves button click to statistics.
 func ButtonStatisticHandler(_ *gotgbot.Bot, ctx *ext.Context) error {
 	return statLogger.LogButtonClick(
-		ctx.Update.CallbackQuery.Message.Chat.Id,
-		ctx.Update.CallbackQuery.From.Id,
-		int(ctx.Update.CallbackQuery.Message.MessageId),
-		ctx.Update.CallbackQuery.Data,
+		ctx.EffectiveChat.Id,
+		ctx.EffectiveUser.Id,
+		int(ctx.EffectiveMessage.MessageId),
+		ctx.CallbackQuery.Data,
 	)
 }

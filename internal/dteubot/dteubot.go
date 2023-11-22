@@ -244,6 +244,11 @@ func Run() {
 	updater.Idle()
 }
 
+type OrderedMap[KT interface{}, VT interface{}] []struct {
+	Key   KT
+	Value VT
+}
+
 func setupDispatcherHandlers(dp *ext.Dispatcher) {
 	anyCommandFilter := func(m *gotgbot.Message) bool {
 		return strings.HasPrefix(m.Text, "/")
@@ -253,48 +258,52 @@ func setupDispatcherHandlers(dp *ext.Dispatcher) {
 		return true
 	}
 
-	var buttonsMapping = map[string]func(*gotgbot.Bot, *ext.Context) error{
-		"open.admin_panel":          buttons.HandleAdminPanelButton,
-		"open.calls":                buttons.HandleCallsButton,
-		"admin.clear_cache":         buttons.HandleClearCacheButton,
-		"admin.clear_logs":          buttons.HandleClearLogsButton,
-		"close_page":                buttons.HandleClosePageButton,
-		"open.info":                 buttons.HandleInfoButton,
-		"open.left":                 buttons.HandleLeftButton,
-		"open.menu":                 buttons.HandleMenuButton,
-		"open.more":                 buttons.HandleMoreButton,
-		"open.select_group":         buttons.HandleOpenSelectGroupButton,
-		"open.select_lang":          buttons.HandleOpenSelectLanguageButton,
-		"open.schedule.day":         buttons.HandleScheduleDayButton,
-		"open.schedule.extra":       buttons.HandleScheduleExtraButton,
-		"open.schedule.today":       buttons.HandleScheduleTodayButton,
-		"select.schedule.course":    buttons.HandleSelectCourseButton,
-		"select.schedule.faculty":   buttons.HandleSelectFacultyButton,
-		"select.schedule.group":     buttons.HandleSelectGroupButton,
-		"select.lang":               buttons.HandleSelectLanguageButton,
-		"select.schedule.structure": buttons.HandleSelectStructureButton,
-		"admin.send_logs":           buttons.HandleSendLogsButton,
-		"set.cl_notif":              buttons.HandleSetClassesNotificationsButton,
-		"set.cl_notif_next_part":    buttons.HandleSetClassesNotificationsNextPartButton,
-		"open.settings":             buttons.HandleSettingsButton,
-		"open.students_list":        buttons.HandleStudentsListButton,
+	var buttonsMapping = OrderedMap[string, func(*gotgbot.Bot, *ext.Context) error]{
+		{"open.admin_panel", buttons.HandleAdminPanelButton},
+		{"open.calls", buttons.HandleCallsButton},
+		{"admin.clear_cache", buttons.HandleClearCacheButton},
+		{"admin.clear_logs", buttons.HandleClearLogsButton},
+		{"close_page", buttons.HandleClosePageButton},
+		{"open.info", buttons.HandleInfoButton},
+		{"open.left", buttons.HandleLeftButton},
+		{"open.menu", buttons.HandleMenuButton},
+		{"open.more", buttons.HandleMoreButton},
+		{"open.select_group", buttons.HandleOpenSelectGroupButton},
+		{"open.select_lang", buttons.HandleOpenSelectLanguageButton},
+		{"open.schedule.day", buttons.HandleScheduleDayButton},
+		{"open.schedule.extra", buttons.HandleScheduleExtraButton},
+		{"open.schedule.today", buttons.HandleScheduleTodayButton},
+		{"select.schedule.course", buttons.HandleSelectCourseButton},
+		{"select.schedule.faculty", buttons.HandleSelectFacultyButton},
+		{"select.schedule.group", buttons.HandleSelectGroupButton},
+		{"select.lang", buttons.HandleSelectLanguageButton},
+		{"select.schedule.structure", buttons.HandleSelectStructureButton},
+		{"admin.send_logs", buttons.HandleSendLogsButton},
+		{"set.cl_notif_next_part", buttons.HandleSetClassesNotificationsNextPartButton},
+		{"set.cl_notif", buttons.HandleSetClassesNotificationsButton},
+		{"open.settings", buttons.HandleSettingsButton},
+		{"open.students_list", buttons.HandleStudentsListButton},
+
+		// Note: buttons & commands is being handled by its query prefix.
+		// It means that it's dangerous to have multiple queries with the same prefix,
+		// like "set.cl_notif" and "set.cl_notif_next_part".
 	}
 
-	var commandsMapping = map[string]func(*gotgbot.Bot, *ext.Context) error{
-		"calls":    commands.HandleCallsCommand,
-		"c":        commands.HandleCallsCommand,
-		"group":    commands.HandleGroupCommand,
-		"g":        commands.HandleGroupCommand,
-		"lang":     commands.HandleLanguageCommand,
-		"language": commands.HandleLanguageCommand,
-		"left":     commands.HandleLeftCommand,
-		"l":        commands.HandleLeftCommand,
-		"settings": commands.HandleSettingsCommand,
-		"start":    commands.HandleStartCommand,
-		"today":    commands.HandleTodayCommand,
-		"t":        commands.HandleTodayCommand,
-		"tomorrow": commands.HandleTomorrowCommand,
-		"tt":       commands.HandleTomorrowCommand,
+	var commandsMapping = OrderedMap[string, func(*gotgbot.Bot, *ext.Context) error]{
+		{"calls", commands.HandleCallsCommand},
+		{"c", commands.HandleCallsCommand},
+		{"group", commands.HandleGroupCommand},
+		{"g", commands.HandleGroupCommand},
+		{"lang", commands.HandleLanguageCommand},
+		{"language", commands.HandleLanguageCommand},
+		{"left", commands.HandleLeftCommand},
+		{"l", commands.HandleLeftCommand},
+		{"settings", commands.HandleSettingsCommand},
+		{"start", commands.HandleStartCommand},
+		{"today", commands.HandleTodayCommand},
+		{"t", commands.HandleTodayCommand},
+		{"tomorrow", commands.HandleTomorrowCommand},
+		{"tt", commands.HandleTomorrowCommand},
 	}
 
 	// Here is handlers distribution by priority:
@@ -322,13 +331,13 @@ func setupDispatcherHandlers(dp *ext.Dispatcher) {
 	dp.AddHandlerToGroup(handlers.NewCallback(anyCallbackFilter, ButtonStatisticHandler), 40)
 
 	// Buttons
-	for query, handler := range buttonsMapping {
-		dp.AddHandlerToGroup(handlers.NewCallback(callbackquery.Prefix(query), handler), 0)
+	for _, entry := range buttonsMapping {
+		dp.AddHandlerToGroup(handlers.NewCallback(callbackquery.Prefix(entry.Key), entry.Value), 0)
 	}
 
 	// Commands
-	for command, handler := range commandsMapping {
-		dp.AddHandlerToGroup(handlers.NewCommand(command, handler), 0)
+	for _, entry := range commandsMapping {
+		dp.AddHandlerToGroup(handlers.NewCommand(entry.Key, entry.Value), 0)
 	}
 
 	// Unsupported button
