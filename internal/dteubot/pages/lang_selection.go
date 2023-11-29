@@ -26,11 +26,23 @@ import (
 	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/cubicbyte/dteubot/internal/i18n"
 	"github.com/sirkon/go-format/v2"
+	"sort"
 )
 
 func CreateLanguageSelectionPage(lang i18n.Language, backButton string) (Page, error) {
+	// Get sorted languages
 	langsCount := len(languages)
+	sortedLangs := make([]string, langsCount)
 
+	i := 0
+	for code := range languages {
+		sortedLangs[i] = code
+		i++
+	}
+
+	sort.Strings(sortedLangs)
+
+	// Create buttons
 	buttons := make([][]gotgbot.InlineKeyboardButton, langsCount+1)
 	buttons[langsCount] = []gotgbot.InlineKeyboardButton{{
 		Text:         lang.Button.Back,
@@ -40,12 +52,13 @@ func CreateLanguageSelectionPage(lang i18n.Language, backButton string) (Page, e
 		CallbackData: "open.menu#from=language",
 	}}
 
-	i := 0
-	for code, lang2 := range languages {
-		query := "select.lang#lang=" + code
+	// Add language buttons
+	i = 0
+	for _, code := range sortedLangs {
+		lang2 := languages[code]
 		buttons[i] = []gotgbot.InlineKeyboardButton{{
 			Text:         lang2.LangName,
-			CallbackData: query,
+			CallbackData: "select.lang#lang=" + code,
 		}}
 		i++
 	}
