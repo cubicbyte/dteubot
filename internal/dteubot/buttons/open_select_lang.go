@@ -29,6 +29,6 @@ import (
 )
 
 func HandleOpenSelectLanguageButton(u *tgbotapi.Update, bot *tgbotapi.BotAPI, lang *i18n.Language, langs map[string]i18n.Language) error {
-	page, err := pages.CreateLanguageSelectionPage(lang, langs, "open.more#from=select_lang")
+	page, err := pages.CreateLanguageSelectionPage(lang, langs, "open.settings#from=select_lang")
 	return editPage(page, err, u, bot)
 }
