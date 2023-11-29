@@ -61,15 +61,18 @@ func CreateScheduleExtraInfoPage(lang i18n.Language, groupId int, date string) (
 			}
 
 			// Clean HTML from unsupported tags
-			extraTextStr, err := utils.CleanHTML(extraText.Html)
-			if err != nil {
-				return Page{}, err
-			}
+			extraTextStr := utils.CleanHTML(extraText.Html)
 
 			// Remove all spaces and newlines from the beginning and end of the string
-			extraTextStr = strings.Trim(extraTextStr, "\n ")
+			extraTextStr = utils.CleanText(extraTextStr)
 
-			pageExtraText += "<b>" + strconv.Itoa(lesson.Number) + ")</b> " + extraTextStr + "\n\n"
+			format_ := "<code>$lesson)</code> 📕 <b>$discipline</b><code>[$type]</code>\n$extra\n\n"
+			pageExtraText += format.Formatm(format_, format.Values{
+				"lesson":     lesson.Number,
+				"discipline": utils.EscapeText(tgbotapi.ModeHTML, period.DisciplineFullName),
+				"type":       utils.EscapeText(tgbotapi.ModeHTML, period.TypeStr),
+				"extra":      extraTextStr,
+			})
 		}
 	}
 
@@ -77,6 +80,7 @@ func CreateScheduleExtraInfoPage(lang i18n.Language, groupId int, date string) (
 
 	if utf8.RuneCountInString(pageText) > 4096 {
 		// FIXME: This is vulnerable to HTML tags and can break the page.
+		//   Also, this counts html tags as runes, which is not correct (make sure).
 		//   Create a function that will cut the string carefully, excluding HTML tags.
 		//   This func should also support other formatting modes (Markdown, MarkdownV2, HTML)
 		pageText = pageText[:4093] + "..."

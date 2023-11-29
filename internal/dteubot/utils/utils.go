@@ -31,13 +31,15 @@ import (
 )
 
 // CleanHTML removes all unsupported HTML tags from given text.
-func CleanHTML(text string) (string, error) {
+func CleanHTML(text string) string {
 	telegramSupportedHTMLTags := [...]string{
 		"a", "s", "i", "b", "u", "em", "pre",
 		"ins", "del", "code", "strong", "strike",
 	}
 
 	// Save line breaks
+	// <br> <br/> <br /> <p>
+	text = strings.ReplaceAll(text, "<p>", "\n")
 	text = strings.ReplaceAll(text, "<br>", "\n")
 	text = strings.ReplaceAll(text, "<br/>", "\n")
 	text = strings.ReplaceAll(text, "<br />", "\n")
@@ -45,17 +47,28 @@ func CleanHTML(text string) (string, error) {
 	// Remove all other tags
 	// tag|tag2|tag3
 	supported := strings.Join(telegramSupportedHTMLTags[:], "|")
-	cleanr, err := regexp2.Compile("<(?!\\/?("+supported+")\\b)[^>]*>", regexp2.IgnoreCase)
-	if err != nil {
-		return "", err
-	}
+	cleanr := regexp2.MustCompile("<(?!\\/?("+supported+")\\b)[^>]*>", regexp2.IgnoreCase)
+	text, _ = cleanr.Replace(text, "", -1, -1)
 
-	text, err = cleanr.Replace(text, "", -1, -1)
-	if err != nil {
-		return "", err
-	}
+	return text
+}
 
-	return text, nil
+// CleanText removes unnecessary characters from given text:
+//   - Too many newlines
+//   - Spaces and newlines from the beginning and end of the string
+func CleanText(text string) string {
+	// Remove newlines like this: \n \n
+	re := regexp2.MustCompile(`\n[^\S\r\n]+`, regexp2.IgnoreCase)
+	text, _ = re.Replace(text, "\n", -1, -1)
+
+	// Remove too many newlines
+	re = regexp2.MustCompile(`\n{3,}`, regexp2.IgnoreCase)
+	text, _ = re.Replace(text, "\n\n", -1, -1)
+
+	// Remove all spaces and newlines from the beginning and end of the string
+	text = strings.Trim(text, "\n ")
+
+	return text
 }
 
 // EscapeMarkdownV2 takes an input text and escape Telegram MarkdownV2 markup symbols.
@@ -98,4 +111,63 @@ func GetLang(code string, langs map[string]i18n.Language) (i18n.Language, error)
 // SetLocation sets the location of the time without changing the time itself.
 func SetLocation(time2 time.Time, location *time.Location) time.Time {
 	return time.Date(time2.Year(), time2.Month(), time2.Day(), time2.Hour(), time2.Minute(), time2.Second(), time2.Nanosecond(), location)
+}
+
+// SplitRows splits the given slice into rows of given size.
+//
+// slice is the slice to split
+// rowSize is the size of each row
+//
+// Example:
+//
+//	slice := []int{1, 2, 3, 4, 5, 6, 7, 8}
+//	rows := SplitRows(slice, 3)
+//	// rows = [[1, 2, 3], [4, 5, 6], [7, 8]]
+func SplitRows[T any](slice []T, rowSize int) [][]T {
+	rowsCount := len(slice) / rowSize
+	if len(slice)%rowSize != 0 {
+		rowsCount++
+	}
+	rows := make([][]T, rowsCount)
+
+	lastRow := make([]T, min(rowSize, len(slice)))
+	for i, item := range slice {
+		lastRow[i%rowSize] = item
+		if i%rowSize == rowSize-1 {
+			rows[i/rowSize] = lastRow
+			lastRow = make([]T, min(rowSize, len(slice)-i-1))
+		}
+	}
+	if len(lastRow) > 0 {
+		rows[len(rows)-1] = lastRow
+	}
+
+	return rows
+}
+
+// GetLessonIcon returns the icon for the lesson type.
+//
+// Examples (*colored emoji):
+//   - Lecture:  🔸
+//   - Practice: 🔹
+//   - Exam:     🔺
+func GetLessonIcon(lessonType int) string {
+	/*
+		Лк - 1
+		Пз* - 2
+		Лб* - 4
+		Екз - 5
+		Зач - 6
+		КонсЕкз - 20
+	*/
+	switch lessonType {
+	case 1:
+		return "🔸"
+	case 2, 4:
+		return "🔹"
+	case 5, 6, 20:
+		return "🔺"
+	default:
+		return ""
+	}
 }

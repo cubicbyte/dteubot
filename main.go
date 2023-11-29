@@ -28,6 +28,9 @@ import (
 	"github.com/cubicbyte/dteubot/internal/dteubot"
 	"github.com/cubicbyte/dteubot/internal/logging"
 	"os"
+	// Fixes "Unknown time zone" error. https://github.com/golang/go/issues/55899
+	// Will increase binary size by ~550KB
+	_ "time/tzdata"
 )
 
 func main() {

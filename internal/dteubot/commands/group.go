@@ -29,6 +29,7 @@ import (
 	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func HandleGroupCommand(bot *gotgbot.Bot, ctx *ext.Context) error {
@@ -72,8 +73,9 @@ func HandleGroupCommand(bot *gotgbot.Bot, ctx *ext.Context) error {
 			return err
 		}
 
-		// Create settings page
-		page, err := pages.CreateSettingsPage(lang, chat)
+		// Create today's schedule page
+		today := time.Now().Format(time.DateOnly)
+		page, err := pages.CreateSchedulePage(lang, groupId, today)
 		return sendPage(bot, ctx, page, err)
 	}
 

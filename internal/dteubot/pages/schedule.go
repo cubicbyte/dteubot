@@ -136,8 +136,10 @@ func CreateSchedulePage(lang i18n.Language, groupId int, date string) (Page, err
 
 		for _, lesson := range day.Lessons {
 			for _, period := range lesson.Periods {
-				format_ := "`———— ``$timeStart`` ——— ``$timeEnd`` ————`\n`  `*$disciplineShortName*`[$typeStr]`\n`$lessonNumber `$classroom\n`  `$teachersNameFull\n"
+				format_ := "`———— ``$timeStart`` ——— ``$timeEnd`` ————`\n`  `$lessonIcon *$disciplineShortName*`[$typeStr]`\n`$lessonNumber `$classroom\n`  `$teachersNameFull\n"
 				lessonNumber := strconv.Itoa(lesson.Number)
+				lessonIcon := utils.GetLessonIcon(period.Type)
+
 				pageText += format.Formatm(format_, format.Values{
 					"timeStart":           utils.EscapeMarkdownV2(period.TimeStart),
 					"timeEnd":             utils.EscapeMarkdownV2(period.TimeEnd),
@@ -146,7 +148,12 @@ func CreateSchedulePage(lang i18n.Language, groupId int, date string) (Page, err
 					"lessonNumber":        utils.EscapeMarkdownV2(lessonNumber),
 					"classroom":           utils.EscapeMarkdownV2(period.Classroom),
 					"teachersNameFull":    getTeacher(period.TeachersNameFull, teachersList),
+					"lessonIcon":          lessonIcon,
 				})
+
+				if lessonIcon == "" {
+					log.Warningf("Could not get lesson icon for lesson type %d (%s)\n", period.Type, period.TypeStr)
+				}
 			}
 		}
 
