@@ -27,8 +27,6 @@ import (
 	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
 	"github.com/cubicbyte/dteubot/internal/i18n"
 	"github.com/sirkon/go-format/v2"
-	"strconv"
-	"strings"
 	"unicode/utf8"
 )
 
@@ -69,8 +67,8 @@ func CreateScheduleExtraInfoPage(lang i18n.Language, groupId int, date string) (
 			format_ := "<code>$lesson)</code> 📕 <b>$discipline</b><code>[$type]</code>\n$extra\n\n"
 			pageExtraText += format.Formatm(format_, format.Values{
 				"lesson":     lesson.Number,
-				"discipline": utils.EscapeText(tgbotapi.ModeHTML, period.DisciplineFullName),
-				"type":       utils.EscapeText(tgbotapi.ModeHTML, period.TypeStr),
+				"discipline": utils.EscapeMarkdownV2(period.DisciplineFullName),
+				"type":       utils.EscapeMarkdownV2(period.TypeStr),
 				"extra":      extraTextStr,
 			})
 		}
