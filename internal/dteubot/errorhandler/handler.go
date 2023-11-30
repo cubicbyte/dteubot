@@ -250,18 +250,18 @@ func SendErrorToTelegram(err error, bot *gotgbot.Bot) {
 		return
 	}
 
-	chatId, err := strconv.ParseInt(chatIdStr, 10, 64)
-	if err != nil {
-		log.Errorf("Error parsing LOG_CHAT_ID: %s", err)
+	chatId, err2 := strconv.ParseInt(chatIdStr, 10, 64)
+	if err2 != nil {
+		log.Errorf("Error parsing LOG_CHAT_ID: %s", err2)
 		return
 	}
 
 	// Send error to Telegram
 	errStr := fmt.Sprintf("Error %T: %s", err, err)
 
-	_, err2 := bot.SendMessage(chatId, errStr, nil)
+	_, err2 = bot.SendMessage(chatId, errStr, nil)
 	if err2 != nil {
-		log.Errorf("Error sending error to Telegram: %s", err)
+		log.Errorf("Error sending error to Telegram: %s", err2)
 	}
 
 	lastErrorTime = time.Now()

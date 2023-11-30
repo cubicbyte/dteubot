@@ -58,4 +58,5 @@ func PanicsHandler(b *gotgbot.Bot, ctx *ext.Context, r interface{}) {
 	}
 
 	SendErrorPageToChat(ctx, b, lang)
+	SendErrorToTelegram(fmt.Errorf("panic: %s\n%s", r, string(debug.Stack())), b)
 }
