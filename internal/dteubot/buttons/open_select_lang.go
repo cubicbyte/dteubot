@@ -40,6 +40,6 @@ func HandleOpenSelectLanguageButton(bot *gotgbot.Bot, ctx *ext.Context) error {
 		return err
 	}
 
-	page, err := pages.CreateLanguageSelectionPage(lang, "open.more#from=select_lang")
+	page, err := pages.CreateLanguageSelectionPage(lang, "open.settings#from=select_lang")
 	return openPage(bot, ctx, page, err)
 }
