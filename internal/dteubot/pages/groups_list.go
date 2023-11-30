@@ -62,7 +62,7 @@ func CreateGroupsListPage(lang i18n.Language, facultyId int, course int, structu
 	if len(groupsList)%rowSize != 0 {
 		rowsCount++
 	}
-	buttons := make([][]gotgbot.InlineKeyboardButton, rowsCount)
+	buttons := make([][]gotgbot.InlineKeyboardButton, 1, rowsCount)
 	backBtnQuery := "select.schedule.faculty#facultyId=" + strconv.Itoa(facultyId) +
 		"&structureId=" + strconv.Itoa(structureId)
 	buttons[0] = []gotgbot.InlineKeyboardButton{{
