@@ -175,6 +175,9 @@ func HandleError(b *gotgbot.Bot, ctx *ext.Context, err error) ext.DispatcherActi
 				SendErrorToTelegram(err, b)
 				break
 			}
+		case 429:
+			// Too Many Requests, sometimes occurs when bot API is lagging
+			log.Warningf("Too many requests, retry after %d: %s", tgError.ResponseParams.RetryAfter, err)
 		case 420:
 			// Flood control exceeded
 			log.Warningf("Flood control exceeded, retry after %d: %s", tgError.ResponseParams.RetryAfter, err)
