@@ -23,18 +23,19 @@
 package buttons
 
 import (
+	"github.com/PaulSonOfLars/gotgbot/v2"
+	"github.com/PaulSonOfLars/gotgbot/v2/ext"
 	"github.com/cubicbyte/dteubot/internal/dteubot/pages"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
-// editPage edits the message with the given page.
-func editPage(page *pages.Page, err error, u *tgbotapi.Update, bot *tgbotapi.BotAPI) error {
+// openPage edits the message with the given page.
+func openPage(bot *gotgbot.Bot, ctx *ext.Context, page pages.Page, err error) error {
 	if err != nil {
 		return err
 	}
 
-	conf := page.CreateEditMessage(u.CallbackQuery.Message.Chat.ID, u.CallbackQuery.Message.MessageID)
-	_, err = bot.Send(conf)
+	opts := page.CreateEditMessageOpts(ctx.EffectiveChat.Id, ctx.EffectiveMessage.MessageId)
+	_, _, err = bot.EditMessageText(page.Text, &opts)
 	if err != nil {
 		return err
 	}

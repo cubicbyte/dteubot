@@ -26,13 +26,13 @@ import (
 	_ "embed"
 	"errors"
 	"fmt"
+	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/cubicbyte/dteubot/internal/data"
 	"github.com/cubicbyte/dteubot/internal/dteubot/errorhandler"
 	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
 	"github.com/cubicbyte/dteubot/internal/i18n"
 	api2 "github.com/cubicbyte/dteubot/pkg/api"
 	"github.com/go-co-op/gocron"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/op/go-logging"
 	"github.com/sirkon/go-format/v2"
 	"net/url"
@@ -45,7 +45,7 @@ var Location = "Europe/Kiev"
 var log = logging.MustGetLogger("Notifier")
 
 // Setup initializes notifier and starts cron Scheduler
-func Setup(api api2.IApi, bot *tgbotapi.BotAPI, langs map[string]i18n.Language, chatRepo data.ChatRepository) (*gocron.Scheduler, error) {
+func Setup(api api2.Api, bot *gotgbot.Bot, langs map[string]i18n.Language, chatRepo data.ChatRepository) (*gocron.Scheduler, error) {
 	log.Info("Setting up notifier")
 
 	// Setup cron scheduler
@@ -97,8 +97,10 @@ func Setup(api api2.IApi, bot *tgbotapi.BotAPI, langs map[string]i18n.Language, 
 }
 
 // SendNotifications sends notifications to chats that subscribed to notifications
-func SendNotifications(time2 string, chatRepo data.ChatRepository, api api2.IApi, bot *tgbotapi.BotAPI, langs map[string]i18n.Language, calls api2.CallSchedule) error {
+func SendNotifications(time2 string, chatRepo data.ChatRepository, api api2.Api, bot *gotgbot.Bot, langs map[string]i18n.Language, calls api2.CallSchedule) error {
 	log.Infof("Sending notifications %s", time2)
+
+	// TODO: Limit message sending per second
 
 	// Get chats with notifications enabled
 	chats, err := GetSubscribedChats(time2, chatRepo)
@@ -119,7 +121,7 @@ func SendNotifications(time2 string, chatRepo data.ChatRepository, api api2.IApi
 	sentCount := 0
 	for _, chat := range chats {
 		// Get group schedule
-		schedule, err := api.GetGroupScheduleDay(chat.GroupId, curTime.Format("2006-01-02"))
+		schedule, err := api.GetGroupScheduleDay(chat.GroupId, curTime.Format(time.DateOnly))
 		if err != nil {
 			// Check if api connection error
 			var urlError *url.Error
@@ -208,7 +210,7 @@ func SendNotifications(time2 string, chatRepo data.ChatRepository, api api2.IApi
 }
 
 // SendNotification sends notification to chat
-func SendNotification(chat *data.Chat, chatRepo data.ChatRepository, lang *i18n.Language, bot *tgbotapi.BotAPI, schedule *api2.TimeTableDate, time string, type2 string) error {
+func SendNotification(chat *data.Chat, chatRepo data.ChatRepository, lang i18n.Language, bot *gotgbot.Bot, schedule *api2.TimeTableDate, time string, type2 string) error {
 	log.Debugf("Sending %s %s notification to chat %d", type2, time, chat.Id)
 
 	var pageText string
@@ -220,8 +222,8 @@ func SendNotification(chat *data.Chat, chatRepo data.ChatRepository, lang *i18n.
 			for _, period := range lesson.Periods {
 				section += format.Formatm(strFormat, format.Values{
 					"lesson": lesson.Number,
-					"name":   utils.EscapeText(tgbotapi.ModeMarkdownV2, period.DisciplineShortName),
-					"type":   utils.EscapeText(tgbotapi.ModeMarkdownV2, period.TypeStr),
+					"name":   utils.EscapeMarkdownV2(period.DisciplineShortName),
+					"type":   utils.EscapeMarkdownV2(period.TypeStr),
 				})
 			}
 		}
@@ -241,22 +243,28 @@ func SendNotification(chat *data.Chat, chatRepo data.ChatRepository, lang *i18n.
 	}
 
 	// Create buttons
-	replyMarkup := tgbotapi.NewInlineKeyboardMarkup(
-		tgbotapi.NewInlineKeyboardRow(
-			tgbotapi.NewInlineKeyboardButtonData(lang.Button.OpenSchedule, "open.schedule.day#from=notification&date="+schedule.Date),
-			tgbotapi.NewInlineKeyboardButtonData(lang.Button.Settings, "open.settings#from=notification"),
-		),
-	)
+	replyMarkup := gotgbot.InlineKeyboardMarkup{
+		InlineKeyboard: [][]gotgbot.InlineKeyboardButton{{
+			{
+				Text:         lang.Button.OpenSchedule,
+				CallbackData: "open.schedule.day#from=notification&date=" + schedule.Date,
+			}, {
+				Text:         lang.Button.Settings,
+				CallbackData: "open.settings#from=notification",
+			},
+		}},
+	}
 
 	// Send message
-	msg := tgbotapi.NewMessage(chat.Id, pageText)
-	msg.ParseMode = tgbotapi.ModeMarkdownV2
-	msg.ReplyMarkup = replyMarkup
+	opts := gotgbot.SendMessageOpts{
+		ParseMode:   gotgbot.ParseModeMarkdownV2,
+		ReplyMarkup: replyMarkup,
+	}
 
-	_, err := bot.Send(msg)
+	_, err := bot.SendMessage(chat.Id, pageText, &opts)
 	if err != nil {
 		// Check if user blocked bot
-		var tgError *tgbotapi.Error
+		var tgError *gotgbot.TelegramError
 		if errors.As(err, &tgError) && tgError.Code == 403 {
 			log.Infof("Bot blocked in chat %d", chat.Id)
 			if err = MakeChatUnavailable(chat, chatRepo); err != nil {

@@ -58,12 +58,12 @@ type Group struct {
 type Cache struct {
 	File   string
 	groups map[int]Group
-	api    api.IApi
+	api    api.Api
 	mu     sync.Mutex
 }
 
 // New creates new cache instance
-func New(file string, api2 api.IApi) *Cache {
+func New(file string, api2 api.Api) *Cache {
 	return &Cache{
 		File:   file,
 		groups: make(map[int]Group),
@@ -116,7 +116,7 @@ func (c *Cache) GetGroupById(id int) (*Group, error) {
 	return &group, nil
 }
 
-// GetGroupByName returns group by name
+// GetGroupByName returns group by name. Not case sensitive
 func (c *Cache) GetGroupByName(name string) (*Group, error) {
 	log.Debugf("Getting group %s\n", name)
 

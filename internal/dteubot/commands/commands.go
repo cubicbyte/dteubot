@@ -20,67 +20,34 @@
  * SOFTWARE.
  */
 
-package pages
+package commands
 
 import (
-	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/cubicbyte/dteubot/internal/data"
 	"github.com/cubicbyte/dteubot/internal/dteubot/groupscache"
-	"github.com/cubicbyte/dteubot/internal/dteubot/teachers"
 	"github.com/cubicbyte/dteubot/internal/i18n"
 	api2 "github.com/cubicbyte/dteubot/pkg/api"
 )
 
 var (
-	chatRepo     data.ChatRepository
-	userRepo     data.UserRepository
-	api          api2.Api
-	groupsCache  *groupscache.Cache
-	teachersList *teachers.TeachersList
-	languages    map[string]i18n.Language
+	chatRepo    data.ChatRepository
+	userRepo    data.UserRepository
+	api         api2.Api
+	languages   map[string]i18n.Language
+	groupsCache *groupscache.Cache
 )
 
-// InitPages initializes the pages package. Must be called before using the package
-func InitPages(
+// InitCommands initializes commands package. Must be called before using this package
+func InitCommands(
 	chatRepo2 data.ChatRepository,
 	userRepo2 data.UserRepository,
 	api2 api2.Api,
-	groupsCache2 *groupscache.Cache,
-	teachersList2 *teachers.TeachersList,
 	languages2 map[string]i18n.Language,
+	groupsCache2 *groupscache.Cache,
 ) {
 	chatRepo = chatRepo2
 	userRepo = userRepo2
 	api = api2
-	groupsCache = groupsCache2
-	teachersList = teachersList2
 	languages = languages2
-}
-
-// Page represents a telegram page
-type Page struct {
-	Text                  string
-	ReplyMarkup           gotgbot.InlineKeyboardMarkup
-	ParseMode             string
-	DisableWebPagePreview bool
-}
-
-// CreateSendMessageOpts creates a telegram message parameters from the page
-func (p Page) CreateSendMessageOpts() gotgbot.SendMessageOpts {
-	return gotgbot.SendMessageOpts{
-		ParseMode:             p.ParseMode,
-		DisableWebPagePreview: p.DisableWebPagePreview,
-		ReplyMarkup:           p.ReplyMarkup,
-	}
-}
-
-// CreateEditMessageOpts creates a telegram edit message parameters from the page
-func (p Page) CreateEditMessageOpts(chatId int64, messageId int64) gotgbot.EditMessageTextOpts {
-	return gotgbot.EditMessageTextOpts{
-		ChatId:                chatId,
-		MessageId:             messageId,
-		ParseMode:             p.ParseMode,
-		DisableWebPagePreview: p.DisableWebPagePreview,
-		ReplyMarkup:           p.ReplyMarkup,
-	}
+	groupsCache = groupsCache2
 }

@@ -23,18 +23,19 @@
 package commands
 
 import (
+	"github.com/PaulSonOfLars/gotgbot/v2"
+	"github.com/PaulSonOfLars/gotgbot/v2/ext"
 	"github.com/cubicbyte/dteubot/internal/dteubot/pages"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
-// sendPage sends a page to the user
-func sendPage(page *pages.Page, err error, u *tgbotapi.Update, bot *tgbotapi.BotAPI) error {
+// sendPage sends a page to the chat
+func sendPage(bot *gotgbot.Bot, ctx *ext.Context, page pages.Page, err error) error {
 	if err != nil {
 		return err
 	}
 
-	msg := page.CreateMessage(u.FromChat().ID)
-	_, err = bot.Send(msg)
+	opts := page.CreateSendMessageOpts()
+	_, err = bot.SendMessage(ctx.EffectiveChat.Id, page.Text, &opts)
 	if err != nil {
 		return err
 	}

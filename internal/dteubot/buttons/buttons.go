@@ -23,40 +23,27 @@
 package buttons
 
 import (
-	"github.com/PaulSonOfLars/gotgbot/v2"
-	"github.com/PaulSonOfLars/gotgbot/v2/ext"
-	"github.com/cubicbyte/dteubot/internal/logging"
+	"github.com/cubicbyte/dteubot/internal/data"
+	"github.com/cubicbyte/dteubot/internal/i18n"
+	api2 "github.com/cubicbyte/dteubot/pkg/api"
 )
 
-func HandleSendLogsButton(bot *gotgbot.Bot, ctx *ext.Context) error {
-	// Check if user is admin
-	user, err := userRepo.GetById(ctx.EffectiveUser.Id)
-	if err != nil {
-		return err
-	}
+var (
+	chatRepo  data.ChatRepository
+	userRepo  data.UserRepository
+	api       api2.Api
+	languages map[string]i18n.Language
+)
 
-	if !user.IsAdmin {
-		return nil
-	}
-
-	// Send "sending document" action
-	_, err = bot.SendChatAction(ctx.EffectiveChat.Id, "upload_document", nil)
-	if err != nil {
-		return err
-	}
-
-	// Send logs
-	_, err = bot.SendDocument(ctx.EffectiveChat.Id, logging.LogFile, &gotgbot.SendDocumentOpts{
-		Caption: "Logs",
-	})
-	if err != nil {
-		return err
-	}
-
-	// Create "done" alert
-	_, err = bot.AnswerCallbackQuery(ctx.CallbackQuery.Id, &gotgbot.AnswerCallbackQueryOpts{
-		Text: "Done",
-	})
-
-	return nil
+// InitButtons initializes the buttons package. Must be called before using the package
+func InitButtons(
+	chatRepo2 data.ChatRepository,
+	userRepo2 data.UserRepository,
+	api2 api2.Api,
+	languages2 map[string]i18n.Language,
+) {
+	chatRepo = chatRepo2
+	userRepo = userRepo2
+	api = api2
+	languages = languages2
 }

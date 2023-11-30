@@ -23,21 +23,20 @@
 package pages
 
 import (
+	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/cubicbyte/dteubot/internal/dteubot/groupscache"
 	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
 	"github.com/cubicbyte/dteubot/internal/i18n"
-	"github.com/cubicbyte/dteubot/pkg/api"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"strconv"
 	"time"
 )
 
 const rowSize = 3
 
-func CreateGroupsListPage(lang *i18n.Language, facultyId int, course int, structureId int, api2 api.IApi, groups *groupscache.Cache) (*Page, error) {
-	groupsList, err := api2.GetGroups(facultyId, course)
+func CreateGroupsListPage(lang i18n.Language, facultyId int, course int, structureId int) (Page, error) {
+	groupsList, err := api.GetGroups(facultyId, course)
 	if err != nil {
-		return nil, err
+		return Page{}, err
 	}
 
 	// Save groups to cache
@@ -53,9 +52,9 @@ func CreateGroupsListPage(lang *i18n.Language, facultyId int, course int, struct
 		}
 	}
 
-	err = groups.AddGroups(groups_)
+	err = groupsCache.AddGroups(groups_)
 	if err != nil {
-		return nil, err
+		return Page{}, err
 	}
 
 	// Create back button
@@ -63,28 +62,31 @@ func CreateGroupsListPage(lang *i18n.Language, facultyId int, course int, struct
 	if len(groupsList)%rowSize != 0 {
 		rowsCount++
 	}
-	buttons := make([][]tgbotapi.InlineKeyboardButton, 1, rowsCount)
+	buttons := make([][]gotgbot.InlineKeyboardButton, 1, rowsCount)
 	backBtnQuery := "select.schedule.faculty#facultyId=" + strconv.Itoa(facultyId) +
 		"&structureId=" + strconv.Itoa(structureId)
-	buttons[0] = tgbotapi.NewInlineKeyboardRow(
-		tgbotapi.NewInlineKeyboardButtonData(lang.Button.Back, backBtnQuery),
-	)
+	buttons[0] = []gotgbot.InlineKeyboardButton{{
+		Text:         lang.Button.Back,
+		CallbackData: backBtnQuery,
+	}}
 
 	// Create group buttons
-	btns := make([]tgbotapi.InlineKeyboardButton, len(groupsList))
+	btns := make([]gotgbot.InlineKeyboardButton, len(groupsList))
 	for i, group := range groupsList {
-		query := "select.schedule.group#groupId=" + strconv.Itoa(group.Id)
-		btns[i] = tgbotapi.NewInlineKeyboardButtonData(group.Name, query)
+		btns[i] = gotgbot.InlineKeyboardButton{
+			Text:         group.Name,
+			CallbackData: "select.schedule.group#groupId=" + strconv.Itoa(group.Id),
+		}
 	}
 
 	// Create keyboard rows
 	buttons = append(buttons, utils.SplitRows(btns, rowSize)...)
 
 	page := Page{
-		Text:           lang.Page.GroupSelection,
-		InlineKeyboard: tgbotapi.NewInlineKeyboardMarkup(buttons...),
-		ParseMode:      "MarkdownV2",
+		Text:        lang.Page.GroupSelection,
+		ReplyMarkup: gotgbot.InlineKeyboardMarkup{InlineKeyboard: buttons},
+		ParseMode:   "MarkdownV2",
 	}
 
-	return &page, nil
+	return page, nil
 }

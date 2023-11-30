@@ -20,43 +20,50 @@
  * SOFTWARE.
  */
 
-package buttons
+package dteubot
 
 import (
 	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext"
-	"github.com/cubicbyte/dteubot/internal/logging"
+	"github.com/cubicbyte/dteubot/internal/data"
 )
 
-func HandleSendLogsButton(bot *gotgbot.Bot, ctx *ext.Context) error {
-	// Check if user is admin
-	user, err := userRepo.GetById(ctx.EffectiveUser.Id)
-	if err != nil {
-		return err
+func InitDatabaseRecords(_ *gotgbot.Bot, ctx *ext.Context) error {
+	log.Debug("Initializing database records")
+
+	// Create chat if not exists
+	if ctx.EffectiveChat != nil {
+		chat, err := chatRepo.GetById(ctx.EffectiveChat.Id)
+		if err != nil {
+			return err
+		}
+
+		if chat == nil {
+			log.Debug("Creating new chat record")
+
+			chat = data.NewChat(ctx.EffectiveChat.Id)
+			if err := chatRepo.Update(chat); err != nil {
+				return err
+			}
+		}
 	}
 
-	if !user.IsAdmin {
-		return nil
-	}
+	// Create user if not exists
+	if ctx.EffectiveUser != nil {
+		user, err := userRepo.GetById(ctx.EffectiveUser.Id)
+		if err != nil {
+			return err
+		}
 
-	// Send "sending document" action
-	_, err = bot.SendChatAction(ctx.EffectiveChat.Id, "upload_document", nil)
-	if err != nil {
-		return err
-	}
+		if user == nil {
+			log.Debug("Creating new user record")
 
-	// Send logs
-	_, err = bot.SendDocument(ctx.EffectiveChat.Id, logging.LogFile, &gotgbot.SendDocumentOpts{
-		Caption: "Logs",
-	})
-	if err != nil {
-		return err
+			user = data.NewUser(ctx.EffectiveUser.Id)
+			if err := userRepo.Update(user); err != nil {
+				return err
+			}
+		}
 	}
-
-	// Create "done" alert
-	_, err = bot.AnswerCallbackQuery(ctx.CallbackQuery.Id, &gotgbot.AnswerCallbackQueryOpts{
-		Text: "Done",
-	})
 
 	return nil
 }

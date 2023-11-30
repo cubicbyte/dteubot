@@ -23,19 +23,17 @@
 package pages
 
 import (
-	"github.com/cubicbyte/dteubot/internal/dteubot/groupscache"
+	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
 	"github.com/cubicbyte/dteubot/internal/i18n"
-	"github.com/cubicbyte/dteubot/pkg/api"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/sirkon/go-format/v2"
 	"strconv"
 )
 
-func CreateStudentsListPage(lang *i18n.Language, groupId int, groups *groupscache.Cache, api api.IApi) (*Page, error) {
+func CreateStudentsListPage(lang i18n.Language, groupId int) (Page, error) {
 	students, err := api.GetGroupStudents(groupId)
 	if err != nil {
-		return nil, err
+		return Page{}, err
 	}
 
 	// Get group name
@@ -43,25 +41,25 @@ func CreateStudentsListPage(lang *i18n.Language, groupId int, groups *groupscach
 	if groupId == -1 {
 		groupName = lang.Text.NotSelected
 	} else {
-		group, err := groups.GetGroupById(groupId)
+		group, err := groupsCache.GetGroupById(groupId)
 		if err != nil {
 			if group == nil {
-				return nil, err
+				return Page{}, err
 			}
 			log.Warningf("Error getting %d group name: %s", groupId, err)
 		}
 		if group == nil {
-			groupId := utils.EscapeText(tgbotapi.ModeMarkdownV2, strconv.Itoa(groupId))
+			groupId := utils.EscapeMarkdownV2(strconv.Itoa(groupId))
 			groupName = format.Formatp(lang.Text.UnknownGroupName, groupId)
 		} else {
-			groupName = utils.EscapeText(tgbotapi.ModeMarkdownV2, group.Name)
+			groupName = utils.EscapeMarkdownV2(group.Name)
 		}
 	}
 
 	pageText := ""
 	for i, student := range students {
 		studentPos := strconv.Itoa(i + 1)
-		name := utils.EscapeText(tgbotapi.ModeMarkdownV2, student.GetFullName())
+		name := utils.EscapeMarkdownV2(student.GetFullName())
 
 		pageText += "*" + studentPos + "*\\) " + name + "\n"
 	}
@@ -73,13 +71,16 @@ func CreateStudentsListPage(lang *i18n.Language, groupId int, groups *groupscach
 
 	page := Page{
 		Text: pageText,
-		InlineKeyboard: tgbotapi.NewInlineKeyboardMarkup(
-			tgbotapi.NewInlineKeyboardRow(
-				tgbotapi.NewInlineKeyboardButtonData(lang.Button.Back, "open.more"),
-			),
-		),
+		ReplyMarkup: gotgbot.InlineKeyboardMarkup{
+			InlineKeyboard: [][]gotgbot.InlineKeyboardButton{
+				{{
+					Text:         lang.Button.Back,
+					CallbackData: "open.more",
+				}},
+			},
+		},
 		ParseMode: "MarkdownV2",
 	}
 
-	return &page, nil
+	return page, nil
 }

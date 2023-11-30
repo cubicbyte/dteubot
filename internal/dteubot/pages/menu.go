@@ -23,32 +23,39 @@
 package pages
 
 import (
+	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/cubicbyte/dteubot/internal/data"
 	"github.com/cubicbyte/dteubot/internal/i18n"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
-func CreateMenuPage(lang *i18n.Language, user *data.User) (*Page, error) {
+func CreateMenuPage(lang i18n.Language, user *data.User) (Page, error) {
 	page := Page{
 		Text: lang.Page.Menu,
-		InlineKeyboard: tgbotapi.NewInlineKeyboardMarkup(
-			tgbotapi.NewInlineKeyboardRow(
-				tgbotapi.NewInlineKeyboardButtonData(lang.Button.Schedule, "open.schedule.today"),
-			),
-			tgbotapi.NewInlineKeyboardRow(
-				tgbotapi.NewInlineKeyboardButtonData(lang.Button.Settings, "open.settings"),
-				tgbotapi.NewInlineKeyboardButtonData(lang.Button.More, "open.more"),
-			),
-		),
+		ReplyMarkup: gotgbot.InlineKeyboardMarkup{
+			InlineKeyboard: [][]gotgbot.InlineKeyboardButton{
+				{{
+					Text:         lang.Button.Schedule,
+					CallbackData: "open.schedule.today",
+				}},
+				{{
+					Text:         lang.Button.Settings,
+					CallbackData: "open.settings",
+				}, {
+					Text:         lang.Button.More,
+					CallbackData: "open.more",
+				}},
+			},
+		},
 		ParseMode: "MarkdownV2",
 	}
 
 	// Add admin panel button if the user is admin
 	if user.IsAdmin {
-		page.InlineKeyboard.InlineKeyboard = append(page.InlineKeyboard.InlineKeyboard, tgbotapi.NewInlineKeyboardRow(
-			tgbotapi.NewInlineKeyboardButtonData(lang.Button.AdminPanel, "open.admin_panel"),
-		))
+		page.ReplyMarkup.InlineKeyboard = append(page.ReplyMarkup.InlineKeyboard, []gotgbot.InlineKeyboardButton{{
+			Text:         lang.Button.AdminPanel,
+			CallbackData: "open.admin_panel",
+		}})
 	}
 
-	return &page, nil
+	return page, nil
 }

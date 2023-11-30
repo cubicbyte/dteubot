@@ -23,16 +23,15 @@
 package pages
 
 import (
+	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/cubicbyte/dteubot/internal/i18n"
-	"github.com/cubicbyte/dteubot/pkg/api"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/sirkon/go-format/v2"
 )
 
-func CreateCallSchedulePage(lang *i18n.Language, backButton string, api2 api.IApi) (*Page, error) {
-	calls, err := api2.GetCallSchedule()
+func CreateCallSchedulePage(lang i18n.Language, backButton string) (Page, error) {
+	calls, err := api.GetCallSchedule()
 	if err != nil {
-		return nil, err
+		return Page{}, err
 	}
 
 	callsText := ""
@@ -42,13 +41,16 @@ func CreateCallSchedulePage(lang *i18n.Language, backButton string, api2 api.IAp
 
 	page := Page{
 		Text: format.Formatp(lang.Page.CallSchedule, callsText),
-		InlineKeyboard: tgbotapi.NewInlineKeyboardMarkup(
-			tgbotapi.NewInlineKeyboardRow(
-				tgbotapi.NewInlineKeyboardButtonData(lang.Button.Back, backButton),
-			),
-		),
+		ReplyMarkup: gotgbot.InlineKeyboardMarkup{
+			InlineKeyboard: [][]gotgbot.InlineKeyboardButton{
+				{{
+					Text:         lang.Button.Back,
+					CallbackData: backButton,
+				}},
+			},
+		},
 		ParseMode: "MarkdownV2",
 	}
 
-	return &page, nil
+	return page, nil
 }

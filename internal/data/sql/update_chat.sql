@@ -1,5 +1,5 @@
 INSERT INTO chats (
-    chat_id,
+    id,
     group_id,
     lang_code,
     cl_notif_15m,
@@ -8,7 +8,7 @@ INSERT INTO chats (
     seen_settings,
     accessible
 ) VALUES (
-    :chat_id,
+    :id,
     :group_id,
     :lang_code,
     :cl_notif_15m,
@@ -16,7 +16,7 @@ INSERT INTO chats (
     :cl_notif_next_part,
     :seen_settings,
     :accessible
-) ON CONFLICT (chat_id) DO UPDATE SET
+) ON CONFLICT (id) DO UPDATE SET
     group_id = :group_id,
     lang_code = :lang_code,
     cl_notif_15m = :cl_notif_15m,

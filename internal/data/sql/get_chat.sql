@@ -1,1 +1,1 @@
-SELECT * FROM chats WHERE chat_id = $1 LIMIT 1;
+SELECT * FROM chats WHERE id = $1 LIMIT 1;

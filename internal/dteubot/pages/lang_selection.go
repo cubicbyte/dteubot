@@ -23,34 +23,51 @@
 package pages
 
 import (
+	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/cubicbyte/dteubot/internal/i18n"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/sirkon/go-format/v2"
+	"sort"
 )
 
-func CreateLanguageSelectionPage(lang *i18n.Language, langs map[string]i18n.Language, backButton string) (*Page, error) {
-	langsCount := len(langs)
-
-	buttons := make([][]tgbotapi.InlineKeyboardButton, langsCount+1)
-	buttons[langsCount] = tgbotapi.NewInlineKeyboardRow(
-		tgbotapi.NewInlineKeyboardButtonData(lang.Button.Back, backButton),
-		tgbotapi.NewInlineKeyboardButtonData(lang.Button.Menu, "open.menu#from=language"),
-	)
+func CreateLanguageSelectionPage(lang i18n.Language, backButton string) (Page, error) {
+	// Get sorted languages
+	langsCount := len(languages)
+	sortedLangs := make([]string, langsCount)
 
 	i := 0
-	for code, lang := range langs {
-		query := "select.lang#lang=" + code
-		buttons[i] = tgbotapi.NewInlineKeyboardRow(
-			tgbotapi.NewInlineKeyboardButtonData(lang.LangName, query),
-		)
+	for code := range languages {
+		sortedLangs[i] = code
+		i++
+	}
+
+	sort.Strings(sortedLangs)
+
+	// Create buttons
+	buttons := make([][]gotgbot.InlineKeyboardButton, langsCount+1)
+	buttons[langsCount] = []gotgbot.InlineKeyboardButton{{
+		Text:         lang.Button.Back,
+		CallbackData: backButton,
+	}, {
+		Text:         lang.Button.Menu,
+		CallbackData: "open.menu#from=language",
+	}}
+
+	// Add language buttons
+	i = 0
+	for _, code := range sortedLangs {
+		lang2 := languages[code]
+		buttons[i] = []gotgbot.InlineKeyboardButton{{
+			Text:         lang2.LangName,
+			CallbackData: "select.lang#lang=" + code,
+		}}
 		i++
 	}
 
 	page := Page{
-		Text:           format.Formatp(lang.Page.LangSelection, lang.LangName),
-		InlineKeyboard: tgbotapi.NewInlineKeyboardMarkup(buttons...),
-		ParseMode:      "MarkdownV2",
+		Text:        format.Formatp(lang.Page.LangSelection, lang.LangName),
+		ReplyMarkup: gotgbot.InlineKeyboardMarkup{InlineKeyboard: buttons},
+		ParseMode:   "MarkdownV2",
 	}
 
-	return &page, nil
+	return page, nil
 }

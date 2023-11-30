@@ -20,43 +20,29 @@
  * SOFTWARE.
  */
 
-package buttons
+package dteubot
 
 import (
 	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext"
-	"github.com/cubicbyte/dteubot/internal/logging"
 )
 
-func HandleSendLogsButton(bot *gotgbot.Bot, ctx *ext.Context) error {
-	// Check if user is admin
-	user, err := userRepo.GetById(ctx.EffectiveUser.Id)
-	if err != nil {
-		return err
-	}
+// CommandStatisticHandler saves command to statistics.
+func CommandStatisticHandler(_ *gotgbot.Bot, ctx *ext.Context) error {
+	return statLogger.LogCommand(
+		ctx.EffectiveChat.Id,
+		ctx.EffectiveUser.Id,
+		int(ctx.EffectiveMessage.MessageId),
+		ctx.EffectiveMessage.Text,
+	)
+}
 
-	if !user.IsAdmin {
-		return nil
-	}
-
-	// Send "sending document" action
-	_, err = bot.SendChatAction(ctx.EffectiveChat.Id, "upload_document", nil)
-	if err != nil {
-		return err
-	}
-
-	// Send logs
-	_, err = bot.SendDocument(ctx.EffectiveChat.Id, logging.LogFile, &gotgbot.SendDocumentOpts{
-		Caption: "Logs",
-	})
-	if err != nil {
-		return err
-	}
-
-	// Create "done" alert
-	_, err = bot.AnswerCallbackQuery(ctx.CallbackQuery.Id, &gotgbot.AnswerCallbackQueryOpts{
-		Text: "Done",
-	})
-
-	return nil
+// ButtonStatisticHandler saves button click to statistics.
+func ButtonStatisticHandler(_ *gotgbot.Bot, ctx *ext.Context) error {
+	return statLogger.LogButtonClick(
+		ctx.EffectiveChat.Id,
+		ctx.EffectiveUser.Id,
+		int(ctx.EffectiveMessage.MessageId),
+		ctx.CallbackQuery.Data,
+	)
 }

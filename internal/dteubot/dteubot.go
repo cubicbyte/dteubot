@@ -25,24 +25,29 @@ package dteubot
 import (
 	"errors"
 	"fmt"
+	"github.com/PaulSonOfLars/gotgbot/v2"
+	"github.com/PaulSonOfLars/gotgbot/v2/ext"
+	"github.com/PaulSonOfLars/gotgbot/v2/ext/handlers"
+	"github.com/PaulSonOfLars/gotgbot/v2/ext/handlers/filters/callbackquery"
 	"github.com/cubicbyte/dteubot/internal/data"
+	"github.com/cubicbyte/dteubot/internal/dteubot/buttons"
+	"github.com/cubicbyte/dteubot/internal/dteubot/commands"
 	"github.com/cubicbyte/dteubot/internal/dteubot/errorhandler"
 	"github.com/cubicbyte/dteubot/internal/dteubot/groupscache"
+	"github.com/cubicbyte/dteubot/internal/dteubot/pages"
 	"github.com/cubicbyte/dteubot/internal/dteubot/statistics"
 	"github.com/cubicbyte/dteubot/internal/dteubot/teachers"
-	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
 	"github.com/cubicbyte/dteubot/internal/i18n"
 	"github.com/cubicbyte/dteubot/internal/notifier"
 	api2 "github.com/cubicbyte/dteubot/pkg/api"
 	"github.com/cubicbyte/dteubot/pkg/api/cachedapi"
 	"github.com/go-co-op/gocron"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 	"github.com/op/go-logging"
 	"os"
-	"runtime/debug"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -58,9 +63,10 @@ const TeachersListPath = "teachers.csv"
 var log = logging.MustGetLogger("Bot")
 
 var (
-	bot          *tgbotapi.BotAPI
+	bot          *gotgbot.Bot
+	updater      *ext.Updater
 	db           *sqlx.DB
-	api          api2.IApi
+	api          api2.Api
 	chatRepo     data.ChatRepository
 	userRepo     data.UserRepository
 	statLogger   statistics.Logger
@@ -175,22 +181,42 @@ func Setup() {
 		log.Fatalf("Error loading teachers list: %s\n", err)
 	}
 
-	// Connect to the Telegram API
-	log.Info("Connecting to Telegram API")
-	bot, err = tgbotapi.NewBotAPI(os.Getenv("BOT_TOKEN"))
-	if err != nil {
-		log.Fatal("Error connecting to Telegram API: %s\n", err)
-		log.Info("Most likely the bot token is invalid or network is unreachable")
-		os.Exit(1)
+	// Set up error handler
+	errorhandler.Setup(languages, chatRepo)
+
+	// Set up the bot
+	log.Info("Setting up bot")
+
+	opts := gotgbot.BotOpts{
+		DisableTokenCheck: true, // Prevent crash when network is unreachable
 	}
 
-	log.Infof("Connected to Telegram API as %s\n", bot.Self.UserName)
+	bot, err = gotgbot.NewBot(os.Getenv("BOT_TOKEN"), &opts)
+	if err != nil {
+		log.Fatal("Error setting up bot: %s\n", err)
+	}
+
+	dispatcher := ext.NewDispatcher(&ext.DispatcherOpts{
+		Error:       errorhandler.HandleError,
+		Panic:       errorhandler.PanicsHandler,
+		MaxRoutines: ext.DefaultMaxRoutines,
+	})
+	updater = ext.NewUpdater(dispatcher, nil)
+
+	// Add bot update handlers
+	setupDispatcherHandlers(dispatcher)
 
 	// Set up notifier
+	log.Info("Setting up notifier")
 	scheduler, err = notifier.Setup(api, bot, languages, chatRepo)
 	if err != nil {
 		log.Fatalf("Error setting up notifier: %s\n", err)
 	}
+
+	// Set up pages, commands and buttons
+	pages.InitPages(chatRepo, userRepo, api, groupsCache, teachersList, languages)
+	buttons.InitButtons(chatRepo, userRepo, api, languages)
+	commands.InitCommands(chatRepo, userRepo, api, languages, groupsCache)
 }
 
 // Run starts the Bot.
@@ -200,126 +226,120 @@ func Run() {
 	// Start notifier
 	scheduler.StartAsync()
 
-	// Start updates loop
-	u := tgbotapi.NewUpdate(0)
-	u.Timeout = -1
-	updates := bot.GetUpdatesChan(u)
-
-	for update := range updates {
-		go HandleUpdate(&update)
+	// Start bot
+	err := updater.StartPolling(bot, &ext.PollingOpts{
+		DropPendingUpdates: true,
+		GetUpdatesOpts: &gotgbot.GetUpdatesOpts{
+			Timeout: 9,
+			RequestOpts: &gotgbot.RequestOpts{
+				Timeout: 10 * time.Second,
+			},
+		},
+	})
+	if err != nil {
+		log.Fatalf("Error starting polling: %s\n", err)
 	}
+
+	// Wait for SIGINT
+	updater.Idle()
 }
 
-func HandleUpdate(update *tgbotapi.Update) {
-	if update.Message == nil && update.CallbackQuery == nil {
-		return
-	}
-
-	// Handle panics
-	defer HandlePanics(update)
-
-	if err := utils.InitDatabaseRecords(update, chatRepo, userRepo); err != nil {
-		log.Errorf("Error initializing database records: %s\n", err)
-
-		lang, err := utils.GetLang("", languages)
-		if err != nil {
-			log.Errorf("Error getting language: %s\n", err)
-			errorhandler.SendErrorToTelegram(err, bot)
-		}
-
-		errorhandler.SendErrorToTelegram(err, bot)
-		errorhandler.SendErrorPageToChat(update, bot, lang)
-		return
-	}
-
-	chat, err := chatRepo.GetById(update.FromChat().ID)
-	if err != nil {
-		log.Errorf("Error getting chat: %s\n", err)
-		errorhandler.SendErrorToTelegram(err, bot)
-		return
-	}
-
-	lang, err := utils.GetLang(chat.LanguageCode, languages)
-	if err != nil {
-		log.Errorf("Error getting language: %s\n", err)
-		errorhandler.SendErrorToTelegram(err, bot)
-		return
-	}
-
-	if update.Message != nil {
-		// Handle command
-		err := HandleCommand(update)
-		if err != nil {
-			errorhandler.HandleError(err, update, bot, lang, chat, chatRepo)
-		}
-
-		// Save command to statistics
-		if update.Message.Command() != "" {
-			err = statLogger.LogCommand(
-				update.Message.Chat.ID,
-				update.Message.From.ID,
-				update.Message.MessageID,
-				update.Message.Command(),
-			)
-			if err != nil {
-				errorhandler.HandleError(err, update, bot, lang, chat, chatRepo)
-			}
-		}
-	}
-
-	if update.CallbackQuery != nil {
-		// Handle button
-		if err := HandleButtonClick(update); err != nil {
-			errorhandler.HandleError(err, update, bot, lang, chat, chatRepo)
-		}
-
-		// Save button click to statistics
-		err := statLogger.LogButtonClick(
-			update.CallbackQuery.Message.Chat.ID,
-			update.CallbackQuery.From.ID,
-			update.CallbackQuery.Message.MessageID,
-			update.CallbackQuery.Data,
-		)
-		if err != nil {
-			errorhandler.HandleError(err, update, bot, lang, chat, chatRepo)
-		}
-	}
-
-	log.Debug("Update processed")
+type OrderedMap[KT interface{}, VT interface{}] []struct {
+	Key   KT
+	Value VT
 }
 
-// HandlePanics handles panics in the code and sends them to the user.
-func HandlePanics(u *tgbotapi.Update) {
-	// Recover from panic
-	r := recover()
-	if r == nil {
-		return
+func setupDispatcherHandlers(dp *ext.Dispatcher) {
+	anyCommandFilter := func(m *gotgbot.Message) bool {
+		return strings.HasPrefix(m.Text, "/")
 	}
 
-	log.Errorf("Panic: %s\n%s", r, string(debug.Stack()))
-
-	// Get chat where the panic happened
-	chat := u.FromChat()
-
-	if chat != nil {
-		// Send error page to chat
-		chat, err := chatRepo.GetById(u.FromChat().ID)
-		if err != nil {
-			log.Errorf("Error getting chat: %s\n", err)
-			errorhandler.SendErrorToTelegram(err, bot)
-			return
-		}
-
-		lang, err := utils.GetLang(chat.LanguageCode, languages)
-		if err != nil {
-			log.Errorf("Error getting language: %s\n", err)
-			errorhandler.SendErrorToTelegram(err, bot)
-			return
-		}
-
-		errorhandler.SendErrorPageToChat(u, bot, lang)
+	anyCallbackFilter := func(cq *gotgbot.CallbackQuery) bool {
+		return true
 	}
 
-	// Send error to the developer
-	errorhandler.SendErrorToTelegram(fmt.Errorf("panic: %s\n%s", r, string(debug.Stack())), bot)
+	var buttonsMapping = OrderedMap[string, func(*gotgbot.Bot, *ext.Context) error]{
+		{"open.admin_panel", buttons.HandleAdminPanelButton},
+		{"open.calls", buttons.HandleCallsButton},
+		{"admin.clear_cache", buttons.HandleClearCacheButton},
+		{"admin.clear_logs", buttons.HandleClearLogsButton},
+		{"close_page", buttons.HandleClosePageButton},
+		{"open.info", buttons.HandleInfoButton},
+		{"open.left", buttons.HandleLeftButton},
+		{"open.menu", buttons.HandleMenuButton},
+		{"open.more", buttons.HandleMoreButton},
+		{"open.select_group", buttons.HandleOpenSelectGroupButton},
+		{"open.select_lang", buttons.HandleOpenSelectLanguageButton},
+		{"open.schedule.day", buttons.HandleScheduleDayButton},
+		{"open.schedule.extra", buttons.HandleScheduleExtraButton},
+		{"open.schedule.today", buttons.HandleScheduleTodayButton},
+		{"select.schedule.course", buttons.HandleSelectCourseButton},
+		{"select.schedule.faculty", buttons.HandleSelectFacultyButton},
+		{"select.schedule.group", buttons.HandleSelectGroupButton},
+		{"select.lang", buttons.HandleSelectLanguageButton},
+		{"select.schedule.structure", buttons.HandleSelectStructureButton},
+		{"admin.send_logs", buttons.HandleSendLogsButton},
+		{"set.cl_notif_next_part", buttons.HandleSetClassesNotificationsNextPartButton},
+		{"set.cl_notif", buttons.HandleSetClassesNotificationsButton},
+		{"open.settings", buttons.HandleSettingsButton},
+		{"open.students_list", buttons.HandleStudentsListButton},
+
+		// Note: buttons & commands is being handled by its query prefix.
+		// It means that it's dangerous to have multiple queries with the same prefix,
+		// like "set.cl_notif" and "set.cl_notif_next_part".
+	}
+
+	var commandsMapping = OrderedMap[string, func(*gotgbot.Bot, *ext.Context) error]{
+		{"calls", commands.HandleCallsCommand},
+		{"c", commands.HandleCallsCommand},
+		{"group", commands.HandleGroupCommand},
+		{"g", commands.HandleGroupCommand},
+		{"lang", commands.HandleLanguageCommand},
+		{"language", commands.HandleLanguageCommand},
+		{"left", commands.HandleLeftCommand},
+		{"l", commands.HandleLeftCommand},
+		{"settings", commands.HandleSettingsCommand},
+		{"start", commands.HandleStartCommand},
+		{"today", commands.HandleTodayCommand},
+		{"t", commands.HandleTodayCommand},
+		{"tomorrow", commands.HandleTomorrowCommand},
+		{"tt", commands.HandleTomorrowCommand},
+	}
+
+	// Here is handlers distribution by priority:
+	// Lower number = higher priority
+	// -20: Log update
+	// -10: Init database records
+	//   0: Buttons and commands
+	//  40: Save bot interaction to statistics
+
+	// Log update
+	dp.AddHandlerToGroup(handlers.NewMessage(anyCommandFilter, func(b *gotgbot.Bot, ctx *ext.Context) error {
+		log.Infof("Handling command %s from %s\n", ctx.EffectiveMessage.Text, ctx.EffectiveUser.FirstName)
+		return nil
+	}), -20)
+	dp.AddHandlerToGroup(handlers.NewCallback(anyCallbackFilter, func(b *gotgbot.Bot, ctx *ext.Context) error {
+		log.Infof("Handling button %s from %s\n", ctx.Update.CallbackQuery.Data, ctx.EffectiveUser.FirstName)
+		return nil
+	}), -20)
+
+	// Init database records
+	dp.AddHandlerToGroup(handlers.NewMessage(anyCommandFilter, InitDatabaseRecords), -10)
+	dp.AddHandlerToGroup(handlers.NewCallback(anyCallbackFilter, InitDatabaseRecords), -10)
+	// Save interaction to statistics
+	dp.AddHandlerToGroup(handlers.NewMessage(anyCommandFilter, CommandStatisticHandler), 40)
+	dp.AddHandlerToGroup(handlers.NewCallback(anyCallbackFilter, ButtonStatisticHandler), 40)
+
+	// Buttons
+	for _, entry := range buttonsMapping {
+		dp.AddHandlerToGroup(handlers.NewCallback(callbackquery.Prefix(entry.Key), entry.Value), 0)
+	}
+
+	// Commands
+	for _, entry := range commandsMapping {
+		dp.AddHandlerToGroup(handlers.NewCommand(entry.Key, entry.Value), 0)
+	}
+
+	// Unsupported button
+	dp.AddHandlerToGroup(handlers.NewCallback(anyCallbackFilter, buttons.HandleUnsupportedButton), 0)
 }

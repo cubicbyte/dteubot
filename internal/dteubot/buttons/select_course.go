@@ -24,19 +24,28 @@ package buttons
 
 import (
 	"errors"
-	"github.com/cubicbyte/dteubot/internal/dteubot/groupscache"
+	"github.com/PaulSonOfLars/gotgbot/v2"
+	"github.com/PaulSonOfLars/gotgbot/v2/ext"
 	"github.com/cubicbyte/dteubot/internal/dteubot/pages"
 	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
-	"github.com/cubicbyte/dteubot/internal/i18n"
-	"github.com/cubicbyte/dteubot/pkg/api"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"strconv"
 )
 
-func HandleSelectCourseButton(u *tgbotapi.Update, bot *tgbotapi.BotAPI, lang *i18n.Language, api2 api.IApi, groups *groupscache.Cache) error {
-	button := utils.ParseButtonData(u.CallbackQuery.Data)
+func HandleSelectCourseButton(bot *gotgbot.Bot, ctx *ext.Context) error {
+	// Get chat
+	chat, err := chatRepo.GetById(ctx.EffectiveChat.Id)
+	if err != nil {
+		return err
+	}
+
+	lang, err := utils.GetLang(chat.LanguageCode, languages)
+	if err != nil {
+		return err
+	}
 
 	// Get course, faculty id and structure id from button params
+	button := utils.ParseButtonData(ctx.CallbackQuery.Data)
+
 	course, ok := button.Params["course"]
 	if !ok {
 		return errors.New("course param not found")
@@ -64,6 +73,6 @@ func HandleSelectCourseButton(u *tgbotapi.Update, bot *tgbotapi.BotAPI, lang *i1
 	}
 
 	// Open groups list page
-	page, err := pages.CreateGroupsListPage(lang, facId, course2, structId, api2, groups)
-	return editPage(page, err, u, bot)
+	page, err := pages.CreateGroupsListPage(lang, facId, course2, structId)
+	return openPage(bot, ctx, page, err)
 }

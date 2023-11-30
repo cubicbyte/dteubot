@@ -20,43 +20,42 @@
  * SOFTWARE.
  */
 
-package buttons
+package errorhandler
 
 import (
+	"fmt"
 	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext"
-	"github.com/cubicbyte/dteubot/internal/logging"
+	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
+	"runtime/debug"
 )
 
-func HandleSendLogsButton(bot *gotgbot.Bot, ctx *ext.Context) error {
-	// Check if user is admin
-	user, err := userRepo.GetById(ctx.EffectiveUser.Id)
+// PanicsHandler handles panics in the code and sends them to the user.
+//
+// Implements the ext.DispatcherPanicHandler interface.
+func PanicsHandler(b *gotgbot.Bot, ctx *ext.Context, r interface{}) {
+	log.Errorf("Panic: %s\n%s", r, string(debug.Stack()))
+
+	if ctx.EffectiveChat == nil {
+		// Send error to the developer
+		SendErrorToTelegram(fmt.Errorf("panic: %s\n%s", r, string(debug.Stack())), b)
+		return
+	}
+
+	// Send error page to chat
+	chat, err := chatRepo.GetById(ctx.EffectiveChat.Id)
 	if err != nil {
-		return err
+		log.Errorf("Error getting chat: %s\n", err)
+		SendErrorToTelegram(err, b)
+		return
 	}
 
-	if !user.IsAdmin {
-		return nil
-	}
-
-	// Send "sending document" action
-	_, err = bot.SendChatAction(ctx.EffectiveChat.Id, "upload_document", nil)
+	lang, err := utils.GetLang(chat.LanguageCode, langs)
 	if err != nil {
-		return err
+		log.Errorf("Error getting language: %s\n", err)
+		SendErrorToTelegram(err, b)
+		return
 	}
 
-	// Send logs
-	_, err = bot.SendDocument(ctx.EffectiveChat.Id, logging.LogFile, &gotgbot.SendDocumentOpts{
-		Caption: "Logs",
-	})
-	if err != nil {
-		return err
-	}
-
-	// Create "done" alert
-	_, err = bot.AnswerCallbackQuery(ctx.CallbackQuery.Id, &gotgbot.AnswerCallbackQueryOpts{
-		Text: "Done",
-	})
-
-	return nil
+	SendErrorPageToChat(ctx, b, lang)
 }

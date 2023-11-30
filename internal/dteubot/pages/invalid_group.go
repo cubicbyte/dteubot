@@ -23,21 +23,26 @@
 package pages
 
 import (
+	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/cubicbyte/dteubot/internal/i18n"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
-func CreateInvalidGroupPage(lang *i18n.Language) (*Page, error) {
+func CreateInvalidGroupPage(lang i18n.Language) (Page, error) {
 	page := Page{
 		Text: lang.Page.InvalidGroup,
-		InlineKeyboard: tgbotapi.NewInlineKeyboardMarkup(
-			tgbotapi.NewInlineKeyboardRow(
-				tgbotapi.NewInlineKeyboardButtonData(lang.Button.SelectGroup, "open.select_group"),
-				tgbotapi.NewInlineKeyboardButtonData(lang.Button.Menu, "open.menu"),
-			),
-		),
+		ReplyMarkup: gotgbot.InlineKeyboardMarkup{
+			InlineKeyboard: [][]gotgbot.InlineKeyboardButton{
+				{{
+					Text:         lang.Button.SelectGroup,
+					CallbackData: "open.select_group",
+				}, {
+					Text:         lang.Button.Menu,
+					CallbackData: "open.menu",
+				}},
+			},
+		},
 		ParseMode: "MarkdownV2",
 	}
 
-	return &page, nil
+	return page, nil
 }

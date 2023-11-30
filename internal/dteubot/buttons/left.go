@@ -23,13 +23,23 @@
 package buttons
 
 import (
+	"github.com/PaulSonOfLars/gotgbot/v2"
+	"github.com/PaulSonOfLars/gotgbot/v2/ext"
 	"github.com/cubicbyte/dteubot/internal/dteubot/pages"
-	"github.com/cubicbyte/dteubot/internal/i18n"
-	"github.com/cubicbyte/dteubot/pkg/api"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
 )
 
-func HandleLeftButton(u *tgbotapi.Update, bot *tgbotapi.BotAPI, lang *i18n.Language, groupId int, api2 api.IApi) error {
-	page, err := pages.CreateLeftPage(lang, groupId, "open.more#from=left", api2)
-	return editPage(page, err, u, bot)
+func HandleLeftButton(bot *gotgbot.Bot, ctx *ext.Context) error {
+	chat, err := chatRepo.GetById(ctx.EffectiveChat.Id)
+	if err != nil {
+		return err
+	}
+
+	lang, err := utils.GetLang(chat.LanguageCode, languages)
+	if err != nil {
+		return err
+	}
+
+	page, err := pages.CreateLeftPage(lang, chat.GroupId, "open.more#from=left")
+	return openPage(bot, ctx, page, err)
 }

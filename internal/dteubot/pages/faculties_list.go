@@ -23,48 +23,54 @@
 package pages
 
 import (
+	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/cubicbyte/dteubot/internal/i18n"
-	"github.com/cubicbyte/dteubot/pkg/api"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"strconv"
 )
 
-func CreateFacultiesListPage(lang *i18n.Language, structureId int, api2 api.IApi) (*Page, error) {
-	faculties, err := api2.GetFaculties(structureId)
+func CreateFacultiesListPage(lang i18n.Language, structureId int) (Page, error) {
+	faculties, err := api.GetFaculties(structureId)
 	if err != nil {
-		return nil, err
+		return Page{}, err
 	}
 
-	structures, err := api2.GetStructures()
+	structures, err := api.GetStructures()
 	if err != nil {
-		return nil, err
+		return Page{}, err
 	}
 
 	// Create back button: if structures list <= 1, go back to menu, else go back to structures list
-	var backButton tgbotapi.InlineKeyboardButton
+	var backButton gotgbot.InlineKeyboardButton
 	if len(structures) <= 1 {
 		// Back button = menu
-		backButton = tgbotapi.NewInlineKeyboardButtonData(lang.Button.Back, "open.menu#from=group_select")
+		backButton = gotgbot.InlineKeyboardButton{
+			Text:         lang.Button.Back,
+			CallbackData: "open.menu#from=group_select",
+		}
 	} else {
-		// Back button = structures list
-		backButton = tgbotapi.NewInlineKeyboardButtonData(lang.Button.Back, "open.select_group")
+		// Back button = group selection
+		backButton = gotgbot.InlineKeyboardButton{
+			Text:         lang.Button.Back,
+			CallbackData: "open.select_group",
+		}
 	}
 
-	buttons := make([][]tgbotapi.InlineKeyboardButton, len(faculties)+1)
-	buttons[0] = tgbotapi.NewInlineKeyboardRow(backButton)
+	buttons := make([][]gotgbot.InlineKeyboardButton, len(faculties)+1)
+	buttons[0] = []gotgbot.InlineKeyboardButton{backButton}
 
 	for i, faculty := range faculties {
 		query := "select.schedule.faculty#facultyId=" + strconv.Itoa(faculty.Id) + "&structureId=" + strconv.Itoa(structureId)
-		buttons[i+1] = tgbotapi.NewInlineKeyboardRow(
-			tgbotapi.NewInlineKeyboardButtonData(faculty.FullName, query),
-		)
+		buttons[i+1] = []gotgbot.InlineKeyboardButton{{
+			Text:         faculty.FullName,
+			CallbackData: query,
+		}}
 	}
 
 	page := Page{
-		Text:           lang.Page.FacultySelection,
-		InlineKeyboard: tgbotapi.NewInlineKeyboardMarkup(buttons...),
-		ParseMode:      "MarkdownV2",
+		Text:        lang.Page.FacultySelection,
+		ReplyMarkup: gotgbot.InlineKeyboardMarkup{InlineKeyboard: buttons},
+		ParseMode:   "MarkdownV2",
 	}
 
-	return &page, nil
+	return page, nil
 }

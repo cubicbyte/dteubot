@@ -24,18 +24,29 @@ package buttons
 
 import (
 	"errors"
+	"github.com/PaulSonOfLars/gotgbot/v2"
+	"github.com/PaulSonOfLars/gotgbot/v2/ext"
 	"github.com/cubicbyte/dteubot/internal/dteubot/pages"
 	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
-	"github.com/cubicbyte/dteubot/internal/i18n"
-	"github.com/cubicbyte/dteubot/pkg/api"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"strconv"
 )
 
-func HandleSelectStructureButton(u *tgbotapi.Update, bot *tgbotapi.BotAPI, lang *i18n.Language, api2 api.IApi) error {
-	button := utils.ParseButtonData(u.CallbackQuery.Data)
+func HandleSelectStructureButton(bot *gotgbot.Bot, ctx *ext.Context) error {
+	// Get chat
+	chat, err := chatRepo.GetById(ctx.EffectiveChat.Id)
+	if err != nil {
+		return err
+	}
+
+	// Get language
+	lang, err := utils.GetLang(chat.LanguageCode, languages)
+	if err != nil {
+		return err
+	}
 
 	// Get structure id from button params
+	button := utils.ParseButtonData(ctx.CallbackQuery.Data)
+
 	structureId, ok := button.Params["structureId"]
 	if !ok {
 		return errors.New("structureId param not found")
@@ -47,6 +58,6 @@ func HandleSelectStructureButton(u *tgbotapi.Update, bot *tgbotapi.BotAPI, lang 
 	}
 
 	// Open faculties list page
-	page, err := pages.CreateFacultiesListPage(lang, structId, api2)
-	return editPage(page, err, u, bot)
+	page, err := pages.CreateFacultiesListPage(lang, structId)
+	return openPage(bot, ctx, page, err)
 }

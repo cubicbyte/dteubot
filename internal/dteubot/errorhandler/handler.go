@@ -25,16 +25,19 @@ package errorhandler
 import (
 	"errors"
 	"fmt"
+	"github.com/PaulSonOfLars/gotgbot/v2"
+	"github.com/PaulSonOfLars/gotgbot/v2/ext"
 	"github.com/cubicbyte/dteubot/internal/data"
 	"github.com/cubicbyte/dteubot/internal/dteubot/pages"
+	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
 	"github.com/cubicbyte/dteubot/internal/i18n"
 	"github.com/cubicbyte/dteubot/pkg/api"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/op/go-logging"
 	"github.com/sirkon/go-format/v2"
 	"net/http"
 	"net/url"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -45,54 +48,67 @@ const ErrorSendDelay = time.Second * 5
 var log = logging.MustGetLogger("ErrorHandler")
 var lastErrorTime time.Time
 
-func HandleError(err error, update *tgbotapi.Update, bot *tgbotapi.BotAPI, lang *i18n.Language, chat *data.Chat, chatRepo data.ChatRepository) {
+var (
+	langs    map[string]i18n.Language
+	chatRepo data.ChatRepository
+)
+
+// Setup sets up error handler
+func Setup(langs2 map[string]i18n.Language, chatRepo2 data.ChatRepository) {
+	langs = langs2
+	chatRepo = chatRepo2
+}
+
+func HandleError(b *gotgbot.Bot, ctx *ext.Context, err error) ext.DispatcherAction {
+	if err == nil {
+		return ext.DispatcherActionNoop
+	}
+
 	var urlError *url.Error
 	var httpApiError *api.HTTPApiError
-	var tgError *tgbotapi.Error
+	var tgError *gotgbot.TelegramError
+
+	// Get update chat data
+	if ctx.EffectiveChat == nil {
+		log.Errorf("Error %T with no chat: %s", err, err)
+		SendErrorToTelegram(err, b)
+		return ext.DispatcherActionEndGroups
+	}
+
+	chatData, err2 := chatRepo.GetById(ctx.EffectiveChat.Id)
+	if err2 != nil {
+		log.Errorf("Error getting chat data: %s", err2)
+		SendErrorToTelegram(err2, b)
+		return ext.DispatcherActionNoop
+	}
+
+	// Get chat language
+	lang, err2 := utils.GetLang(chatData.LanguageCode, langs)
+	if err2 != nil {
+		log.Errorf("Error getting language: %s", err2)
+		SendErrorToTelegram(err2, b)
+		return ext.DispatcherActionNoop
+	}
 
 	switch {
 	case errors.As(err, &urlError):
 		// Can't make request to the university API
 
-		chat := update.FromChat()
-		if chat == nil {
-			// Api error with no chat
-			log.Errorf("Api request error with no chat: %s", err)
-			SendErrorToTelegram(err, bot)
-			break
-		}
-
+		// Send "API unavailable" page
 		page, err := pages.CreateApiUnavailablePage(lang)
 		if err != nil {
 			log.Errorf("Error creating api unavailable page: %s", err)
-			SendErrorToTelegram(err, bot)
+			SendErrorToTelegram(err, b)
 			break
 		}
 
-		if update.CallbackQuery != nil {
-			_, err = bot.Send(page.CreateEditMessage(update.CallbackQuery.Message.Chat.ID, update.CallbackQuery.Message.MessageID))
-		} else {
-			_, err = bot.Send(page.CreateMessage(chat.ID))
-		}
-
-		if err != nil {
-			log.Errorf("Error sending api unavailable page: %s", err)
-			SendErrorToTelegram(err, bot)
-		}
+		SendPageToChat(ctx, b, &page)
 	case errors.As(err, &httpApiError):
 		// Non-200 api status code
 
-		chat := update.FromChat()
-		if chat == nil {
-			// Api error with no chat
-			log.Errorf("Api error with no chat: %s", err)
-			SendErrorToTelegram(err, bot)
-			break
-		}
-
 		log.Warningf("Api %d error: %s", httpApiError.Code, httpApiError.Body)
 
-		var page *pages.Page
+		var page = pages.Page{}
 		var pageErr error
 
 		switch httpApiError.Code {
@@ -118,14 +134,14 @@ func HandleError(err error, update *tgbotapi.Update, bot *tgbotapi.BotAPI, lang 
 					// Unknown field
 					page, pageErr = pages.CreateErrorPage(lang)
 					log.Errorf("Unknown validation error field: %s", field.Field)
-					SendErrorToTelegram(err, bot)
+					SendErrorToTelegram(err, b)
 				}
 			}
-			if page == nil {
+			if page.Text == "" {
 				// No fields in ValidationError
 				page, pageErr = pages.CreateErrorPage(lang)
 				log.Errorf("No fields in ValidationError: %s", err)
-				SendErrorToTelegram(err, bot)
+				SendErrorToTelegram(err, b)
 			}
 
 		default:
@@ -134,26 +150,17 @@ func HandleError(err error, update *tgbotapi.Update, bot *tgbotapi.BotAPI, lang 
 
 			if httpApiError.Code/100 != 5 {
 				log.Errorf("Unknown API http status code %d: %s", httpApiError.Code, httpApiError.Body)
-				SendErrorToTelegram(err, bot)
+				SendErrorToTelegram(err, b)
 			}
 		}
 
 		if pageErr != nil {
 			log.Errorf("Error creating HTTPApiError page: %s", pageErr)
-			SendErrorToTelegram(pageErr, bot)
+			SendErrorToTelegram(pageErr, b)
 			break
 		}
 
-		if update.CallbackQuery != nil {
-			_, err = bot.Send(page.CreateEditMessage(update.CallbackQuery.Message.Chat.ID, update.CallbackQuery.Message.MessageID))
-		} else {
-			_, err = bot.Send(page.CreateMessage(chat.ID))
-		}
-
-		if err != nil {
-			log.Errorf("Error sending HTTPApiError page: %s", err)
-			SendErrorToTelegram(err, bot)
-		}
+		SendPageToChat(ctx, b, &page)
 
 	case errors.As(err, &tgError):
 		// Telegram API error
@@ -161,45 +168,49 @@ func HandleError(err error, update *tgbotapi.Update, bot *tgbotapi.BotAPI, lang 
 		case 403:
 			// User blocked bot
 			// Set chat data "accessible" to false
-			chat.Accessible = false
-			err = chatRepo.Update(chat)
+			chatData.Accessible = false
+			err = chatRepo.Update(chatData)
 			if err != nil {
 				log.Errorf("Error updating chat data: %s", err)
-				SendErrorToTelegram(err, bot)
+				SendErrorToTelegram(err, b)
 				break
 			}
 		case 420:
 			// Flood control exceeded
-			log.Warningf("Flood control exceeded, retry after %d: %s", tgError.RetryAfter, err)
+			log.Warningf("Flood control exceeded, retry after %d: %s", tgError.ResponseParams.RetryAfter, err)
 
 			// Send alert to chat
-			if update.CallbackQuery == nil {
+			if ctx.CallbackQuery == nil {
 				// Can't edit message
 				break
 			}
 
-			text := format.Formatp(lang.Alert.FloodControl, tgError.ResponseParameters.RetryAfter)
-			_, err = bot.Request(tgbotapi.NewCallbackWithAlert(update.CallbackQuery.ID, text))
+			text := format.Formatp(lang.Alert.FloodControl, tgError.ResponseParams.RetryAfter)
+			_, err = b.AnswerCallbackQuery(ctx.CallbackQuery.Id, &gotgbot.AnswerCallbackQueryOpts{
+				Text: text,
+			})
+
 			if err != nil {
 				log.Errorf("Error sending flood control alert: %s", err)
 				break
 			}
 		case 400:
 			// Bad request
-			if strings.HasPrefix(tgError.Message, "Bad Request: message is not modified") {
+			// TODO: test this
+			if strings.HasPrefix(tgError.Description, "Bad Request: message is not modified") {
 				// We are trying to edit message with no changes,
 				// probably because of lag. Just send warning to log.
 				log.Warningf("Message is not modified: %s", err)
 				break
 			}
 
-			if strings.HasPrefix(tgError.Message, "Bad Request: message to edit not found") {
+			if strings.HasPrefix(tgError.Description, "Bad Request: message to edit not found") {
 				// Message to edit not found
 				log.Warningf("Message to edit not found: %s", err)
 				break
 			}
 
-			if strings.HasPrefix(tgError.Message, "Bad Request: message can't be deleted for everyone") {
+			if strings.HasPrefix(tgError.Description, "Bad Request: message can't be deleted for everyone") {
 				// We are trying to delete message that is older than 48 hours
 				log.Warningf("Message can't be deleted for everyone: %s", err)
 				break
@@ -207,49 +218,58 @@ func HandleError(err error, update *tgbotapi.Update, bot *tgbotapi.BotAPI, lang 
 
 			// Unknown Telegram API error
 			log.Errorf("Unknown bad request error: %s", err)
-			SendErrorToTelegram(err, bot)
-			SendErrorPageToChat(update, bot, lang)
+			SendErrorToTelegram(err, b)
+			SendErrorPageToChat(ctx, b, lang)
 
 		default:
 			// Unknown Telegram API error
 			log.Errorf("Unknown Telegram API %d error: %s", tgError.Code, err)
-			SendErrorToTelegram(err, bot)
-			SendErrorPageToChat(update, bot, lang)
+			SendErrorToTelegram(err, b)
+			SendErrorPageToChat(ctx, b, lang)
 		}
 
 	default:
 		// Unknown error
-		log.Errorf("Unknown error: %s", err)
-		SendErrorToTelegram(err, bot)
-		SendErrorPageToChat(update, bot, lang)
+		log.Errorf("Unknown error: %s", err.Error())
+		SendErrorToTelegram(err, b)
+		SendErrorPageToChat(ctx, b, lang)
 	}
+
+	return ext.DispatcherActionEndGroups
 }
 
-func SendErrorToTelegram(err error, bot *tgbotapi.BotAPI) {
+func SendErrorToTelegram(err error, bot *gotgbot.Bot) {
 	// Don't send errors too often
 	if time.Since(lastErrorTime) < ErrorSendDelay {
 		return
 	}
 
-	chatId := os.Getenv("LOG_CHAT_ID")
-	if chatId == "" {
+	// Get chat id to send error to
+	chatIdStr := os.Getenv("LOG_CHAT_ID")
+	if chatIdStr == "" {
 		return
 	}
 
-	errStr := fmt.Sprintf("Error %T: %s", err, err)
+	chatId, err := strconv.ParseInt(chatIdStr, 10, 64)
+	if err != nil {
+		log.Errorf("Error parsing LOG_CHAT_ID: %s", err)
+		return
+	}
 
 	// Send error to Telegram
-	_, err2 := bot.Send(tgbotapi.NewMessageToChannel(chatId, errStr))
+	errStr := fmt.Sprintf("Error %T: %s", err, err)
+
+	_, err2 := bot.SendMessage(chatId, errStr, nil)
 	if err2 != nil {
-		// Nothing we can do here, just log the error
 		log.Errorf("Error sending error to Telegram: %s", err)
 	}
 
 	lastErrorTime = time.Now()
 }
 
-func SendErrorPageToChat(update *tgbotapi.Update, bot *tgbotapi.BotAPI, lang *i18n.Language) {
-	if update.FromChat() == nil {
+func SendErrorPageToChat(ctx2 *ext.Context, bot *gotgbot.Bot, lang i18n.Language) {
+	if ctx2.EffectiveChat == nil {
+		log.Errorf("Error sending error page: no chat")
 		return
 	}
 
@@ -260,15 +280,24 @@ func SendErrorPageToChat(update *tgbotapi.Update, bot *tgbotapi.BotAPI, lang *i1
 		return
 	}
 
-	if update.CallbackQuery != nil {
-		_, err = bot.Send(page.CreateEditMessage(update.CallbackQuery.Message.Chat.ID, update.CallbackQuery.Message.MessageID))
+	SendPageToChat(ctx2, bot, &page)
+}
+
+// SendPageToChat sends the given page to the chat of the given update.
+// It either edits the message or sends a new one.
+func SendPageToChat(ctx2 *ext.Context, bot *gotgbot.Bot, page *pages.Page) {
+	var err error
+
+	if ctx2.CallbackQuery != nil {
+		opts := page.CreateEditMessageOpts(ctx2.EffectiveChat.Id, ctx2.EffectiveMessage.MessageId)
+		_, _, err = bot.EditMessageText(page.Text, &opts)
 	} else {
-		_, err = bot.Send(page.CreateMessage(update.FromChat().ID))
+		opts := page.CreateSendMessageOpts()
+		_, err = bot.SendMessage(ctx2.EffectiveChat.Id, page.Text, &opts)
 	}
 
 	if err != nil {
-		log.Errorf("Error sending error page: %s", err)
+		log.Errorf("Error sending page: %s", err)
 		SendErrorToTelegram(err, bot)
-		return
 	}
 }

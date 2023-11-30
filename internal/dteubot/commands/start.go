@@ -23,17 +23,33 @@
 package commands
 
 import (
-	"github.com/cubicbyte/dteubot/internal/data"
+	"github.com/PaulSonOfLars/gotgbot/v2"
+	"github.com/PaulSonOfLars/gotgbot/v2/ext"
 	"github.com/cubicbyte/dteubot/internal/dteubot/pages"
-	"github.com/cubicbyte/dteubot/internal/i18n"
-	"github.com/cubicbyte/dteubot/pkg/api"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
+	"strings"
 )
 
-func HandleStartCommand(u *tgbotapi.Update, bot *tgbotapi.BotAPI, lang *i18n.Language, user *data.User, userRepo data.UserRepository, api2 api.IApi) error {
+func HandleStartCommand(bot *gotgbot.Bot, ctx *ext.Context) error {
+	// Get chat and user
+	chat, err := chatRepo.GetById(ctx.EffectiveChat.Id)
+	if err != nil {
+		return err
+	}
+
+	user, err := userRepo.GetById(ctx.EffectiveUser.Id)
+	if err != nil {
+		return err
+	}
+
+	lang, err := utils.GetLang(chat.LanguageCode, languages)
+	if err != nil {
+		return err
+	}
+
 	// Register referral if available
-	if user.Referral == "" && u.Message.CommandArguments() != "" {
-		user.Referral = u.Message.CommandArguments()
+	if user.Referral == "" && strings.Contains(ctx.EffectiveMessage.Text, " ") {
+		user.Referral = strings.SplitN(ctx.EffectiveMessage.Text, " ", 2)[1]
 		if err := userRepo.Update(user); err != nil {
 			return err
 		}
@@ -44,29 +60,32 @@ func HandleStartCommand(u *tgbotapi.Update, bot *tgbotapi.BotAPI, lang *i18n.Lan
 	if err != nil {
 		return err
 	}
-	_, err = bot.Send(greeting.CreateMessage(u.FromChat().ID))
+
+	opts := greeting.CreateSendMessageOpts()
+	_, err = bot.SendMessage(ctx.EffectiveChat.Id, greeting.Text, &opts)
 	if err != nil {
 		return err
 	}
 
 	// Send group selection page
-	structures, err := api2.GetStructures()
+	structures, err := api.GetStructures()
 	if err != nil {
 		return err
 	}
 
-	var groupSelection *pages.Page
+	var groupSelection pages.Page
 	if len(structures) == 1 {
-		groupSelection, err = pages.CreateFacultiesListPage(lang, structures[0].Id, api2)
+		groupSelection, err = pages.CreateFacultiesListPage(lang, structures[0].Id)
 	} else {
-		groupSelection, err = pages.CreateStructuresListPage(lang, api2)
+		groupSelection, err = pages.CreateStructuresListPage(lang)
 	}
 
 	if err != nil {
 		return err
 	}
 
-	_, err = bot.Send(groupSelection.CreateMessage(u.FromChat().ID))
+	opts = groupSelection.CreateSendMessageOpts()
+	_, err = bot.SendMessage(ctx.EffectiveChat.Id, groupSelection.Text, &opts)
 	if err != nil {
 		return err
 	}

@@ -23,11 +23,11 @@
 package pages
 
 import (
+	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/cubicbyte/dteubot/internal/dteubot/teachers"
 	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
 	"github.com/cubicbyte/dteubot/internal/i18n"
 	api2 "github.com/cubicbyte/dteubot/pkg/api"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/op/go-logging"
 	"github.com/sirkon/go-format/v2"
 	"strconv"
@@ -43,18 +43,18 @@ var log = logging.MustGetLogger("Bot")
 
 const ScheduleDateRange = 14
 
-func CreateSchedulePage(lang *i18n.Language, groupId int, date string, api api2.IApi, teachersList *teachers.TeachersList) (*Page, error) {
+func CreateSchedulePage(lang i18n.Language, groupId int, date string) (Page, error) {
 	date_, err := api2.ParseISODate(date)
 	if err != nil {
-		return nil, err
+		return Page{}, err
 	}
 
 	day, err := api.GetGroupScheduleDay(groupId, date)
 	if err != nil {
-		return nil, err
+		return Page{}, err
 	}
 
-	var buttons tgbotapi.InlineKeyboardMarkup
+	var buttons gotgbot.InlineKeyboardMarkup
 	var pageText string
 
 	if isNoLessons(day) {
@@ -69,7 +69,7 @@ func CreateSchedulePage(lang *i18n.Language, groupId int, date string, api api2.
 		// Create empty schedule page
 		skipLeft, skipRight, err := ScanEmptyDays(schedule, date_)
 		if err != nil {
-			return nil, err
+			return Page{}, err
 		}
 
 		if skipLeft == 0 {
@@ -98,39 +98,36 @@ func CreateSchedulePage(lang *i18n.Language, groupId int, date string, api api2.
 			pageText = format.Formatp(lang.Page.ScheduleEmptyDay, getLocalizedDate(lang, date_))
 		}
 
-		buttons = tgbotapi.NewInlineKeyboardMarkup(
-			tgbotapi.NewInlineKeyboardRow(
-				tgbotapi.NewInlineKeyboardButtonData(
-					lang.Button.ScheduleNavigationPreviousDay,
-					"open.schedule.day#date="+prevDayDate.Format("2006-01-02"),
-				),
-				tgbotapi.NewInlineKeyboardButtonData(
-					lang.Button.ScheduleNavigationNextDay,
-					"open.schedule.day#date="+nextDayDate.Format("2006-01-02"),
-				),
-			),
-			tgbotapi.NewInlineKeyboardRow(
-				tgbotapi.NewInlineKeyboardButtonData(
-					lang.Button.ScheduleNavigationPreviousWeek,
-					"open.schedule.day#date="+prevWeekDate.Format("2006-01-02"),
-				),
-				tgbotapi.NewInlineKeyboardButtonData(
-					lang.Button.ScheduleNavigationNextWeek,
-					"open.schedule.day#date="+nextWeekDate.Format("2006-01-02"),
-				),
-			),
-			tgbotapi.NewInlineKeyboardRow(
-				tgbotapi.NewInlineKeyboardButtonData(lang.Button.Menu, "open.menu"),
-			),
-		)
+		buttons = gotgbot.InlineKeyboardMarkup{
+			InlineKeyboard: [][]gotgbot.InlineKeyboardButton{
+				{{
+					Text:         lang.Button.ScheduleNavigationPreviousDay,
+					CallbackData: "open.schedule.day#date=" + prevDayDate.Format("2006-01-02"),
+				}, {
+					Text:         lang.Button.ScheduleNavigationNextDay,
+					CallbackData: "open.schedule.day#date=" + nextDayDate.Format("2006-01-02"),
+				}},
+				{{
+					Text:         lang.Button.ScheduleNavigationPreviousWeek,
+					CallbackData: "open.schedule.day#date=" + prevWeekDate.Format("2006-01-02"),
+				}, {
+					Text:         lang.Button.ScheduleNavigationNextWeek,
+					CallbackData: "open.schedule.day#date=" + nextWeekDate.Format("2006-01-02"),
+				}},
+				{{
+					Text:         lang.Button.Menu,
+					CallbackData: "open.menu",
+				}},
+			},
+		}
 
 		if enableTodayButton {
 			buttons.InlineKeyboard[len(buttons.InlineKeyboard)-1] = append(
 				buttons.InlineKeyboard[len(buttons.InlineKeyboard)-1],
-				tgbotapi.NewInlineKeyboardButtonData(
-					lang.Button.ScheduleNavigationToday,
-					"open.schedule.today",
-				),
+				gotgbot.InlineKeyboardButton{
+					Text:         lang.Button.ScheduleNavigationToday,
+					CallbackData: "open.schedule.today",
+				},
 			)
 		}
 	} else {
@@ -144,12 +141,12 @@ func CreateSchedulePage(lang *i18n.Language, groupId int, date string, api api2.
 				lessonIcon := utils.GetLessonIcon(period.Type)
 
 				pageText += format.Formatm(format_, format.Values{
-					"timeStart":           utils.EscapeText(tgbotapi.ModeMarkdownV2, period.TimeStart),
-					"timeEnd":             utils.EscapeText(tgbotapi.ModeMarkdownV2, period.TimeEnd),
-					"disciplineShortName": utils.EscapeText(tgbotapi.ModeMarkdownV2, period.DisciplineShortName),
-					"typeStr":             utils.EscapeText(tgbotapi.ModeMarkdownV2, period.TypeStr),
-					"lessonNumber":        utils.EscapeText(tgbotapi.ModeMarkdownV2, lessonNumber),
-					"classroom":           utils.EscapeText(tgbotapi.ModeMarkdownV2, period.Classroom),
+					"timeStart":           utils.EscapeMarkdownV2(period.TimeStart),
+					"timeEnd":             utils.EscapeMarkdownV2(period.TimeEnd),
+					"disciplineShortName": utils.EscapeMarkdownV2(period.DisciplineShortName),
+					"typeStr":             utils.EscapeMarkdownV2(period.TypeStr),
+					"lessonNumber":        utils.EscapeMarkdownV2(lessonNumber),
+					"classroom":           utils.EscapeMarkdownV2(period.Classroom),
 					"teachersNameFull":    getTeacher(period.TeachersNameFull, teachersList),
 					"lessonIcon":          lessonIcon,
 				})
@@ -165,40 +162,37 @@ func CreateSchedulePage(lang *i18n.Language, groupId int, date string, api api2.
 		prevWeekDate := date_.AddDate(0, 0, -7)
 		nextWeekDate := date_.AddDate(0, 0, 7)
 
-		buttons = tgbotapi.NewInlineKeyboardMarkup(
-			tgbotapi.NewInlineKeyboardRow(
-				tgbotapi.NewInlineKeyboardButtonData(
-					lang.Button.ScheduleNavigationPreviousDay,
-					"open.schedule.day#date="+prevDayDate.Format("2006-01-02"),
-				),
-				tgbotapi.NewInlineKeyboardButtonData(
-					lang.Button.ScheduleNavigationNextDay,
-					"open.schedule.day#date="+nextDayDate.Format("2006-01-02"),
-				),
-			),
-			tgbotapi.NewInlineKeyboardRow(
-				tgbotapi.NewInlineKeyboardButtonData(
-					lang.Button.ScheduleNavigationPreviousWeek,
-					"open.schedule.day#date="+prevWeekDate.Format("2006-01-02"),
-				),
-				tgbotapi.NewInlineKeyboardButtonData(
-					lang.Button.ScheduleNavigationNextWeek,
-					"open.schedule.day#date="+nextWeekDate.Format("2006-01-02"),
-				),
-			),
-			tgbotapi.NewInlineKeyboardRow(
-				tgbotapi.NewInlineKeyboardButtonData(lang.Button.Menu, "open.menu"),
-			),
-		)
+		buttons = gotgbot.InlineKeyboardMarkup{
+			InlineKeyboard: [][]gotgbot.InlineKeyboardButton{
+				{{
+					Text:         lang.Button.ScheduleNavigationPreviousDay,
+					CallbackData: "open.schedule.day#date=" + prevDayDate.Format("2006-01-02"),
+				}, {
+					Text:         lang.Button.ScheduleNavigationNextDay,
+					CallbackData: "open.schedule.day#date=" + nextDayDate.Format("2006-01-02"),
+				}},
+				{{
+					Text:         lang.Button.ScheduleNavigationPreviousWeek,
+					CallbackData: "open.schedule.day#date=" + prevWeekDate.Format("2006-01-02"),
+				}, {
+					Text:         lang.Button.ScheduleNavigationNextWeek,
+					CallbackData: "open.schedule.day#date=" + nextWeekDate.Format("2006-01-02"),
+				}},
+				{{
+					Text:         lang.Button.Menu,
+					CallbackData: "open.menu",
+				}},
+			},
+		}
 
 		// Add today button if needed
 		if date != time.Now().Format("2006-01-02") {
 			buttons.InlineKeyboard[len(buttons.InlineKeyboard)-1] = append(
 				buttons.InlineKeyboard[len(buttons.InlineKeyboard)-1],
-				tgbotapi.NewInlineKeyboardButtonData(
-					lang.Button.ScheduleNavigationToday,
-					"open.schedule.today",
-				),
+				gotgbot.InlineKeyboardButton{
+					Text:         lang.Button.ScheduleNavigationToday,
+					CallbackData: "open.schedule.today",
+				},
 			)
 		}
 
@@ -206,14 +200,12 @@ func CreateSchedulePage(lang *i18n.Language, groupId int, date string, api api2.
 		if CheckExtraText(day) {
 			// Add to the start
 			buttons.InlineKeyboard = append(
-				tgbotapi.NewInlineKeyboardMarkup(
-					tgbotapi.NewInlineKeyboardRow(
-						tgbotapi.NewInlineKeyboardButtonData(
-							lang.Button.ScheduleExtra,
-							"open.schedule.extra#date="+date,
-						),
-					),
-				).InlineKeyboard,
+				[][]gotgbot.InlineKeyboardButton{
+					{{
+						Text:         lang.Button.ScheduleExtra,
+						CallbackData: "open.schedule.extra#date=" + date,
+					}},
+				},
 				buttons.InlineKeyboard...,
 			)
 		}
@@ -223,12 +215,12 @@ func CreateSchedulePage(lang *i18n.Language, groupId int, date string, api api2.
 
 	page := Page{
 		Text:                  pageText,
-		InlineKeyboard:        buttons,
+		ReplyMarkup:           buttons,
 		ParseMode:             "MarkdownV2",
 		DisableWebPagePreview: true,
 	}
 
-	return &page, nil
+	return page, nil
 }
 
 // isNoLessons checks if there are no lessons in the given day
@@ -254,7 +246,7 @@ func getTeacher(teachersNameFull string, teachersList *teachers.TeachersList) st
 	teacher = firstTeacher
 
 	// Escape markdown
-	teacher = utils.EscapeText(tgbotapi.ModeMarkdownV2, teacher)
+	teacher = utils.EscapeMarkdownV2(teacher)
 
 	// Get teacher profile link
 	profileLink, ok := teachersList.GetLink(firstTeacher)
@@ -343,7 +335,7 @@ func CountNoLessonsDays(days []api2.TimeTableDate, date time.Time, directionRigh
 	return count, nil
 }
 
-func getLocalizedDate(lang *i18n.Language, date time.Time) string {
+func getLocalizedDate(lang i18n.Language, date time.Time) string {
 	// No better way to do this if lang is a struct
 	var month string
 	switch date.Month() {

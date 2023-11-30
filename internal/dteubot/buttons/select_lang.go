@@ -24,18 +24,22 @@ package buttons
 
 import (
 	"errors"
-	"github.com/cubicbyte/dteubot/internal/data"
-	"github.com/cubicbyte/dteubot/internal/dteubot/groupscache"
+	"github.com/PaulSonOfLars/gotgbot/v2"
+	"github.com/PaulSonOfLars/gotgbot/v2/ext"
 	"github.com/cubicbyte/dteubot/internal/dteubot/pages"
 	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
-	"github.com/cubicbyte/dteubot/internal/i18n"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
-func HandleSelectLanguageButton(u *tgbotapi.Update, bot *tgbotapi.BotAPI, lang *i18n.Language, langs map[string]i18n.Language, chat *data.Chat, chatRepo data.ChatRepository, groups *groupscache.Cache) error {
-	button := utils.ParseButtonData(u.CallbackQuery.Data)
+func HandleSelectLanguageButton(bot *gotgbot.Bot, ctx *ext.Context) error {
+	// Get chat
+	chat, err := chatRepo.GetById(ctx.EffectiveChat.Id)
+	if err != nil {
+		return err
+	}
 
 	// Get language code from button params
+	button := utils.ParseButtonData(ctx.CallbackQuery.Data)
+
 	langCode, ok := button.Params["lang"]
 	if !ok {
 		return errors.New("lang param not found")
@@ -43,25 +47,30 @@ func HandleSelectLanguageButton(u *tgbotapi.Update, bot *tgbotapi.BotAPI, lang *
 
 	// Go back to settings if user selected the same language
 	if langCode == chat.LanguageCode {
-		page, err := pages.CreateSettingsPage(lang, chat, chatRepo, groups)
-		return editPage(page, err, u, bot)
+		lang, err := utils.GetLang(chat.LanguageCode, languages)
+		if err != nil {
+			return err
+		}
+
+		page, err := pages.CreateSettingsPage(lang, chat)
+		return openPage(bot, ctx, page, err)
 	}
 
 	// Update chat language
 	chat.LanguageCode = langCode
 
-	err := chatRepo.Update(chat)
+	err = chatRepo.Update(chat)
 	if err != nil {
 		return err
 	}
 
-	// Get new language
-	lang, err = utils.GetLang(langCode, langs)
+	// Get language
+	lang, err := utils.GetLang(langCode, languages)
 	if err != nil {
 		return err
 	}
 
 	// Update page
-	page, err := pages.CreateLanguageSelectionPage(lang, langs, "open.settings#from=select_lang")
-	return editPage(page, err, u, bot)
+	page, err := pages.CreateLanguageSelectionPage(lang, "open.settings#from=select_lang")
+	return openPage(bot, ctx, page, err)
 }

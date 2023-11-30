@@ -24,40 +24,51 @@ package buttons
 
 import (
 	"errors"
+	"github.com/PaulSonOfLars/gotgbot/v2"
+	"github.com/PaulSonOfLars/gotgbot/v2/ext"
 	"github.com/cubicbyte/dteubot/internal/data"
 	"github.com/cubicbyte/dteubot/internal/dteubot/pages"
-	"github.com/cubicbyte/dteubot/internal/dteubot/teachers"
 	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
 	"github.com/cubicbyte/dteubot/internal/i18n"
-	"github.com/cubicbyte/dteubot/pkg/api"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"time"
 )
 
-func HandleScheduleDayButton(u *tgbotapi.Update, bot *tgbotapi.BotAPI, lang *i18n.Language, chat *data.Chat, chatRepo data.ChatRepository, groupId int, api2 api.IApi, teachersList *teachers.TeachersList) error {
-	button := utils.ParseButtonData(u.CallbackQuery.Data)
+func HandleScheduleDayButton(bot *gotgbot.Bot, ctx *ext.Context) error {
+	// Get chat
+	chat, err := chatRepo.GetById(ctx.EffectiveChat.Id)
+	if err != nil {
+		return err
+	}
+
+	lang, err := utils.GetLang(chat.LanguageCode, languages)
+	if err != nil {
+		return err
+	}
 
 	// Get date from button params
+	button := utils.ParseButtonData(ctx.CallbackQuery.Data)
+
 	date, ok := button.Params["date"]
 	if !ok {
 		return errors.New("date param not found")
 	}
 
 	// Open schedule page
-	page, err := pages.CreateSchedulePage(lang, groupId, date, api2, teachersList)
-	if err := editPage(page, err, u, bot); err != nil {
+	page, err := pages.CreateSchedulePage(lang, chat.GroupId, date)
+	err = openPage(bot, ctx, page, err)
+	if err != nil {
 		return err
 	}
 
 	// Suggest notifications
-	if err := SuggestNotifications(chat, chatRepo, bot, lang); err != nil {
+	if err := SuggestNotifications(chat, lang, bot); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func SuggestNotifications(chat *data.Chat, chatRepo data.ChatRepository, bot *tgbotapi.BotAPI, lang *i18n.Language) error {
+func SuggestNotifications(chat *data.Chat, lang i18n.Language, bot *gotgbot.Bot) error {
 	if chat.SeenSettings {
 		return nil
 	}
@@ -78,7 +89,8 @@ func SuggestNotifications(chat *data.Chat, chatRepo data.ChatRepository, bot *tg
 		return err
 	}
 
-	_, err = bot.Send(page.CreateMessage(chat.Id))
+	opts := page.CreateSendMessageOpts()
+	_, err = bot.SendMessage(chat.Id, page.Text, &opts)
 	if err != nil {
 		return err
 	}

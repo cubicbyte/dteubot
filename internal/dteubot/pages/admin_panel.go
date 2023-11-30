@@ -23,29 +23,35 @@
 package pages
 
 import (
+	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/cubicbyte/dteubot/internal/i18n"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
-func CreateAdminPanelPage(lang *i18n.Language) (*Page, error) {
+func CreateAdminPanelPage(lang i18n.Language) (Page, error) {
 	page := Page{
 		Text: lang.Page.AdminPanel,
-		InlineKeyboard: tgbotapi.NewInlineKeyboardMarkup(
-			tgbotapi.NewInlineKeyboardRow(
-				tgbotapi.NewInlineKeyboardButtonData(lang.Button.ClearCache, "admin.clear_cache"),
-			),
-			tgbotapi.NewInlineKeyboardRow(
-				tgbotapi.NewInlineKeyboardButtonData(lang.Button.ClearLogs, "admin.clear_logs"),
-			),
-			tgbotapi.NewInlineKeyboardRow(
-				tgbotapi.NewInlineKeyboardButtonData(lang.Button.GetLogs, "admin.get_logs"),
-			),
-			tgbotapi.NewInlineKeyboardRow(
-				tgbotapi.NewInlineKeyboardButtonData(lang.Button.Back, "open.menu"),
-			),
-		),
+		ReplyMarkup: gotgbot.InlineKeyboardMarkup{
+			InlineKeyboard: [][]gotgbot.InlineKeyboardButton{
+				{{
+					Text:         lang.Button.ClearCache,
+					CallbackData: "admin.clear_cache",
+				}},
+				{{
+					Text:         lang.Button.ClearLogs,
+					CallbackData: "admin.clear_logs",
+				}},
+				{{
+					Text:         lang.Button.GetLogs,
+					CallbackData: "admin.get_logs",
+				}},
+				{{
+					Text:         lang.Button.Back,
+					CallbackData: "open.menu",
+				}},
+			},
+		},
 		ParseMode: "MarkdownV2",
 	}
 
-	return &page, nil
+	return page, nil
 }
