@@ -153,17 +153,22 @@ func SplitRows[T any](slice []T, rowSize int) [][]T {
 //   - Exam:     🔺
 func GetLessonIcon(lessonType int) string {
 	/*
-		Лк - 1
-		Пз* - 2
-		Лб* - 4
-		Екз - 5
-		Зач - 6
-		КонсЕкз - 20
+		Лк  - 1  - #FFFADB
+		Пз* - 2  - #E2FFE2
+		Сем - 3  - #FFF0FF
+		Лб* - 4  - #C4E5FF
+		Екз - 5  - #FFE1E1
+		Зач - 6  - #A7F1A7
+		Доп - 13 - #E3EBE4
+		КонсЕкз - 20 - #FFE2FF
+
+		* - будь-який текст (Лб1)
+		Деякі заняття також можуть мати колір #36B9CC
 	*/
 	switch lessonType {
 	case 1:
 		return "🔸"
-	case 2, 4:
+	case 2, 3, 4, 13:
 		return "🔹"
 	case 5, 6, 20:
 		return "🔺"
