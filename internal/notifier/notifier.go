@@ -119,6 +119,7 @@ func SendNotifications(time2 string, chatRepo data.ChatRepository, api api2.Api,
 
 	// Send notifications
 	sentCount := 0
+CHATS_LOOP:
 	for _, chat := range chats {
 		// Get group schedule
 		schedule, err := api.GetGroupScheduleDay(chat.GroupId, curTime.Format(time.DateOnly))
@@ -134,6 +135,29 @@ func SendNotifications(time2 string, chatRepo data.ChatRepository, api api2.Api,
 			log.Errorf("Error getting group schedule day for chat %d: %s", chat.Id, err)
 			errorhandler.SendErrorToTelegram(err, bot)
 			continue
+		}
+
+		// Prevent time parsing error due to empty schedule time start/end
+		for _, lesson := range schedule.Lessons {
+			for _, period := range lesson.Periods {
+				if period.TimeStart == "" {
+					call := calls.GetCall(lesson.Number)
+					if call == nil {
+						log.Errorf("Error getting call for lesson %d", lesson.Number)
+						continue CHATS_LOOP
+					}
+					period.TimeStart = calls.GetCall(lesson.Number).TimeStart
+				}
+
+				if period.TimeEnd == "" {
+					call := calls.GetCall(lesson.Number)
+					if call == nil {
+						log.Errorf("Error getting call for lesson %d", lesson.Number)
+						continue CHATS_LOOP
+					}
+					period.TimeEnd = calls.GetCall(lesson.Number).TimeEnd
+				}
+			}
 		}
 
 		// Check if group have classes
