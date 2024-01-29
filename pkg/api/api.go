@@ -123,30 +123,24 @@ func (a DefaultApi) makeRequest(method string, path string, body string, result 
 		switch res.StatusCode {
 		case http.StatusUnauthorized:
 			var e UnauthorizedError
-			if err := json.Unmarshal(resBody, &e); err != nil {
-				return err
+			if err2 := json.Unmarshal(resBody, &e); err2 == nil {
+				err.Err = &e
 			}
-			err.Err = &e
 		case http.StatusForbidden:
 			var e ForbiddenError
-			if err := json.Unmarshal(resBody, &e); err != nil {
-				return err
+			if err2 := json.Unmarshal(resBody, &e); err2 == nil {
+				err.Err = &e
 			}
-			err.Err = &e
 		case http.StatusUnprocessableEntity:
 			var e ValidationError
-			if err := json.Unmarshal(resBody, &e.Fields); err != nil {
-				return err
+			if err2 := json.Unmarshal(resBody, &e.Fields); err2 == nil {
+				err.Err = &e
 			}
-			err.Err = &e
 		case http.StatusInternalServerError:
 			var e InternalServerError
-			if err := json.Unmarshal(resBody, &e); err != nil {
-				return err
+			if err2 := json.Unmarshal(resBody, &e); err2 == nil {
+				err.Err = &e
 			}
-			err.Err = &e
-		default:
-			return err
 		}
 
 		return err
