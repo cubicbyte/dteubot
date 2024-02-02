@@ -196,6 +196,14 @@ func Setup() {
 		log.Fatal("Error setting up bot: %s\n", err)
 	}
 
+	botUser, err := bot.GetMe(nil)
+	if err != nil {
+		log.Errorf("Error getting bot user: %s Is the token correct?\n", err)
+	} else {
+		bot.User = *botUser
+		log.Infof("Logged in as @%s\n", botUser.Username)
+	}
+
 	dispatcher := ext.NewDispatcher(&ext.DispatcherOpts{
 		Error:       errorhandler.HandleError,
 		Panic:       errorhandler.PanicsHandler,
