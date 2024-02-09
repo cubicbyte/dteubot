@@ -219,6 +219,12 @@ func HandleError(b *gotgbot.Bot, ctx *ext.Context, err error) ext.DispatcherActi
 				break
 			}
 
+			if strings.HasPrefix(tgError.Description, "Bad Request: message to delete not found") {
+				// Probably user tried to delete message that is already deleted
+				log.Warningf("Message to delete not found: %s", err)
+				break
+			}
+
 			// Unknown Telegram API error
 			log.Errorf("Unknown bad request error: %s", err)
 			SendErrorToTelegram(err, b)
