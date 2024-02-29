@@ -159,6 +159,9 @@ func GetLessonIcon(lessonType int) string {
 		Лб* - 4  - #C4E5FF
 		Екз - 5  - #FFE1E1
 		Зач - 6  - #A7F1A7
+		УЛк - 9  - transparent (or #FFFFFF)
+		УПз - 10 - transparent (or #FFFFFF)
+		УЛб - 12 - transparent (or #FFFFFF)
 		Доп - 13 - #E3EBE4
 		КонсЕкз - 20 - #FFE2FF
 
@@ -166,9 +169,9 @@ func GetLessonIcon(lessonType int) string {
 		Деякі заняття також можуть мати колір #36B9CC
 	*/
 	switch lessonType {
-	case 1:
+	case 1, 9:
 		return "🔸"
-	case 2, 3, 4, 13:
+	case 2, 3, 4, 10, 12, 13:
 		return "🔹"
 	case 5, 6, 20:
 		return "🔺"
