@@ -85,7 +85,8 @@ func CreateSchedulePage(lang i18n.Language, groupId int, date string) (Page, err
 		prevWeekDate := date_.AddDate(0, 0, -7)
 
 		now := time.Now()
-		enableTodayButton := !(nextDayDate.After(now) && now.After(prevDayDate))
+		today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
+		enableTodayButton := !(nextDayDate.After(today) && today.After(prevDayDate))
 
 		if skipLeft > 1 || skipRight > 1 {
 			// Create multiple days empty schedule page
