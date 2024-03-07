@@ -71,15 +71,43 @@ type CachedDate struct {
 	Updated int64  `db:"updated"`
 }
 
+type ApiConfig struct {
+	// LevelDBPath is a path to leveldb cache directory. Default is "api-cache/leveldb"
+	LevelDBPath string
+	// SQLiteDbPath is a path to sqlite3 cache file. Default is "api-cache/api.sqlite"
+	SQLiteDbPath string
+	// Expires is a cache expiration time. Default is 1 hour
+	Expires time.Duration
+	// Timeout is a request timeout. Default is 10 seconds
+	Timeout time.Duration
+}
+
 // New creates a new CachedApi instance
-func New(url string, leveldbPath string, cachePath string, expires time.Duration, timeout time.Duration) (*CachedApi, error) {
-	cache, err := leveldbcache.New(leveldbPath)
+func New(url string, config *ApiConfig) (*CachedApi, error) {
+	// Set default config values
+	if config == nil {
+		config = &ApiConfig{}
+	}
+	if config.LevelDBPath == "" {
+		config.LevelDBPath = "api-cache/leveldb"
+	}
+	if config.SQLiteDbPath == "" {
+		config.SQLiteDbPath = "api-cache/api.sqlite"
+	}
+	if config.Expires == 0 {
+		config.Expires = time.Hour
+	}
+	if config.Timeout == 0 {
+		config.Timeout = 10 * time.Second
+	}
+
+	cache, err := leveldbcache.New(config.LevelDBPath)
 	if err != nil {
 		return nil, err
 	}
 
 	// Create sqlite3 connection
-	db, err := sql.Open("sqlite", cachePath)
+	db, err := sql.Open("sqlite", config.SQLiteDbPath)
 	if err != nil {
 		return nil, err
 	}
@@ -102,14 +130,14 @@ func New(url string, leveldbPath string, cachePath string, expires time.Duration
 
 	return &CachedApi{
 		Url:     url,
-		Expires: expires,
-		Timeout: timeout,
+		Expires: config.Expires,
+		Timeout: config.Timeout,
 		cache:   cache,
 		db:      db,
 		conn:    conn,
 		api: &api2.DefaultApi{
 			Url:     url,
-			Timeout: timeout,
+			Timeout: config.Timeout,
 		},
 		getScheduleStmt: stmt,
 	}, nil

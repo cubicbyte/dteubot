@@ -104,10 +104,12 @@ func Setup() {
 	}
 	api, err = cachedapi.New(
 		os.Getenv("API_URL"),
-		ApiLevelDBPath,
-		ApiCachePath,
-		time.Duration(expires)*time.Second,
-		time.Duration(timeout)*time.Millisecond,
+		&cachedapi.ApiConfig{
+			LevelDBPath:  ApiLevelDBPath,
+			SQLiteDbPath: ApiCachePath,
+			Expires:      time.Duration(expires) * time.Second,
+			Timeout:      time.Duration(timeout) * time.Millisecond,
+		},
 	)
 	if err != nil {
 		log.Fatalf("Error setting up API: %s\n", err)
