@@ -50,3 +50,58 @@ CREATE TABLE commands (
 );
 
 CREATE INDEX command_chat_id_idx ON commands (chat_id);
+
+
+CREATE FUNCTION get_daily_activity(start_date DATE, end_date DATE)
+RETURNS TABLE (
+    day DATE,
+    activity BIGINT
+) AS $$
+BEGIN
+    RETURN QUERY
+    WITH daily_data AS (
+        SELECT date_trunc('day', timestamp)::DATE AS day,
+               COUNT(*) AS activity
+        FROM button_clicks
+        WHERE timestamp >= start_date AND timestamp < end_date + INTERVAL '1 day'
+        GROUP BY day
+
+        UNION ALL
+
+        SELECT date_trunc('day', timestamp)::DATE AS day,
+               COUNT(*) AS activity
+        FROM commands
+        WHERE timestamp >= start_date AND timestamp < end_date + INTERVAL '1 day'
+        GROUP BY day
+    )
+    SELECT daily_data.day, SUM(daily_data.activity::integer) AS activity
+    FROM daily_data
+    GROUP BY daily_data.day
+    ORDER BY day;
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE FUNCTION get_dau(start_date DATE, end_date DATE)
+RETURNS TABLE (
+    day DATE,
+    dau BIGINT
+) AS $$
+BEGIN
+    RETURN QUERY
+    WITH daily_users AS (
+        SELECT date_trunc('day', timestamp)::DATE AS day,
+               COUNT(DISTINCT user_id) AS dau
+        FROM (
+            SELECT * FROM button_clicks
+            WHERE timestamp >= start_date AND timestamp < end_date + INTERVAL '1 day'
+            UNION ALL
+            SELECT * FROM commands
+            WHERE timestamp >= start_date AND timestamp < end_date + INTERVAL '1 day'
+        ) AS t
+        GROUP BY day
+    )
+    SELECT * FROM daily_users
+    ORDER BY day;
+END;
+$$ LANGUAGE plpgsql;
