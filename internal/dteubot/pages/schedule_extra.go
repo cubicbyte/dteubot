@@ -23,10 +23,13 @@
 package pages
 
 import (
+	"errors"
 	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
 	"github.com/cubicbyte/dteubot/internal/i18n"
+	api2 "github.com/cubicbyte/dteubot/pkg/api"
 	"github.com/sirkon/go-format/v2"
+	"net/http"
 	"unicode/utf8"
 )
 
@@ -55,6 +58,10 @@ func CreateScheduleExtraInfoPage(lang i18n.Language, groupId int, date string) (
 			// Get extra info
 			extraText, err := api.GetScheduleExtraInfo(period.R1, date)
 			if err != nil {
+				var httpApiError *api2.HTTPApiError
+				if errors.As(err, &httpApiError) && httpApiError.Code == http.StatusForbidden {
+					return CreateForbiddenPage(lang, "open.schedule.day#date="+date)
+				}
 				return Page{}, err
 			}
 
