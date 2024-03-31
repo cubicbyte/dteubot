@@ -31,9 +31,9 @@ import (
 )
 
 func CreateStudentsListPage(lang i18n.Language, groupId int) (Page, error) {
-	students, err := api.GetGroupStudents(groupId)
-	if err != nil {
-		return Page{}, err
+	// Send error if group is not selected
+	if groupId < 0 {
+		return CreateInvalidGroupPage(lang)
 	}
 
 	// Get group name
@@ -56,17 +56,24 @@ func CreateStudentsListPage(lang i18n.Language, groupId int) (Page, error) {
 		}
 	}
 
-	pageText := ""
+	// Get students
+	students, err := api.GetGroupStudents(groupId)
+	if err != nil {
+		return Page{}, err
+	}
+
+	studentsStr := ""
 	for i, student := range students {
 		studentPos := strconv.Itoa(i + 1)
 		name := utils.EscapeMarkdownV2(student.GetFullName())
 
-		pageText += "*" + studentPos + "*\\) " + name + "\n"
+		studentsStr += "*" + studentPos + "*\\) " + name + "\n"
 	}
 
-	pageText = format.Formatm(lang.Page.StudentsList, format.Values{
+	// Return page
+	pageText := format.Formatm(lang.Page.StudentsList, format.Values{
 		"group":    groupName,
-		"students": pageText,
+		"students": studentsStr,
 	})
 
 	page := Page{
