@@ -151,25 +151,26 @@ func (api *CachedApi) makeRequest(method string, path string, body string, resul
 	log.Debugf("Making request: %s %s %s", method, path, body)
 
 	// Get response from cache
-	key := method + path + body
-	createdKey := "created-" + key
-	respBody, respOk := api.cache.Get(key)
-	created, createdOk := api.cache.Get(createdKey)
+	cacheKey := method + path + body
+	cachedData, cacheExist := api.cache.Get(cacheKey)
 
-	if respOk && createdOk {
+	var cacheDataBytes []byte
+
+	if cacheExist {
 		log.Debug("Got response from cache")
 
-		// Check if response is expired
-		createdInt := binary.BigEndian.Uint64(created)
-		createdTime := time.Unix(int64(createdInt), 0)
+		// Get cache creation timestamp
+		timestampBytes := cachedData[:8]
+		timestamp := binary.BigEndian.Uint64(timestampBytes)
+		cacheTimestamp := time.Unix(int64(timestamp), 0)
 
-		if time.Since(createdTime) > api.Expires {
+		// Check if response is expired
+		if time.Since(cacheTimestamp) > api.Expires {
 			log.Debug("Response is expired")
-			api.cache.Delete(key)
-			api.cache.Delete(createdKey)
 		} else {
 			// Return cached response
-			if err := json.Unmarshal(respBody, &result); err != nil {
+			cacheDataBytes = cachedData[8:]
+			if err := json.Unmarshal(cacheDataBytes, &result); err != nil {
 				return err
 			}
 			return nil
@@ -197,24 +198,47 @@ func (api *CachedApi) makeRequest(method string, path string, body string, resul
 	}
 
 	resp, err := client.Do(req)
-	if err != nil {
-		if respOk {
-			// Return cached response if request failed
-			log.Warningf("Error making request, using cached result: %s", err)
-			if err := json.Unmarshal(respBody, &result); err != nil {
+	if err != nil || resp.StatusCode != http.StatusOK {
+		if err != nil {
+			log.Warningf("Error making request. err: %s", err)
+		} else {
+			log.Warningf("Error making request. status code: %d", resp.StatusCode)
+		}
+
+		// Return cached response if possible
+		if cacheExist {
+			if err := json.Unmarshal(cacheDataBytes, &result); err != nil {
 				return err
 			}
 			return nil
 		}
+	}
+	if err != nil {
 		return err
 	}
 
 	resBody, err := io.ReadAll(resp.Body)
 	if err != nil {
+		// Return cached response if possible
+		if cacheExist {
+			if err := json.Unmarshal(cacheDataBytes, &result); err != nil {
+				return err
+			}
+			return nil
+		}
+
 		return err
 	}
 
 	if err := resp.Body.Close(); err != nil {
+		// Return cached response if possible
+		if cacheExist {
+			if err := json.Unmarshal(cacheDataBytes, &result); err != nil {
+				return err
+			}
+			return nil
+		}
+
 		return err
 	}
 
@@ -247,29 +271,21 @@ func (api *CachedApi) makeRequest(method string, path string, body string, resul
 				return err
 			}
 			err.Err = &e
-		default:
-			if resp.StatusCode/100 == 5 {
-				if respOk {
-					// Return cached response if status code is 5xx
-					log.Warningf("%d status code, using cached result", resp.StatusCode)
-					if err := json.Unmarshal(respBody, &result); err != nil {
-						return err
-					}
-					return nil
-				}
-			}
-			return err
 		}
 
 		return err
 	}
 
 	// Save response to cache
+	cacheDataBytes = make([]byte, 8)
+
+	// Add timestamp to cache
 	now := time.Now().Unix()
-	createdBytes := make([]byte, 8)
-	binary.BigEndian.PutUint64(createdBytes, uint64(now))
-	api.cache.Set(key, resBody)
-	api.cache.Set(createdKey, createdBytes)
+	binary.BigEndian.PutUint64(cacheDataBytes, uint64(now))
+
+	// Add response body to cache
+	cacheDataBytes = append(cacheDataBytes, resBody...)
+	api.cache.Set(cacheKey, cacheDataBytes)
 
 	if err := json.Unmarshal(resBody, &result); err != nil {
 		return err
