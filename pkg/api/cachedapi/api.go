@@ -163,13 +163,13 @@ func (api *CachedApi) makeRequest(method string, path string, body string, resul
 		timestampBytes := cachedData[:8]
 		timestamp := binary.BigEndian.Uint64(timestampBytes)
 		cacheTimestamp := time.Unix(int64(timestamp), 0)
+		cacheDataBytes = cachedData[8:]
 
 		// Check if response is expired
 		if time.Since(cacheTimestamp) > api.Expires {
 			log.Debug("Response is expired")
 		} else {
 			// Return cached response
-			cacheDataBytes = cachedData[8:]
 			if err := json.Unmarshal(cacheDataBytes, &result); err != nil {
 				return err
 			}
