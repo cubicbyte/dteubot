@@ -35,6 +35,8 @@ You can try the bot live: [@dteubot](https://t.me/dteubot).
   time until the end/start of the lesson
 * **/calls**<br>
   calls schedule
+* **/students**<br>
+  list of students in the group
 * **/settings**<br>
   open settings
 * **/group \<groupId?: `number`\>**<br>

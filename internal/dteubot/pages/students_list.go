@@ -38,22 +38,19 @@ func CreateStudentsListPage(lang i18n.Language, groupId int) (Page, error) {
 
 	// Get group name
 	var groupName string
-	if groupId == -1 {
-		groupName = lang.Text.NotSelected
-	} else {
-		group, err := groupsCache.GetGroupById(groupId)
-		if err != nil {
-			if group == nil {
-				return Page{}, err
-			}
-			log.Warningf("Error getting %d group name: %s", groupId, err)
-		}
+
+	group, err := groupsCache.GetGroupById(groupId)
+	if err != nil {
 		if group == nil {
-			groupId := utils.EscapeMarkdownV2(strconv.Itoa(groupId))
-			groupName = format.Formatp(lang.Text.UnknownGroupName, groupId)
-		} else {
-			groupName = utils.EscapeMarkdownV2(group.Name)
+			return Page{}, err
 		}
+		log.Warningf("Error getting %d group name: %s", groupId, err)
+	}
+	if group == nil {
+		groupId := utils.EscapeMarkdownV2(strconv.Itoa(groupId))
+		groupName = format.Formatp(lang.Text.UnknownGroupName, groupId)
+	} else {
+		groupName = utils.EscapeMarkdownV2(group.Name)
 	}
 
 	// Get students

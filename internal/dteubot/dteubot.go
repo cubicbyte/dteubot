@@ -314,6 +314,7 @@ func setupDispatcherHandlers(dp *ext.Dispatcher) {
 		{"t", commands.HandleTodayCommand},
 		{"tomorrow", commands.HandleTomorrowCommand},
 		{"tt", commands.HandleTomorrowCommand},
+		{"students", commands.HandleStudentsCommand},
 	}
 
 	// Here is handlers distribution by priority:
