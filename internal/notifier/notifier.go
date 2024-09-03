@@ -348,6 +348,13 @@ func IsGroupHaveNextClassesPart(schedule *api2.TimeTableDate, calls api2.CallSch
 	var previousLesson *api2.TimeTableLesson
 	var nextLesson *api2.TimeTableLesson
 	for i, lesson := range schedule.Lessons {
+		// Skip if lesson is hidden like "приховано з **"
+		// Can be removed if it is not the case anymore
+		lessonName := strings.ToLower(lesson.Periods[0].DisciplineShortName)
+		if strings.Contains(lessonName, "приховано") || lesson.Periods[0].TimeEnd == "" {
+			continue
+		}
+
 		timeEnd, err := time.Parse("15:04", lesson.Periods[0].TimeEnd)
 		timeEnd = time.Date(time2.Year(), time2.Month(), time2.Day(), timeEnd.Hour(), timeEnd.Minute(), 0, 0, time2.Location())
 		if err != nil {
