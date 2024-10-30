@@ -57,6 +57,20 @@ func CreateSchedulePage(lang i18n.Language, groupId int, date string) (Page, err
 	var buttons gotgbot.InlineKeyboardMarkup
 	var pageText string
 
+	// Get page emoji
+	// 📅 - default
+	// 🎃 - Halloween - 31.10
+	// 🎄 - Christmas, New Year - 25.12 - 07.01
+	now := time.Now()
+	var eventEmoji string
+	if now.Month() == time.October && now.Day() == 31 {
+		eventEmoji = "🎃"
+	} else if (now.Month() == time.December && now.Day() >= 25) || (now.Month() == time.January && now.Day() <= 7) {
+		eventEmoji = "🎄"
+	} else {
+		eventEmoji = "📅"
+	}
+
 	if isNoLessons(day) {
 		// Get more days if there are no lessons
 		dateStart, dateEnd := api2.GetDateRange(date_, ScheduleDateRange)
@@ -84,19 +98,18 @@ func CreateSchedulePage(lang i18n.Language, groupId int, date string) (Page, err
 		nextWeekDate := date_.AddDate(0, 0, 7)
 		prevWeekDate := date_.AddDate(0, 0, -7)
 
-		now := time.Now()
 		today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
 		enableTodayButton := !(nextDayDate.After(today) && today.After(prevDayDate))
 
 		if skipLeft > 1 || skipRight > 1 {
 			// Create multiple days empty schedule page
 			pageText = format.Formatm(lang.Page.ScheduleMultipleEmptyDays, format.Values{
-				"dateStart": getLocalizedDate(lang, prevDayDate.AddDate(0, 0, 1)),
-				"dateEnd":   getLocalizedDate(lang, nextDayDate.AddDate(0, 0, -1)),
+				"dateStart": getLocalizedDate(lang, prevDayDate.AddDate(0, 0, 1), eventEmoji),
+				"dateEnd":   getLocalizedDate(lang, nextDayDate.AddDate(0, 0, -1), eventEmoji),
 			})
 		} else {
 			// Create single day empty schedule page
-			pageText = format.Formatp(lang.Page.ScheduleEmptyDay, getLocalizedDate(lang, date_))
+			pageText = format.Formatp(lang.Page.ScheduleEmptyDay, getLocalizedDate(lang, date_, eventEmoji))
 		}
 
 		buttons = gotgbot.InlineKeyboardMarkup{
@@ -133,7 +146,7 @@ func CreateSchedulePage(lang i18n.Language, groupId int, date string) (Page, err
 		}
 	} else {
 		// Create schedule page
-		pageText = getLocalizedDate(lang, date_) + "\n\n"
+		pageText = getLocalizedDate(lang, date_, eventEmoji) + "\n\n"
 
 		for _, lesson := range day.Lessons {
 			for _, period := range lesson.Periods {
@@ -336,7 +349,7 @@ func CountNoLessonsDays(days []api2.TimeTableDate, date time.Time, directionRigh
 	return count, nil
 }
 
-func getLocalizedDate(lang i18n.Language, date time.Time) string {
+func getLocalizedDate(lang i18n.Language, date time.Time, eventEmoji string) string {
 	// No better way to do this if lang is a struct
 	var month string
 	switch date.Month() {
@@ -385,6 +398,7 @@ func getLocalizedDate(lang i18n.Language, date time.Time) string {
 	}
 
 	return format.Formatm(lang.Text.ScheduleDateFormat, format.Values{
+		"emoji":   eventEmoji,
 		"day":     date.Day(),
 		"month":   month,
 		"year":    date.Year(),

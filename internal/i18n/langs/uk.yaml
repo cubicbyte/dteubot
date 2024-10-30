@@ -45,7 +45,7 @@ text:
   short_time.minutes: "хв\\."
   short_time.hours: "год\\."
   short_time.days: "дн\\."
-  schedule_date_format: "📅  *$day $month $year р\\.* `[`*$weekday*`]`"
+  schedule_date_format: "$emoji  *$day $month $year р\\.* `[`*$weekday*`]`"
 
 button:
   clear_cache: "Очистити кеш"

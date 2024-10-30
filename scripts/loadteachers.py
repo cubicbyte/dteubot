@@ -28,6 +28,10 @@ Usage:
 This script will create teachers.csv file with all teachers data
 """
 
+import requests_cache
+requests_cache.install_cache(backend='sqlite', expire_after=None)
+
+
 # Check python version
 import sys
 if sys.version_info < (3, 8):
