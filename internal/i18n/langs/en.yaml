@@ -105,7 +105,7 @@ page:
     "⚙️ *Settings*\n\n*Your Group:* $group"
   lang_selection: "🌐 *Change Language*\n\n*Your Current Language*: $"
   more: "🗂 *More*"
-  info: "ℹ️ *Information*\n\n*Bot Creator*\nFIT 3\\-8 group
+  info: "ℹ️ *Information*\n\n*Bot Creator*\nFIT 4\\-8 group
     student\n[Bohdan Marukhnenko](tg://resolve?domain=cubicbyte)\n\n🌐 *Source
     Code* \\- [github\\.com/cubicbyte/dteubot](https://github.com/cubicbyte/dteubot)\n_Written
     on Go programming language_\n\nUse the @dteubot bot as a tool for getting your class schedule for each day\\."
