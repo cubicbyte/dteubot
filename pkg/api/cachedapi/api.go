@@ -504,3 +504,61 @@ func (api *CachedApi) GetGroupScheduleDay(groupId int, date string) (*api2.TimeT
 
 	return schedule.GetDay(date), nil
 }
+
+func (a *CachedApi) GetChairs(structureId int, facultyId int) ([]api2.Chair, error) {
+	var chairs []api2.Chair
+	body := fmt.Sprintf(`{"structureId":%d,"facultyId":%d}`, structureId, facultyId)
+
+	err := a.makeRequest("POST", "/list/chairs", body, &chairs)
+	if err != nil {
+		return nil, err
+	}
+
+	return chairs, nil
+}
+
+func (a *CachedApi) GetTeachersByChair(chairId int) ([]api2.Person, error) {
+	var result []api2.Person
+	body := fmt.Sprintf(`{"chairId":%d}`, chairId)
+
+	err := a.makeRequest("POST", "/list/teachers-by-chair", body, &result)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (a *CachedApi) GetStudentSchedule(studentId int, dateStart string, dateEnd string) (api2.Schedule, error) {
+	var timeTableDate []api2.TimeTableDate
+	body := fmt.Sprintf(`{"studentId":%d,"dateStart":"%s","dateEnd":"%s"}`, studentId, dateStart, dateEnd)
+
+	err := a.makeRequest("POST", "/time-table/student", body, &timeTableDate)
+	if err != nil {
+		return nil, err
+	}
+
+	err = api2.FillEmptyDates(&timeTableDate, dateStart, dateEnd)
+	if err != nil {
+		return nil, err
+	}
+
+	return timeTableDate, nil
+}
+
+func (a *CachedApi) GetTeacherSchedule(teacherId int, dateStart string, dateEnd string) (api2.Schedule, error) {
+	var timeTableDate []api2.TimeTableDate
+	body := fmt.Sprintf(`{"teacherId":%d,"dateStart":"%s","dateEnd":"%s"}`, teacherId, dateStart, dateEnd)
+
+	err := a.makeRequest("POST", "/time-table/teacher", body, &timeTableDate)
+	if err != nil {
+		return nil, err
+	}
+
+	err = api2.FillEmptyDates(&timeTableDate, dateStart, dateEnd)
+	if err != nil {
+		return nil, err
+	}
+
+	return timeTableDate, nil
+}

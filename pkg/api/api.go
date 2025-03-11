@@ -68,6 +68,10 @@ type Api interface {
 	//
 	// Alias for GetGroupSchedule(groupId, date, date).GetDay(date)
 	GetGroupScheduleDay(groupId int, date string) (*TimeTableDate, error)
+	GetChairs(structureId int, facultyId int) ([]Chair, error)
+	GetTeachersByChair(chairId int) ([]Person, error)
+	GetStudentSchedule(studentId int, dateStart string, dateEnd string) (Schedule, error)
+	GetTeacherSchedule(teacherId int, dateStart string, dateEnd string) (Schedule, error)
 }
 
 // NewApi creates a new DefaultApi instance
@@ -255,4 +259,62 @@ func (a DefaultApi) GetGroupScheduleDay(groupId int, date string) (*TimeTableDat
 	}
 
 	return schedule.GetDay(date), err
+}
+
+func (a DefaultApi) GetChairs(structureId int, facultyId int) ([]Chair, error) {
+	var chairs []Chair
+	body := fmt.Sprintf(`{"structureId":%d,"facultyId":%d}`, structureId, facultyId)
+
+	err := a.makeRequest("POST", "/list/chairs", body, &chairs)
+	if err != nil {
+		return nil, err
+	}
+
+	return chairs, nil
+}
+
+func (a DefaultApi) GetTeachersByChair(chairId int) ([]Person, error) {
+	var result []Person
+	body := fmt.Sprintf(`{"chairId":%d}`, chairId)
+
+	err := a.makeRequest("POST", "/list/teachers-by-chair", body, &result)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (a DefaultApi) GetStudentSchedule(studentId int, dateStart string, dateEnd string) (Schedule, error) {
+	var timeTableDate []TimeTableDate
+	body := fmt.Sprintf(`{"studentId":%d,"dateStart":"%s","dateEnd":"%s"}`, studentId, dateStart, dateEnd)
+
+	err := a.makeRequest("POST", "/time-table/student", body, &timeTableDate)
+	if err != nil {
+		return nil, err
+	}
+
+	err = FillEmptyDates(&timeTableDate, dateStart, dateEnd)
+	if err != nil {
+		return nil, err
+	}
+
+	return timeTableDate, nil
+}
+
+func (a DefaultApi) GetTeacherSchedule(teacherId int, dateStart string, dateEnd string) (Schedule, error) {
+	var timeTableDate []TimeTableDate
+	body := fmt.Sprintf(`{"teacherId":%d,"dateStart":"%s","dateEnd":"%s"}`, teacherId, dateStart, dateEnd)
+
+	err := a.makeRequest("POST", "/time-table/teacher", body, &timeTableDate)
+	if err != nil {
+		return nil, err
+	}
+
+	err = FillEmptyDates(&timeTableDate, dateStart, dateEnd)
+	if err != nil {
+		return nil, err
+	}
+
+	return timeTableDate, nil
 }
