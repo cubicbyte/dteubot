@@ -28,33 +28,31 @@ import (
 	"strconv"
 )
 
-func CreateCoursesListPage(lang i18n.Language, facultyId int, structureId int, scheduleType ScheduleType) (Page, error) {
-	courses, err := api.GetCourses(facultyId)
+func CreateChairsListPage(lang i18n.Language, scheduleType ScheduleType) (Page, error) {
+	chairs, err := api.GetChairs(0, 0)
 	if err != nil {
 		return Page{}, err
 	}
 
-	buttons := make([][]gotgbot.InlineKeyboardButton, len(courses)+1)
-	backBtnQuery := "sel_structure#id=" + strconv.Itoa(structureId) +
-		"&t=" + string(scheduleType)
+	buttons := make([][]gotgbot.InlineKeyboardButton, len(chairs)+1)
 	buttons[0] = []gotgbot.InlineKeyboardButton{{
 		Text:         lang.Button.Back,
-		CallbackData: backBtnQuery,
+		CallbackData: "open.schedule_selection",
 	}}
 
-	for i, course := range courses {
-		query := "sel_course#c=" + strconv.Itoa(course.Course) +
-			"&fid=" + strconv.Itoa(facultyId) +
-			"&sid=" + strconv.Itoa(structureId) +
+	// TODO: sort chairs by ID or number
+
+	for i, chair := range chairs {
+		query := "sel_chair#id=" + strconv.Itoa(chair.Id) +
 			"&t=" + string(scheduleType)
 		buttons[i+1] = []gotgbot.InlineKeyboardButton{{
-			Text:         strconv.Itoa(course.Course),
+			Text:         chair.ShortName,
 			CallbackData: query,
 		}}
 	}
 
 	page := Page{
-		Text:        lang.Page.CourseSelection,
+		Text:        lang.Page.ChairSelection,
 		ReplyMarkup: gotgbot.InlineKeyboardMarkup{InlineKeyboard: buttons},
 		ParseMode:   "MarkdownV2",
 	}

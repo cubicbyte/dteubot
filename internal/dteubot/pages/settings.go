@@ -91,8 +91,8 @@ func CreateSettingsPage(lang i18n.Language, chat *data.Chat) (Page, error) {
 		ReplyMarkup: gotgbot.InlineKeyboardMarkup{
 			InlineKeyboard: [][]gotgbot.InlineKeyboardButton{
 				{{
-					Text:         lang.Button.SelectGroup,
-					CallbackData: "open.select_group",
+					Text:         lang.Button.ChangeSchedule,
+					CallbackData: "open.schedule_selection",
 				}, {
 					Text:         lang.Button.SelectLang,
 					CallbackData: "open.select_lang",

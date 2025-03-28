@@ -27,21 +27,49 @@ import (
 	"github.com/cubicbyte/dteubot/internal/i18n"
 )
 
-func CreateInvalidGroupPage(lang i18n.Language) (Page, error) {
+type ScheduleType string
+
+const (
+	ScheduleTypeGroup   ScheduleType = "group"
+	ScheduleTypeStudent ScheduleType = "student"
+	ScheduleTypeTeacher ScheduleType = "teacher"
+)
+
+func ParseScheduleType(s string) (ScheduleType, bool) {
+	switch s {
+	case string(ScheduleTypeGroup):
+		return ScheduleTypeGroup, true
+	case string(ScheduleTypeStudent):
+		return ScheduleTypeStudent, true
+	case string(ScheduleTypeTeacher):
+		return ScheduleTypeTeacher, true
+	default:
+		return "", false
+	}
+}
+
+func CreateScheduleTypeSelectionPage(lang i18n.Language) (Page, error) {
 	page := Page{
-		Text: lang.Page.InvalidGroup,
+		Text: lang.Page.ScheduleTypeSelection,
 		ReplyMarkup: gotgbot.InlineKeyboardMarkup{
 			InlineKeyboard: [][]gotgbot.InlineKeyboardButton{
 				{{
-					Text:         lang.Button.ChangeSchedule,
-					CallbackData: "open.select_group",
-				}, {
-					Text:         lang.Button.Menu,
-					CallbackData: "open.menu",
+					Text:         lang.Button.Back,
+					CallbackData: "open.menu#from=schedule_select",
+				}}, {{
+					Text:         lang.Button.ScheduleTypeGroup,
+					CallbackData: "select.schedule_type#t=" + string(ScheduleTypeGroup),
+				}}, {{
+					Text:         lang.Button.ScheduleTypeStudent,
+					CallbackData: "select.schedule_type#t=" + string(ScheduleTypeStudent),
+				}}, {{
+					Text:         lang.Button.ScheduleTypeTeacher,
+					CallbackData: "select.schedule_type#t=" + string(ScheduleTypeTeacher),
 				}},
 			},
 		},
-		ParseMode: "MarkdownV2",
+		ParseMode:             "MarkdownV2",
+		DisableWebPagePreview: true,
 	}
 
 	return page, nil

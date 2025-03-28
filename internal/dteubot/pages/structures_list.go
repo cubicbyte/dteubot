@@ -28,7 +28,7 @@ import (
 	"strconv"
 )
 
-func CreateStructuresListPage(lang i18n.Language) (Page, error) {
+func CreateStructuresListPage(lang i18n.Language, scheduleType ScheduleType) (Page, error) {
 	structures, err := api.GetStructures()
 	if err != nil {
 		return Page{}, err
@@ -37,13 +37,13 @@ func CreateStructuresListPage(lang i18n.Language) (Page, error) {
 	buttons := make([][]gotgbot.InlineKeyboardButton, len(structures)+1)
 	buttons[0] = []gotgbot.InlineKeyboardButton{{
 		Text:         lang.Button.Back,
-		CallbackData: "open.menu#from=group_select",
+		CallbackData: "open.schedule_selection",
 	}}
 
 	for i, structure := range structures {
 		buttons[i+1] = []gotgbot.InlineKeyboardButton{{
 			Text:         structure.FullName,
-			CallbackData: "select.schedule.structure#structureId=" + strconv.Itoa(structure.Id),
+			CallbackData: "sel_structure#id=" + strconv.Itoa(structure.Id) + "&t=" + string(scheduleType),
 		}}
 	}
 

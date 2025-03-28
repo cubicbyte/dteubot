@@ -46,33 +46,53 @@ func HandleSelectCourseButton(bot *gotgbot.Bot, ctx *ext.Context) error {
 	// Get course, faculty id and structure id from button params
 	button := utils.ParseButtonData(ctx.CallbackQuery.Data)
 
-	course, ok := button.Params["course"]
+	courseStr, ok := button.Params["c"]
 	if !ok {
-		return errors.New("course param not found")
+		courseStr, ok = button.Params["course"] // For compatibility with old buttons, remove in future
 	}
-	facultyId, ok := button.Params["facultyId"]
 	if !ok {
-		return errors.New("facultyId param not found")
-	}
-	structureId, ok := button.Params["structureId"]
-	if !ok {
-		return errors.New("structureId param not found")
+		return errors.New("c param not found")
 	}
 
-	course2, err := strconv.Atoi(course)
+	structureIdStr, ok := button.Params["sid"]
+	if !ok {
+		structureIdStr, ok = button.Params["structureId"] // For compatibility with old buttons, remove in future
+	}
+	if !ok {
+		return errors.New("sid param not found")
+	}
+
+	facultyIdStr, ok := button.Params["fid"]
+	if !ok {
+		facultyIdStr, ok = button.Params["facultyId"] // For compatibility with old buttons, remove in future
+	}
+	if !ok {
+		return errors.New("fid param not found")
+	}
+
+	scheduleTypeStr, ok := button.Params["t"]
+	if !ok {
+		scheduleTypeStr = "group" // For compatibility with old buttons, remove in future
+	}
+
+	structureId, err := strconv.Atoi(structureIdStr)
 	if err != nil {
 		return err
 	}
-	facId, err := strconv.Atoi(facultyId)
+	facultyId, err := strconv.Atoi(facultyIdStr)
 	if err != nil {
 		return err
 	}
-	structId, err := strconv.Atoi(structureId)
+	course, err := strconv.Atoi(courseStr)
 	if err != nil {
 		return err
+	}
+	scheduleType, ok := pages.ParseScheduleType(scheduleTypeStr)
+	if !ok {
+		return errors.New("invalid schedule type")
 	}
 
 	// Open groups list page
-	page, err := pages.CreateGroupsListPage(lang, facId, course2, structId)
+	page, err := pages.CreateGroupsListPage(lang, facultyId, course, structureId, scheduleType)
 	return openPage(bot, ctx, page, err)
 }

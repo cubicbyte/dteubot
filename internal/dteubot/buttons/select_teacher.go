@@ -23,14 +23,22 @@
 package buttons
 
 import (
+	"errors"
 	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext"
 	"github.com/cubicbyte/dteubot/internal/dteubot/pages"
 	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
+	"strconv"
 )
 
-func HandleOpenSelectGroupButton(bot *gotgbot.Bot, ctx *ext.Context) error {
+func HandleSelectTeacherButton(bot *gotgbot.Bot, ctx *ext.Context) error {
+	// Get chat and user
 	chat, err := chatRepo.GetById(ctx.EffectiveChat.Id)
+	if err != nil {
+		return err
+	}
+
+	user, err := userRepo.GetById(ctx.EffectiveUser.Id)
 	if err != nil {
 		return err
 	}
@@ -40,17 +48,28 @@ func HandleOpenSelectGroupButton(bot *gotgbot.Bot, ctx *ext.Context) error {
 		return err
 	}
 
-	structures, err := api.GetStructures()
+	// Get group id from button params
+	button := utils.ParseButtonData(ctx.CallbackQuery.Data)
+
+	idStr, ok := button.Params["id"]
+	if !ok {
+		return errors.New("id param not found")
+	}
+
+	teacherId, err := strconv.Atoi(idStr)
 	if err != nil {
 		return err
 	}
 
-	var page pages.Page
-	if len(structures) == 1 {
-		page, err = pages.CreateFacultiesListPage(lang, structures[0].Id)
-	} else {
-		page, err = pages.CreateStructuresListPage(lang)
+	// Update chat group id
+	chat.TeacherId = teacherId
+
+	err = chatRepo.Update(chat)
+	if err != nil {
+		return err
 	}
 
+	// Open menu page
+	page, err := pages.CreateMenuPage(lang, user)
 	return openPage(bot, ctx, page, err)
 }

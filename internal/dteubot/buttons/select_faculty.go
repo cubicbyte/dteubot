@@ -46,25 +46,41 @@ func HandleSelectFacultyButton(bot *gotgbot.Bot, ctx *ext.Context) error {
 	// Get faculty id and structure id from button params
 	button := utils.ParseButtonData(ctx.CallbackQuery.Data)
 
-	facultyId, ok := button.Params["facultyId"]
+	structureIdStr, ok := button.Params["sid"]
 	if !ok {
-		return errors.New("facultyId param not found")
+		structureIdStr, ok = button.Params["structureId"] // For compatibility with old buttons, remove in future
 	}
-	structureId, ok := button.Params["structureId"]
 	if !ok {
-		return errors.New("structureId param not found")
+		return errors.New("sid param not found")
 	}
 
-	facId, err := strconv.Atoi(facultyId)
+	facultyIdStr, ok := button.Params["id"]
+	if !ok {
+		facultyIdStr, ok = button.Params["facultyId"] // For compatibility with old buttons, remove in future
+	}
+	if !ok {
+		return errors.New("fid param not found")
+	}
+
+	scheduleTypeStr, ok := button.Params["t"]
+	if !ok {
+		scheduleTypeStr = "group" // For compatibility with old buttons, remove in future
+	}
+
+	structureId, err := strconv.Atoi(structureIdStr)
 	if err != nil {
 		return err
 	}
-	structId, err := strconv.Atoi(structureId)
+	facultyId, err := strconv.Atoi(facultyIdStr)
 	if err != nil {
 		return err
+	}
+	scheduleType, ok := pages.ParseScheduleType(scheduleTypeStr)
+	if !ok {
+		return errors.New("invalid schedule type")
 	}
 
 	// Open courses list page
-	page, err := pages.CreateCoursesListPage(lang, facId, structId)
+	page, err := pages.CreateCoursesListPage(lang, facultyId, structureId, scheduleType)
 	return openPage(bot, ctx, page, err)
 }

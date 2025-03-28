@@ -80,17 +80,6 @@ func HandleGroupCommand(bot *gotgbot.Bot, ctx *ext.Context) error {
 	}
 
 CREATE_PAGE:
-	structures, err := api.GetStructures()
-	if err != nil {
-		return err
-	}
-
-	var page pages.Page
-	if len(structures) == 1 {
-		page, err = pages.CreateFacultiesListPage(lang, structures[0].Id)
-	} else {
-		page, err = pages.CreateStructuresListPage(lang)
-	}
-
+	page, err := pages.CreateScheduleTypeSelectionPage(lang)
 	return sendPage(bot, ctx, page, err)
 }

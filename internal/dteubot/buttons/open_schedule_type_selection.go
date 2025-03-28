@@ -20,24 +20,17 @@
  * SOFTWARE.
  */
 
-package commands
+package buttons
 
 import (
 	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext"
 	"github.com/cubicbyte/dteubot/internal/dteubot/pages"
 	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
-	"strings"
 )
 
-func HandleStartCommand(bot *gotgbot.Bot, ctx *ext.Context) error {
-	// Get chat and user
+func HandleOpenScheduleTypeSelectionButton(bot *gotgbot.Bot, ctx *ext.Context) error {
 	chat, err := chatRepo.GetById(ctx.EffectiveChat.Id)
-	if err != nil {
-		return err
-	}
-
-	user, err := userRepo.GetById(ctx.EffectiveUser.Id)
 	if err != nil {
 		return err
 	}
@@ -47,37 +40,6 @@ func HandleStartCommand(bot *gotgbot.Bot, ctx *ext.Context) error {
 		return err
 	}
 
-	// Register referral if available
-	if user.Referral == "" && strings.Contains(ctx.EffectiveMessage.Text, " ") {
-		user.Referral = strings.SplitN(ctx.EffectiveMessage.Text, " ", 2)[1]
-		if err := userRepo.Update(user); err != nil {
-			return err
-		}
-	}
-
-	// Send greeting
-	greeting, err := pages.CreateGreetingPage(lang)
-	if err != nil {
-		return err
-	}
-
-	opts := greeting.CreateSendMessageOpts()
-	_, err = bot.SendMessage(ctx.EffectiveChat.Id, greeting.Text, &opts)
-	if err != nil {
-		return err
-	}
-
-	// Send schedule selection page
-	scheduleSelection, err := pages.CreateScheduleTypeSelectionPage(lang)
-	if err != nil {
-		return err
-	}
-
-	opts = scheduleSelection.CreateSendMessageOpts()
-	_, err = bot.SendMessage(ctx.EffectiveChat.Id, scheduleSelection.Text, &opts)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	page, err := pages.CreateScheduleTypeSelectionPage(lang)
+	return openPage(bot, ctx, page, err)
 }

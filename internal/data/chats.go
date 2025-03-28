@@ -32,6 +32,8 @@ import (
 type Chat struct {
 	Id                          int64     `db:"id" json:"id"`
 	GroupId                     int       `db:"group_id" json:"groupId"`
+	StudentId                   int       `db:"student_id" json:"studentId"`
+	TeacherId                   int       `db:"teacher_id" json:"teacherId"`
 	LanguageCode                string    `db:"lang_code" json:"languageCode"`
 	ClassesNotification15m      bool      `db:"cl_notif_15m" json:"clNotif15m"`
 	ClassesNotification1m       bool      `db:"cl_notif_1m" json:"clNotif1m"`
@@ -58,6 +60,8 @@ func NewChat(id int64) *Chat {
 	return &Chat{
 		Id:                          id,
 		GroupId:                     -1,
+		StudentId:                   -1,
+		TeacherId:                   -1,
 		LanguageCode:                os.Getenv("DEFAULT_LANG"),
 		ClassesNotification15m:      false,
 		ClassesNotification1m:       false,

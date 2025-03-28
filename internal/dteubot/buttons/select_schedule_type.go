@@ -20,24 +20,18 @@
  * SOFTWARE.
  */
 
-package commands
+package buttons
 
 import (
+	"errors"
 	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext"
 	"github.com/cubicbyte/dteubot/internal/dteubot/pages"
 	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
-	"strings"
 )
 
-func HandleStartCommand(bot *gotgbot.Bot, ctx *ext.Context) error {
-	// Get chat and user
+func HandleScheduleTypeSelectButton(bot *gotgbot.Bot, ctx *ext.Context) error {
 	chat, err := chatRepo.GetById(ctx.EffectiveChat.Id)
-	if err != nil {
-		return err
-	}
-
-	user, err := userRepo.GetById(ctx.EffectiveUser.Id)
 	if err != nil {
 		return err
 	}
@@ -47,37 +41,31 @@ func HandleStartCommand(bot *gotgbot.Bot, ctx *ext.Context) error {
 		return err
 	}
 
-	// Register referral if available
-	if user.Referral == "" && strings.Contains(ctx.EffectiveMessage.Text, " ") {
-		user.Referral = strings.SplitN(ctx.EffectiveMessage.Text, " ", 2)[1]
-		if err := userRepo.Update(user); err != nil {
+	button := utils.ParseButtonData(ctx.CallbackQuery.Data)
+
+	scheduleTypeStr, ok := button.Params["t"]
+	if !ok {
+		return errors.New("type param not found")
+	}
+	scheduleType, ok := pages.ParseScheduleType(scheduleTypeStr)
+	if !ok {
+		return errors.New("invalid type")
+	}
+
+	var page pages.Page
+	if scheduleType == pages.ScheduleTypeGroup || scheduleType == pages.ScheduleTypeStudent {
+		structures, err := api.GetStructures()
+		if err != nil {
 			return err
 		}
+		if len(structures) == 1 {
+			page, err = pages.CreateFacultiesListPage(lang, structures[0].Id, scheduleType)
+		} else {
+			page, err = pages.CreateStructuresListPage(lang, scheduleType)
+		}
+	} else {
+		page, err = pages.CreateChairsListPage(lang, scheduleType)
 	}
 
-	// Send greeting
-	greeting, err := pages.CreateGreetingPage(lang)
-	if err != nil {
-		return err
-	}
-
-	opts := greeting.CreateSendMessageOpts()
-	_, err = bot.SendMessage(ctx.EffectiveChat.Id, greeting.Text, &opts)
-	if err != nil {
-		return err
-	}
-
-	// Send schedule selection page
-	scheduleSelection, err := pages.CreateScheduleTypeSelectionPage(lang)
-	if err != nil {
-		return err
-	}
-
-	opts = scheduleSelection.CreateSendMessageOpts()
-	_, err = bot.SendMessage(ctx.EffectiveChat.Id, scheduleSelection.Text, &opts)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return openPage(bot, ctx, page, err)
 }

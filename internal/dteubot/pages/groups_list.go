@@ -33,7 +33,7 @@ import (
 
 const rowSize = 3
 
-func CreateGroupsListPage(lang i18n.Language, facultyId int, course int, structureId int) (Page, error) {
+func CreateGroupsListPage(lang i18n.Language, facultyId int, course int, structureId int, scheduleType ScheduleType) (Page, error) {
 	groupsList, err := api.GetGroups(facultyId, course)
 	if err != nil {
 		return Page{}, err
@@ -63,8 +63,9 @@ func CreateGroupsListPage(lang i18n.Language, facultyId int, course int, structu
 		rowsCount++
 	}
 	buttons := make([][]gotgbot.InlineKeyboardButton, 1, rowsCount)
-	backBtnQuery := "select.schedule.faculty#facultyId=" + strconv.Itoa(facultyId) +
-		"&structureId=" + strconv.Itoa(structureId)
+	backBtnQuery := "sel_faculty#id=" + strconv.Itoa(facultyId) +
+		"&sid=" + strconv.Itoa(structureId) +
+		"&t=" + string(scheduleType)
 	buttons[0] = []gotgbot.InlineKeyboardButton{{
 		Text:         lang.Button.Back,
 		CallbackData: backBtnQuery,
@@ -74,8 +75,9 @@ func CreateGroupsListPage(lang i18n.Language, facultyId int, course int, structu
 	btns := make([]gotgbot.InlineKeyboardButton, len(groupsList))
 	for i, group := range groupsList {
 		btns[i] = gotgbot.InlineKeyboardButton{
-			Text:         group.Name,
-			CallbackData: "select.schedule.group#groupId=" + strconv.Itoa(group.Id),
+			Text: group.Name,
+			CallbackData: "sel_group#id=" + strconv.Itoa(group.Id) +
+				"&t=" + string(scheduleType),
 		}
 	}
 

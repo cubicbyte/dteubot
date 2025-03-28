@@ -278,16 +278,23 @@ func setupDispatcherHandlers(dp *ext.Dispatcher) {
 		{"open.left", buttons.HandleLeftButton},
 		{"open.menu", buttons.HandleMenuButton},
 		{"open.more", buttons.HandleMoreButton},
-		{"open.select_group", buttons.HandleOpenSelectGroupButton},
+		{"open.select_group", buttons.HandleOpenScheduleTypeSelectionButton}, // Deprecated
+		{"open.schedule_selection", buttons.HandleOpenScheduleTypeSelectionButton},
 		{"open.select_lang", buttons.HandleOpenSelectLanguageButton},
 		{"open.schedule.day", buttons.HandleScheduleDayButton},
 		{"open.schedule.extra", buttons.HandleScheduleExtraButton},
 		{"open.schedule.today", buttons.HandleScheduleTodayButton},
-		{"select.schedule.course", buttons.HandleSelectCourseButton},
-		{"select.schedule.faculty", buttons.HandleSelectFacultyButton},
-		{"select.schedule.group", buttons.HandleSelectGroupButton},
+		{"select.schedule_type", buttons.HandleScheduleTypeSelectButton},
+		{"select.schedule.structure", buttons.HandleSelectStructureButton}, // Deprecated
+		{"select.schedule.faculty", buttons.HandleSelectFacultyButton},     // Deprecated
+		{"select.schedule.course", buttons.HandleSelectCourseButton},       // Deprecated
+		{"select.schedule.group", buttons.HandleSelectGroupButton},         // Deprecated
+		{"sel_structure", buttons.HandleSelectStructureButton},
+		{"sel_faculty", buttons.HandleSelectFacultyButton},
+		{"sel_course", buttons.HandleSelectCourseButton},
+		{"sel_group", buttons.HandleSelectGroupButton},
+		{"sel_chair", buttons.HandleSelectChairButton},
 		{"select.lang", buttons.HandleSelectLanguageButton},
-		{"select.schedule.structure", buttons.HandleSelectStructureButton},
 		{"admin.send_logs", buttons.HandleSendLogsButton},
 		{"set.cl_notif_next_part", buttons.HandleSetClassesNotificationsNextPartButton},
 		{"set.cl_notif", buttons.HandleSetClassesNotificationsButton},

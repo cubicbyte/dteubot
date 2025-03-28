@@ -97,7 +97,7 @@ type Language struct {
 		More                           string `yaml:"more"`
 		Info                           string `yaml:"info"`
 		Refresh                        string `yaml:"refresh"`
-		SelectGroup                    string `yaml:"select_group"`
+		ChangeSchedule                 string `yaml:"change_schedule"`
 		SelectLang                     string `yaml:"select_lang"`
 		OpenSchedule                   string `yaml:"open_schedule"`
 		StudentsList                   string `yaml:"students_list"`
@@ -116,6 +116,9 @@ type Language struct {
 		ScheduleNavigationNextWeek     string `yaml:"schedule_navigation.next_week"`
 		ScheduleNavigationPreviousDay  string `yaml:"schedule_navigation.previous_day"`
 		ScheduleNavigationPreviousWeek string `yaml:"schedule_navigation.previous_week"`
+		ScheduleTypeGroup              string `yaml:"schedule_type.group"`
+		ScheduleTypeStudent            string `yaml:"schedule_type.student"`
+		ScheduleTypeTeacher            string `yaml:"schedule_type.teacher"`
 	} `yaml:"button"`
 	Alert struct {
 		Done                     string `yaml:"done"`
@@ -127,10 +130,14 @@ type Language struct {
 	} `yaml:"alert"`
 	Page struct {
 		Greeting                      string `yaml:"greeting"`
+		ScheduleTypeSelection         string `yaml:"schedule_type_selection"`
 		StructureSelection            string `yaml:"structure_selection"`
 		FacultySelection              string `yaml:"faculty_selection"`
 		CourseSelection               string `yaml:"course_selection"`
 		GroupSelection                string `yaml:"group_selection"`
+		ChairSelection                string `yaml:"chair_selection"`
+		TeacherSelection              string `yaml:"teacher_selection"`
+		StudentSelection              string `yaml:"student_selection"`
 		InvalidGroup                  string `yaml:"invalid_group"`
 		Menu                          string `yaml:"menu"`
 		Settings                      string `yaml:"settings"`

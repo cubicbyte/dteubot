@@ -28,7 +28,7 @@ import (
 	"strconv"
 )
 
-func CreateFacultiesListPage(lang i18n.Language, structureId int) (Page, error) {
+func CreateFacultiesListPage(lang i18n.Language, structureId int, scheduleType ScheduleType) (Page, error) {
 	faculties, err := api.GetFaculties(structureId)
 	if err != nil {
 		return Page{}, err
@@ -42,16 +42,14 @@ func CreateFacultiesListPage(lang i18n.Language, structureId int) (Page, error) 
 	// Create back button: if structures list <= 1, go back to menu, else go back to structures list
 	var backButton gotgbot.InlineKeyboardButton
 	if len(structures) <= 1 {
-		// Back button = menu
 		backButton = gotgbot.InlineKeyboardButton{
 			Text:         lang.Button.Back,
-			CallbackData: "open.menu#from=group_select",
+			CallbackData: "open.schedule_selection",
 		}
 	} else {
-		// Back button = group selection
 		backButton = gotgbot.InlineKeyboardButton{
 			Text:         lang.Button.Back,
-			CallbackData: "open.select_group",
+			CallbackData: "select.schedule_type&t=" + string(scheduleType),
 		}
 	}
 
@@ -59,7 +57,9 @@ func CreateFacultiesListPage(lang i18n.Language, structureId int) (Page, error) 
 	buttons[0] = []gotgbot.InlineKeyboardButton{backButton}
 
 	for i, faculty := range faculties {
-		query := "select.schedule.faculty#facultyId=" + strconv.Itoa(faculty.Id) + "&structureId=" + strconv.Itoa(structureId)
+		query := "sel_faculty#id=" + strconv.Itoa(faculty.Id) +
+			"&sid=" + strconv.Itoa(structureId) +
+			"&t=" + string(scheduleType)
 		buttons[i+1] = []gotgbot.InlineKeyboardButton{{
 			Text:         faculty.FullName,
 			CallbackData: query,

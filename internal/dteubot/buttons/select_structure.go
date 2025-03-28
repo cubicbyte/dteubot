@@ -47,9 +47,16 @@ func HandleSelectStructureButton(bot *gotgbot.Bot, ctx *ext.Context) error {
 	// Get structure id from button params
 	button := utils.ParseButtonData(ctx.CallbackQuery.Data)
 
-	structureId, ok := button.Params["structureId"]
+	structureId, ok := button.Params["id"]
+	if !ok {
+		structureId, ok = button.Params["structureId"] // For compatibility with old buttons, remove in future
+	}
 	if !ok {
 		return errors.New("structureId param not found")
+	}
+	scheduleTypeStr, ok := button.Params["t"]
+	if !ok {
+		scheduleTypeStr = "group" // For compatibility with old buttons, remove in future
 	}
 
 	structId, err := strconv.Atoi(structureId)
@@ -57,7 +64,12 @@ func HandleSelectStructureButton(bot *gotgbot.Bot, ctx *ext.Context) error {
 		return err
 	}
 
+	scheduleType, ok := pages.ParseScheduleType(scheduleTypeStr)
+	if !ok {
+		return errors.New("invalid schedule type")
+	}
+
 	// Open faculties list page
-	page, err := pages.CreateFacultiesListPage(lang, structId)
+	page, err := pages.CreateFacultiesListPage(lang, structId, scheduleType)
 	return openPage(bot, ctx, page, err)
 }

@@ -148,3 +148,7 @@ type Person struct {
 	SecondName string `json:"secondName"`
 	LastName   string `json:"lastName"`
 }
+
+func (p *Person) GetFullName() string {
+	return p.LastName + " " + p.FirstName + " " + p.SecondName
+}

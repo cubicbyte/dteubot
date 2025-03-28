@@ -61,7 +61,7 @@ button:
   more: "🗂 More"
   info: "ℹ️ Info"
   refresh: "🔄 Refresh"
-  select_group: "🔎 Select Group"
+  change_schedule: "🔎 Change Schedule"
   select_lang: "🌐 Change Language"
   open_schedule: "📋 Open Schedule"
   students_list: "📋 Students List"
@@ -80,6 +80,9 @@ button:
   schedule_navigation.next_week: "⏩ Week"
   schedule_navigation.previous_day: "⬅️ Previous"
   schedule_navigation.previous_week: "⏪ Week"
+  schedule_type.group: "Group Schedule"
+  schedule_type.student: "Student Schedule"
+  schedule_type.teacher: "Teacher Schedule"
 
 alert:
   done: "✅ Done"
@@ -95,10 +98,14 @@ page:
   greeting:
     "👋 *Hello\\!*\n\nThis is a bot for viewing class schedules
     at Ukrainian State Trade and Economic University \\(SUTE\\)\\."
+  schedule_type_selection: "*Select Schedule Type*"
   structure_selection: "*Select Structure*"
   faculty_selection: "*Select Faculty*"
   course_selection: "*Select Course*"
   group_selection: "*Select Group*"
+  chair_selection: "*Select Chair*"
+  teacher_selection: "*Select Teacher*"
+  student_selection: "*Select Student*"
   invalid_group: "❌ *It seems you haven't selected a group\\.*\n\nPlease select a group and try again\\."
   menu: "🏠 *Menu*\n\nThis bot was created for quick and convenient viewing of class schedules at SUTE\\."
   settings:

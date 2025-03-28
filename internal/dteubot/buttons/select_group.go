@@ -51,18 +51,21 @@ func HandleSelectGroupButton(bot *gotgbot.Bot, ctx *ext.Context) error {
 	// Get group id from button params
 	button := utils.ParseButtonData(ctx.CallbackQuery.Data)
 
-	groupId, ok := button.Params["groupId"]
+	groupIdStr, ok := button.Params["id"]
 	if !ok {
-		return errors.New("groupId param not found")
+		groupIdStr, ok = button.Params["groupId"] // For compatibility with old buttons, remove in future
+	}
+	if !ok {
+		return errors.New("id param not found")
 	}
 
-	groupId2, err := strconv.Atoi(groupId)
+	groupId, err := strconv.Atoi(groupIdStr)
 	if err != nil {
 		return err
 	}
 
 	// Update chat group id
-	chat.GroupId = groupId2
+	chat.GroupId = groupId
 
 	err = chatRepo.Update(chat)
 	if err != nil {

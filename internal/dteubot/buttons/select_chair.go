@@ -20,64 +20,49 @@
  * SOFTWARE.
  */
 
-package commands
+package buttons
 
 import (
+	"errors"
 	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/PaulSonOfLars/gotgbot/v2/ext"
 	"github.com/cubicbyte/dteubot/internal/dteubot/pages"
 	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
-	"strings"
+	"strconv"
 )
 
-func HandleStartCommand(bot *gotgbot.Bot, ctx *ext.Context) error {
-	// Get chat and user
+func HandleSelectChairButton(bot *gotgbot.Bot, ctx *ext.Context) error {
+	// Get chat
 	chat, err := chatRepo.GetById(ctx.EffectiveChat.Id)
 	if err != nil {
 		return err
 	}
 
-	user, err := userRepo.GetById(ctx.EffectiveUser.Id)
-	if err != nil {
-		return err
-	}
-
+	// Get language
 	lang, err := utils.GetLang(chat.LanguageCode, languages)
 	if err != nil {
 		return err
 	}
 
-	// Register referral if available
-	if user.Referral == "" && strings.Contains(ctx.EffectiveMessage.Text, " ") {
-		user.Referral = strings.SplitN(ctx.EffectiveMessage.Text, " ", 2)[1]
-		if err := userRepo.Update(user); err != nil {
-			return err
-		}
-	}
+	button := utils.ParseButtonData(ctx.CallbackQuery.Data)
 
-	// Send greeting
-	greeting, err := pages.CreateGreetingPage(lang)
+	chairIdStr, ok := button.Params["id"]
+	if !ok {
+		return errors.New("id param not found")
+	}
+	scheduleTypeStr, ok := button.Params["t"]
+
+	chairId, err := strconv.Atoi(chairIdStr)
 	if err != nil {
 		return err
 	}
 
-	opts := greeting.CreateSendMessageOpts()
-	_, err = bot.SendMessage(ctx.EffectiveChat.Id, greeting.Text, &opts)
-	if err != nil {
-		return err
+	scheduleType, ok := pages.ParseScheduleType(scheduleTypeStr)
+	if !ok {
+		return errors.New("invalid schedule type")
 	}
 
-	// Send schedule selection page
-	scheduleSelection, err := pages.CreateScheduleTypeSelectionPage(lang)
-	if err != nil {
-		return err
-	}
-
-	opts = scheduleSelection.CreateSendMessageOpts()
-	_, err = bot.SendMessage(ctx.EffectiveChat.Id, scheduleSelection.Text, &opts)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	// Open faculties list page
+	page, err := pages.CreateTeachersListPage(lang, chairId, scheduleType)
+	return openPage(bot, ctx, page, err)
 }
