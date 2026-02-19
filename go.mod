@@ -1,9 +1,11 @@
 module github.com/cubicbyte/dteubot
 
-go 1.21.1
+go 1.24
+
+toolchain go1.24.5
 
 require (
-	github.com/PaulSonOfLars/gotgbot/v2 v2.0.0-rc.23
+	github.com/PaulSonOfLars/gotgbot/v2 v2.0.0-rc.33.0.20260217202638-6f396dd61eb2
 	github.com/dlclark/regexp2 v1.10.0
 	github.com/go-co-op/gocron v1.36.0
 	github.com/gregjones/httpcache v0.0.0-20190611155906-901d90724c79

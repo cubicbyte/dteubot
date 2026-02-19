@@ -23,6 +23,10 @@
 package pages
 
 import (
+	"strconv"
+	"strings"
+	"time"
+
 	"github.com/PaulSonOfLars/gotgbot/v2"
 	"github.com/cubicbyte/dteubot/internal/dteubot/teachers"
 	"github.com/cubicbyte/dteubot/internal/dteubot/utils"
@@ -30,9 +34,6 @@ import (
 	api2 "github.com/cubicbyte/dteubot/pkg/api"
 	"github.com/op/go-logging"
 	"github.com/sirkon/go-format/v2"
-	"strconv"
-	"strings"
-	"time"
 )
 
 // List of teachers that are not found in the teachers list.
@@ -218,6 +219,7 @@ func CreateSchedulePage(lang i18n.Language, groupId int, date string) (Page, err
 					{{
 						Text:         lang.Button.ScheduleExtra,
 						CallbackData: "open.schedule.extra#date=" + date,
+						Style:        gotgbot.KeyboardButtonStylePrimary,
 					}},
 				},
 				buttons.InlineKeyboard...,

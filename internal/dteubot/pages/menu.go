@@ -36,6 +36,7 @@ func CreateMenuPage(lang i18n.Language, user *data.User) (Page, error) {
 				{{
 					Text:         lang.Button.Schedule,
 					CallbackData: "open.schedule.today",
+					Style:        gotgbot.KeyboardButtonStylePrimary,
 				}},
 				{{
 					Text:         lang.Button.Settings,
