@@ -67,20 +67,26 @@ type Page struct {
 
 // CreateSendMessageOpts creates a telegram message parameters from the page
 func (p Page) CreateSendMessageOpts() gotgbot.SendMessageOpts {
+	linkPreviewOptions := gotgbot.LinkPreviewOptions{
+		IsDisabled: p.DisableWebPagePreview,
+	}
 	return gotgbot.SendMessageOpts{
-		ParseMode:             p.ParseMode,
-		DisableWebPagePreview: p.DisableWebPagePreview,
-		ReplyMarkup:           p.ReplyMarkup,
+		ParseMode:          p.ParseMode,
+		LinkPreviewOptions: &linkPreviewOptions,
+		ReplyMarkup:        p.ReplyMarkup,
 	}
 }
 
 // CreateEditMessageOpts creates a telegram edit message parameters from the page
 func (p Page) CreateEditMessageOpts(chatId int64, messageId int64) gotgbot.EditMessageTextOpts {
+	linkPreviewOptions := gotgbot.LinkPreviewOptions{
+		IsDisabled: p.DisableWebPagePreview,
+	}
 	return gotgbot.EditMessageTextOpts{
-		ChatId:                chatId,
-		MessageId:             messageId,
-		ParseMode:             p.ParseMode,
-		DisableWebPagePreview: p.DisableWebPagePreview,
-		ReplyMarkup:           p.ReplyMarkup,
+		ChatId:             chatId,
+		MessageId:          messageId,
+		ParseMode:          p.ParseMode,
+		LinkPreviewOptions: &linkPreviewOptions,
+		ReplyMarkup:        p.ReplyMarkup,
 	}
 }
