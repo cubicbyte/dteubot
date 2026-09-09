@@ -35,6 +35,7 @@ func sendPage(bot *gotgbot.Bot, ctx *ext.Context, page pages.Page, err error) er
 	}
 
 	opts := page.CreateSendMessageOpts()
+	opts.MessageThreadId = ctx.EffectiveMessage.MessageThreadId
 	_, err = bot.SendMessage(ctx.EffectiveChat.Id, page.Text, &opts)
 	if err != nil {
 		return err
